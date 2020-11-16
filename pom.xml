@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.levin.commons.maven</groupId>
+    <artifactId>service-support</artifactId>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>com.levin.commons.maven</groupId>
+        <artifactId>deploy-template</artifactId>
+        <version>1.1.8-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <maven-source-plugin.attach>true</maven-source-plugin.attach>
+    </properties>
+
+    <dependencies>
+
+        <!-- https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api -->
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>javax.persistence-api</artifactId>
+            <version>2.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>3.8.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>5.2.16.Final</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-expression</artifactId>
+            <version>RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>2.1.5.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--
+              <dependency>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-context-support</artifactId>
+                    <version>4.3.8.RELEASE</version>
+                    <scope>provided</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-aspects</artifactId>
+                    <version>4.3.8.RELEASE</version>
+                    <scope>provided</scope>
+                </dependency>
+
+                -->
+
+    </dependencies>
+
+
+    <build>
+
+
+        <plugins>
+
+            <plugin>
+                <groupId>com.levin.commons.maven.plugin</groupId>
+                <artifactId>deploy-maven-plugin</artifactId>
+                <version>1.0.1-SNAPSHOT</version>
+
+
+                <inherited>false</inherited>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>remove-file</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+
+                        <configuration>
+
+                            <skip>false</skip>
+                            <files>
+                                <file>
+                                    ${pom.build.directory}/classes/META-INF/services/javax.annotation.processing.Processor
+                                </file>
+                            </files>
+
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <inherited>false</inherited>
+
+
+                <executions>
+
+                    <execution>
+                        <id>copy-processor-config-prepare-package</id>
+                        <inherited>false</inherited>
+
+
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>${pom.build.sourceDirectory}/../processor</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+
+                    </execution>
+
+                </executions>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+</project>
