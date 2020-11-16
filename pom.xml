@@ -9,14 +9,32 @@
     <packaging>jar</packaging>
     <version>1.1.8-SNAPSHOT</version>
 
-<!--    <parent>-->
-<!--        <groupId>com.levin.commons.maven</groupId>-->
-<!--        <artifactId>deploy-template</artifactId>-->
-<!--        <version>1.1.8-SNAPSHOT</version>-->
-<!--    </parent>-->
+    <!--    <parent>-->
+    <!--        <groupId>com.levin.commons.maven</groupId>-->
+    <!--        <artifactId>deploy-template</artifactId>-->
+    <!--        <version>1.1.8-SNAPSHOT</version>-->
+    <!--    </parent>-->
 
     <properties>
+
         <maven-source-plugin.attach>true</maven-source-plugin.attach>
+
+        <maven.compiler.source>1.8</maven.compiler.source>
+
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <java.version>${maven.compiler.target}</java.version>
+
+        <!--<maven.test.skip>true</maven.test.skip>-->
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!--默认无编译参数-->
+        <!--<compilerArgument></compilerArgument>-->
+
+        <maven-source-plugin.attach>false</maven-source-plugin.attach>
+
     </properties>
 
     <dependencies>
@@ -105,75 +123,38 @@
 
                 -->
 
-    </dependencies>
 
+    </dependencies>
 
     <build>
 
-
         <plugins>
-
-            <plugin>
-                <groupId>com.levin.commons.maven.plugin</groupId>
-                <artifactId>deploy-maven-plugin</artifactId>
-                <version>1.0.1-SNAPSHOT</version>
-
-
-                <inherited>false</inherited>
-
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>remove-file</goal>
-                        </goals>
-                        <phase>process-resources</phase>
-
-                        <configuration>
-
-                            <skip>false</skip>
-                            <files>
-                                <file>
-                                    ${pom.build.directory}/classes/META-INF/services/javax.annotation.processing.Processor
-                                </file>
-                            </files>
-
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
 
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <inherited>false</inherited>
 
-
                 <executions>
-
                     <execution>
-                        <id>copy-processor-config-prepare-package</id>
-                        <inherited>false</inherited>
-
-
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>resources</goal>
-                        </goals>
-
+                        <id>copy-processor-file</id>
                         <configuration>
+                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${pom.build.sourceDirectory}/../processor</directory>
+                                    <directory>src/main/processor</directory>
                                 </resource>
                             </resources>
                         </configuration>
-
+                        <inherited>false</inherited>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
                     </execution>
-
                 </executions>
             </plugin>
 
         </plugins>
-
     </build>
 
 </project>
