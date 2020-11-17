@@ -3,6 +3,24 @@
 
 服务支持工具包
 
+ jar包发布在 https://jitpack.io，请参考以下内容
+    
+    <repositories>
+
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+
+    </repositories>
+    
+      <dependency>
+         <groupId>com.github.Levin-Li</groupId>
+         <artifactId>service-support</artifactId>
+         <version>1.1.9-SNAPSHOT</version> 
+      </dependency>
+
+
 一、根据 JPA @Entity 注解 生成同包下 E_+类名 的类，主要是把字段名称常量化。
  
     实体类 Person.java
