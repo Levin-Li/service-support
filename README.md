@@ -1,9 +1,9 @@
-[![](https://jitpack.io/v/Levin-Li/ServiceSupport.svg)](https://jitpack.io/#Levin-Li/ServiceSupport)
+[![](https://jitpack.io/v/Levin-Li/service-support.svg)](https://jitpack.io/#Levin-Li/service-support)
 
 
 服务支持工具包
 
- jar包发布在 https://jitpack.io，请参考以下内容
+ jar包发布在 [https://jitpack.io](https://jitpack.io)，请参考以下内容
     
     <repositories>
 
