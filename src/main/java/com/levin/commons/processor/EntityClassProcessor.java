@@ -21,6 +21,7 @@ import java.io.*;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @SupportedAnnotationTypes({"javax.persistence.MappedSuperclass",
         "javax.persistence.Entity",
@@ -54,7 +55,7 @@ public class EntityClassProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
 
-        File file = new File(".service-support-processor.utf8.properties");
+        File file = new File(".service-support-processor.properties");
 
         if (!file.exists()) {
 
@@ -225,13 +226,12 @@ public class EntityClassProcessor extends AbstractProcessor {
                     .append(" {\n\n")
                     .append("    String CLASS_NAME = \"").append(fullClassName).append("\"; // 类全名 \n\n")
                     .append("    String SIMPLE_CLASS_NAME = \"").append(simpleClassName).append("\"; // 类短名称 \n\n")
+                    .append("    String ALIAS = \"").append(getAlias(simpleClassName)).append("\"; //  别名，用于查询 \n\n")
                     .append("    String PACKAGE_NAME = \"").append(packageName).append("\"; // 类包名 \n\n");
-
 
             processAnnotation(typeElement, simpleClassName, codeBlock);
 
             processJpaEntity(typeElement, simpleClassName, useExtends, hasParent, codeBlock);
-
 
             codeBlock.append("\n}\n");
 
@@ -257,6 +257,14 @@ public class EntityClassProcessor extends AbstractProcessor {
             }
 
         }
+    }
+
+    private static String getAlias(String className){
+       return className.chars()
+               .filter(c -> Character.isUpperCase((char)c))
+               .mapToObj(c -> ""+(char)c)
+               .collect(Collectors.joining())
+               .toLowerCase();
     }
 
     /**
