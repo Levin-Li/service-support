@@ -58,7 +58,7 @@ public class EntityClassProcessor extends AbstractProcessor {
 
         if (!file.exists()) {
 
-          //  file.getParentFile().mkdirs();
+            //  file.getParentFile().mkdirs();
 
             processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, file.getAbsolutePath() + " 配置文件不存在");
 
@@ -208,7 +208,6 @@ public class EntityClassProcessor extends AbstractProcessor {
 //            boolean isAnnotation = typeElement.getKind() == ElementKind.ANNOTATION_TYPE;
 
 
-
             codeBlock
                     .append("\n")
                     .append("package ").append(packageName).append(";\n")
@@ -225,10 +224,11 @@ public class EntityClassProcessor extends AbstractProcessor {
                     .append((useExtends && hasParent) ? (" , " + newSuperFullClassName) : "")
 
                     .append(" {\n\n")
+                    .append("    String PACKAGE_NAME = \"").append(packageName).append("\"; // 类包名 \n\n")
                     .append("    String CLASS_NAME = \"").append(fullClassName).append("\"; // 类全名 \n\n")
                     .append("    String SIMPLE_CLASS_NAME = \"").append(simpleClassName).append("\"; // 类短名称 \n\n")
-                    .append("    String ALIAS = \"").append(getAlias(simpleClassName)).append("\"; //  别名，用于查询 \n\n")
-                    .append("    String PACKAGE_NAME = \"").append(packageName).append("\"; // 类包名 \n\n");
+
+            ;
 
             processAnnotation(typeElement, simpleClassName, codeBlock);
 
@@ -260,12 +260,12 @@ public class EntityClassProcessor extends AbstractProcessor {
         }
     }
 
-    private static String getAlias(String className){
-       return className.chars()
-               .filter(c -> Character.isUpperCase((char)c))
-               .mapToObj(c -> ""+(char)c)
-               .collect(Collectors.joining())
-               .toLowerCase();
+    private static String getAlias(String className) {
+        return className.chars()
+                .filter(c -> Character.isUpperCase((char) c))
+                .mapToObj(c -> "" + (char) c)
+                .collect(Collectors.joining())
+                .toLowerCase();
     }
 
     /**
@@ -282,7 +282,6 @@ public class EntityClassProcessor extends AbstractProcessor {
                 || typeElement.getAnnotation(GenAnnotationMethodNameConstant.class) == null) {
             return;
         }
-
 
         typeElement.getEnclosedElements().stream()
                 //只支持方法
@@ -302,7 +301,6 @@ public class EntityClassProcessor extends AbstractProcessor {
             return;
         }
 
-
         Elements elementUtils = this.processingEnv.getElementUtils();
 
         Table tableAnno = typeElement.getAnnotation(Table.class);
@@ -311,6 +309,12 @@ public class EntityClassProcessor extends AbstractProcessor {
             String tabName = hasText(tableAnno.name()) ? tableAnno.name().trim() : simpleClassName;
             codeBlock.append("    String TABLE_NAME = \"").append(tabName).append("\"; //  表名 \n\n");
         }
+
+        if (typeElement.getAnnotation(MappedSuperclass.class) != null
+                || typeElement.getAnnotation(Entity.class) != null) {
+            codeBlock.append("    String ALIAS = \"").append(getAlias(simpleClassName)).append("\"; // 别名 \n\n");
+        }
+
 
         final List<String> uniqueFields = new ArrayList<>();
 
@@ -323,8 +327,9 @@ public class EntityClassProcessor extends AbstractProcessor {
 
             GenFieldNameConstant fieldAnno = subEle.getAnnotation(GenFieldNameConstant.class);
 
-            if (fieldAnno != null && fieldAnno.ignore())
+            if (fieldAnno != null && fieldAnno.ignore()) {
                 continue;
+            }
 
             Set<Modifier> modifiers = subEle.getModifiers();
 
@@ -457,12 +462,14 @@ public class EntityClassProcessor extends AbstractProcessor {
 
             for (Annotation annotation : annotations) {
                 try {
-                    if (annotation == null)
+                    if (annotation == null) {
                         continue;
+                    }
 
                     boolean unique = (boolean) annotation.getClass().getDeclaredMethod("unique").invoke(annotation);
-                    if (unique)
+                    if (unique) {
                         return true;
+                    }
                 } catch (Exception e) {
                 }
             }
