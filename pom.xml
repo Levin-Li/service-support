@@ -37,6 +37,22 @@
 
     </properties>
 
+    <distributionManagement>
+
+        <!--具体变量来自 Setting 文件-->
+        <repository>
+            <id>${dist-repo}</id>
+            <url>${dist-repo.releases.url}</url>
+        </repository>
+
+
+        <snapshotRepository>
+            <id>${dist-repo}</id>
+            <url>${dist-repo.snapshots.url}</url>
+        </snapshotRepository>
+
+    </distributionManagement>
+
     <dependencies>
 
         <!-- https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api -->
