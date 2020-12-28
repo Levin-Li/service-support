@@ -33,7 +33,7 @@
         <!--默认无编译参数-->
         <!--<compilerArgument></compilerArgument>-->
 
-        <maven-source-plugin.attach>false</maven-source-plugin.attach>
+        <maven-source-plugin.attach>true</maven-source-plugin.attach>
 
     </properties>
 
@@ -147,6 +147,22 @@
         <plugins>
 
             <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <configuration>
+                    <attach>${maven-source-plugin.attach}</attach>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <inherited>false</inherited>
 
@@ -160,6 +176,7 @@
                                     <directory>src/main/processor</directory>
                                 </resource>
                             </resources>
+
                         </configuration>
                         <inherited>false</inherited>
                         <phase>prepare-package</phase>

@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 //@com.google.auto.service.AutoService(Processor.class)
 public class EntityClassProcessor extends AbstractProcessor {
 
-
     final Map<String, Object> processedFiles = new ConcurrentHashMap<>();
 
     public static final String KEY_GEN_DESC_FIELD_NAME = "gen_desc_field_name";
@@ -207,6 +206,8 @@ public class EntityClassProcessor extends AbstractProcessor {
             final StringBuilder codeBlock = new StringBuilder();
 
 //            boolean isAnnotation = typeElement.getKind() == ElementKind.ANNOTATION_TYPE;
+
+
 
             codeBlock
                     .append("\n")
