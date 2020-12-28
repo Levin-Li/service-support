@@ -3,6 +3,8 @@
 
 服务支持工具包
 
+ 注意每次构建必须先执行 clean 操作
+
  jar包发布在 [https://jitpack.io](https://jitpack.io)，请参考以下内容
     
     <repositories>
