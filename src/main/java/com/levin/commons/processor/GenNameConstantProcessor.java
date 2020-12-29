@@ -6,10 +6,7 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
@@ -146,16 +143,14 @@ public class GenNameConstantProcessor extends AbstractProcessor {
 
             final String newSuperFullClassName = newClassName((superclass != null && !(superclass instanceof NoType)) ? superclass.toString() : "");
 
-            boolean hasParent = newSuperFullClassName.trim().length() > 0
-                    && !newSuperFullClassName.startsWith("java.")
-                    && !newSuperFullClassName.startsWith("javax.")
-                    && !newSuperFullClassName.equals(Object.class.getName());
-
+            boolean isRootParent = newSuperFullClassName.trim().length() < 1
+                    || newSuperFullClassName.startsWith("java.")
+                    || newSuperFullClassName.startsWith("javax.")
+                    || newSuperFullClassName.equals(Object.class.getName());
 
             final StringBuilder codeBlock = new StringBuilder();
 
 //            boolean isAnnotation = typeElement.getKind() == ElementKind.ANNOTATION_TYPE;
-
 
             codeBlock
                     .append("\n")
@@ -169,7 +164,7 @@ public class GenNameConstantProcessor extends AbstractProcessor {
                     .append("public interface ").append(newSimpleClassName)
                     .append(" extends Serializable ")
 
-                    .append((useExtends && hasParent) ? (" , " + newSuperFullClassName) : "")
+                    .append((useExtends && isRootParent) ? (" , " + newSuperFullClassName) : "")
 
                     .append(" {\n\n")
                     .append("    String PACKAGE_NAME = \"").append(packageName).append("\"; // 类包名 \n\n")
@@ -179,16 +174,20 @@ public class GenNameConstantProcessor extends AbstractProcessor {
             ;
 
             //注解类也是接口
-            boolean isInterface = typeElement.getKind() == ElementKind.ANNOTATION_TYPE || typeElement.getKind() == ElementKind.INTERFACE;
-            boolean isClass = typeElement.getKind() == ElementKind.CLASS;
+            ElementKind eKind = typeElement.getKind();
+            boolean isInterface = eKind == ElementKind.ANNOTATION_TYPE || eKind == ElementKind.INTERFACE;
+            boolean isClass = eKind == ElementKind.CLASS;
 
             GenNameConstant.Type genType = genFieldNameConstant.genType();
 
-            List<? extends Element> enclosedElements = (hasParent && useExtends) ? typeElement.getEnclosedElements() : elementUtils.getAllMembers(typeElement);
+            List<? extends Element> enclosedElements = (isRootParent || eKind == ElementKind.ANNOTATION_TYPE || useExtends) ? typeElement.getEnclosedElements() : elementUtils.getAllMembers(typeElement);
+
+            final Map<String, String> fieldMap = new LinkedHashMap<>();
 
             enclosedElements.stream()
                     //只支持方法
                     .filter(e -> {
+
                         ElementKind kind = e.getKind();
 
                         GenNameConstant tmp = e.getAnnotation(GenNameConstant.class);
@@ -197,13 +196,14 @@ public class GenNameConstantProcessor extends AbstractProcessor {
                             return false;
                         }
 
-//                        Set<Modifier> modifiers = e.getModifiers();
-//
-//                        if (kind != ElementKind.FIELD
-//                                || modifiers.contains(Modifier.STATIC)
-//                                || modifiers.contains(Modifier.TRANSIENT)
-//                                || modifiers.contains(Modifier.FINAL)) {
-//                        }
+                        Set<Modifier> modifiers = e.getModifiers();
+
+                        //过滤静态字段
+                        if (modifiers.contains(Modifier.STATIC)
+                                || modifiers.contains(Modifier.TRANSIENT)
+                                || modifiers.contains(Modifier.NATIVE)) {
+                            return false;
+                        }
 
 
                         if (genType == GenNameConstant.Type.BOTH) {
@@ -220,8 +220,11 @@ public class GenNameConstantProcessor extends AbstractProcessor {
 
                     })
                     .forEach(e -> {
-                        codeBlock.append("    String ").append(e.getSimpleName()).append(" = \"").append(e.getSimpleName()).append("\";\n\n");
-
+                        Name name = e.getSimpleName();
+                        if (!fieldMap.containsKey(name.toString())) {
+                            codeBlock.append("    String ").append(name).append(" = \"").append(name).append("\";\n\n");
+                            fieldMap.put(name.toString(), "");
+                        }
                     });
 
 
