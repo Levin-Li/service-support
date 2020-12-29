@@ -164,7 +164,7 @@ public class GenNameConstantProcessor extends AbstractProcessor {
                     .append("public interface ").append(newSimpleClassName)
                     .append(" extends Serializable ")
 
-                    .append((useExtends && isRootParent) ? (" , " + newSuperFullClassName) : "")
+                    .append((useExtends && !isRootParent) ? (" , " + newSuperFullClassName) : "")
 
                     .append(" {\n\n")
                     .append("    String PACKAGE_NAME = \"").append(packageName).append("\"; // 类包名 \n\n")
