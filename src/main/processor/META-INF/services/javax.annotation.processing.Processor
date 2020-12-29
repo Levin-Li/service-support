@@ -1,2 +1,4 @@
-com.levin.commons.processor.EntityClassProcessor
+com.levin.commons.processor.JpaEntityClassProcessor
+com.levin.commons.processor.GenNameConstantProcessor
+
 

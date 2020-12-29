@@ -7,7 +7,7 @@
     <groupId>com.levin.commons.maven</groupId>
     <artifactId>service-support</artifactId>
     <packaging>jar</packaging>
-    <version>1.1.12-SNAPSHOT</version>
+    <version>1.1.13-SNAPSHOT</version>
 
     <!--    <parent>-->
     <!--        <groupId>com.levin.commons.maven</groupId>-->

@@ -1,11 +1,9 @@
 package com.levin.commons.processor;
 
-import com.levin.commons.annotation.GenAnnotationMethodNameConstant;
-import com.levin.commons.annotation.GenFieldNameConstant;
+import com.levin.commons.annotation.GenNameConstant;
 import com.levin.commons.service.domain.Desc;
 
 import javax.annotation.processing.*;
-import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
@@ -16,20 +14,16 @@ import javax.lang.model.util.Elements;
 import javax.persistence.*;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
-import javax.tools.StandardLocation;
 import java.io.*;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-@SupportedAnnotationTypes({"javax.persistence.MappedSuperclass",
-        "javax.persistence.Entity",
-        "com.levin.commons.annotation.GenFieldNameConstant",
-        "com.levin.commons.annotation.GenAnnotationMethodNameConstant"})
+@SupportedAnnotationTypes({"javax.persistence.MappedSuperclass", "javax.persistence.Entity"})
 //@SupportedSourceVersion(SourceVersion.RELEASE_6)
 //@com.google.auto.service.AutoService(Processor.class)
-public class EntityClassProcessor extends AbstractProcessor {
+public class JpaEntityClassProcessor extends AbstractProcessor {
 
     final Map<String, Object> processedFiles = new ConcurrentHashMap<>();
 
@@ -54,7 +48,7 @@ public class EntityClassProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
 
-        File file = new File(".service-support-processor.properties");
+        File file = new File(".jpa-entity-processor.properties");
 
         if (!file.exists()) {
 
@@ -135,8 +129,9 @@ public class EntityClassProcessor extends AbstractProcessor {
         int lastIndexOf = className.lastIndexOf('.');
 
 
-        if (lastIndexOf == -1)
+        if (lastIndexOf == -1) {
             return prefix + className;
+        }
 
         return className.substring(0, lastIndexOf + 1) + prefix + className.substring(lastIndexOf + 1);
     }
@@ -160,7 +155,7 @@ public class EntityClassProcessor extends AbstractProcessor {
             TypeElement typeElement = (TypeElement) element;
 
 
-            GenFieldNameConstant genFieldNameConstant = typeElement.getAnnotation(GenFieldNameConstant.class);
+            GenNameConstant genFieldNameConstant = typeElement.getAnnotation(GenNameConstant.class);
 
 
             if (genFieldNameConstant != null
@@ -283,7 +278,7 @@ public class EntityClassProcessor extends AbstractProcessor {
 
         //只支持注解类型
         if (typeElement.getKind() != ElementKind.ANNOTATION_TYPE
-                || typeElement.getAnnotation(GenAnnotationMethodNameConstant.class) == null) {
+                || typeElement.getAnnotation(GenNameConstant.class) == null) {
             return;
         }
 
@@ -324,7 +319,7 @@ public class EntityClassProcessor extends AbstractProcessor {
         for (Element subEle : (hasParent && useExtends) ? typeElement.getEnclosedElements() : elementUtils.getAllMembers(typeElement)) {
 
 
-            GenFieldNameConstant fieldAnno = subEle.getAnnotation(GenFieldNameConstant.class);
+            GenNameConstant fieldAnno = subEle.getAnnotation(GenNameConstant.class);
 
             if (fieldAnno != null && fieldAnno.ignore()) {
                 continue;
@@ -392,8 +387,9 @@ public class EntityClassProcessor extends AbstractProcessor {
 
             } else if (subEle.getAnnotation(JoinColumn.class) != null) {
 
-                if (hasText(subEle.getAnnotation(JoinColumn.class).name()))
+                if (hasText(subEle.getAnnotation(JoinColumn.class).name())) {
                     tableColName = subEle.getAnnotation(JoinColumn.class).name();
+                }
 
             }
 
