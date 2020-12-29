@@ -216,9 +216,8 @@ public class EntityClassProcessor extends AbstractProcessor {
                     .append("import java.io.*;\n")
 
                     .append("//Auto gen by ").append(getClass()).append("， date:").append(new Date()).append("\n")
-
+                    .append("/**\n" + " * @author Levin Li\n" + " */\n")
                     .append("public interface ").append(newSimpleClassName)
-
                     .append(" extends Serializable ")
 
                     .append((useExtends && hasParent) ? (" , " + newSuperFullClassName) : "")
@@ -229,6 +228,11 @@ public class EntityClassProcessor extends AbstractProcessor {
                     .append("    String SIMPLE_CLASS_NAME = \"").append(simpleClassName).append("\"; // 类短名称 \n\n")
 
             ;
+
+            if (typeElement.getAnnotation(MappedSuperclass.class) != null
+                    || typeElement.getAnnotation(Entity.class) != null) {
+                codeBlock.append("    String ALIAS = \"").append(getAlias(simpleClassName)).append("\"; // 别名 \n\n");
+            }
 
             processAnnotation(typeElement, simpleClassName, codeBlock);
 
@@ -308,11 +312,6 @@ public class EntityClassProcessor extends AbstractProcessor {
         if (tableAnno != null) {
             String tabName = hasText(tableAnno.name()) ? tableAnno.name().trim() : simpleClassName;
             codeBlock.append("    String TABLE_NAME = \"").append(tabName).append("\"; //  表名 \n\n");
-        }
-
-        if (typeElement.getAnnotation(MappedSuperclass.class) != null
-                || typeElement.getAnnotation(Entity.class) != null) {
-            codeBlock.append("    String ALIAS = \"").append(getAlias(simpleClassName)).append("\"; // 别名 \n\n");
         }
 
 
