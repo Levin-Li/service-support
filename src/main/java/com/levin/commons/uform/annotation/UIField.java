@@ -1,6 +1,8 @@
 package com.levin.commons.uform.annotation;
 
 
+import java.lang.annotation.*;
+
 /**
  * 主要参考 https://uformjs.org/
  *
@@ -11,7 +13,10 @@ package com.levin.commons.uform.annotation;
  * <p>
  * 表单字段注解
  */
-public @interface Field {
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface UIField {
 
     enum Type {
 
