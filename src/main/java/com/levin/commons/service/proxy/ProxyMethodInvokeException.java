@@ -2,6 +2,7 @@ package com.levin.commons.service.proxy;
 
 /**
  * 代理方法执行异常
+ * @author llw
  */
 public class ProxyMethodInvokeException
         extends RuntimeException {

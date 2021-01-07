@@ -28,7 +28,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(ScanPackagesHolder.Registrar.class)
+@Import(ProxyBeanScanAndRegistrar.class)
 public @interface ProxyBeanScan {
 
     /**
@@ -61,20 +61,6 @@ public @interface ProxyBeanScan {
      */
     Class<?> invocationHandlerClass() default Void.class;
 
-
-//    /**
-//     * 注入 Bean 的类型
-//     *
-//     * @return
-//     */
-//    Class<?> invocationBeanClass() default Void.class;
-//
-//    /**
-//     * 注入Bean 的名字
-//     *
-//     * @return
-//     */
-//    String invocationBeanName() default "";
 
     /**
      * 延迟初始化

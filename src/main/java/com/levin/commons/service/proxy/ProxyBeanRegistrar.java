@@ -52,8 +52,10 @@ import static com.levin.commons.utils.ClassUtils.formatPackages;
 
 /**
  * 代理额扫描
+ *
+ * @author llw
  */
-
+@Deprecated
 @Slf4j
 public class ProxyBeanRegistrar
         implements
@@ -74,7 +76,7 @@ public class ProxyBeanRegistrar
 
     private MetadataReaderFactory metadataReaderFactory;
 
-    public static final Map<String, Object> registerBeans = new ConcurrentReferenceHashMap<>();
+    private static final Map<String, Object> registerBeans = new ConcurrentReferenceHashMap<>();
 
     //扫描类
     final ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(
@@ -125,7 +127,21 @@ public class ProxyBeanRegistrar
         //获取收集到的扫描包列表
         ScanPackagesHolder scanPackagesHolder = ScanPackagesHolder.get(beanFactory);
 
-        scanPackagesHolder.getScanPairs().values().stream()
+        Map<String, ScanPackagesHolder.ScanPair> scanPairs = scanPackagesHolder.getScanPairs();
+
+        registerBeans(registry, registerPackages, registerTypes, scanPairs);
+
+    }
+
+
+
+    public void registerBeans(BeanDefinitionRegistry registry, Map<String, ScanPackagesHolder.ScanPair> scanPairs) {
+        registerBeans(registry, null, null, scanPairs);
+    }
+
+    public void registerBeans(BeanDefinitionRegistry registry, List<String> registerPackages, List<Class<?>> registerTypes, Map<String, ScanPackagesHolder.ScanPair> scanPairs) {
+
+        scanPairs.values().stream()
                 .filter(scanPair -> isMatch(registerPackages, registerTypes, scanPair))
                 .forEachOrdered(scanPair -> {
                             scan(scanPair.getScanPackages(), scanPair.scanType).stream()
@@ -188,10 +204,14 @@ public class ProxyBeanRegistrar
                                                         + "(@" + scanPair.scanType.getName() + ") factoryBeanClass:" + factoryBeanClass);
 
 
-                                                registry.registerBeanDefinition(type.getName(), builder.getBeanDefinition());
+                                                final String key = scanPair.scanType.getName() + "_" + type.getName();
 
+                                                final String beanName = (registry.isBeanNameInUse(type.getName())
+                                                        || registry.containsBeanDefinition(type.getName())) ? key : type.getName();
 
-                                                registerBeans.put(scanPair.scanType.getName() + "_" + type.getName(), true);
+                                                registry.registerBeanDefinition(beanName, builder.getBeanDefinition());
+
+                                                registerBeans.put(key, true);
 
                                             }
 
@@ -199,19 +219,18 @@ public class ProxyBeanRegistrar
 
                         }
                 );
-
     }
 
     private boolean isMatch(List<String> registerPackages, List<Class<?>> registerTypes, ScanPackagesHolder.ScanPair scanPair) {
-        return (registerTypes.isEmpty() || registerTypes.contains(scanPair.scanType))
-                && (registerPackages.isEmpty() || registerPackages.stream()
+        return (registerTypes == null || registerTypes.isEmpty() || registerTypes.contains(scanPair.scanType))
+                && (registerPackages == null || registerPackages.isEmpty() || registerPackages.stream()
                 .filter(StringUtils::hasText)
                 .filter(p -> scanPair.scanType.getName().startsWith(p.trim()))
                 .count() > 0);
     }
 
 
-    private synchronized Set<Class<?>> scan(Set<String> packages, Class<? extends Annotation>... annotationTypes) {
+    public synchronized Set<Class<?>> scan(Set<String> packages, Class<? extends Annotation>... annotationTypes) {
 
         if (packages.isEmpty()) {
             return Collections.emptySet();

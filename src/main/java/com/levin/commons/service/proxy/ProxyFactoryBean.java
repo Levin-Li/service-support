@@ -24,6 +24,9 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.*;
 import java.util.Collections;
 
+/**
+ * @author llw
+ */
 @Slf4j
 
 public class ProxyFactoryBean<T>

@@ -39,15 +39,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 @Data
+@Deprecated
 public class ScanPackagesHolder {
 
     private static final String BEAN = ScanPackagesHolder.class.getName();
 
     private static final ScanPackagesHolder NONE = new ScanPackagesHolder();
 
-
     private Map<String, ScanPair> scanPairs;
-
 
     public static ScanPackagesHolder get(BeanFactory beanFactory) {
         try {
@@ -71,9 +70,7 @@ public class ScanPackagesHolder {
         Assert.notNull(registry, "Registry must not be null");
         Assert.notNull(scanPair, "scanPair must not be null");
 
-
         String pName = "scanPairs";
-
 
         if (!registry.containsBeanDefinition(BEAN)) {
             registry.registerBeanDefinition(BEAN, BeanDefinitionBuilder
@@ -83,12 +80,9 @@ public class ScanPackagesHolder {
                     .getBeanDefinition());
         }
 
-
         BeanDefinition beanDefinition = registry.getBeanDefinition(BEAN);
 
-
         String key = scanPair.factoryBeanClass.getName() + "_" + scanPair.scanType.getName();
-
 
         Map<String, ScanPair> scanPairs = (Map<String, ScanPair>) beanDefinition.getPropertyValues().get(pName);
 
@@ -183,7 +177,7 @@ public class ScanPackagesHolder {
 
                 String packageName = ClassUtils.getPackageName(metadata.getClassName());
 
-                Assert.state(!StringUtils.isEmpty(packageName), "@ProxyBeanScan cannot be used with the default package");
+                Assert.state(StringUtils.hasText(packageName), "@ProxyBeanScan cannot be used with the default package");
 
                 packagesToScan.add(packageName);
             }

@@ -28,7 +28,8 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(ProxyBeanRegistrar.class)
+//@Import(ProxyBeanRegistrar.class)
+@Deprecated
 public @interface EnableProxyBean {
 
     /**
