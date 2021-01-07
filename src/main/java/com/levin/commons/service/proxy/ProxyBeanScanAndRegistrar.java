@@ -273,8 +273,6 @@ public class ProxyBeanScanAndRegistrar
                         }
 
                 );
-
-
     }
 
     private boolean isMatch(List<String> registerPackages, List<Class<?>> registerTypes, ScanPair scanPair) {
