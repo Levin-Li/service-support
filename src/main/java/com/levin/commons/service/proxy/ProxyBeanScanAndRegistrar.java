@@ -154,12 +154,13 @@ public class ProxyBeanScanAndRegistrar
                         .setFactoryBeanClass(factoryBeanClass)
                         .setInvocationHandlerClass(invocationHandlerClass);
 
+                updateScanPairBasePackages(metadata, scanPair, basePackages, basePackageClasses);
 
                 if (onlyScan) {
                     //只是扫描，不注册 bean
                     notRegisterScanPairs.add(scanPair);
                 } else {
-                    addRegister(metadata, registry, scanPair, basePackages, basePackageClasses);
+                    registerBeans(registry, scanPair);
                 }
 
             }
@@ -206,7 +207,7 @@ public class ProxyBeanScanAndRegistrar
 
     }
 
-    private void addRegister(AnnotationMetadata metadata, BeanDefinitionRegistry registry, ScanPair scanPair, String[] basePackages, Class<?>[] basePackageClasses) {
+    private static void updateScanPairBasePackages(AnnotationMetadata metadata, ScanPair scanPair, String[] basePackages, Class<?>[] basePackageClasses) {
 
         Set<String> packagesToScan = scanPair.scanPackages;
 
@@ -222,10 +223,6 @@ public class ProxyBeanScanAndRegistrar
             if (StringUtils.hasText(packageName)) {
                 packagesToScan.add(packageName);
             }
-        }
-
-        if (!scanPair.scanPackages.isEmpty()) {
-            registerBeans(registry, scanPair);
         }
     }
 
