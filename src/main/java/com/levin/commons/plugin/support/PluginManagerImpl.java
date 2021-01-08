@@ -1,6 +1,9 @@
-package com.levin.commons.plugin;
+package com.levin.commons.plugin.support;
 
 import com.levin.commons.conditional.ConditionalOn;
+import com.levin.commons.plugin.Plugin;
+import com.levin.commons.plugin.PluginException;
+import com.levin.commons.plugin.PluginManager;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ConcurrentReferenceHashMap;
 
@@ -14,8 +17,7 @@ import static com.levin.commons.conditional.ConditionalOn.Action.OnMissingBean;
 /**
  * 默认插件管理器
  */
-@Service
-@ConditionalOn(action = OnMissingBean, types = PluginManager.class)
+
 public class PluginManagerImpl implements PluginManager {
 
     final String id = UUID.randomUUID().toString();

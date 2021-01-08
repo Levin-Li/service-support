@@ -31,6 +31,7 @@ public class SimpleOnCondition
 
 //        List<AnnotationAttributes> attributesList = new LinkedList<>();
 
+
         //一个注解未匹配，直接返回
         if (attributes1 != null && !matchOne(context, attributes1)) {
             return false;
