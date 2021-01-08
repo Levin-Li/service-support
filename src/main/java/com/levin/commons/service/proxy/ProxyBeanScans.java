@@ -21,12 +21,12 @@ import org.springframework.context.annotation.Import;
 import java.lang.annotation.*;
 
 /**
- * @see ScanPackagesHolder
+ * @see ProxyBeanScanAndRegistrar
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(ScanPackagesHolder.Registrar.class)
+@Import(ProxyBeanScanAndRegistrar.class)
 public @interface ProxyBeanScans {
 
     ProxyBeanScan[] value();
