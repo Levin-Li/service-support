@@ -39,7 +39,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.StringUtils;
@@ -172,7 +171,6 @@ public class ProxyBeanScanAndRegistrar
 
     private void addRegister(AnnotationMetadata metadata, BeanDefinitionRegistry registry, ScanPair scanPair, String[] basePackages, Class<?>[] basePackageClasses) {
 
-
         Set<String> packagesToScan = scanPair.scanPackages;
 
         packagesToScan.addAll(Arrays.asList(basePackages));
@@ -181,21 +179,17 @@ public class ProxyBeanScanAndRegistrar
             packagesToScan.add(ClassUtils.getPackageName(basePackageClass));
         }
 
-
-        if (packagesToScan.isEmpty()) {
-
+        if (!packagesToScan.isEmpty()) {
             //如果没有指定，就默认加入被注解所在的包
-
             String packageName = ClassUtils.getPackageName(metadata.getClassName());
-
-            //Assert.isTrue(StringUtils.hasText(packageName), "@ProxyBeanScan cannot be used with the default package");
-
-            packagesToScan.add(packageName);
+            if (StringUtils.hasText(packageName)) {
+                packagesToScan.add(packageName);
+            }
         }
 
-
-        registerBeans(registry, scanPair);
-
+        if (!scanPair.scanPackages.isEmpty()) {
+            registerBeans(registry, scanPair);
+        }
     }
 
 
@@ -259,7 +253,6 @@ public class ProxyBeanScanAndRegistrar
 //                                }
                             log.info("registerBeanDefinition beanClass: " + type.getName()
                                     + "(@" + scanPair.scanType.getName() + ") factoryBeanClass:" + factoryBeanClass);
-
 
                             final String key = scanPair.scanType.getName() + "_" + type.getName();
 
