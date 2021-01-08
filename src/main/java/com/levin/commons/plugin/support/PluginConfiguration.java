@@ -30,7 +30,7 @@ public class PluginConfiguration implements ApplicationContextAware, BeanDefinit
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 
-        log.debug("*** setApplicationContext:" + Arrays.asList(applicationContext.getBeanDefinitionNames()));
+        log.debug("*** setApplicationContext:" + applicationContext);
 
         this.context = applicationContext;
 
@@ -48,12 +48,14 @@ public class PluginConfiguration implements ApplicationContextAware, BeanDefinit
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        log.debug("*** postProcessBeanDefinitionRegistry:" + Arrays.asList(registry.getBeanDefinitionNames()));
+
+        log.debug("*** postProcessBeanDefinitionRegistry:" + registry.getClass().getName());
     }
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        log.debug("*** postProcessBeanFactory:" + Arrays.asList(beanFactory.getBeanDefinitionNames()));
+
+        log.debug("*** postProcessBeanFactory:" + beanFactory.getClass().getName());
     }
 
     @Override

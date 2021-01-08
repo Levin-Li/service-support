@@ -285,8 +285,7 @@ public class ProxyBeanScanAndRegistrar
 //                                        builder.addConstructorArgValue(type);
 //                                    }
 //                                }
-                            log.info("registerBeanDefinition beanClass: " + type.getName()
-                                    + "(@" + scanPair.scanType.getName() + ") factoryBeanClass:" + factoryBeanClass);
+                            log.info("registerBeanDefinition beanClass: " + type.getName()  + "(@" + scanPair.scanType.getName() + ") factoryBeanClass:" + factoryBeanClass);
 
                             final String key = scanPair.scanType.getName() + "_" + type.getName();
 
@@ -339,7 +338,7 @@ public class ProxyBeanScanAndRegistrar
             }
         }
 
-        log.debug(scanner.hashCode() + " Scan packages:" + minList + ",types:" + Arrays.asList(annotationTypes) + ",result:" + entitySet);
+        log.debug("scanner[" + scanner.hashCode() + "] scan packages:" + minList + ",types:" + Arrays.asList(annotationTypes) + ",result:" + entitySet);
 
         return entitySet;
     }
