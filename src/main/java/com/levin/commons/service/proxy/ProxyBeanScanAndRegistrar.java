@@ -183,6 +183,8 @@ public class ProxyBeanScanAndRegistrar
         Optional.ofNullable(AnnotationAttributes.fromMap(
                 metadata.getAnnotationAttributes(EnableProxyBean.class.getName()))).ifPresent(attrs -> {
 
+            log.info("process annotation EnableProxyBean,notRegisterScanPairs: " + notRegisterScanPairs);
+
             //重复扫描注册，不删除
             notRegisterScanPairs.stream()
                     .filter(scanPair -> isMatch(Arrays.asList(attrs.getStringArray("registerPackages")), Arrays.asList(attrs.getClassArray("registerTypes")), scanPair))

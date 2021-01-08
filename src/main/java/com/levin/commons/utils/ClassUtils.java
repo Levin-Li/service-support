@@ -13,9 +13,6 @@ import java.util.stream.Collectors;
 
 /**
  *
- *
- *
- *
  */
 
 public final class ClassUtils {
@@ -45,6 +42,10 @@ public final class ClassUtils {
     /**
      * 格式化包名
      * <p>
+     * 去除空格，去除多余的.号
+     * 压缩包名
+     *
+     * <p>
      * 主要用于路径扫描
      *
      * @param packages
@@ -58,12 +59,14 @@ public final class ClassUtils {
                 .filter(StringUtils::hasText)
                 .map(p -> p.replace(" ", ""))
                 .map(p -> {
+                    //去替换2个点
                     while (p.contains("..")) {
                         p = p.replace("..", ".");
                     }
                     return p;
                 })
                 .map(p -> {
+                    //去除最后一个点
                     while (p.length() > 0 && p.endsWith(".")) {
                         p = p.substring(0, p.length() - 1);
                     }
@@ -79,7 +82,12 @@ public final class ClassUtils {
 
                         int indexOf = p.indexOf(last);
 
-                        if (indexOf < 0 || (!last.endsWith(".") && p.charAt(indexOf + last.length()) != '.')) {
+                        //last = com.levin
+                        // p = com.levina.a
+                        //如果不等于0，表示不同包
+                        if (indexOf != 0
+                                || p.length() == last.length()
+                                || p.charAt(last.length()) != '.') {
                             minList.add(p);
                         }
                     }
