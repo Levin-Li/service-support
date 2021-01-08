@@ -50,6 +50,7 @@ public interface Plugin extends Identifiable<String> {
     /**
      * 销毁插件
      */
-    void destroy() throws PluginException;
+    default void destroy() throws PluginException {
+    }
 
 }

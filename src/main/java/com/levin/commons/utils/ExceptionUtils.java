@@ -30,6 +30,7 @@ public abstract class ExceptionUtils {
         return new Exception().getStackTrace()[1].getMethodName();
     }
 
+
     public static String getPrintInfo(Throwable e) {
         ByteArrayOutputStream tempOut = new ByteArrayOutputStream(256);
         e.printStackTrace(new PrintStream(tempOut));
