@@ -23,13 +23,12 @@ import java.lang.annotation.*;
 /**
  * 启动指定的注解实例化
  *
- * @see ProxyBeanRegistrar
+ * @see ProxyBeanScanAndRegistrar
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-//@Import(ProxyBeanRegistrar.class)
-@Deprecated
+@Import(ProxyBeanScanAndRegistrar.class)
 public @interface EnableProxyBean {
 
     /**
@@ -40,7 +39,6 @@ public @interface EnableProxyBean {
      * @return
      */
     Class<? extends Annotation>[] registerTypes() default {};
-
 
     /**
      * Annotation 匹配的包名

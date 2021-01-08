@@ -78,7 +78,15 @@ public class ProxyBeanScanAndRegistrar
 
     private MetadataReaderFactory metadataReaderFactory;
 
+    /**
+     * 已经注册的 bean名字
+     */
     private static final Map<String, Object> registerBeans = new ConcurrentReferenceHashMap<>();
+
+    /**
+     * 已经扫描，但未注册的
+     */
+    private static final List<ScanPair> notRegisterScanPairs = new Vector<>();
 
     //扫描类
     final ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(
@@ -119,13 +127,9 @@ public class ProxyBeanScanAndRegistrar
         AnnotationAttributes attributes1 = AnnotationAttributes.fromMap(
                 metadata.getAnnotationAttributes(ProxyBeanScan.class.getName()));
 
-
         AnnotationAttributes attributes2 = AnnotationAttributes.fromMap(
                 metadata.getAnnotationAttributes(ProxyBeanScans.class.getName()));
 
-        if (attributes1 == null && attributes2 == null) {
-            throw new IllegalArgumentException(getClass() + " only support [ProxyBeanScan or ProxyBeanScans]");
-        }
 
         Consumer<AnnotationAttributes> consumer = attributes -> {
 
@@ -141,16 +145,23 @@ public class ProxyBeanScanAndRegistrar
                 Class<? extends Annotation> scanType = attributes.getClass("scanType");
 
                 boolean lazyInit = attributes.getBoolean("lazyInit");
-
+                boolean onlyScan = attributes.getBoolean("onlyScan");
 
                 ScanPair scanPair = new ScanPair()
                         .setLazyInit(lazyInit)
+                        .setOnlyScan(onlyScan)
                         .setScanType(scanType)
                         .setFactoryBeanClass(factoryBeanClass)
                         .setInvocationHandlerClass(invocationHandlerClass);
 
 
-                addRegister(metadata, registry, scanPair, basePackages, basePackageClasses);
+                if (onlyScan) {
+                    //只是扫描，不注册 bean
+                    notRegisterScanPairs.add(scanPair);
+                } else {
+                    addRegister(metadata, registry, scanPair, basePackages, basePackageClasses);
+                }
+
             }
 
         };
@@ -166,6 +177,30 @@ public class ProxyBeanScanAndRegistrar
             }
         });
 
+
+        //开始处理 EnableProxyBean注解
+
+        Optional.ofNullable(AnnotationAttributes.fromMap(
+                metadata.getAnnotationAttributes(EnableProxyBean.class.getName()))).ifPresent(attrs -> {
+
+            //重复扫描注册，不删除
+            notRegisterScanPairs.stream()
+                    .filter(scanPair -> isMatch(Arrays.asList(attrs.getStringArray("registerPackages")), Arrays.asList(attrs.getClassArray("registerTypes")), scanPair))
+                    .forEach(scanPair -> registerBeans(registry, scanPair));
+
+            //重复注册，不删除
+//            for (ScanPair scanPair : new ArrayList<>(notRegisterScanPairs)) {
+//                if (isMatch(Arrays.asList(registerPackages), Arrays.asList(registerTypes), scanPair)) {
+//                    registerBeans(registry, scanPair);
+//                }
+//            }
+
+        });
+
+
+//        if (attributes1 == null && attributes2 == null) {
+//            throw new IllegalArgumentException(getClass() + " only support [ProxyBeanScan or ProxyBeanScans]");
+//        }
 
     }
 
@@ -262,13 +297,12 @@ public class ProxyBeanScanAndRegistrar
                             registry.registerBeanDefinition(beanName, builder.getBeanDefinition());
 
                             registerBeans.put(key, true);
-
                         }
 
                 );
     }
 
-    private boolean isMatch(List<String> registerPackages, List<Class<?>> registerTypes, ScanPair scanPair) {
+    private static boolean isMatch(List<String> registerPackages, List<Class<?>> registerTypes, ScanPair scanPair) {
         return (registerTypes == null || registerTypes.isEmpty() || registerTypes.contains(scanPair.scanType))
                 && (registerPackages == null || registerPackages.isEmpty() || registerPackages.stream()
                 .filter(StringUtils::hasText)
@@ -314,6 +348,11 @@ public class ProxyBeanScanAndRegistrar
     @Data
     @Accessors(chain = true)
     public static class ScanPair {
+
+        /**
+         * 只是扫描不注册bean
+         */
+        boolean onlyScan;
 
         /**
          * 延迟初始化

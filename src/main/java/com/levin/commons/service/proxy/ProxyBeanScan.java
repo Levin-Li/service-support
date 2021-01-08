@@ -23,7 +23,7 @@ import org.springframework.core.annotation.AliasFor;
 import java.lang.annotation.*;
 
 /**
- * @see ScanPackagesHolder
+ * @see ProxyBeanScanAndRegistrar
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -63,12 +63,19 @@ public @interface ProxyBeanScan {
 
 
     /**
+     * 只是扫描注解，不注册Bean
+     *
+     * @return
+     */
+    boolean onlyScan() default false;
+
+
+    /**
      * 延迟初始化
      *
      * @return
      */
     boolean lazyInit() default true;
-
 
     /**
      * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation
