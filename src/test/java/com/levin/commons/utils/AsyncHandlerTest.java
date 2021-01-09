@@ -16,7 +16,7 @@ class AsyncHandlerTest {
 
         ExecutorService newTaskExecutor = Executors.newFixedThreadPool(100);
 
-        AsyncHandler<Runnable> asyncHandler = new AsyncHandler().setDefaultExecutor(defaultExecutor).setSkipNotProcessTask(true);
+        AsyncHandler<Runnable> asyncHandler = new AsyncHandler().setDefaultExecutorService(defaultExecutor).setSkipNotProcessTask(true);
 
 
         Random random = new Random();
