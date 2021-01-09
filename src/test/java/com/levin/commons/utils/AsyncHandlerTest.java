@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
 
 class AsyncHandlerTest {
@@ -12,11 +13,14 @@ class AsyncHandlerTest {
     @Test
     void addTask() throws InterruptedException {
 
-        ExecutorService defaultExecutor = Executors.newFixedThreadPool(5);
+        ScheduledExecutorService defaultExecutor = Executors.newScheduledThreadPool(5);
 
         ExecutorService newTaskExecutor = Executors.newFixedThreadPool(100);
 
-        AsyncHandler<Runnable> asyncHandler = new AsyncHandler().setDefaultExecutorService(defaultExecutor).setSkipNotProcessTask(true);
+        AsyncHandler<Runnable> asyncHandler = new AsyncHandler()
+                .setDefaultScheduler(defaultExecutor)
+                .setTaskDelay(500)
+                .setSkipNotProcessTask(true);
 
 
         Random random = new Random();

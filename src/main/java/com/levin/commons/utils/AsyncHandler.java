@@ -123,7 +123,7 @@ public class AsyncHandler<T> {
                 }
 
                 if (skipCnt > 0) {
-                    log.info("队列处理器[{}] 跳过的任务数：{}", name, skipCnt);
+                    log.info("异步处理器[{}] 跳过的任务数：{}", name, skipCnt);
                 }
 
             } else {
