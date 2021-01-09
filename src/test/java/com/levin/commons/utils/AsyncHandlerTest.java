@@ -24,17 +24,23 @@ class AsyncHandlerTest {
         AtomicLong atomicLong = new AtomicLong();
 
         long n = 0;
-        while (n++ < 10 * 10 * 10000) {
+        while (n++ < 1 * 100 * 10000) {
+
+            int abs = Math.abs(random.nextInt(1000));
+            if (abs == 0 || n % abs == 0) {
+                Thread.sleep(1);
+            }
 
             final long no = n;
 
             //增加任务
             asyncHandler.addTask(() -> {
 
-                int millis = Math.abs(random.nextInt(5) + 1) * 1000;
+                int millis = Math.abs(random.nextInt(100) + 1);
 
                 try {
-                    Thread.sleep(millis);
+                    if (millis % 100 == 0)
+                        Thread.sleep(millis);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -44,7 +50,7 @@ class AsyncHandlerTest {
             });
         }
 
-        Thread.sleep(60 * 60 * 1000);
+        Thread.sleep(10 * 1000);
 
         System.out.println(asyncHandler);
 

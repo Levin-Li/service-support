@@ -2,6 +2,7 @@ package com.levin.commons.utils;
 
 
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
@@ -78,9 +79,9 @@ public class AsyncHandler<T> {
 
             processQueue(executor);
 
-            addTaskStatHelper.doIntervalTask(60, (addRatio) -> {
-                log.info("队列处理器[{}]在{}秒内新增数据包速率为{}/秒，目前队列数据包剩余数：{}"
-                        , name, addTaskStatHelper.getDefaultInterval(), addRatio, taskQueue.size());
+            addTaskStatHelper.onAlarm(5, 100, 1.0, (scale, ratio) -> {
+                log.info("异步处理器[{}]在{}秒内进入的任务速率为{}/秒，环比变化率{} ，目前队列数据包剩余数：{}"
+                        , name, 5, ratio, scale, taskQueue.size());
             });
 
         }
@@ -120,9 +121,9 @@ public class AsyncHandler<T> {
 
             if (task != null) {
 
-                doTaskStatHelper.doIntervalTask(60, (doRatio) -> {
-                    log.info("队列处理器[{}]在{}秒内处理数据包速率为{}/秒，目前队列数据包剩余数：{}"
-                            , name, 60, doRatio, taskQueue.size());
+                doTaskStatHelper.onAlarm(isSkipNotProcessTask() ? 20 : 5, 100, 1.0, (scale, ratio) -> {
+                    log.info("异步处理器[{}]在{}秒内完成的任务速率为{}/秒，环比变化率{} ，目前队列数据包剩余数：{}"
+                            , name, 5, ratio, scale, taskQueue.size());
                 });
 
                 //同步处理任务
@@ -168,7 +169,12 @@ public class AsyncHandler<T> {
 
     }
 
-    private final Runnable worker = () -> doQueueTask();
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "-" + name;
+    }
 
+
+    private final Runnable worker = () -> doQueueTask();
 
 }
