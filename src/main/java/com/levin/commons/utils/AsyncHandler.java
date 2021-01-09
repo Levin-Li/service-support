@@ -2,7 +2,6 @@ package com.levin.commons.utils;
 
 
 import lombok.Data;
-import lombok.ToString;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,7 +24,10 @@ public class AsyncHandler<T> {
      */
     protected boolean skipNotProcessTask = false;
 
-    protected Consumer<T> consumer;
+    /**
+     * 自定义 同步任务执行器
+     */
+    protected Consumer<T> syncTaskExecutor;
 
     ////////////////////////////////////////////////////////
 
@@ -127,10 +129,11 @@ public class AsyncHandler<T> {
                 });
 
                 //同步处理任务
-                if (consumer != null) {
-                    consumer.accept(task);
+                if (syncTaskExecutor != null) {
+                    syncTaskExecutor.accept(task);
                 } else {
-                    doTask(task);
+                    //同步处理任务
+                    syncDoTask(task);
                 }
 
             }
@@ -138,7 +141,7 @@ public class AsyncHandler<T> {
         }
     }
 
-    protected void doTask(T task) {
+    protected void syncDoTask(T task) {
         if (task instanceof Runnable) {
             ((Runnable) task).run();
         } else {
