@@ -11,11 +11,6 @@
     <packaging>jar</packaging>
     <version>1.1.15-SNAPSHOT</version>
 
-    <!--    <parent>-->
-    <!--        <groupId>com.levin.commons.maven</groupId>-->
-    <!--        <artifactId>deploy-template</artifactId>-->
-    <!--        <version>1.1.8-SNAPSHOT</version>-->
-    <!--    </parent>-->
 
     <properties>
 
@@ -82,16 +77,16 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>RELEASE</version>
+            <version>1.18.16</version>
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>5.2.16.Final</version>
-            <scope>provided</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.hibernate</groupId>-->
+<!--            <artifactId>hibernate-core</artifactId>-->
+<!--            <version>5.2.16.Final</version>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
 
 
         <dependency>
@@ -161,6 +156,13 @@
     <build>
 
         <plugins>
+
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <parameters>true</parameters>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
