@@ -2,6 +2,7 @@ package com.levin.commons.plugin;
 
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * 插件管理器
@@ -9,6 +10,17 @@ import java.util.List;
  * @author llw
  */
 public interface PluginManager extends Identifiable<String> {
+
+    /**
+     * 发送事件给插件
+     *
+     * @param pluginId
+     * @param events
+     * @return 是否发生成功
+     * @throws PluginException 发送事件异常
+     */
+    boolean sendEvent(String pluginId, Object... events) throws PluginException;
+
 
     /**
      * 安装插件

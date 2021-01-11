@@ -1,6 +1,7 @@
 package com.levin.commons.plugin;
 
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,8 +35,9 @@ public interface Plugin extends Identifiable<String> {
      *
      * @return
      */
-    List<DataItem> getDataItems();
-
+    default List<DataItem> getDataItems() {
+        return Collections.EMPTY_LIST;
+    }
 
     /**
      * 获取菜单项
@@ -44,13 +46,23 @@ public interface Plugin extends Identifiable<String> {
      *
      * @return
      */
-    List<MenuItem> getMenuItems();
+    default List<MenuItem> getMenuItems() {
+        return Collections.EMPTY_LIST;
+    }
 
+    /**
+     * 插件实现该方法，接收发送给插件的事件
+     *
+     * @param events
+     * @return 返回事件是否已经接受
+     */
+    boolean onEvent(Object... events);
 
     /**
      * 销毁插件
      */
     default void destroy() throws PluginException {
     }
+
 
 }

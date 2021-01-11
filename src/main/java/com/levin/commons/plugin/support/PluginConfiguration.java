@@ -1,9 +1,7 @@
 package com.levin.commons.plugin.support;
 
 import com.levin.commons.conditional.ConditionalOn;
-import com.levin.commons.plugin.Plugin;
-import com.levin.commons.plugin.PluginConfigurer;
-import com.levin.commons.plugin.PluginManager;
+import com.levin.commons.plugin.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -39,11 +37,22 @@ public class PluginConfiguration implements ApplicationContextAware, BeanDefinit
 
         PluginManager pluginManager = context.getBean(PluginManager.class);
 
-        this.context.getBeanProvider(Plugin.class).forEach(bean ->
-                pluginManager.installPlugin(bean, true)
+        this.context.getBeanProvider(Plugin.class).forEach(bean -> {
+                    try {
+                        pluginManager.installPlugin(bean, true);
+                        if (bean instanceof PluginManagerAware) {
+                            ((PluginManagerAware) bean).setPluginManager(pluginManager);
+                        }
+                    } catch (PluginException e) {
+                        log.error("installPlugin[" + bean.getClass() + "] error", e);
+                    }
+
+                }
+
         );
 
         this.context.getBeanProvider(PluginConfigurer.class).forEach(bean -> bean.configPlugin(pluginManager));
+
     }
 
     @Override
@@ -65,6 +74,10 @@ public class PluginConfiguration implements ApplicationContextAware, BeanDefinit
 
         } else if (bean instanceof PluginConfigurer) {
             log.debug("*** postProcessBeforeInitialization:" + beanName);
+        }
+
+        if (bean instanceof PluginManagerAware) {
+            ((PluginManagerAware) bean).setPluginManager(context.getBean(PluginManager.class));
         }
 
         return bean;

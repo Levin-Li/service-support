@@ -1,7 +1,9 @@
 package com.levin.commons.utils;
 
 
+import lombok.Builder;
 import lombok.Data;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
@@ -9,17 +11,34 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+/**
+ * 异步队列处理器
+ * <p>
+ * 在把任务加入队列时，捎带唤醒工作者
+ * <p>
+ * 可以设置跳过没有处理的任务，只执行最新的任务，可以用于数据库库存等更新
+ *
+ * @param <T>
+ */
 @Slf4j
 @Data
 @Accessors(chain = true)
 public class AsyncHandler<T> {
 
+    @Setter
     protected volatile ScheduledExecutorService defaultScheduler;
 
     protected String name;
 
+    /**
+     *
+     */
+    @Setter
     protected boolean isValid = true;
 
+    /**
+     * 可以设置所以任务的延迟执行
+     */
     protected long taskDelay = 0;
 
     /**
@@ -32,6 +51,9 @@ public class AsyncHandler<T> {
      */
     protected long watchDogInterval = 5 * 1000;
 
+    /**
+     * 看门狗运行标记
+     */
     private final AtomicBoolean watchDogRunning = new AtomicBoolean(false);
 
     /**
@@ -41,9 +63,9 @@ public class AsyncHandler<T> {
 
     ////////////////////////////////////////////////////////
 
-    protected final BlockingQueue<T> taskQueue;
+    private final BlockingQueue<T> taskQueue;
 
-    protected final Semaphore workerController;
+    private final Semaphore workerController;
 
     protected final StatHelper addTaskStatHelper = new StatHelper();
 
@@ -54,12 +76,10 @@ public class AsyncHandler<T> {
     }
 
     public AsyncHandler(int maxWorkers, int maxTasks) {
-
         this.taskQueue = new LinkedBlockingQueue(maxTasks);
-
         this.workerController = new Semaphore(maxWorkers);
-
     }
+
 
     public boolean addTask(T task) {
         try {
@@ -79,10 +99,13 @@ public class AsyncHandler<T> {
      */
     public boolean addTask(ScheduledExecutorService scheduler, T task) throws InterruptedException {
 
-        if (!isValid()) {
-            taskQueue.clear();
+        if (!isValid) {
+            //taskQueue.clear();
+
             throw new IllegalStateException("handler is invalid");
         }
+
+        //  tryInit();
 
         boolean isOffer = taskQueue.offer(task, 7, TimeUnit.SECONDS);
 
@@ -103,7 +126,7 @@ public class AsyncHandler<T> {
     protected void doQueueTask() {
 
         while (taskQueue.size() > 0
-                && isValid()
+                && isValid
                 && !Thread.currentThread().isInterrupted()) {
 
             T task = null;
@@ -123,7 +146,7 @@ public class AsyncHandler<T> {
                 }
 
                 if (skipCnt > 0) {
-                    log.info("异步处理器[{}] 跳过的任务数：{}", name, skipCnt);
+                    log.debug("异步处理器[{}] 跳过的任务数：{}", name, skipCnt);
                 }
 
             } else {
@@ -132,7 +155,7 @@ public class AsyncHandler<T> {
 
             if (task != null) {
 
-                doTaskStatHelper.onAlarm(isSkipNotProcessTask() ? 20 : 5, 100, 1.0, (scale, ratio) -> {
+                doTaskStatHelper.onAlarm(skipNotProcessTask ? 20 : 5, 100, 1.0, (scale, ratio) -> {
                     log.info("异步处理器[{}]在{}秒内完成的任务速率为{}/秒，环比变化率{} ，目前队列数据包剩余数：{}"
                             , name, 5, ratio, scale, taskQueue.size());
                 });
@@ -166,14 +189,18 @@ public class AsyncHandler<T> {
             return;
         }
 
+        if (isWatchDog) {
+            log.debug("WatchDog 尝试唤醒任务处理者...");
+        }
+
         try {
 
             if (scheduler == null) {
                 scheduler = this.defaultScheduler;
             }
 
-            if (getTaskDelay() > 0) {
-                scheduler.schedule(worker, getTaskDelay(), TimeUnit.MILLISECONDS);
+            if (taskDelay > 0) {
+                scheduler.schedule(worker, taskDelay, TimeUnit.MILLISECONDS);
             } else {
                 scheduler.submit(worker);
             }
@@ -196,14 +223,17 @@ public class AsyncHandler<T> {
         }
 
         if (watchDogRunning.compareAndSet(false, true)) {
+
+            log.debug("设置WatchDog 延迟[ {} ]ms执行.", watchDogInterval);
+
             scheduler.schedule(() -> {
                 try {
-                    //自己不唤醒自己
                     processQueue(true, scheduler);
                 } finally {
                     watchDogRunning.set(false);
                 }
-            }, watchDogInterval, TimeUnit.MILLISECONDS);
+            }, taskDelay + watchDogInterval, TimeUnit.MILLISECONDS);
+
         }
 
     }
@@ -213,6 +243,11 @@ public class AsyncHandler<T> {
         return getClass().getSimpleName() + "-" + name;
     }
 
+
+    static class DelayTask<T> {
+        long delay;
+        T task;
+    }
 
     private final Runnable worker = () -> doQueueTask();
 

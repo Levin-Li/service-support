@@ -39,6 +39,8 @@ public interface Identifiable<T> extends Serializable {
      *
      * @return
      */
-    String getDescription();
+    default String getDescription() {
+        return getName() + "[" + getId() + "]";
+    }
 
 }
