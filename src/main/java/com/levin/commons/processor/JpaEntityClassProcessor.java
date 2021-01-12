@@ -22,17 +22,11 @@ import java.util.stream.Collectors;
 
 @SupportedAnnotationTypes({"javax.persistence.MappedSuperclass", "javax.persistence.Entity"})
 //@SupportedSourceVersion(SourceVersion.RELEASE_6)
-//@com.google.auto.service.AutoService(Processor.class)
 public class JpaEntityClassProcessor extends AbstractProcessor {
 
     final Map<String, Object> processedFiles = new ConcurrentHashMap<>();
 
-    public static final String KEY_GEN_DESC_FIELD_NAME = "gen_desc_field_name";
-    public static final String KEY_GEN_TABLE_COLUMN_NAME = "gen_table_column_name";
-
-
     public static final String CLASS_NAME_PREFIX = "E_";
-
 
     private static final char[] replaceChars = {
             '!', '@', '#', '%', '^', '&', '(', ')', '-', '+', '=', '~'
@@ -43,42 +37,9 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
     };
 
 
-    final Properties properties = new Properties();
-
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
-
-        File file = new File(".jpa-entity-processor.properties");
-
-        if (!file.exists()) {
-
-            //  file.getParentFile().mkdirs();
-
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, file.getAbsolutePath() + " 配置文件不存在");
-
-            try {
-                properties.store(new OutputStreamWriter(new FileOutputStream(file, false), "utf-8"), "service-support processor config\n\ngen_desc_field_name=false\ngen_table_column_name=false\n\n");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        } else if (!file.isFile()) {
-
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, file.getAbsolutePath() + " 不是文件");
-
-        } else {
-
-            try {
-                properties.load(new InputStreamReader(new FileInputStream(file), "utf-8"));
-            } catch (Exception e) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, file.getAbsolutePath() + " 加载错误, " + e.getMessage());
-
-                throw new RuntimeException("读取配置文件错误-" + file.getAbsolutePath(), e);
-            }
-        }
-
         super.init(processingEnv);
-
     }
 
 
@@ -118,8 +79,9 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
     private static String newClassName(String className, String prefix) {
 
-        if (className == null || className.trim().length() < 1)
+        if (className == null || className.trim().length() < 1) {
             return "";
+        }
 
         //如果有泛型，忽略泛型
         if (className.contains("<")) {
@@ -346,9 +308,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
             String name = "";
 
 
-            if (desc != null
-                    && "true".equalsIgnoreCase(properties.getProperty(KEY_GEN_DESC_FIELD_NAME, "true"))) {
-
+            if (desc != null) {
                 name = desc.name().trim();
 
                 if (name.length() < 1) {
@@ -357,23 +317,14 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
                 if (name.length() > 0) {
                     //public static final
-
-                    for (char replaceChar : replaceChars) {
-                        name = name.replace(replaceChar, '_');
-                    }
-
+                    name = replaceText(name);
                     fieldMap.put(name, "\n    String " + name + " = \"" + fieldName + "\"; //类字段描述 \n");
-
-                } else {
-                    // this.processingEnv.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING, getClass().getSimpleName() + " process " + typeElement + " field " + fieldName + "  Annotation @Desc value or name contains invalid char " + desc);
                 }
-
             }
 
             if (!fieldName.equals(name)) {
                 fieldMap.put(fieldName, "\n    String " + fieldName + " = \"" + fieldName + "\"; //类字段名  \n");
             }
-
 
             String fieldTableColName = "T_" + fieldName;
 
@@ -385,17 +336,13 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                     tableColName = subEle.getAnnotation(Column.class).name();
                 }
 
-            } else if (subEle.getAnnotation(JoinColumn.class) != null) {
-
+            } else if (subEle.getAnnotation(JoinColumn.class) != null) { 
                 if (hasText(subEle.getAnnotation(JoinColumn.class).name())) {
                     tableColName = subEle.getAnnotation(JoinColumn.class).name();
                 }
-
             }
 
-            if ("true".equalsIgnoreCase(properties.getProperty(KEY_GEN_TABLE_COLUMN_NAME, "true"))) {
-                fieldMap.put(fieldTableColName, "\n    String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名 \n");
-            }
+            fieldMap.put(fieldTableColName, "\n    String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名 \n");
 
             boolean isIdAttr = subEle.getAnnotation(Id.class) != null || subEle.getAnnotation(EmbeddedId.class) != null;
 
@@ -407,7 +354,6 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
                 uniqueFields.add(fieldName);
             }
-
 
             //@todo 实现组合的唯一约束
             if (isUniqueField(subEle)
@@ -440,6 +386,13 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                     .append("    }\n");
 
         }
+    }
+
+    private String replaceText(String name) {
+        for (char replaceChar : replaceChars) {
+            name = name.replace(replaceChar, '_');
+        }
+        return name;
     }
 
     boolean isUniqueField(Element subEle) {
