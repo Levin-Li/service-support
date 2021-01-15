@@ -19,7 +19,7 @@
       <dependency>
          <groupId>com.github.Levin-Li</groupId>
          <artifactId>service-support</artifactId>
-         <version>1.1.9-SNAPSHOT</version> 
+         <version>1.1.17-SNAPSHOT</version> 
       </dependency>
 
 
@@ -151,4 +151,87 @@
     
      }
    
+   
+   5、插件模块
+   
+   插件的实例 Bean 会被自动注册到 [PluginManager](./src/main/java/com/levin/commons/plugin/PluginManager.java)
+   
+   插件也可以通过实现配置接口手动注册到 [PluginManager]
+   
+   //插件注册接口
+   public interface PluginConfigurer {
+   
+       /**
+        * 配置插件
+        *
+        * @param pluginManager
+        */
+       void configPlugin(PluginManager pluginManager);
+   
+   }
+   
+   
+   
+     /**
+      * 插件规范
+      *
+      * @author llw
+      */
+     public interface Plugin extends Identifiable<String> {
+     
+         /**
+          * 插件类型
+          * <p>
+          * 如系统插件，应用插件
+          *
+          * @return
+          */
+         default String getType() {
+             return "";
+         }
+     
+         /**
+          * 插件拥有的数据资源
+          * <p>
+          * 插件定义的资源不包含菜单
+          *
+          * <p>
+          * <p>
+          * 资源：比如地区资源，用户资源，部门资源，文档资源，栏目资源
+          * 正常需要和权限模块结合处理
+          * 资源通常是树形结构
+          *
+          * @return
+          */
+         default List<DataItem> getDataItems() {
+             return Collections.EMPTY_LIST;
+         }
+     
+         /**
+          * 获取菜单项
+          * <p>
+          * 菜单的权限由权限管理模块处理
+          *
+          * @return
+          */
+         default List<MenuItem> getMenuItems() {
+             return Collections.EMPTY_LIST;
+         }
+     
+         /**
+          * 插件实现该方法，接收发送给插件的事件
+          *
+          * @param events
+          * @return 返回事件是否已经接受
+          */
+         boolean onEvent(Object... events);
+     
+         /**
+          * 销毁插件
+          */
+         default void destroy() throws PluginException {
+         }
+     
+     
+     }
    

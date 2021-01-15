@@ -5,8 +5,11 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 插件规范
  *
+ * 插件接口规范
+ *
+ * @version 1.0
+ * @since 1.1.17
  * @author llw
  */
 public interface Plugin extends Identifiable<String> {
