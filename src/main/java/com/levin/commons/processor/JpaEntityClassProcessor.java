@@ -265,12 +265,16 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
         Elements elementUtils = this.processingEnv.getElementUtils();
 
         Table tableAnno = typeElement.getAnnotation(Table.class);
+        Entity entityAnno = typeElement.getAnnotation(Entity.class);
 
         if (tableAnno != null) {
             String tabName = hasText(tableAnno.name()) ? tableAnno.name().trim() : simpleClassName;
             codeBlock.append("    String TABLE_NAME = \"").append(tabName).append("\"; //  表名 \n\n");
         }
 
+        String entityName = (entityAnno != null && hasText(entityAnno.name())) ? entityAnno.name() : simpleClassName;
+
+        codeBlock.append("    String ENTITY_NAME = \"").append(entityName).append("\"; //  实体名字 \n\n");
 
         final List<String> uniqueFields = new ArrayList<>();
 
@@ -336,7 +340,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                     tableColName = subEle.getAnnotation(Column.class).name();
                 }
 
-            } else if (subEle.getAnnotation(JoinColumn.class) != null) { 
+            } else if (subEle.getAnnotation(JoinColumn.class) != null) {
                 if (hasText(subEle.getAnnotation(JoinColumn.class).name())) {
                     tableColName = subEle.getAnnotation(JoinColumn.class).name();
                 }
