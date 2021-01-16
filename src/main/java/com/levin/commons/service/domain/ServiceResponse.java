@@ -23,7 +23,7 @@ public class ServiceResponse<T>
     private static final long serialVersionUID = -944707546677849710L;
 
     //错误错误，不为0表示有错误
-    @Desc("服务响应码，不为0表示有错误，同时有错误编码")
+    @Desc("服务响应码，不为0表示有异常")
     protected int code;
 
     @Desc("友好提示信息，只是提示")
@@ -35,10 +35,10 @@ public class ServiceResponse<T>
     @Desc("错误消息，不用于展示，用于追查问题")
     protected String detailMsg;
 
-    @Desc(value = "服务编码", detail = "服务编码，由服务端返回，可能服务节点编码")
+    @Desc(value = "服务编码", detail = "服务编码，由服务端返回，可能是服务节点编码")
     protected String serviceCode;
 
-    @Desc(value = "响应消息的签名验证", detail = "可以防止响应消息被拦截")
+    @Desc(value = "响应消息的签名验证", detail = "防止响应消息被拦截篡改")
     protected String sign;
 
     //数据
