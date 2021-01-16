@@ -2,6 +2,7 @@ package com.levin.commons.service.domain;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import lombok.experimental.FieldNameConstants;
 
 import java.io.Serializable;
 
@@ -15,6 +16,7 @@ import java.io.Serializable;
 @Data
 @Accessors(chain = true)
 @Desc("服务响应")
+@FieldNameConstants
 public class ServiceResponse<T>
         implements Serializable {
 
@@ -69,12 +71,12 @@ public class ServiceResponse<T>
     }
 
 
-    public static <T> ServiceResponse<T> newResponse(int code, String msg) {
+    public static <T> ServiceResponse<T> error(int code, String msg) {
         return new ServiceResponse<>(code, msg);
     }
 
 
-    public static <T> ServiceResponse<T> newResponse(T data) {
+    public static <T> ServiceResponse<T> ok(T data) {
         return new ServiceResponse<>(data);
     }
 
