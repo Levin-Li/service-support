@@ -3,13 +3,6 @@ package com.levin.commons.service.domain;
 
 import java.lang.annotation.*;
 
-/*
- *
- *
- * @author Laishr
- * @version 1.0,2015/11/06
- * Copyright (c) 2014.
- */
 
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
