@@ -13,7 +13,7 @@ import java.io.Serializable;
  */
 
 @Schema(description = "服务请求类")
-public interface ServiceRequest
+public interface ServiceReq
         extends Serializable {
 
     @Schema(description = "请求签名串")

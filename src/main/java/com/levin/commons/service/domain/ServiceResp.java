@@ -22,7 +22,7 @@ import java.io.Serializable;
 @Schema(description = "服务响应对象")
 @FieldNameConstants
 @Builder
-public class ServiceResponse<T>
+public class ServiceResp<T>
         implements Serializable {
 
     private static final long serialVersionUID = -944707546677849710L;
@@ -53,20 +53,20 @@ public class ServiceResponse<T>
     protected T data;
 
 
-    public ServiceResponse() {
+    public ServiceResp() {
     }
 
-    public ServiceResponse(T data) {
+    public ServiceResp(T data) {
         this.data = data;
     }
 
 
-    public ServiceResponse(int code, String msg) {
+    public ServiceResp(int code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
-    public ServiceResponse(int code, String msg, String detailMsg) {
+    public ServiceResp(int code, String msg, String detailMsg) {
         this.code = code;
         this.msg = msg;
         this.detailMsg = detailMsg;
@@ -78,13 +78,13 @@ public class ServiceResponse<T>
     }
 
 
-    public static <T> ServiceResponse<T> error(int code, String msg) {
-        return new ServiceResponse<>(code, msg);
+    public static <T> ServiceResp<T> error(int code, String msg) {
+        return new ServiceResp<>(code, msg);
     }
 
 
-    public static <T> ServiceResponse<T> ok(T data) {
-        return new ServiceResponse<>(data);
+    public static <T> ServiceResp<T> ok(T data) {
+        return new ServiceResp<>(data);
     }
 
 }

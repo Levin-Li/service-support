@@ -14,8 +14,8 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @Schema(description = "API请求")
-public class ApiServiceRequest
-        implements ServiceRequest {
+public class ApiServiceReq
+        implements ServiceReq {
 
     @Schema(description = "应用标识")
     String appId;
