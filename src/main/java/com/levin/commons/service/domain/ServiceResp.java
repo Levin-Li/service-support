@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -28,6 +29,7 @@ public class ServiceResp<T>
     private static final long serialVersionUID = -944707546677849710L;
 
     @Schema(description = "服务响应码，不为0表示有异常")
+    @NotNull
     protected int code;
 
     @Schema(description = "HTTP响应状态码，辅助结果判读")
