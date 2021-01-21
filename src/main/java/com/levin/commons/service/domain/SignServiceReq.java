@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @Schema(description = "API请求")
-public class ApiServiceReq
+public abstract class SignServiceReq
         implements ServiceReq {
 
     @Schema(description = "应用标识")
@@ -34,5 +34,10 @@ public class ApiServiceReq
 
     @Schema(description = "签名串")
     String sign;
+
+    @Override
+    public final boolean requireSignVerification() {
+        return true;
+    }
 
 }

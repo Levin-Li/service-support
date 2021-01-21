@@ -21,7 +21,7 @@ import java.io.Serializable;
 @Accessors(chain = true)
 @Schema(description = "服务响应对象")
 @FieldNameConstants
-@Builder
+//@Builder
 public class ServiceResp<T>
         implements Serializable {
 

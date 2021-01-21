@@ -16,8 +16,8 @@ import java.io.Serializable;
 public interface ServiceReq
         extends Serializable {
 
-    @Schema(description = "是否需要签名串")
-    default boolean requireSign() {
+    @Schema(description = "是否需要签名验证")
+    default boolean requireSignVerification() {
         return false;
     }
 
