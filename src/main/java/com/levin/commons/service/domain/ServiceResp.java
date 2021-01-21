@@ -72,16 +72,18 @@ public class ServiceResp<T>
         this.detailMsg = detailMsg;
     }
 
-
     public boolean isSuccessful() {
         return code == 0;
     }
 
 
+    public static <T> ServiceResp<T> error(String msg) {
+        return error(-1, msg);
+    }
+
     public static <T> ServiceResp<T> error(int code, String msg) {
         return new ServiceResp<>(code, msg);
     }
-
 
     public static <T> ServiceResp<T> ok(T data) {
         return new ServiceResp<>(data);
