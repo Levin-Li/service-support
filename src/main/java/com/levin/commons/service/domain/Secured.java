@@ -149,7 +149,7 @@ public @interface Secured {
      *
      * @return
      */
-    InjectDomain[] injectDomains() default {};
+    InjectVar[] injectDomains() default {};
 
 
     /**

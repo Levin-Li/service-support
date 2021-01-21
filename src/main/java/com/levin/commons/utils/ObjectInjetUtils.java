@@ -1,6 +1,6 @@
 package com.levin.commons.utils;
 
-import com.levin.commons.service.domain.InjectDomain;
+import com.levin.commons.service.domain.InjectVar;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.expression.EvaluationContext;
@@ -9,6 +9,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.lang.Nullable;
+import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -49,8 +50,8 @@ public abstract class ObjectInjetUtils {
      * @throws IllegalAccessException
      */
     public static void autoInject(Map<String, Object> context,
-                                  @Nullable Predicate<InjectDomain> forceInjectOverride,
-                                  @Nullable Function<InjectDomain, Object> injectValueOverride,
+                                  @Nullable Predicate<InjectVar> forceInjectOverride,
+                                  @Nullable Function<InjectVar, Object> injectValueOverride,
                                   Object... beans) throws IllegalAccessException {
 
         EvaluationContext ctx = new StandardEvaluationContext(null);
@@ -81,7 +82,7 @@ public abstract class ObjectInjetUtils {
 
             for (Field field : fields) {
 
-                InjectDomain injectDomain = field.getAnnotation(InjectDomain.class);
+                InjectVar injectDomain = field.getAnnotation(InjectVar.class);
 
                 if (injectDomain == null) {
                     continue;
@@ -140,8 +141,7 @@ public abstract class ObjectInjetUtils {
         return newValue == null || ((newValue instanceof CharSequence) && newValue.toString().trim().length() == 0);
     }
 
-
-    private static final Map<String, List<Field>> fieldMap = new ConcurrentHashMap<>();
+    private static final Map<String, List<Field>> fieldMap = new ConcurrentReferenceHashMap<>();
 
     private static List<Field> getFields(Class clazz) {
 
@@ -151,7 +151,6 @@ public abstract class ObjectInjetUtils {
 
             List<Field> fields = fieldMap.get(className);
 
-
             if (fields == null) {
 
                 final List<Field> tempList = new ArrayList<>();
@@ -160,7 +159,7 @@ public abstract class ObjectInjetUtils {
                     @Override
                     public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
 
-                        if (field.isAnnotationPresent(InjectDomain.class)) {
+                        if (field.isAnnotationPresent(InjectVar.class)) {
                             tempList.add(field);
                         }
                     }

@@ -2,23 +2,31 @@ package com.levin.commons.service.domain;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import lombok.experimental.FieldNameConstants;
 
 import javax.validation.constraints.NotNull;
 
 /**
- * API 签名请求
+ * API 签名对象
  * <p>
  * 建议独立使用
  *
  * @author lilw
  */
 
+@FieldNameConstants
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Data
 @Accessors(chain = true)
-@Schema(description = "API请求")
-public class SignServiceReq
+@Schema(description = "签名对象")
+public class SignatureReq
         implements ServiceReq {
 
     @Schema(description = "应用标识")

@@ -17,30 +17,32 @@ import java.util.function.Function;
  * 可以字段，参数，方法
  *
  */
-public @interface InjectDomain {
+public @interface InjectVar {
 
     /**
-     * 注入域的名字
+     * 变量域
      *
      * @return
      */
-    String name() default "";
+    String domain() default "";
 
     /**
-     * 注入域的类型
+     * 是否需要强制注入
      *
-     * @return String
-     */
-    String type() default "default";
-
-    /**
-     * 默认值
      * <p>
-     * 如果 forceInjectExpr 为 false，并且原值为 null，则这个字段生效
+     * 表达式必须返回 boolean 值
+     *
+     * <p>
+     * 如果需要强制注入，但没有注入成功将抛出安全异常
+     *
+     * <p>
+     * SPEL or Groovy表达式
+     * <p>
      *
      * @return
      */
-    String defaultValueExpr() default "";
+    String forceInjectExpr() default "true";
+
 
     /**
      * 注入值的求值表达式
@@ -55,28 +57,25 @@ public @interface InjectDomain {
      */
     String injectValueExpr() default "";
 
+
     /**
-     * 是否需要强制注入
+     * 默认值
      * <p>
-     * 表达式必须返回 boolean 值
+     * SPEL or Groovy
      *
      * <p>
-     * 如果需要，但没有注入成功将抛出安全异常
-     *
-     * <p>
-     * SPEL 表达式
-     * <p>
-     * 检查表达式
+     * 如果 forceInjectExpr 为 false，并且原值为 null，则这个字段生效
      *
      * @return
      */
-    String forceInjectExpr() default "true";
+    String defaultValueExpr() default "";
+
 
     /**
      * 备注
      *
      * @return
      */
-    String remark() default "注入字段说明：例如注入用户 ID";
+    String remark() default "注入说明：例如注入用户ID";
 
 }

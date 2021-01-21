@@ -5,13 +5,17 @@ import java.util.Map;
 
 public abstract class MapUtils {
 
+    private MapUtils() {
+    }
 
     public static class Builder<K, V> {
 
-        LinkedHashMap<K, V> map = new LinkedHashMap<>();
+        Map<K, V> map = new LinkedHashMap<>();
 
+        private Builder() {
+        }
 
-        public Builder(K key, V value) {
+        private Builder(K key, V value) {
             map.put(key, value);
         }
 
@@ -22,6 +26,31 @@ public abstract class MapUtils {
             return this;
         }
 
+        public Builder<K, V> put(Map<K, V>... maps) {
+
+            if (maps != null) {
+                for (Map<K, V> aMap : maps) {
+                    if (aMap != null) {
+                        map.putAll(aMap);
+                    }
+                }
+            }
+
+            return this;
+        }
+
+        public Builder<K, V> putPairs(Object... paramPairs) {
+
+            if (paramPairs.length % 2 != 0) {
+                throw new IllegalArgumentException("参数必须成对出现，参数个数必须为偶数");
+            }
+
+            for (int i = 0; i < paramPairs.length; i++) {
+                map.put((K) paramPairs[i], (V) paramPairs[++i]);
+            }
+
+            return this;
+        }
 
         public Map<K, V> build() {
             return map;
@@ -52,21 +81,8 @@ public abstract class MapUtils {
      * @return
      */
     public static <K, V> Map<K, V> asMap(Object... paramPairs) {
-
-        LinkedHashMap<K, V> map = new LinkedHashMap<>();
-
-        if (paramPairs.length % 2 != 0)
-            throw new IllegalArgumentException("Map 必须参数成对出现，参数个数必须为偶数");
-
-        for (int i = 0; i < paramPairs.length; i++) {
-
-            map.put((K) paramPairs[i], (V) paramPairs[++i]);
-        }
-
-        return map;
-
+        return new Builder<K, V>().putPairs(paramPairs).build();
     }
-
 
     public static void main(String[] args) {
 
