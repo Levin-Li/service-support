@@ -79,5 +79,8 @@ public class BaseResp<T>
     public static <T> BaseResp<T> ok(T data) {
         return new BaseResp<>(data);
     }
+    public static <T> BaseResp<T> ok() {
+        return new BaseResp<>();
+    }
 
 }

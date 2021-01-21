@@ -74,5 +74,8 @@ public class ApiResp<T>
     public static <T> ApiResp<T> ok(T data) {
         return new ApiResp<>(data);
     }
+    public static <T> ApiResp<T> ok() {
+        return new ApiResp<>();
+    }
 
 }
