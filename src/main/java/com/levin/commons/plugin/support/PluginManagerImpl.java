@@ -1,10 +1,17 @@
 package com.levin.commons.plugin.support;
 
-import com.levin.commons.plugin.Plugin;
-import com.levin.commons.plugin.PluginException;
-import com.levin.commons.plugin.PluginManager;
+import com.levin.commons.plugin.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.core.Ordered;
+import org.springframework.lang.Nullable;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.StringUtils;
 
@@ -13,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executor;
 
 
 /**
@@ -21,18 +28,107 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 
 @Slf4j
-public class PluginManagerImpl implements PluginManager {
+
+public class PluginManagerImpl implements PluginManager,
+        DestructionAwareBeanPostProcessor,
+        Ordered,
+        BeanFactoryAware,
+        ApplicationContextAware,
+        SmartInitializingSingleton,
+        ApplicationListener<ContextRefreshedEvent>,
+        DisposableBean {
 
     final String id = UUID.randomUUID().toString();
 
     final Map<String, Plugin> pluginMap = new ConcurrentReferenceHashMap<>();
 
+    @Nullable
+    private BeanFactory beanFactory;
+
+    @Nullable
+    private ApplicationContext applicationContext;
+
     @Autowired
-    ScheduledExecutorService scheduledExecutorService;
+    Executor executor;
 
     @PostConstruct
     void init() {
         log.info("PluginManager init...");
+    }
+
+    private void finishRegistration() {
+
+        log.info("start register plugins ...");
+
+        PluginManager pluginManager = beanFactory.getBean(PluginManager.class);
+
+        this.beanFactory.getBeanProvider(Plugin.class).forEach(bean -> {
+                    try {
+                        pluginManager.installPlugin(bean, true);
+                        if (bean instanceof PluginManagerAware) {
+                            ((PluginManagerAware) bean).setPluginManager(pluginManager);
+                        }
+                    } catch (PluginException e) {
+                        log.error("installPlugin[" + bean.getClass() + "] error", e);
+                    }
+
+                }
+
+        );
+
+        this.beanFactory.getBeanProvider(PluginConfigurer.class).forEach(bean -> bean.configPlugin(pluginManager));
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+    }
+
+    @Override
+    public void destroy() throws Exception {
+
+        for (Plugin value : pluginMap.values()) {
+            uninstallPlugin(value.getId());
+        }
+
+        pluginMap.clear();
+    }
+
+    @Override
+    public void afterSingletonsInstantiated() {
+
+        if (this.applicationContext == null) {
+            // Not running in an ApplicationContext -> register tasks early...
+            finishRegistration();
+        }
+    }
+
+    @Override
+    public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
+
+
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+
+        this.applicationContext = applicationContext;
+
+        if (this.beanFactory == null) {
+            this.beanFactory = applicationContext;
+        }
+    }
+
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        if (event.getApplicationContext() == this.applicationContext) {
+            this.finishRegistration();
+        }
+    }
+
+    @Override
+    public int getOrder() {
+        return Ordered.LOWEST_PRECEDENCE / 2;
     }
 
     @Override
@@ -52,6 +148,8 @@ public class PluginManagerImpl implements PluginManager {
         }
 
         pluginMap.put(pluginId, plugin);
+
+        log.info("*** plugin " + pluginId + " installed.");
 
     }
 
@@ -75,7 +173,7 @@ public class PluginManagerImpl implements PluginManager {
     @Override
     public boolean sendEvent(String pluginId, Object... events) throws PluginException {
 
-        scheduledExecutorService.submit(() -> syncSendEvent(pluginId, events));
+        executor.execute(() -> syncSendEvent(pluginId, events));
 
         return true;
     }

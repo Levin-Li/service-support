@@ -1,5 +1,6 @@
 package com.levin.commons.plugin;
 
+@FunctionalInterface
 public interface PluginConfigurer {
 
     /**

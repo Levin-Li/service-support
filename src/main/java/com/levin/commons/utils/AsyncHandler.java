@@ -243,12 +243,6 @@ public class AsyncHandler<T> {
         return getClass().getSimpleName() + "-" + name;
     }
 
-
-    static class DelayTask<T> {
-        long delay;
-        T task;
-    }
-
     private final Runnable worker = () -> doQueueTask();
 
 }

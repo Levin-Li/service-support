@@ -3,6 +3,7 @@ package com.levin.commons.service;
 /**
  * 变量解析器
  */
+@FunctionalInterface
 public interface VariableResolver {
 
     /**
