@@ -19,7 +19,7 @@
       <dependency>
          <groupId>com.github.Levin-Li</groupId>
          <artifactId>service-support</artifactId>
-         <version>1.1.19-SNAPSHOT</version> 
+         <version>1.1.20-SNAPSHOT</version> 
       </dependency>
 
 
