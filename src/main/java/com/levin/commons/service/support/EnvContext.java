@@ -11,17 +11,18 @@ import java.util.concurrent.ConcurrentHashMap;
  * 环境上下文
  * <p>
  * 线程继承
- * @TODO 实现子线程继承环境变量
  *
  * @author lilw
+ * @TODO 实现子线程继承环境变量
  */
 @Desc("环境上下文，在同个线程都可以共享")
+@Deprecated
 public abstract class EnvContext {
 
     private static final ThreadLocal<Map> threadContext = new ThreadLocal<>();
 
-    private static final InheritableThreadLocal<Map>InheritableThreadContext = new InheritableThreadLocal<>();
-    //
+    private static final InheritableThreadLocal<Map> InheritableThreadContext = new InheritableThreadLocal<>();
+
     private static final Map<String, Object> globalContext = new ConcurrentHashMap<>();
 
 

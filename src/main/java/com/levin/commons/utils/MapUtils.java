@@ -59,6 +59,17 @@ public abstract class MapUtils {
     }
 
     /**
+     * 合并
+     *
+     * @param <K>
+     * @param <V>
+     * @return
+     */
+    public static <K, V> Builder<K, V> put(Map<K, V>... maps) {
+        return new Builder<K, V>().put(maps);
+    }
+
+    /**
      * 放入第一个元素并返回一个 map 的 builder
      *
      * @param key
@@ -70,7 +81,6 @@ public abstract class MapUtils {
     public static <K, V> Builder<K, V> put(K key, V value) {
         return new Builder<K, V>(key, value);
     }
-
 
     /**
      * 参数对

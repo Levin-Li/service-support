@@ -1,6 +1,7 @@
 package com.levin.commons.utils;
 
 import com.levin.commons.service.domain.InjectVar;
+import com.levin.commons.service.support.Locker;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.expression.EvaluationContext;
@@ -29,6 +30,9 @@ public abstract class ObjectInjetUtils {
 
 
     private static final ConversionService conversionService = new DefaultFormattingConversionService();
+
+
+    private static final Locker loker = Locker.build();
 
     /**
      * 根据上下文自动注入
@@ -145,9 +149,9 @@ public abstract class ObjectInjetUtils {
 
     private static List<Field> getFields(Class clazz) {
 
-        final String className = clazz.getName().intern();
+        final String className = clazz.getName();
 
-        synchronized (className) {
+        synchronized (loker.getLock(className)) {
 
             List<Field> fields = fieldMap.get(className);
 
