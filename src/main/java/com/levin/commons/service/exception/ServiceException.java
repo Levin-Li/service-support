@@ -19,7 +19,6 @@ public class ServiceException
     @Desc(value = "异常编码")
     int code;
 
-
     @Desc(value = "友好提示信息", detail = "可以直接展示给用户看")
     String friendlyTips;
 

@@ -2,14 +2,13 @@ package com.levin.commons.service.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
+import java.util.List;
 
 /**
  * 服务响应类
@@ -37,6 +36,9 @@ public class BaseResp<T>
     @Schema(description = "服务响应码，不为0表示有异常")
     @NotNull
     protected int code;
+
+    @Schema(description = "服务提示-用于互动")
+    protected List<Interaction> interactions;
 
     @Schema(description = "信息摘要，可用于界面展示")
     protected String msg;
@@ -79,6 +81,7 @@ public class BaseResp<T>
     public static <T> BaseResp<T> ok(T data) {
         return new BaseResp<>(data);
     }
+
     public static <T> BaseResp<T> ok() {
         return new BaseResp<>();
     }

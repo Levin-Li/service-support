@@ -223,7 +223,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <inherited>true</inherited>
                 <configuration>
-                    <!-- 在编译时表留方法的参数名称-->
+                    <!-- 在编译时表留方法的参数名称 -->
                     <parameters>true</parameters>
                 </configuration>
             </plugin>

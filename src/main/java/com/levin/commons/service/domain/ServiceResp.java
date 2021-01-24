@@ -1,9 +1,9 @@
 package com.levin.commons.service.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 服务响应
@@ -38,6 +38,14 @@ public interface ServiceResp<T>
      * @return
      */
     String getDetailMsg();
+
+
+    /**
+     * 服务交互
+     *
+     * @return
+     */
+    List<Interaction> getInteractions();
 
     /**
      * 业务数据

@@ -11,6 +11,7 @@ import lombok.experimental.FieldNameConstants;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 服务响应类
@@ -23,7 +24,7 @@ import java.io.Serializable;
 
 
 @NoArgsConstructor
-@AllArgsConstructor
+//@AllArgsConstructor
 @Builder
 @Data
 @Accessors(chain = true)
@@ -38,9 +39,6 @@ public class ApiResp<T>
 
     @Schema(description = "HTTP响应状态码，辅助结果判读")
     protected int httpStatusCode;
-
-    @Schema(description = "友好提示信息，只是提示")
-    protected String friendlyTips;
 
     @Schema(description = "服务编码，由服务端返回，可能是服务节点编码")
     protected String serviceCode;
@@ -74,6 +72,7 @@ public class ApiResp<T>
     public static <T> ApiResp<T> ok(T data) {
         return new ApiResp<>(data);
     }
+
     public static <T> ApiResp<T> ok() {
         return new ApiResp<>();
     }

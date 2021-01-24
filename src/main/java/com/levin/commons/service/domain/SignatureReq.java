@@ -29,6 +29,8 @@ import javax.validation.constraints.NotNull;
 public class SignatureReq
         implements ServiceReq {
 
+    private static final long serialVersionUID = -944707546677849710L;
+
     @Schema(description = "应用标识")
     @Ignore
     @NotNull
