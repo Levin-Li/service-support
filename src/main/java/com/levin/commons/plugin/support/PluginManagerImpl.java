@@ -16,6 +16,7 @@ import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +49,8 @@ public class PluginManagerImpl implements PluginManager,
     @Nullable
     private ApplicationContext applicationContext;
 
-    @Autowired
+    //@Autowired
+    @Resource(name = "applicationTaskExecutor")
     Executor executor;
 
     @PostConstruct

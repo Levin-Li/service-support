@@ -29,4 +29,5 @@ public class PluginConfiguration {
     PluginManager pluginManager() {
         return new PluginManagerImpl();
     }
+
 }
