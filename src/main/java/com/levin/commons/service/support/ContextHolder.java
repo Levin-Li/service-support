@@ -4,42 +4,52 @@ import org.springframework.util.ConcurrentReferenceHashMap;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class ContextHolder<K, V> {
 
     /**
+     * 全局上下文
+     */
+    public static final ContextHolder<Object, Object> globalContext = buildContext(true);
+
+    /**
+     * 全局线程上下文
+     */
+    public static final ContextHolder<Object, Object> threadContext = buildThreadContext(true, false);
+
+    /**
+     * 全局可继承线程上下文
+     */
+    public static final ContextHolder<Object, Object> inheritableThreadContext = buildThreadContext(true, true);
+
+    /**
+     * 构建普通上下文
      *
+     * @param <K>
+     * @param <V>
+     * @return
      */
-    public static final ContextHolder<Object, Object> global = new ContextHolder<Object, Object>() {
+    public static final <K, V> ContextHolder<K, V> buildContext(boolean isStrongReference) {
+        return new ContextHolder<K, V>() {
+            private final Map<K, V> ctx = isStrongReference ? new ConcurrentHashMap<>(16) : new ConcurrentReferenceHashMap<>(16);
 
-        private final Map<Object, Object> ctx = new ConcurrentReferenceHashMap<>();
-
-        @Override
-        protected Map<Object, Object> getContext() {
-            return ctx;
-        }
-    };
+            @Override
+            protected Map<K, V> getContext() {
+                return ctx;
+            }
+        };
+    }
 
     /**
-     * 全局线程
-     */
-    public static final ContextHolder<Object, Object> threadContext = build(false);
-
-    /**
-     * 全局可继承线程
-     */
-    public static final ContextHolder<Object, Object> inheritableThreadContext = build(true);
-
-
-    /**
-     * 构建
+     * 构建线程上下文
      *
      * @param inheritableThread
      * @param <K>
      * @param <V>
      * @return
      */
-    public static final <K, V> ContextHolder<K, V> build(final boolean inheritableThread) {
+    public static final <K, V> ContextHolder<K, V> buildThreadContext(final boolean isStrongReference, final boolean inheritableThread) {
 
         return new ContextHolder<K, V>() {
 
@@ -51,7 +61,9 @@ public abstract class ContextHolder<K, V> {
                 Map<K, V> context = threadContext.get();
 
                 if (context == null) {
-                    context = new ConcurrentReferenceHashMap<>();
+
+                    context = isStrongReference ? new ConcurrentHashMap<>(16) : new ConcurrentReferenceHashMap<>(16);
+
                     threadContext.set(context);
                 }
 
@@ -92,6 +104,10 @@ public abstract class ContextHolder<K, V> {
 
     public <T> T put(K key, V object) {
         return (T) getContext().put(key, object);
+    }
+
+    public <T> T putIfAbsent(K key, V object) {
+        return (T) getContext().putIfAbsent(key, object);
     }
 
     public Map<K, V> getAll(boolean readOnly) {
