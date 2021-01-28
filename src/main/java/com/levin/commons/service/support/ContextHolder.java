@@ -94,19 +94,23 @@ public abstract class ContextHolder<K, V> {
         return getContext().containsKey(key);
     }
 
-    public <T> T get(K key) {
+    public <T extends V> T get(K key) {
         return (T) getContext().get(key);
     }
 
-    public <T> T remove(K key) {
+    public <T extends V> T get(K key, V defaultValue) {
+        return (T) getContext().getOrDefault(key, defaultValue);
+    }
+
+    public <T extends V> T remove(K key) {
         return (T) getContext().remove(key);
     }
 
-    public <T> T put(K key, V object) {
+    public <T extends V> T put(K key, V object) {
         return (T) getContext().put(key, object);
     }
 
-    public <T> T putIfAbsent(K key, V object) {
+    public <T extends V> T putIfAbsent(K key, V object) {
         return (T) getContext().putIfAbsent(key, object);
     }
 
