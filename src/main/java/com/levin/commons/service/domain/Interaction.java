@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -62,6 +61,7 @@ public interface Interaction
      * ui: page1 跳转到指定页面
      * api: http://xxx 访问 API 接口，接口必须返回一个标准的 ServiceResp 对象
      * go: true/false ,true 表示按钮按下后，继续业务，false 表示中断业务
+     * script: 执行 javascript 脚本
      * <p>
      * <p>
      * 如果动作为 null 或是 empty ，则为自动消失的提示，不需要用户点击动作。
