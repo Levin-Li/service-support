@@ -1,21 +1,23 @@
 package com.levin.commons.service.domain;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @Desc("客户端接入请求")
 public interface ClientAccessRequest {
 
-    @Desc("客户端ID")
+    @Schema(description = "客户端ID")
     String getClientId();
 
-    @Desc(value = "时间戳", detail = "yyyy-MM-dd hh:mm:ss")
+    @Schema(description = "时间戳 yyyy-MM-dd hh:mm:ss")
     String getTimestamp();
 
-    @Desc("渠道编码")
+    @Schema(description = "渠道编码")
     String getChannelCode();
 
-    @Desc("签名串")
+    @Schema(description = "签名串")
     String getSign();
 
-    @Desc(value = "设置签名", detail = "同时返回签名")
+
     ClientAccessRequest setSign(String sign);
 
 }

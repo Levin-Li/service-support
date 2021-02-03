@@ -28,6 +28,9 @@ public class AsyncHandler<T> {
     @Setter
     protected volatile ScheduledExecutorService defaultScheduler;
 
+    /**
+     *
+     */
     protected String name;
 
     /**
