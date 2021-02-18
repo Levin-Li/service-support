@@ -4,7 +4,8 @@ import com.levin.commons.service.VariableResolver;
 import com.levin.commons.service.domain.InjectVar;
 import com.levin.commons.service.support.Locker;
 import com.levin.commons.service.support.ValueHolder;
-import com.oracle.tools.packager.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.ReflectionUtils;
 
@@ -16,6 +17,7 @@ import java.util.Map;
 
 public abstract class ObjectInjetUtils {
 
+    public static final Logger logger = LoggerFactory.getLogger(ObjectInjetUtils.class);
 
     //线程安全的解析器
 //    private static final ExpressionParser expressionParser = new SpelExpressionParser();
@@ -82,8 +84,8 @@ public abstract class ObjectInjetUtils {
                     }
 
                 } catch (Exception e) {
-                    if (Log.isDebug()) {
-                        Log.debug(e);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(injectVar + " resolve error", e);
                     }
                 }
             }
