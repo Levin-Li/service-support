@@ -7,7 +7,6 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-//@Repeatable(InjectVar.class)
 /**
  *
  * 字段注入
@@ -17,7 +16,6 @@ import java.lang.annotation.*;
  * 可以字段，参数，方法
  *
  */
-@Deprecated
 public @interface InjectDomain {
 
     /**

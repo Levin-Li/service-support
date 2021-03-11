@@ -11,7 +11,6 @@ import java.lang.annotation.*;
  *
  * 注入域
  *
- * 可以字段，参数，方法
  * @author lilw
  *
  */

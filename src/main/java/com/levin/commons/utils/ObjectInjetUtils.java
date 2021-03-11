@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -36,8 +37,9 @@ public abstract class ObjectInjetUtils {
     public static void autoInject(Object bean, Map<String, Object>... contexts) throws IllegalAccessException {
 
         VariableResolver variableResolver = new VariableResolver() {
+
             @Override
-            public <T> ValueHolder<T> resolve(String name, boolean throwExWhenNotFound, Class<?>... expectTypes) throws RuntimeException {
+            public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws RuntimeException {
 
                 for (Map<String, Object> context : contexts) {
                     if (context.containsKey(name)) {
@@ -57,6 +59,20 @@ public abstract class ObjectInjetUtils {
 
     }
 
+    /**
+     * 根据上下文自动注入变量
+     *
+     * @param variableResolver
+     * @param beans
+     * @throws IllegalAccessException
+     */
+    public static void autoInject(VariableResolver variableResolver, Object... beans) throws IllegalAccessException {
+
+        for (Object bean : beans) {
+            autoInject(bean, variableResolver);
+        }
+
+    }
 
     /**
      * 根据变量解析器自动注入
@@ -73,11 +89,21 @@ public abstract class ObjectInjetUtils {
 
             InjectVar injectVar = field.getAnnotation(InjectVar.class);
 
+            field.setAccessible(true);
+
             ValueHolder<Object> valueHolder = ValueHolder.NOT_VALUE;
+
+            String varName = injectVar.value();
+
+            //默认等于变量名称
+            if (!StringUtils.hasText(varName)) {
+                varName = field.getName();
+            }
 
             for (VariableResolver variableResolver : variableResolvers) {
                 try {
-                    valueHolder = variableResolver.resolve(injectVar.value(), false);
+
+                    valueHolder = variableResolver.resolve(varName, field.get(bean), false);
 
                     if (valueHolder.isHasValue()) {
                         break;
@@ -100,27 +126,13 @@ public abstract class ObjectInjetUtils {
                     && !valueHolder.isHasValue()) {
 
                 throw new IllegalAccessException(field.getDeclaringClass().getName()
-                        + "." + field.getName() + " inject var " + injectVar.value() + " can't resolve," + injectVar.remark());
+                        + "." + field.getName() + " inject var [" + varName + "] can't resolve," + injectVar.remark());
             }
 
         }
 
     }
 
-    /**
-     * 根据上下文自动注入变量
-     *
-     * @param variableResolver
-     * @param beans
-     * @throws IllegalAccessException
-     */
-    public static void autoInject(VariableResolver variableResolver, Object... beans) throws IllegalAccessException {
-
-        for (Object bean : beans) {
-            autoInject(bean, variableResolver);
-        }
-
-    }
 
     private static final Map<String, List<Field>> fieldMap = new ConcurrentReferenceHashMap<>();
 
