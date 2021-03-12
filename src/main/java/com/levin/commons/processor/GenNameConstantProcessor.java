@@ -133,11 +133,11 @@ public class GenNameConstantProcessor extends AbstractProcessor {
                 continue;
             } else {
 
-                this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, getClass().getSimpleName() + " Processing class " + fullClassName + " --> " + newSimpleClassName);
+                this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, getClass().getSimpleName() + " Processing class " + fullClassName + "(" + element.getKind() + " - " + element.getEnclosedElements().size() + "-" + elementUtils.getAllMembers(typeElement).size() + ") --> " + newSimpleClassName);
 
             }
 
-            boolean useExtends = genFieldNameConstant == null || genFieldNameConstant.extendsMode();
+            boolean useExtendsMode = genFieldNameConstant == null || genFieldNameConstant.extendsMode();
 
             TypeMirror superclass = typeElement.getSuperclass();
 
@@ -164,7 +164,7 @@ public class GenNameConstantProcessor extends AbstractProcessor {
                     .append("public interface ").append(newSimpleClassName)
                     .append(" extends Serializable ")
 
-                    .append((useExtends && !isRootParent && newSuperFullClassName.trim().length() > 0) ? (" , " + newSuperFullClassName) : "")
+                    .append((useExtendsMode && !isRootParent && newSuperFullClassName.trim().length() > 0) ? (" , " + newSuperFullClassName) : "")
 
                     .append(" {\n\n")
                     .append("    String PACKAGE_NAME = \"").append(packageName).append("\"; // 类包名 \n\n")
@@ -177,10 +177,11 @@ public class GenNameConstantProcessor extends AbstractProcessor {
             ElementKind eKind = typeElement.getKind();
             boolean isInterface = eKind == ElementKind.ANNOTATION_TYPE || eKind == ElementKind.INTERFACE;
             boolean isClass = eKind == ElementKind.CLASS;
+            boolean isEnum = eKind == ElementKind.ENUM;
 
             GenNameConstant.Type genType = genFieldNameConstant.genType();
 
-            List<? extends Element> enclosedElements = (isRootParent || eKind == ElementKind.ANNOTATION_TYPE || useExtends) ? typeElement.getEnclosedElements() : elementUtils.getAllMembers(typeElement);
+            List<? extends Element> enclosedElements = (isRootParent || eKind == ElementKind.ANNOTATION_TYPE || useExtendsMode) ? typeElement.getEnclosedElements() : elementUtils.getAllMembers(typeElement);
 
             final Map<String, String> fieldMap = new LinkedHashMap<>();
 
@@ -196,24 +197,27 @@ public class GenNameConstantProcessor extends AbstractProcessor {
                             return false;
                         }
 
+
                         Set<Modifier> modifiers = e.getModifiers();
 
+                        //  this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, getClass().getSimpleName() + " Processing class " + fullClassName + " --> " + e.getSimpleName() + " " + modifiers);
+
                         //过滤静态字段
-                        if (modifiers.contains(Modifier.STATIC)
-                                || modifiers.contains(Modifier.TRANSIENT)
-                                || modifiers.contains(Modifier.NATIVE)) {
+                        if (modifiers.contains(Modifier.NATIVE)) {
                             return false;
                         }
-
 
                         if (genType == GenNameConstant.Type.BOTH) {
                             return true;
                         } else if (genType == GenNameConstant.Type.AUTO) {
-                            return (isInterface && kind == ElementKind.METHOD) || (isClass && kind == ElementKind.FIELD);
+                            return (isEnum && kind == ElementKind.ENUM_CONSTANT)
+                                    || (isInterface && kind == ElementKind.METHOD)
+                                    || (isClass && kind == ElementKind.FIELD);
                         } else if (genType == GenNameConstant.Type.METHOD) {
                             return kind == ElementKind.METHOD;
                         } else if (genType == GenNameConstant.Type.FIELD) {
-                            return kind == ElementKind.FIELD;
+                            //枚举常量也当成字段处理
+                            return kind == ElementKind.FIELD || kind == ElementKind.ENUM_CONSTANT;
                         } else {
                             return false;
                         }
