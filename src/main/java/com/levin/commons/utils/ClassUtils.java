@@ -1,6 +1,7 @@
 package com.levin.commons.utils;
 
 
+import com.levin.commons.service.support.Locker;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -12,7 +13,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- *
+ * 类工具
  */
 
 public final class ClassUtils {
@@ -26,6 +27,40 @@ public final class ClassUtils {
 
     private static final Map<String, Map<String, Field>> cacheFields = new ConcurrentReferenceHashMap<>();
 
+    private static final Locker LOCKER = Locker.build();
+
+
+    private static final Map<String, List<Field>> fieldMap = new ConcurrentReferenceHashMap<>();
+
+    /**
+     * 获取拥有指定注解的字段清单
+     *
+     * @param clazz
+     * @param type
+     * @return
+     */
+    public static List<Field> getFields(Class clazz, Class<? extends Annotation> type) {
+
+        final String key = clazz.getName() + "@" + type.getName();
+
+        synchronized (LOCKER.getLock(key)) {
+
+            List<Field> fields = fieldMap.get(key);
+
+            if (fields == null) {
+
+                final List<Field> tempList = new ArrayList<>(5);
+
+                ReflectionUtils.doWithFields(clazz, field -> tempList.add(field), field -> field.isAnnotationPresent(type));
+
+                fields = Collections.unmodifiableList(tempList);
+
+                fieldMap.put(key, fields);
+            }
+
+            return fields;
+        }
+    }
 
     /**
      * 格式化包名
@@ -288,7 +323,6 @@ public final class ClassUtils {
 
     private static Map<String, Method> getCachedSetMethodMap(Class clazz) {
 
-
         Map<String, Method> methodMap = cacheSetMethods.get(clazz.getName());
 
         if (methodMap == null) {
@@ -300,7 +334,6 @@ public final class ClassUtils {
     }
 
     private static Map<String, Method> getCachedGetMethodMap(Class clazz) {
-
 
         Map<String, Method> methodMap = cacheGetMethods.get(clazz.getName());
 
@@ -314,7 +347,6 @@ public final class ClassUtils {
 
 
     private static Map<String, Field> getCachedFieldMap(Class clazz) {
-
 
         Map<String, Field> methodMap = cacheFields.get(clazz.getName());
 
@@ -343,7 +375,6 @@ public final class ClassUtils {
             return dest;
 
         Map<String, Field> fieldMap = getCachedFieldMap(source.getClass());
-
 
         for (Map.Entry<String, Field> entry : fieldMap.entrySet()) {
             try {

@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Role;
 
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
 
 import static org.springframework.beans.factory.config.BeanDefinition.ROLE_SUPPORT;
 

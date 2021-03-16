@@ -13,7 +13,18 @@ import java.util.function.Supplier;
 @Accessors(chain = true)
 public class ValueHolder<T> implements Supplier<T> {
 
-    public static final ValueHolder NOT_VALUE = new ValueHolder<>();
+    public static final ValueHolder NOT_VALUE = new ValueHolder() {
+        @Override
+        public boolean isHasValue() {
+            return false;
+        }
+
+        @Override
+        public Object getValue() {
+            throw new IllegalStateException("not value");
+            //return null;
+        }
+    };
 
     Object root;
 

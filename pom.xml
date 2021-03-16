@@ -92,11 +92,11 @@
             <url>https://jitpack.io</url>
         </repository>
 
-<!--        <repository>
-            &lt;!&ndash; 仓库首页 https://maven.aliyun.com/ &ndash;&gt;
-            <id>aliyun-central仓和jcenter仓的聚合仓</id>
-            <url>https://maven.aliyun.com/repository/public</url>
-        </repository>-->
+<!--        <repository>-->
+<!--            &lt;!&ndash; 仓库首页 https://maven.aliyun.com/ &ndash;&gt;-->
+<!--            <id>aliyun-central仓和jcenter仓的聚合仓</id>-->
+<!--            <url>https://maven.aliyun.com/repository/public</url>-->
+<!--        </repository>-->
 
     </repositories>
 
@@ -157,6 +157,14 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-expression</artifactId>
             <version>RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>2.5.12</version>
             <scope>provided</scope>
         </dependency>
 

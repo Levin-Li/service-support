@@ -11,14 +11,28 @@ import java.lang.annotation.*;
  *
  * 注入域
  *
+ * 可以注入字段或是参数
+ *
  * @author lilw
  *
  */
 public @interface InjectVar {
 
     /**
+     * spring el 表达式前缀
+     */
+    String SPEL_PREFIX = "#!spel:";
+
+    /**
+     * groovy 表达式前缀
+     */
+    String GROOVY_PREFIX = "#!groovy:";
+
+    /**
      * 变量名称
      * 默认为字段名称
+     * <p>
+     * 也可以是脚本表达式 ，以 InjectVar.SPEL_PREFIX  InjectVar.GROOVY_PREFIX 开头。
      *
      * @return
      */

@@ -1,1 +1,2 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.levin.commons.plugin.support.PluginConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.levin.commons.plugin.support.PluginConfiguration\
+  com.levin.commons.service.support.SpringContextHolder

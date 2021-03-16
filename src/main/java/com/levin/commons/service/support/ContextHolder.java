@@ -5,6 +5,7 @@ import org.springframework.util.ConcurrentReferenceHashMap;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 public abstract class ContextHolder<K, V> {
 
@@ -80,7 +81,6 @@ public abstract class ContextHolder<K, V> {
     private ContextHolder() {
     }
 
-
     /**
      * 确保不会返回 null
      *
@@ -96,6 +96,27 @@ public abstract class ContextHolder<K, V> {
 
     public <T extends V> T get(K key) {
         return (T) getContext().get(key);
+    }
+
+    /**
+     * 获取缓存值
+     *
+     * @param key
+     * @param supplier
+     * @param <T>
+     * @return
+     */
+    public <T extends V> T get(K key, Supplier<T> supplier) {
+
+        Map<K, V> kvMap = getContext();
+
+        T value = (T) kvMap.get(key);
+
+        if (value == null) {
+            value = (T) kvMap.putIfAbsent(key, supplier.get());
+        }
+
+        return value;
     }
 
     public <T extends V> T get(K key, V defaultValue) {

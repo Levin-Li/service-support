@@ -1,6 +1,5 @@
-package com.levin.commons.service;
+package com.levin.commons.service.support;
 
-import com.levin.commons.service.support.ValueHolder;
 
 /**
  * 变量解析器
@@ -20,8 +19,8 @@ public interface VariableResolver {
      * @param throwExWhenNotFound 当变量无法解析时是否抛出异常
      * @param expectTypes         期望的类型
      * @return ValueHolder<T>
-     * @throws RuntimeException 如果变量无法获取将抛出异常
+     * @throws VariableNotFoundException 如果变量无法获取将抛出异常
      */
-    <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws RuntimeException;
+    <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws VariableNotFoundException;
 
 }

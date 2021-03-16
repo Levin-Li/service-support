@@ -10,10 +10,12 @@ import com.auth0.jwt.interfaces.JWTVerifier;
 import java.util.Date;
 import java.util.Map;
 
-public class JwtUtils {
+public abstract class JwtUtils {
 
 
     /**
+     * 加密
+     *
      * @param secureKey
      * @param timeoutSeconds
      * @param data
@@ -41,7 +43,7 @@ public class JwtUtils {
     }
 
     /**
-     * 验证jwt
+     * 解码验证jwt
      */
     public static DecodedJWT decodeHMAC256(String token, String secureKey) throws JWTVerificationException {
 
