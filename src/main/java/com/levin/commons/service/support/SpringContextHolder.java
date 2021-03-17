@@ -2,6 +2,7 @@ package com.levin.commons.service.support;
 
 import com.levin.commons.conditional.ConditionalOn;
 import lombok.Getter;
+import lombok.experimental.FieldNameConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
@@ -17,7 +18,7 @@ import org.springframework.core.io.ResourceLoader;
 
 import javax.annotation.PostConstruct;
 
-@Configuration
+@Configuration("com.levin.commons.service.support.SpringContextHolder")
 @Slf4j
 @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = SpringContextHolder.class)
 public class SpringContextHolder implements EnvironmentAware,

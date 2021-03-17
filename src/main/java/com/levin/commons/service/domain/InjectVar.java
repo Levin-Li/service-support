@@ -18,6 +18,27 @@ import java.lang.annotation.*;
  */
 public @interface InjectVar {
 
+
+    /**
+     * 表达式类型
+     */
+    enum ExprType {
+
+        /**
+         * Spring el
+         */
+        Spel,
+        /**
+         * groovy
+         */
+        Groovy,
+
+        /**
+         * 默认
+         */
+        Default
+    }
+
     /**
      * spring el 表达式前缀
      */
@@ -29,23 +50,32 @@ public @interface InjectVar {
     String GROOVY_PREFIX = "#!groovy:";
 
     /**
-     * 变量名称
-     * 默认为字段名称
+     * 变量名称或是表达式
      * <p>
-     * 也可以是脚本表达式 ，以 InjectVar.SPEL_PREFIX  InjectVar.GROOVY_PREFIX 开头。
+     * 默认取值字段名称
      *
      * @return
      */
     String value() default "";
 
+
     /**
-     * 变量是否是必须的
+     * 变量值是否是必须的
+     * <p>
      * <p>
      * 如果变量找不到，应该抛出异常
      *
      * @return
      */
     boolean isRequired() default true;
+
+
+    /**
+     * 默认为普通变量名
+     *
+     * @return
+     */
+    ExprType exprType() default ExprType.Default;
 
     /**
      * 备注
