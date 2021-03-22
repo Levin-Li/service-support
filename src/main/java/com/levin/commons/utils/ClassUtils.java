@@ -189,6 +189,17 @@ public final class ClassUtils {
     }
 
     /**
+     * 创建注解实例
+     *
+     * @param annotationClass
+     * @param copyProps
+     * @return
+     */
+    public static Annotation newAnnotation(Class<? extends Annotation> annotationClass, Map<String, Object> copyProps) {
+        return newAnnotation(annotationClass, null, copyProps, false);
+    }
+
+    /**
      * New 注解实例
      *
      * @param annotationClass             可以为 Null，为空是从copySource获取注解类型
@@ -224,8 +235,9 @@ public final class ClassUtils {
 
                 Object v = null;
 
-
-                if (ReflectionUtils.isObjectMethod(method)) {
+                if (ReflectionUtils.isToStringMethod(method)) {
+                    return "Annotation JDK proxy (" + type.getName() + ")";
+                } else if (ReflectionUtils.isObjectMethod(method)) {
                     return method.invoke(proxy, args);
                 }
 

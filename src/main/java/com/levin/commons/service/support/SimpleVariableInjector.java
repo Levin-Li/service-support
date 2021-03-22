@@ -155,7 +155,7 @@ public interface SimpleVariableInjector extends VariableInjector {
                     throw new VariableInjectException(field.getDeclaringClass().getName()
                             + "." + field.getName() + " inject var [" + varName + "] can't inject," + injectVar.remark(), e);
                 }
-            } else if (injectVar.isRequired()) {
+            } else if (injectVar.isRequired()=="") {
                 //如果变量是必须的，则抛出异常
                 throw new VariableNotFoundException(injectVar.remark() + " --> " + field.getDeclaringClass().getName()
                         + "." + field.getName() + " inject var [" + varName + "] can't resolve in " + variableResolverCnt + " variableResolvers");

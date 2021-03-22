@@ -11,33 +11,18 @@ import java.lang.annotation.*;
  *
  * 注入域
  *
- * 可以注入字段或是参数
+ * 把表达式求解后的值注入到被注解的字段中
+ *
+ * 样例：
+ * class A{
+ *     @InjectVar("user.name") //把 user.name 的值 注入到 userName 字段
+ *     String userName;
+ * }
  *
  * @author lilw
  *
  */
 public @interface InjectVar {
-
-
-    /**
-     * 表达式类型
-     */
-    enum ExprType {
-
-        /**
-         * Spring el
-         */
-        Spel,
-        /**
-         * groovy
-         */
-        Groovy,
-
-        /**
-         * 默认
-         */
-        Default
-    }
 
     /**
      * spring el 表达式前缀
@@ -48,6 +33,7 @@ public @interface InjectVar {
      * groovy 表达式前缀
      */
     String GROOVY_PREFIX = "#!groovy:";
+
 
     /**
      * 变量名称或是表达式
@@ -60,22 +46,32 @@ public @interface InjectVar {
 
 
     /**
-     * 变量值是否是必须的
+     * 是否覆盖原字段值，表达式必须返回 true or false
      * <p>
      * <p>
-     * 如果变量找不到，应该抛出异常
+     * 通常用于判定，如果当前用户是超级管理员，可以不覆盖原值。
      *
      * @return
      */
-    boolean isRequired() default true;
+    String isOverride() default "true";
 
 
     /**
-     * 默认为普通变量名
+     * 变量是否必须存在，表达式必须返回 true or false
+     *
+     * <p>
+     * 如果变量找不到，注入处理者应该抛出异常
      *
      * @return
      */
-    ExprType exprType() default ExprType.Default;
+    String isRequired() default "true";
+
+    /**
+     * 表达式前缀
+     *
+     * @return
+     */
+    String exprPrefix() default "";
 
     /**
      * 备注

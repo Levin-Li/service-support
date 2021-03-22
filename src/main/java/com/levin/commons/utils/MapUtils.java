@@ -19,6 +19,7 @@ public abstract class MapUtils {
             map.put(key, value);
         }
 
+
         public Builder<K, V> put(K k, V v) {
 
             map.put(k, v);
@@ -59,6 +60,17 @@ public abstract class MapUtils {
     }
 
     /**
+     * 放入第一个元素并返回一个 map 的 builder
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    public static Builder<String, Object> putFirst(String key, Object value) {
+        return new Builder<>(key, value);
+    }
+
+    /**
      * 合并
      *
      * @param <K>
@@ -95,6 +107,7 @@ public abstract class MapUtils {
     }
 
     public static void main(String[] args) {
+
 
         System.out.println(asMap("k1", 2, "k2", "adsfds"));
 

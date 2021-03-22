@@ -302,7 +302,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
             }
 
 
-            String fieldName = subEle.getSimpleName().toString();
+            final String fieldName = subEle.getSimpleName().toString();
 
             // this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, getClass().getSimpleName() + " Processing field " + fieldName);
 
@@ -348,12 +348,15 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             fieldMap.put(fieldTableColName, "\n    String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名 \n");
 
+            fieldMap.put("F_"+fieldName, "\n    String F_" + fieldName + "  = \"F$:" + fieldName + "\"; //用于替换的名称，替换字段" + name + " 对应的数据库列名 \n");
+
             boolean isIdAttr = subEle.getAnnotation(Id.class) != null || subEle.getAnnotation(EmbeddedId.class) != null;
 
             if (isIdAttr) {
                 //   codeBlock.append("\n    String ").append("PK_ID").append(" = \"").append(fieldName).append("\";\n");
 
                 fieldMap.put("PK_ID", "\n    String PK_ID = \"" + fieldName + "\"; //主键字段名 \n");
+                fieldMap.put("F_PK_ID", "\n    String F_PK_ID = \"F$:" + fieldName + "\"; //主键字段名 \n");
                 fieldMap.put("T_PK_ID", "\n    String T_PK_ID = \"" + tableColName + "\"; //主键字段对应的数据库列名 \n");
 
                 uniqueFields.add(fieldName);
