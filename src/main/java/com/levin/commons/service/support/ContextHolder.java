@@ -145,7 +145,7 @@ public abstract class ContextHolder<K, V> {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public boolean contains(K key) {
+    public boolean containsKey(K key) {
         return getContext().containsKey(convertKey(key));
     }
 
