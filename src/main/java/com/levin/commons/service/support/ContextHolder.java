@@ -1,5 +1,6 @@
 package com.levin.commons.service.support;
 
+import com.levin.commons.utils.MapUtils;
 import org.springframework.util.ConcurrentReferenceHashMap;
 
 import java.util.Collections;
@@ -99,24 +100,15 @@ public abstract class ContextHolder<K, V> {
     }
 
     /**
-     * 获取缓存值
+     * 取出缓存，如果没有，则先去获取，然后放入缓存，在返回获取的值
      *
      * @param key
-     * @param supplier
+     * @param suppliers
      * @param <T>
      * @return
      */
-    public <T extends V> T get(K key, Supplier<T> supplier) {
-
-        Map<K, V> kvMap = getContext();
-
-        T value = (T) kvMap.get(key);
-
-        if (value == null) {
-            value = (T) kvMap.putIfAbsent(key, supplier.get());
-        }
-
-        return value;
+    public <T extends V> T getAndAutoPut(K key, Supplier<T>... suppliers) {
+        return (T) MapUtils.getAndAutoPut(getContext(), key, suppliers);
     }
 
     public <T extends V> T get(K key, V defaultValue) {

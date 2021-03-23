@@ -6,6 +6,7 @@ import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
@@ -29,8 +30,45 @@ public final class ClassUtils {
 
     private static final Locker LOCKER = Locker.build();
 
-
     private static final Map<String, List<Field>> fieldMap = new ConcurrentReferenceHashMap<>();
+
+    private static final Map<String, Method> postConstructMethodCache = new ConcurrentReferenceHashMap<>();
+
+
+    /**
+     * 执行 postConstruct 方法
+     *
+     * @param bean
+     * @return
+     */
+    public static void invokeFirstPostConstructMethod(Object bean) {
+
+        if (bean != null) {
+
+            String name = bean.getClass().getName();
+
+            Method method = postConstructMethodCache.get(name);
+
+            if (method == null
+                    && !postConstructMethodCache.containsKey(name)) {
+
+                //找出第一个
+                method = Arrays.stream(ReflectionUtils.getAllDeclaredMethods(bean.getClass()))
+                        .filter(m -> m.isAnnotationPresent(PostConstruct.class))
+                        .findFirst()
+                        .orElse(null);
+
+                //空值也存入，避免下次还去查找方法
+                postConstructMethodCache.put(name, method);
+            }
+
+            if (method != null) {
+                method.setAccessible(true);
+                ReflectionUtils.invokeMethod(method, bean);
+            }
+        }
+    }
+
 
     /**
      * 获取拥有指定注解的字段清单

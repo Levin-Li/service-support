@@ -1,7 +1,11 @@
 package com.levin.commons.utils;
 
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public abstract class MapUtils {
 
@@ -104,6 +108,41 @@ public abstract class MapUtils {
      */
     public static <K, V> Map<K, V> asMap(Object... paramPairs) {
         return new Builder<K, V>().putPairs(paramPairs).build();
+    }
+
+    /**
+     * 取出缓存，如果没有，则先去用Supplier获取，然后放入缓存，在返回获取的值
+     *
+     * @param key
+     * @param suppliers
+     * @param <V>
+     * @return
+     */
+    public static <K, V> V getAndAutoPut(@NonNull Map kvMap, K key, @Nullable Supplier<V>... suppliers) {
+
+        V value = (V) kvMap.get(key);
+
+        if (value == null && suppliers != null) {
+
+            for (Supplier<V> supplier : suppliers) {
+
+                if (supplier == null) {
+                    continue;
+                }
+
+                value = supplier.get();
+
+                if (value != null) {
+                    //只要有一个不为 null，则返回
+                    kvMap.putIfAbsent(key, value);
+                    break;
+                }
+
+            }
+
+        }
+
+        return value;
     }
 
     public static void main(String[] args) {
