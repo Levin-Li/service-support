@@ -6,6 +6,7 @@ import org.springframework.util.ConcurrentReferenceHashMap;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -139,7 +140,13 @@ public abstract class MapUtils {
 
         V value = (V) kvMap.get(key);
 
-        if (value == null && suppliers != null) {
+        if (putCondition == null) {
+            //默认条件为不空
+            putCondition = Objects::nonNull;
+        }
+
+        //如果不存在值，或是存在的值不满足条件，则尝试取值
+        if ((!kvMap.containsKey(key) || !putCondition.test(value)) && suppliers != null) {
 
             for (Supplier<V> supplier : suppliers) {
 
@@ -149,16 +156,7 @@ public abstract class MapUtils {
 
                 value = supplier.get();
 
-
-                if (putCondition == null) {
-
-                    if (value != null) {
-                        //只要有一个不为 null，则返回
-                        kvMap.put(key, value);
-                        break;
-                    }
-
-                } else if (putCondition.test(value)) {
+                if (putCondition.test(value)) {
                     kvMap.put(key, value);
                     break;
                 }
