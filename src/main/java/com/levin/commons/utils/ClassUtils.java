@@ -10,6 +10,7 @@ import javax.annotation.PostConstruct;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -170,6 +171,33 @@ public final class ClassUtils {
         return minList;
     }
 
+
+    /**
+     * 获取第一个符号条件的属性值
+     * <p>
+     * 如果条件没设置默认返回非空的值
+     *
+     * @param annotation
+     * @param filter     如果条件没设置默认返回非空的值
+     * @param attrNames
+     * @param <T>
+     * @return
+     */
+    public static <T> T getFirstValue(Annotation annotation, Predicate<T> filter, String... attrNames) {
+
+        for (String attrName : attrNames) {
+
+            T value = getValue(annotation, attrName, false);
+
+            if (filter != null && filter.test(value)) {
+                return value;
+            } else if (value != null) {
+                return value;
+            }
+        }
+
+        return null;
+    }
 
     /**
      * 获取注解的属性值

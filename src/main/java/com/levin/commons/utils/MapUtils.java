@@ -2,9 +2,12 @@ package com.levin.commons.utils;
 
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.util.ConcurrentReferenceHashMap;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public abstract class MapUtils {
@@ -14,15 +17,20 @@ public abstract class MapUtils {
 
     public static class Builder<K, V> {
 
-        Map<K, V> map = new LinkedHashMap<>();
+        final Map<K, V> map;
+
+        private Builder(Map<K, V> map) {
+            this.map = map != null ? map : new LinkedHashMap<>();
+        }
 
         private Builder() {
+            this(null);
         }
 
         private Builder(K key, V value) {
+            this();
             map.put(key, value);
         }
-
 
         public Builder<K, V> put(K k, V v) {
 
@@ -74,6 +82,12 @@ public abstract class MapUtils {
         return new Builder<>(key, value);
     }
 
+
+    public static <K, V> Builder<K, V> asRef(Map<K, V> map) {
+        return new Builder<K, V>(map);
+    }
+
+
     /**
      * 合并
      *
@@ -113,12 +127,15 @@ public abstract class MapUtils {
     /**
      * 取出缓存，如果没有，则先去用Supplier获取，然后放入缓存，在返回获取的值
      *
+     * @param kvMap
      * @param key
+     * @param putCondition
      * @param suppliers
+     * @param <K>
      * @param <V>
      * @return
      */
-    public static <K, V> V getAndAutoPut(@NonNull Map kvMap, K key, @Nullable Supplier<V>... suppliers) {
+    public static <K, V> V getAndAutoPut(@NonNull Map kvMap, K key, Predicate<V> putCondition, @Nullable Supplier<V>... suppliers) {
 
         V value = (V) kvMap.get(key);
 
@@ -132,9 +149,17 @@ public abstract class MapUtils {
 
                 value = supplier.get();
 
-                if (value != null) {
-                    //只要有一个不为 null，则返回
-                    kvMap.putIfAbsent(key, value);
+
+                if (putCondition == null) {
+
+                    if (value != null) {
+                        //只要有一个不为 null，则返回
+                        kvMap.put(key, value);
+                        break;
+                    }
+
+                } else if (putCondition.test(value)) {
+                    kvMap.put(key, value);
                     break;
                 }
 
@@ -143,6 +168,14 @@ public abstract class MapUtils {
         }
 
         return value;
+    }
+
+
+    public static <K, V> Map<K, V> newMap(boolean isStrongReference, boolean isWeakReference) {
+
+        return isStrongReference ? new ConcurrentHashMap<>(16) : new ConcurrentReferenceHashMap<>(16
+                , isWeakReference ? ConcurrentReferenceHashMap.ReferenceType.WEAK : ConcurrentReferenceHashMap.ReferenceType.SOFT);
+
     }
 
     public static void main(String[] args) {
