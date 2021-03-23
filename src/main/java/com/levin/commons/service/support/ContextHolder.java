@@ -166,7 +166,7 @@ public abstract class ContextHolder<K, V> {
         return (T) MapUtils.getAndAutoPut(getContext(), convertKey(key), putCondition, suppliers);
     }
 
-    public <T extends V> T get(K key, V defaultValue) {
+    public <T extends V> T getOrDefault(K key, V defaultValue) {
         return (T) getContext().getOrDefault(convertKey(key), defaultValue);
     }
 
