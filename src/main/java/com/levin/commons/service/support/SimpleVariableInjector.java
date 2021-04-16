@@ -75,6 +75,39 @@ public interface SimpleVariableInjector extends VariableInjector {
         injectByVariableResolver(targetBean, getVariableResolvers(suppliers));
     }
 
+    /**
+     * @param expr
+     * @param originalValue
+     * @param fieldType
+     * @param variableResolvers
+     * @return
+     */
+    static ValueHolder<Object> eval(String expr, Object originalValue, Class fieldType, VariableResolver... variableResolvers) {
+        return eval(expr, originalValue, fieldType, Arrays.asList(variableResolvers));
+    }
+
+    /**
+     * @param expr
+     * @param originalValue
+     * @param fieldType
+     * @param variableResolvers
+     * @return
+     */
+    static ValueHolder<Object> eval(String expr, Object originalValue, Class fieldType, List<VariableResolver> variableResolvers) {
+
+        ValueHolder<Object> valueHolder = ValueHolder.NOT_VALUE;
+
+        for (VariableResolver variableResolver : variableResolvers) {
+            if (variableResolver != null) {
+                valueHolder = variableResolver.resolve(expr, originalValue, false, fieldType);
+                if (valueHolder != null && valueHolder.isHasValue()) {
+                    break;
+                }
+            }
+        }
+
+        return valueHolder;
+    }
 
     /**
      * 按字段注解注入变量
@@ -113,8 +146,6 @@ public interface SimpleVariableInjector extends VariableInjector {
 
             field.setAccessible(true);
 
-            ValueHolder<Object> valueHolder = ValueHolder.NOT_VALUE;
-
             String varName = injectVar.value();
 
             //默认等于变量名称
@@ -132,19 +163,7 @@ public interface SimpleVariableInjector extends VariableInjector {
                         + "." + field.getName() + " can't get originalValue ," + injectVar.remark(), e);
             }
 
-            int variableResolverCnt = 0;
-
-            //3、尝试从多个解析器中解析变量
-            for (VariableResolver variableResolver : variableResolvers) {
-                if (variableResolver != null) {
-                    variableResolverCnt++;
-                    valueHolder = variableResolver.resolve(varName, originalValue, false, fieldType);
-                    if (valueHolder != null && valueHolder.isHasValue()) {
-                        break;
-                    }
-                }
-            }
-
+            ValueHolder<Object> valueHolder = eval(varName, originalValue, fieldType, variableResolvers);
 
             if (valueHolder != null && valueHolder.isHasValue()) {
                 //4、如果变量获取成功
@@ -155,13 +174,14 @@ public interface SimpleVariableInjector extends VariableInjector {
                     throw new VariableInjectException(field.getDeclaringClass().getName()
                             + "." + field.getName() + " inject var [" + varName + "] can't inject," + injectVar.remark(), e);
                 }
-            } else if (injectVar.isRequired()=="") {
+            } else if ((Boolean) eval(injectVar.value(), true, Boolean.class, variableResolvers).value) {
                 //如果变量是必须的，则抛出异常
                 throw new VariableNotFoundException(injectVar.remark() + " --> " + field.getDeclaringClass().getName()
-                        + "." + field.getName() + " inject var [" + varName + "] can't resolve in " + variableResolverCnt + " variableResolvers");
+                        + "." + field.getName() + " inject var [" + varName + "] can't resolve");
             }
 
         }
+
     }
 
     ///////////////////////////////////////////////////////////////

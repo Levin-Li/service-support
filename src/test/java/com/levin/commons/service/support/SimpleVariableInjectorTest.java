@@ -4,9 +4,11 @@ import com.levin.commons.service.domain.InjectVar;
 import com.levin.commons.utils.MapUtils;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+
 
 class SimpleVariableInjectorTest {
 
@@ -19,7 +21,30 @@ class SimpleVariableInjectorTest {
 
         String name;
 
+        String idPath;
+
         Org parent;
+
+        public String getIdPath() {
+
+            if (idPath == null) {
+
+                idPath = "";
+
+                Org tempParent = parent;
+
+                while (tempParent != null) {
+                    idPath += "." + tempParent.id;
+                    tempParent = tempParent.parent;
+                }
+
+                idPath = "." + id;
+
+            }
+
+            return idPath;
+        }
+
     }
 
     @Data
@@ -33,22 +58,24 @@ class SimpleVariableInjectorTest {
         String name;
 
         Org org;
+
     }
 
     @Data
     class Dto {
 
-        @InjectVar(InjectConsts.USER_ID)
-        String userId;
-
-        @InjectVar(InjectConsts.ORG_ID)
-        String orgId;
 
         @InjectVar(InjectConsts.ORG)
         Object org;
 
         @InjectVar(InjectConsts.USER)
         Object user;
+
+        @InjectVar(value = InjectConsts.USER_ID,exprPrefix = InjectVar.GROOVY_PREFIX)
+        String userId;
+
+        @InjectVar(InjectConsts.ORG_ID,exprPrefix = InjectVar.GROOVY_PREFIX)
+        String orgId;
 
         /**
          * 想要操作的目标组织 ID
@@ -83,29 +110,69 @@ class SimpleVariableInjectorTest {
 
     }
 
-    Org 公司 = new Org().setId("1").setName("XXX科技有限公司");
+    Org 公司 = new Org().setId("1").setName("XX科技有限公司");
 
-    Org 研发部 = new Org().setId("1-1").setParent(公司).setName("研发部");
-    Org 研发一部 = new Org().setId("1-1-1").setParent(研发部).setName("研发1部");
-    Org 研发二部 = new Org().setId("1-1-2").setParent(研发部).setName("研发2部");
+    Org 研发部 = new Org().setId("2").setParent(公司).setName("研发部");
+    Org 研发一部 = new Org().setId("3").setParent(研发部).setName("研发1部");
+    Org 研发二部 = new Org().setId("4").setParent(研发部).setName("研发2部");
 
-    Org 销售部 = new Org().setId("1-2").setParent(公司).setName("销售部");
+    Org 销售部 = new Org().setId("5").setParent(公司).setName("销售部");
 
+    /////////////////////////////////////////////////////////////////////////////////////
 
     User 超级管理员 = new User().setAdmin(true).setId("1").setName("超级管理员").setOrg(公司);
+
     User 普通管理员 = new User().setAdmin(false).setId("2").setName("管理员").setOrg(公司);
 
     User 张三 = new User().setId("2").setName("张三（程序员）").setOrg(研发部);
 
     User 李四 = new User().setId("2").setName("李四（销售）").setOrg(销售部);
 
+    ////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     void getVariableResolvers() {
 
-//        Map<String, Object> ctx = MapUtils.put(InjectConsts.USER, (Object) user)
-//                .put(InjectConsts.ORG, user.getOrg()).build();
+        getVariableResolversByUser(张三);
 
+        getVariableResolversByUser(普通管理员);
+
+        getVariableResolversByUser(超级管理员);
+
+    }
+
+    void getVariableResolversByUser(User user) {
+
+        Map<String, Object> ctx = MapUtils
+                .putFirst(InjectConsts.USER, user)
+                .put(InjectConsts.ORG, user.org)
+                .build();
+
+        SimpleVariableInjector injector = new SimpleVariableInjector() {
+        };
+
+
+        Dto dto = new Dto();
+
+        dto.setTargetOrgId("9999");
+        dto.setStatTargetOrgId("8888");
+
+        injector.inject(dto, ctx);
+
+        Assertions.assertEquals(dto.org, user.org);
+
+        Assertions.assertEquals(dto.orgId, user.org.id);
+
+        Assertions.assertEquals(dto.user, user);
+        Assertions.assertEquals(dto.userId, user.id);
+
+        if (!user.isAdmin) {
+            Assertions.assertEquals(dto.targetOrgId, user.org.id);
+            Assertions.assertEquals(dto.statTargetOrgId, user.org.id);
+        } else {
+            Assertions.assertEquals(dto.targetOrgId, "9999");
+            Assertions.assertEquals(dto.statTargetOrgId, "8888");
+        }
 
     }
 

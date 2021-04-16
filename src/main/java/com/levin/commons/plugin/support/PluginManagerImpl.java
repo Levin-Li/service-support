@@ -3,7 +3,10 @@ package com.levin.commons.plugin.support;
 import com.levin.commons.plugin.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.*;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
@@ -11,17 +14,16 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Executor;
 
 
 /**
@@ -29,7 +31,6 @@ import java.util.concurrent.Executor;
  */
 
 @Slf4j
-
 public class PluginManagerImpl implements PluginManager,
         DestructionAwareBeanPostProcessor,
         Ordered,
@@ -49,9 +50,8 @@ public class PluginManagerImpl implements PluginManager,
     @Nullable
     private ApplicationContext applicationContext;
 
-    //@Autowired
-    @Resource(name = "applicationTaskExecutor")
-    Executor executor;
+    @Autowired
+    AsyncTaskExecutor asyncTaskExecutor;
 
     @PostConstruct
     void init() {
@@ -175,7 +175,7 @@ public class PluginManagerImpl implements PluginManager,
     @Override
     public boolean sendEvent(String pluginId, Object... events) throws PluginException {
 
-        executor.execute(() -> syncSendEvent(pluginId, events));
+        asyncTaskExecutor.execute(() -> syncSendEvent(pluginId, events));
 
         return true;
     }

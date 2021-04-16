@@ -82,9 +82,11 @@ public final class ClassUtils {
 
         final String key = clazz.getName() + "@" + type.getName();
 
+        List<Field> fields = fieldMap.get(key);
+
         synchronized (LOCKER.getLock(key)) {
 
-            List<Field> fields = fieldMap.get(key);
+             fields = fieldMap.get(key);
 
             if (fields == null) {
 
@@ -97,8 +99,9 @@ public final class ClassUtils {
                 fieldMap.put(key, fields);
             }
 
-            return fields;
         }
+
+        return fields;
     }
 
     /**

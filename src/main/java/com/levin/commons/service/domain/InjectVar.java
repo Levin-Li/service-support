@@ -22,6 +22,7 @@ import java.lang.annotation.*;
  * @author lilw
  *
  */
+
 public @interface InjectVar {
 
     /**
@@ -33,7 +34,6 @@ public @interface InjectVar {
      * groovy 表达式前缀
      */
     String GROOVY_PREFIX = "#!groovy:";
-
 
     /**
      * 变量名称或是表达式
@@ -66,12 +66,14 @@ public @interface InjectVar {
      */
     String isRequired() default "true";
 
+
     /**
      * 表达式前缀
      *
      * @return
      */
     String exprPrefix() default "";
+
 
     /**
      * 备注

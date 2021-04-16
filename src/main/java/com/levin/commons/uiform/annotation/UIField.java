@@ -1,4 +1,4 @@
-package com.levin.commons.uform.annotation;
+package com.levin.commons.uiform.annotation;
 
 
 import java.lang.annotation.*;
@@ -6,6 +6,8 @@ import java.lang.annotation.*;
 /**
  * 主要参考 https://uformjs.org/
  *
+ * Formily--阿里统一表单解决方案
+ * https://formilyjs.org
  *
  * https://uformjs.org/#/YZCyCk/pRSKSDFECp
  *
@@ -16,7 +18,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Image {
+public @interface UIField {
 
     enum Type {
 

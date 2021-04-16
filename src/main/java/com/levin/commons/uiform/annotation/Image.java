@@ -1,4 +1,4 @@
-package com.levin.commons.uform.annotation;
+package com.levin.commons.uiform.annotation;
 
 
 import java.lang.annotation.*;
@@ -16,7 +16,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface UIField {
+public @interface Image {
 
     enum Type {
 
