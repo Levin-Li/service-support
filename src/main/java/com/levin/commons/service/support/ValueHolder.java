@@ -22,7 +22,6 @@ public class ValueHolder<T> implements Supplier<T> {
         @Override
         public Object getValue() {
             throw new IllegalStateException("not value");
-            //return null;
         }
     };
 
@@ -34,9 +33,19 @@ public class ValueHolder<T> implements Supplier<T> {
 
     boolean hasValue = false;
 
+    public Object getValue() {
+
+        if (!isHasValue()) {
+            throw new IllegalStateException("not value");
+        }
+
+        return value;
+    }
+
+
     @Override
     public T get() {
-        return value;
+        return (T) getValue();
     }
 
 }
