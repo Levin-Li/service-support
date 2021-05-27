@@ -8,6 +8,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -51,6 +52,7 @@ public class PluginManagerImpl implements PluginManager,
     private ApplicationContext applicationContext;
 
     @Autowired
+    @Qualifier("applicationTaskExecutor")
     AsyncTaskExecutor asyncTaskExecutor;
 
     @PostConstruct
