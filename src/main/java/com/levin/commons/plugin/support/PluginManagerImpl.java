@@ -51,8 +51,8 @@ public class PluginManagerImpl implements PluginManager,
     @Nullable
     private ApplicationContext applicationContext;
 
-    @Autowired
-    @Qualifier("applicationTaskExecutor")
+    @Autowired(required = false)
+    @Qualifier("pluginAsyncTaskExecutor")
     AsyncTaskExecutor asyncTaskExecutor;
 
     @PostConstruct
@@ -109,7 +109,6 @@ public class PluginManagerImpl implements PluginManager,
 
     @Override
     public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
-
 
     }
 
@@ -177,7 +176,19 @@ public class PluginManagerImpl implements PluginManager,
     @Override
     public boolean sendEvent(String pluginId, Object... events) throws PluginException {
 
-        asyncTaskExecutor.execute(() -> syncSendEvent(pluginId, events));
+        if (asyncTaskExecutor == null) {
+            log.warn("plugin manager asyncTaskExecutor [pluginAsyncTaskExecutor] not set");
+            //使用 Spring boot 标准的名字
+            asyncTaskExecutor = (AsyncTaskExecutor) beanFactory.getBean("applicationTaskExecutor");
+        }
+
+        if (asyncTaskExecutor != null) {
+            asyncTaskExecutor.execute(() -> syncSendEvent(pluginId, events));
+        } else {
+            //转为同步执行
+            log.warn("plugin manager asyncTaskExecutor [pluginAsyncTaskExecutor] not set");
+            syncSendEvent(pluginId, events);
+        }
 
         return true;
     }
