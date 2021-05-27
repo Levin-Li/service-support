@@ -179,16 +179,10 @@ public class PluginManagerImpl implements PluginManager,
         if (asyncTaskExecutor == null) {
             log.warn("plugin manager asyncTaskExecutor [pluginAsyncTaskExecutor] not set");
             //使用 Spring boot 标准的名字
-            asyncTaskExecutor = (AsyncTaskExecutor) beanFactory.getBean("applicationTaskExecutor");
+            asyncTaskExecutor = beanFactory.getBean("applicationTaskExecutor", AsyncTaskExecutor.class);
         }
 
-        if (asyncTaskExecutor != null) {
-            asyncTaskExecutor.execute(() -> syncSendEvent(pluginId, events));
-        } else {
-            //转为同步执行
-            log.warn("plugin manager asyncTaskExecutor [pluginAsyncTaskExecutor] not set");
-            syncSendEvent(pluginId, events);
-        }
+        asyncTaskExecutor.execute(() -> syncSendEvent(pluginId, events));
 
         return true;
     }
