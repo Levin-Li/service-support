@@ -183,6 +183,10 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                     .append("    String PACKAGE_NAME = \"").append(packageName).append("\"; // 类包名 \n\n")
                     .append("    String CLASS_NAME = \"").append(fullClassName).append("\"; // 类全名 \n\n")
                     .append("    String SIMPLE_CLASS_NAME = \"").append(simpleClassName).append("\"; // 类短名称 \n\n")
+                    .append("    String CACHE_KEY_PREFIX  = \"\\\"CK_\" + CLASS_NAME + \"_\\\" + \"; // 缓存Key前缀 \n\n")
+
+
+            //    String CACHE_KEY_PREFIX = "\"PK_" + E_FXMember.CLASS_NAME + "_\" + ";
 
             ;
 

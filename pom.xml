@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.levin.commons</groupId>
-    <!--    <groupId>com.github.Levin-Li</groupId>-->
+<!--        <groupId>com.github.Levin-Li</groupId>-->
 
     <artifactId>service-support</artifactId>
     <packaging>jar</packaging>
