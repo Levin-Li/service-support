@@ -3,7 +3,10 @@ package com.levin.commons.processor;
 import com.levin.commons.annotation.GenNameConstant;
 import com.levin.commons.service.domain.Desc;
 
-import javax.annotation.processing.*;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
@@ -14,7 +17,8 @@ import javax.lang.model.util.Elements;
 import javax.persistence.*;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
-import java.io.*;
+import java.io.IOException;
+import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -181,7 +185,9 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
                     .append(" {\n\n")
                     .append("    String PACKAGE_NAME = \"").append(packageName).append("\"; // 类包名 \n\n")
+
                     .append("    String CLASS_NAME = \"").append(fullClassName).append("\"; // 类全名 \n\n")
+
                     .append("    String SIMPLE_CLASS_NAME = \"").append(simpleClassName).append("\"; // 类短名称 \n\n")
                     .append("    String CACHE_KEY_PREFIX  = \"\\\"CK_\" + CLASS_NAME + \"_\\\" + \"; // 缓存Key前缀 \n\n")
 
@@ -280,6 +286,8 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
         codeBlock.append("    String ENTITY_NAME = \"").append(entityName).append("\"; //  实体名字 \n\n");
 
+        codeBlock.append("    String E_ENTITY_NAME = \"E$:").append(typeElement.getQualifiedName().toString()).append("\"; // 可替换的全名 \n\n");
+
         final List<String> uniqueFields = new ArrayList<>();
 
 
@@ -352,7 +360,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             fieldMap.put(fieldTableColName, "\n    String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名 \n");
 
-            fieldMap.put("F_"+fieldName, "\n    String F_" + fieldName + "  = \"F$:" + fieldName + "\"; //用于替换的名称，替换字段" + name + " 对应的数据库列名 \n");
+            fieldMap.put("F_" + fieldName, "\n    String F_" + fieldName + "  = \"F$:" + fieldName + "\"; //用于替换的名称，替换字段" + name + " 对应的数据库列名 \n");
 
             boolean isIdAttr = subEle.getAnnotation(Id.class) != null || subEle.getAnnotation(EmbeddedId.class) != null;
 
