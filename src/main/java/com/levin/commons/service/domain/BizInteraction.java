@@ -9,10 +9,11 @@ import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
 import javax.validation.constraints.NotNull;
-import java.util.Map;
+import java.util.List;
 
 /**
  * @author llw
+ *
  */
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,6 +38,6 @@ public class BizInteraction
     String info;
 
     @Schema(description = "交互动作")
-    Map<String /* action 显示名称 */, String /* 具体动作 */> actions;
+    List<Action> actions;
 
 }

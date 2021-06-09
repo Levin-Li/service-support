@@ -10,6 +10,7 @@ import javax.annotation.PostConstruct;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -33,8 +34,16 @@ public final class ClassUtils {
 
     private static final Map<String, List<Field>> fieldMap = new ConcurrentReferenceHashMap<>();
 
-    private static final Map<String, Method> postConstructMethodCache = new ConcurrentReferenceHashMap<>();
+    private static final Map<String, List<Method>> postConstructMethodCache = new ConcurrentReferenceHashMap<>();
 
+
+    public static void invokeFirstPostConstructMethod(Object bean) {
+        invokePostConstructMethod(bean, true);
+    }
+
+    public static void invokePostConstructMethod(Object bean) {
+        invokePostConstructMethod(bean, false);
+    }
 
     /**
      * 执行 postConstruct 方法
@@ -42,32 +51,40 @@ public final class ClassUtils {
      * @param bean
      * @return
      */
-    public static void invokeFirstPostConstructMethod(Object bean) {
+    public static void invokePostConstructMethod(Object bean, boolean onlyInvokeFirst) {
 
-        if (bean != null) {
-
-            String name = bean.getClass().getName();
-
-            Method method = postConstructMethodCache.get(name);
-
-            if (method == null
-                    && !postConstructMethodCache.containsKey(name)) {
-
-                //找出第一个
-                method = Arrays.stream(ReflectionUtils.getAllDeclaredMethods(bean.getClass()))
-                        .filter(m -> m.isAnnotationPresent(PostConstruct.class))
-                        .findFirst()
-                        .orElse(null);
-
-                //空值也存入，避免下次还去查找方法
-                postConstructMethodCache.put(name, method);
-            }
-
-            if (method != null) {
-                method.setAccessible(true);
-                ReflectionUtils.invokeMethod(method, bean);
-            }
+        if (bean == null) {
+            return;
         }
+
+        String name = bean.getClass().getName();
+
+        List<Method> methods = postConstructMethodCache.get(name);
+
+        if (methods == null
+                && !postConstructMethodCache.containsKey(name)) {
+
+            methods = Arrays.stream(ReflectionUtils.getAllDeclaredMethods(bean.getClass()))
+                    .filter(m -> m.isAnnotationPresent(PostConstruct.class))
+                    .collect(Collectors.toList());
+
+            //空值也存入，避免下次还去查找方法
+            postConstructMethodCache.put(name, methods);
+        }
+
+        AtomicInteger cnt = new AtomicInteger(0);
+
+        Optional.ofNullable(methods)
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(m -> !onlyInvokeFirst || cnt.incrementAndGet() < 2)
+                .forEachOrdered(m -> {
+                            m.setAccessible(true);
+                            ReflectionUtils.invokeMethod(m, bean);
+                        }
+                );
+
+
     }
 
 
@@ -86,7 +103,7 @@ public final class ClassUtils {
 
         synchronized (LOCKER.getLock(key)) {
 
-             fields = fieldMap.get(key);
+            fields = fieldMap.get(key);
 
             if (fields == null) {
 
