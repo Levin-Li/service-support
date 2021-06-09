@@ -191,14 +191,14 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                     .append("    String SIMPLE_CLASS_NAME = \"").append(simpleClassName).append("\"; // 类短名称 \n\n")
                     .append("    String CACHE_KEY_PREFIX  = \"\\\"CK_\" + CLASS_NAME + \"_\\\" + \"; // 缓存Key前缀 \n\n")
 
-
             //    String CACHE_KEY_PREFIX = "\"PK_" + E_FXMember.CLASS_NAME + "_\" + ";
 
             ;
 
             if (typeElement.getAnnotation(MappedSuperclass.class) != null
                     || typeElement.getAnnotation(Entity.class) != null) {
-                codeBlock.append("    String ALIAS = \"").append(getAlias(simpleClassName)).append("\"; // 别名 \n\n");
+                codeBlock.append("    String ALIAS   = \"").append(getAlias(simpleClassName)).append("\"; // 别名1 \n\n");
+                codeBlock.append("    String ALIAS_2 = \"").append(getAlias(simpleClassName)+"_2").append("\"; // 别名2 \n\n");
             }
 
             processAnnotation(typeElement, simpleClassName, codeBlock);
