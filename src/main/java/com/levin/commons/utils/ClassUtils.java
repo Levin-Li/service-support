@@ -10,6 +10,7 @@ import javax.annotation.PostConstruct;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
@@ -37,54 +38,72 @@ public final class ClassUtils {
     private static final Map<String, List<Method>> postConstructMethodCache = new ConcurrentReferenceHashMap<>();
 
 
-    public static void invokeFirstPostConstructMethod(Object bean) {
-        invokePostConstructMethod(bean, true);
+    public static boolean invokeFirstPostConstructMethod(Object bean) {
+        return invokeMethodByAnnotationTag(bean, true, PostConstruct.class);
     }
 
-    public static void invokePostConstructMethod(Object bean) {
-        invokePostConstructMethod(bean, false);
+    public static boolean invokePostConstructMethod(Object bean, Object... args) {
+        return invokeMethodByAnnotationTag(bean, false, PostConstruct.class, args);
     }
 
     /**
-     * 执行 postConstruct 方法
+     * 执行指定方法
      *
      * @param bean
      * @return
      */
-    public static void invokePostConstructMethod(Object bean, boolean onlyInvokeFirst) {
+    public static boolean invokeMethodByAnnotationTag(Object bean, boolean onlyInvokeFirst, Class<? extends Annotation> annotationType, Object... args) {
 
-        if (bean == null) {
-            return;
+        if (bean == null
+                || annotationType == null) {
+            return false;
         }
 
-        String name = bean.getClass().getName();
+        Class<?> beanType = bean.getClass();
 
-        List<Method> methods = postConstructMethodCache.get(name);
+        //如果是类
+        if (bean instanceof Class) {
+
+            beanType = (Class<?>) bean;
+
+            bean = null;
+        }
+
+        Object beanRef = bean;
+
+        String key = beanType.getName() + annotationType.getName();
+
+        List<Method> methods = postConstructMethodCache.get(key);
 
         if (methods == null
-                && !postConstructMethodCache.containsKey(name)) {
+                && !postConstructMethodCache.containsKey(key)) {
 
-            methods = Arrays.stream(ReflectionUtils.getAllDeclaredMethods(bean.getClass()))
-                    .filter(m -> m.isAnnotationPresent(PostConstruct.class))
+            methods = Arrays.stream(ReflectionUtils.getAllDeclaredMethods(beanType))
+                    .filter(method -> method.isAnnotationPresent(annotationType))
                     .collect(Collectors.toList());
 
             //空值也存入，避免下次还去查找方法
-            postConstructMethodCache.put(name, methods);
+            postConstructMethodCache.put(key, methods);
         }
 
         AtomicInteger cnt = new AtomicInteger(0);
 
+        AtomicBoolean result = new AtomicBoolean(false);
+
         Optional.ofNullable(methods)
                 .orElse(Collections.emptyList())
                 .stream()
+                //如果beanRef为 null，则执行静态方法
+                .filter(method -> beanRef != null || Modifier.isStatic(method.getModifiers()))
                 .filter(m -> !onlyInvokeFirst || cnt.incrementAndGet() < 2)
                 .forEachOrdered(m -> {
                             m.setAccessible(true);
-                            ReflectionUtils.invokeMethod(m, bean);
+                            ReflectionUtils.invokeMethod(m, beanRef, args);
+                            result.set(true);
                         }
                 );
 
-
+        return result.get();
     }
 
 
