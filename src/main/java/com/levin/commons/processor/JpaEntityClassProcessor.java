@@ -358,7 +358,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 }
             }
 
-            fieldMap.put(fieldTableColName, "\n    String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名 \n");
+            fieldMap.put(fieldTableColName, "\n    @Deprecated\n    String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名，建议使用 F_"+fieldName+" 替代\n");
 
             fieldMap.put("F_" + fieldName, "\n    String F_" + fieldName + "  = \"F$:" + fieldName + "\"; //用于替换的名称，替换字段" + name + " 对应的数据库列名 \n");
 
