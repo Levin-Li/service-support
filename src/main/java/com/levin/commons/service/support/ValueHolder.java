@@ -3,6 +3,7 @@ package com.levin.commons.service.support;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.function.Supplier;
@@ -20,18 +21,34 @@ public class ValueHolder<T> implements Supplier<T> {
         }
 
         @Override
+        public final boolean hasValue() {
+            return false;
+        }
+
+        @Override
         public final Object getValue() {
             throw new IllegalStateException("not value");
         }
     };
 
-    Object root;
 
-    String name;
+    /**
+     * @param <T>
+     * @return
+     */
+    public static <T> ValueHolder<T> notValue() {
+        return NOT_VALUE;
+    }
 
-    T value;
 
-    boolean hasValue = false;
+    private Object root;
+
+    private String name;
+
+    private T value;
+
+    @Setter
+    private boolean hasValue = false;
 
     public Object getValue() {
 
@@ -49,11 +66,6 @@ public class ValueHolder<T> implements Supplier<T> {
      */
     public boolean hasValue() {
         return hasValue;
-    }
-
-    public ValueHolder<T> hasValue(boolean hasValue) {
-        this.hasValue = hasValue;
-        return this;
     }
 
     @Override

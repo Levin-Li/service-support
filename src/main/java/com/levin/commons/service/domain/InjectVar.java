@@ -44,36 +44,27 @@ public @interface InjectVar {
      */
     String value() default "";
 
-
     /**
-     * 是否覆盖原字段值，表达式必须返回 true or false
+     * 是否强制覆盖原字段值，表达式必须返回 true or false
      * <p>
      * <p>
      * 通常用于判定，如果当前用户是超级管理员，可以不覆盖原值。
      *
      * @return
      */
-    String isOverride() default "true";
-
+    String isOverride() default SPEL_PREFIX + "true";
 
     /**
-     * 变量是否必须存在，表达式必须返回 true or false
-     *
+     * 变量是否是必须的，表达式必须返回 true or false
      * <p>
-     * 如果变量找不到，注入处理者应该抛出异常
+     * <p>
+     * 必须的概念是，变量必须存在，并且不为 null 值
+     * <p>
+     * 如果不满足条件，注入处理器应该抛出异常
      *
      * @return
      */
-    String isRequired() default "true";
-
-
-    /**
-     * 表达式前缀
-     *
-     * @return
-     */
-    String exprPrefix() default "";
-
+    String isRequired() default SPEL_PREFIX + "true";
 
     /**
      * 备注

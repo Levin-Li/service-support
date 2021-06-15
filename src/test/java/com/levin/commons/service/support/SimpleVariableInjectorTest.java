@@ -71,10 +71,10 @@ class SimpleVariableInjectorTest {
         @InjectVar(InjectConsts.USER)
         Object user;
 
-        @InjectVar(value = InjectConsts.USER_ID,exprPrefix = InjectVar.GROOVY_PREFIX)
+        @InjectVar(InjectVar.GROOVY_PREFIX + InjectConsts.USER_ID)
         String userId;
 
-        @InjectVar(InjectConsts.ORG_ID,exprPrefix = InjectVar.GROOVY_PREFIX)
+        @InjectVar(InjectVar.GROOVY_PREFIX + InjectConsts.ORG_ID)
         String orgId;
 
         /**
@@ -85,9 +85,9 @@ class SimpleVariableInjectorTest {
          * <p>
          * 如果是超级管理员，可以操作任意部门
          */
-        @InjectVar(value = InjectConsts.ORG_ID
-                , isOverride = "!#user.isAdmin" // 如果不是超级管理员
-                , exprPrefix = InjectVar.SPEL_PREFIX)
+        @InjectVar(value = InjectVar.SPEL_PREFIX + "#" + InjectConsts.ORG_ID
+                , isOverride = InjectVar.SPEL_PREFIX + "!#user.isAdmin" // 如果不是超级管理员
+        )
         String targetOrgId;
 
 
@@ -98,14 +98,14 @@ class SimpleVariableInjectorTest {
          * <p>
          * 如果是超级管理员，可以是任意部门，或是不指定，统计全部的部门
          */
-        @InjectVar(value = InjectConsts.ORG_ID
-                , isOverride = "!#user.isAdmin" // 如果不是超级管理员
-                , isRequired = "!#user.isAdmin" // 如果不是超级管理员，那么值是必须的
-                , exprPrefix = InjectVar.SPEL_PREFIX)
+        @InjectVar(value = InjectVar.GROOVY_PREFIX + InjectConsts.ORG_ID
+                , isOverride = InjectVar.SPEL_PREFIX + "!#user.isAdmin" // 如果不是超级管理员
+                , isRequired = InjectVar.SPEL_PREFIX + "!#user.isAdmin" // 如果不是超级管理员，那么值是必须的
+        )
         String statTargetOrgId;
 
 
-        @InjectVar(value = InjectConsts.IP_ADDR, isRequired = "false")
+        @InjectVar(isRequired = InjectVar.SPEL_PREFIX + "false")
         String ipAddr;
 
     }
@@ -139,6 +139,7 @@ class SimpleVariableInjectorTest {
 
         getVariableResolversByUser(超级管理员);
 
+
     }
 
     void getVariableResolversByUser(User user) {
@@ -146,6 +147,7 @@ class SimpleVariableInjectorTest {
         Map<String, Object> ctx = MapUtils
                 .putFirst(InjectConsts.USER, user)
                 .put(InjectConsts.ORG, user.org)
+                .put(InjectConsts.IP_ADDR, "192.168.0.1")
                 .build();
 
         SimpleVariableInjector injector = new SimpleVariableInjector() {
@@ -174,6 +176,12 @@ class SimpleVariableInjectorTest {
             Assertions.assertEquals(dto.statTargetOrgId, "8888");
         }
 
+        System.out.println("--------ipaddr----------");
+
+        Assertions.assertEquals(dto.getIpAddr(), ctx.getOrDefault(InjectConsts.IP_ADDR, null));
+
+
+        System.out.println("------------------");
     }
 
     @Test
