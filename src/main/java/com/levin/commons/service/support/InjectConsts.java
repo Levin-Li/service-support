@@ -12,12 +12,14 @@ public interface InjectConsts {
     String USER = "user";
     String USER_ID = "user.id";
     String USER_NAME = "user.name";
-    String USER_PHONE = "user.phoneNo";
+    String USER_PHONE = "user.phone";
+    String USER_EMAIL = "user.email";
 
     /**
      * 第三方
      */
     String WX_OPEN_ID = "openId";
+
 
     /**
      * 组织相关
@@ -31,6 +33,10 @@ public interface InjectConsts {
      * 区域
      */
     String AREA_CODE = "areaCode";
+
+    /**
+     * 城市名称
+     */
     String CITY_NAME = "cityName";
 
     /**
