@@ -2,10 +2,7 @@ package com.levin.commons.service.support;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 @Slf4j
@@ -16,9 +13,7 @@ public class DefaultVariableResolverManager
 
     private final ThreadLocal<List<VariableResolver>> threadLevelVariableResolvers = new ThreadLocal<>();
 
-
     private final VariableInjector variableInjector;
-
 
     public DefaultVariableResolverManager(VariableInjector variableInjector) {
         this.variableInjector = variableInjector;
@@ -30,7 +25,11 @@ public class DefaultVariableResolverManager
      */
     @Override
     public List<VariableResolver> getVariableResolvers(boolean isThreadLevel) {
-        return isThreadLevel ? threadLevelVariableResolvers.get() : defaultVariableResolvers;
+
+        List<VariableResolver> temp = isThreadLevel ? threadLevelVariableResolvers.get() : defaultVariableResolvers;
+
+        return temp == null ? Collections.emptyList() : Collections.unmodifiableList(temp);
+
     }
 
     /**
