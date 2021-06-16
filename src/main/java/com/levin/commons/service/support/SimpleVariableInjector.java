@@ -28,11 +28,14 @@ public interface SimpleVariableInjector extends VariableInjector {
      *
      * @param targetBean
      * @param suppliers  变量解析器列表
+     * @return
      * @throws VariableInjectException
      * @throws VariableNotFoundException
      */
     @Override
-    default void injectByVariableResolver(Object targetBean, Supplier<List<VariableResolver>>... suppliers) throws VariableInjectException, VariableNotFoundException {
+    default List<String> injectByVariableResolver(Object targetBean, Supplier<List<VariableResolver>>... suppliers) throws VariableInjectException, VariableNotFoundException {
+
+        List<String> injectFields = new LinkedList<>();
 
         ResolvableType resolvableTypeRoot = ResolvableType.forClass(targetBean.getClass());
 
@@ -110,8 +113,11 @@ public interface SimpleVariableInjector extends VariableInjector {
                         + "." + field.getName() + " inject var [" + varName + "] is required , but can't resolve");
             }
 
+
+            injectFields.add(field.getName());
         }
 
+        return injectFields;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////

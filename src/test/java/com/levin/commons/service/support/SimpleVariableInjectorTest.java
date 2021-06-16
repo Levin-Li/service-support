@@ -12,7 +12,6 @@ import java.util.Map;
 
 class SimpleVariableInjectorTest {
 
-
     @Data
     @Accessors(chain = true)
     class Org {
