@@ -63,35 +63,32 @@ public class DefaultVariableResolverManager
      * @param variableResolvers
      */
     @Override
-    public synchronized VariableResolverManager addVariableResolvers(boolean isThreadLevel, VariableResolver... variableResolvers) {
+    public synchronized VariableResolverManager addVariableResolvers(boolean isThreadLevel, List<VariableResolver> variableResolvers) {
+
+        List<VariableResolver> tempList = null;
 
         if (isThreadLevel) {
-
-            List<VariableResolver> resolverList = threadLevelVariableResolvers.get();
-
-            if (resolverList == null) {
-                resolverList = new LinkedList<>();
-                threadLevelVariableResolvers.set(resolverList);
+            tempList = threadLevelVariableResolvers.get();
+            if (tempList == null) {
+                tempList = new LinkedList<>();
+                threadLevelVariableResolvers.set(tempList);
             }
 
-            resolverList.addAll(Arrays.asList(variableResolvers));
-
         } else {
-            defaultVariableResolvers.addAll(Arrays.asList(variableResolvers));
+            tempList = defaultVariableResolvers;
         }
+
+        List<VariableResolver> tempListRef = tempList;
+
+        variableResolvers
+                .stream()
+                .filter(Objects::nonNull)
+                .filter(variableResolver -> !(tempListRef.contains(variableResolver)))
+                .forEachOrdered(tempListRef::add);
 
         return this;
     }
 
-    /**
-     * @param isThreadLevel
-     * @param ctxs
-     */
-    @Override
-    public VariableResolverManager addVariableResolverByCtx(boolean isThreadLevel, Map<String, Object>... ctxs) {
-
-        return addVariableResolversByCtx(isThreadLevel, () -> Arrays.asList(ctxs));
-    }
 
     /**
      * @param isThreadLevel
@@ -100,7 +97,7 @@ public class DefaultVariableResolverManager
     @Override
     public VariableResolverManager addVariableResolversByCtx(boolean isThreadLevel, Supplier<List<Map<String, Object>>>... suppliers) {
 
-        variableInjector.getVariableResolvers(suppliers).forEach(variableResolver -> addVariableResolvers(isThreadLevel, variableResolver));
+        addVariableResolvers(isThreadLevel, variableInjector.getVariableResolvers(suppliers));
 
         return this;
     }

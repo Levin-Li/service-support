@@ -1,5 +1,6 @@
 package com.levin.commons.service.support;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -10,6 +11,9 @@ import java.util.function.Supplier;
 public interface VariableResolverManager {
 
     /**
+     * 获取变量解析器列表
+     *
+     * @param isThreadLevel 是否是线程级别，false 则返回全局的变量解析器
      * @return
      */
     List<VariableResolver> getVariableResolvers(boolean isThreadLevel);
@@ -17,12 +21,21 @@ public interface VariableResolverManager {
     /**
      * @param variableResolvers
      */
-    VariableResolverManager addVariableResolvers(boolean isThreadLevel, VariableResolver... variableResolvers);
+    default VariableResolverManager addVariableResolvers(boolean isThreadLevel, VariableResolver... variableResolvers) {
+        return addVariableResolvers(isThreadLevel, Arrays.asList(variableResolvers));
+    }
+
+    /**
+     * @param variableResolvers
+     */
+    VariableResolverManager addVariableResolvers(boolean isThreadLevel, List<VariableResolver> variableResolvers);
 
     /**
      * @param ctxs
      */
-    VariableResolverManager addVariableResolverByCtx(boolean isThreadLevel, Map<String, Object>... ctxs);
+    default VariableResolverManager addVariableResolverByCtx(boolean isThreadLevel, Map<String, Object>... ctxs) {
+        return addVariableResolversByCtx(isThreadLevel, () -> Arrays.asList(ctxs));
+    }
 
     /**
      * @param suppliers
