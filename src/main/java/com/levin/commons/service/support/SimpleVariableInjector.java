@@ -77,7 +77,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
             if (!isOverride.hasValue()) {
                 throw new VariableInjectException(field.getDeclaringClass().getName()
-                        + "." + field.getName() + " annotation  InjectVar.isOverride " + injectVar.isOverride() + " can't eval");
+                        + "." + field.getName() + " annotation  InjectVar.isOverride [" + injectVar.isOverride() + "] can't eval");
             }
 
             //如果没有值或是 true，都认为是 true
@@ -85,7 +85,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
             if (!isRequired.hasValue()) {
                 throw new VariableInjectException(field.getDeclaringClass().getName()
-                        + "." + field.getName() + " annotation  InjectVar.isRequired " + injectVar.isRequired() + " can't eval");
+                        + "." + field.getName() + " annotation  InjectVar.isRequired [" + injectVar.isRequired() + "] can't eval");
             }
 
             if (!isOverride.get()
@@ -139,11 +139,14 @@ public interface SimpleVariableInjector extends VariableInjector {
     default ValueHolder<Boolean> getBooleanValueHolder(List<VariableResolver> variableResolvers, String expr) {
 
         //如果是 true 或是 空值，都任务是 true
-        ValueHolder<Boolean> booleanValueHolder = new ValueHolder<Boolean>().setHasValue(true).setValue(!StringUtils.hasText(expr)
-                || Boolean.TRUE.toString().equalsIgnoreCase(expr.trim()));
+        boolean isTrue = !StringUtils.hasText(expr) || Boolean.TRUE.toString().equalsIgnoreCase(expr.trim());
 
-        //如果
-        if (!booleanValueHolder.get()) {
+        boolean isFalse = !isTrue && Boolean.FALSE.toString().equalsIgnoreCase(expr.trim());
+
+        ValueHolder<Boolean> booleanValueHolder = new ValueHolder<Boolean>().setHasValue(isTrue || isFalse).setValue(isTrue ? isTrue : isFalse);
+
+        //如果没有值
+        if (!booleanValueHolder.hasValue()) {
             //
             booleanValueHolder = eval(expr, VariableResolver.NOT_VALUE, Boolean.class,
                     (variableResolvers != null && variableResolvers.size() > 0) ?

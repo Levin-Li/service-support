@@ -29,7 +29,7 @@ public interface InjectConsts {
     String ORG_NAME = "org.name";
 
     /**
-     * 区域
+     * 行政区域编码
      */
     String AREA_CODE = "areaCode";
 
