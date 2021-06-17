@@ -42,7 +42,11 @@ public class DefaultVariableResolverManager
 
 
     public DefaultVariableResolverManager(VariableInjector variableInjector) {
+
         this.variableInjector = variableInjector;
+
+        //加入默认的空解析器
+        this.addVariableResolverByCtx(false, Collections.emptyMap());
     }
 
     /**

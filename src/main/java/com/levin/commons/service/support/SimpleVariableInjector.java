@@ -143,7 +143,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         boolean isFalse = !isTrue && Boolean.FALSE.toString().equalsIgnoreCase(expr.trim());
 
-        ValueHolder<Boolean> booleanValueHolder = new ValueHolder<Boolean>().setHasValue(isTrue || isFalse).setValue(isTrue ? isTrue : isFalse);
+        ValueHolder<Boolean> booleanValueHolder = new ValueHolder<Boolean>().setHasValue(isTrue || isFalse).setValue(isTrue);
 
         //如果没有值
         if (!booleanValueHolder.hasValue()) {
