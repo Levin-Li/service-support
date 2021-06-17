@@ -20,7 +20,6 @@ public interface InjectConsts {
      */
     String WX_OPEN_ID = "openId";
 
-
     /**
      * 组织相关
      */
@@ -40,8 +39,13 @@ public interface InjectConsts {
     String CITY_NAME = "cityName";
 
     /**
-     * IP 地址
+     * 客户端 IP 地址
      */
     String IP_ADDR = "ipAddr";
+
+    /**
+     * 域名或是服务器
+     */
+    String HOST = "host";
 
 }
