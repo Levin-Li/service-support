@@ -2,7 +2,6 @@ package com.levin.commons.service.support;
 
 import com.levin.commons.conditional.ConditionalOn;
 import lombok.Getter;
-import lombok.experimental.FieldNameConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;

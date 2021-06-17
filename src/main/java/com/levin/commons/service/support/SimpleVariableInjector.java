@@ -72,9 +72,21 @@ public interface SimpleVariableInjector extends VariableInjector {
                         + "." + field.getName() + " can't get originalValue ," + injectVar.remark(), e);
             }
 
-            ValueHolder<Boolean> isOverride = eval(injectVar.isOverride(), VariableResolver.NOT_VALUE, Boolean.class, variableResolvers);
+            //如果没有值或是 true，都认为是 true
+            ValueHolder<Boolean> isOverride = getBooleanValueHolder(variableResolvers, injectVar.isOverride());
 
-            ValueHolder<Boolean> isRequired = eval(injectVar.isRequired(), VariableResolver.NOT_VALUE, Boolean.class, variableResolvers);
+            if (!isOverride.hasValue()) {
+                throw new VariableInjectException(field.getDeclaringClass().getName()
+                        + "." + field.getName() + " annotation  InjectVar.isOverride " + injectVar.isOverride() + " can't eval");
+            }
+
+            //如果没有值或是 true，都认为是 true
+            ValueHolder<Boolean> isRequired = getBooleanValueHolder(variableResolvers, injectVar.isRequired());
+
+            if (!isRequired.hasValue()) {
+                throw new VariableInjectException(field.getDeclaringClass().getName()
+                        + "." + field.getName() + " annotation  InjectVar.isRequired " + injectVar.isRequired() + " can't eval");
+            }
 
             if (!isOverride.get()
                     && (originalValue != null || !isRequired.get())) {
@@ -113,11 +125,32 @@ public interface SimpleVariableInjector extends VariableInjector {
                         + "." + field.getName() + " inject var [" + varName + "] is required , but can't resolve");
             }
 
-
             injectFields.add(field.getName());
         }
 
         return injectFields;
+    }
+
+    /**
+     * @param variableResolvers
+     * @param expr
+     * @return
+     */
+    default ValueHolder<Boolean> getBooleanValueHolder(List<VariableResolver> variableResolvers, String expr) {
+
+        //如果是 true 或是 空值，都任务是 true
+        ValueHolder<Boolean> booleanValueHolder = new ValueHolder<Boolean>().setHasValue(true).setValue(!StringUtils.hasText(expr)
+                || Boolean.TRUE.toString().equalsIgnoreCase(expr.trim()));
+
+        //如果
+        if (!booleanValueHolder.get()) {
+            //
+            booleanValueHolder = eval(expr, VariableResolver.NOT_VALUE, Boolean.class,
+                    (variableResolvers != null && variableResolvers.size() > 0) ?
+                            variableResolvers : getVariableResolvers(() -> Arrays.asList(Collections.emptyMap())));
+        }
+
+        return booleanValueHolder;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
