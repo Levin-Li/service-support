@@ -44,8 +44,18 @@ public interface InjectConsts {
     String IP_ADDR = "ipAddr";
 
     /**
+     * 客户端 user agent
+     */
+    String USER_AGENT = "userAgent";
+
+    /**
      * 域名或是服务器
      */
-    String HOST = "host";
+
+    String URL = "url";
+
+    String URL_SCHEME = "url.scheme";
+
+    String URL_SERVERNAME = "url.serverName";
 
 }
