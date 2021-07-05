@@ -6,6 +6,9 @@ import com.levin.commons.utils.ExpressionUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.core.ResolvableType;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.GenericConversionService;
+import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
@@ -20,6 +23,15 @@ public interface SimpleVariableInjector extends VariableInjector {
 
     SimpleVariableInjector defaultSimpleVariableInjector = new SimpleVariableInjector() {
     };
+
+    /**
+     * 线程安全转换服务
+     */
+    GenericConversionService defaultConversionService = new DefaultFormattingConversionService();
+
+    default ConversionService getConversionService() {
+        return defaultConversionService;
+    }
 
     /**
      * 按字段注解注入变量
@@ -110,8 +122,13 @@ public interface SimpleVariableInjector extends VariableInjector {
             if (valueHolder.hasValue()) {
                 //4、如果变量获取成功
                 try {
-                    //注入变量
-                    field.set(targetBean, newValue);
+                    //转换并且注入变量
+                    ConversionService conversionService = getConversionService();
+
+                    Object convertValue = conversionService != null ? conversionService.convert(newValue, fieldType) : newValue;
+
+                    field.set(targetBean, convertValue);
+
                 } catch (IllegalAccessException e) {
                     throw new VariableInjectException(field.getDeclaringClass().getName()
                             + "." + field.getName() + " inject var [" + varName + "] can't inject," + injectVar.remark(), e);
