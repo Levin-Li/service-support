@@ -35,7 +35,10 @@ public final class ClassUtils {
 
     private static final Map<String, List<Field>> fieldMap = new ConcurrentReferenceHashMap<>();
 
-    private static final Map<String, List<Method>> postConstructMethodCache = new ConcurrentReferenceHashMap<>();
+    private static final Map<String, List<Method>> postConstructMethodCaches = new ConcurrentReferenceHashMap<>();
+
+
+    private static final Map<String, Map<String, Method>> annotationMethodCaches = new ConcurrentReferenceHashMap<>();
 
 
     public static boolean invokeFirstPostConstructMethod(Object bean) {
@@ -73,17 +76,17 @@ public final class ClassUtils {
 
         String key = beanType.getName() + annotationType.getName();
 
-        List<Method> methods = postConstructMethodCache.get(key);
+        List<Method> methods = postConstructMethodCaches.get(key);
 
         if (methods == null
-                && !postConstructMethodCache.containsKey(key)) {
+                && !postConstructMethodCaches.containsKey(key)) {
 
             methods = Arrays.stream(ReflectionUtils.getAllDeclaredMethods(beanType))
                     .filter(method -> method.isAnnotationPresent(annotationType))
                     .collect(Collectors.toList());
 
             //空值也存入，避免下次还去查找方法
-            postConstructMethodCache.put(key, methods);
+            postConstructMethodCaches.put(key, methods);
         }
 
         AtomicInteger cnt = new AtomicInteger(0);
@@ -249,7 +252,8 @@ public final class ClassUtils {
      */
     public static <T> T getValue(Annotation annotation, String attrName, boolean allowThrowEx) {
 
-        Method method = ReflectionUtils.findMethod(annotation.annotationType(), attrName);
+        //  Method method = ReflectionUtils.findMethod(annotation.annotationType(), attrName);
+        Method method = findAnnotationMethod(annotation.annotationType(), attrName);
 
         if (method == null) {
             if (allowThrowEx) {
@@ -270,6 +274,39 @@ public final class ClassUtils {
         return null;
     }
 
+
+    public static Method findAnnotationMethod(Object annotationOrClass, String attrName) {
+
+        Class clazz = (annotationOrClass instanceof Class) ? (Class) annotationOrClass : ((Annotation) annotationOrClass).annotationType();
+
+        if (!clazz.isAnnotation()) {
+            throw new IllegalArgumentException(clazz + " must be annotation type");
+        }
+
+        final String key = clazz.getName();
+
+        Map<String, Method> methodMap = annotationMethodCaches.get(key);
+
+        if (methodMap == null) {
+
+            methodMap = new HashMap<>();
+
+            //枚举方法，事必须声明的
+            for (Method method : ReflectionUtils.getDeclaredMethods(clazz)) {
+                methodMap.put(method.getName(), method);
+            }
+
+            //变
+            methodMap = Collections.unmodifiableMap(methodMap);
+
+            annotationMethodCaches.put(key, methodMap);
+        }
+
+        return methodMap.get(attrName);
+
+    }
+
+
     /**
      * 获取注解的属性值
      *
@@ -284,7 +321,7 @@ public final class ClassUtils {
 
         return (List<T>) Arrays.stream(properties)
                 .map(p -> Optional.ofNullable(p)
-                        .map(p2 -> ReflectionUtils.findMethod(annotationType, p2))
+                        .map(p2 -> findAnnotationMethod(annotationType, p2))
                         .orElse(null))
                 .map(m -> Optional.ofNullable(m)
                         .map(m2 -> ReflectionUtils.invokeMethod(m2, annotation))

@@ -12,6 +12,7 @@ public interface InjectConsts {
     String USER = "user";
     String USER_ID = "user.id";
     String USER_NAME = "user.name";
+    String USER_LOGIN_NAME = "user.loginName";
     String USER_PHONE = "user.phone";
     String USER_EMAIL = "user.email";
 
