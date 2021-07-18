@@ -170,6 +170,15 @@ public abstract class ContextHolder<K, V> {
         return (T) getContext().getOrDefault(convertKey(key), defaultValue);
     }
 
+    public boolean isEmpty() {
+        return getContext().isEmpty();
+    }
+
+    public int size() {
+        return getContext().size();
+    }
+
+
     public <T extends V> T remove(K key) {
         return (T) getContext().remove(convertKey(key));
     }
