@@ -157,13 +157,13 @@ public abstract class ContextHolder<K, V> {
      * 取出缓存，如果没有，则先去获取，然后放入缓存，在返回获取的值
      *
      * @param key
-     * @param putCondition 值放入上下文的条件
-     * @param suppliers
+     * @param putCondition         值放入上下文的条件
+     * @param backupValueSuppliers 备选值列表
      * @param <T>
      * @return
      */
-    public <T extends V> T getAndAutoPut(K key, Predicate<T> putCondition, Supplier<T>... suppliers) {
-        return (T) MapUtils.getAndAutoPut(getContext(), convertKey(key), putCondition, suppliers);
+    public <T extends V> T getAndAutoPut(K key, Predicate<T> putCondition, Supplier<T>... backupValueSuppliers) {
+        return (T) MapUtils.getAndAutoPut(getContext(), convertKey(key), putCondition, backupValueSuppliers);
     }
 
     public <T extends V> T getOrDefault(K key, V defaultValue) {

@@ -1,8 +1,8 @@
 package com.levin.commons.service.support;
 
 
-import com.levin.commons.utils.ClassUtils;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
@@ -41,6 +41,7 @@ public interface VariableResolver {
      * Map 变量解析器
      */
     @AllArgsConstructor
+    @Slf4j
     class MapVariableResolver implements VariableResolver {
 
         Supplier<List<Map<String, Object>>>[] suppliers;
@@ -49,6 +50,10 @@ public interface VariableResolver {
         public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws RuntimeException {
 
             for (Supplier<List<Map<String, Object>>> supplier : suppliers) {
+
+                if (log.isDebugEnabled()) {
+                    log.debug("resolve variable [{}] in Map Supplier {}", name, supplier);
+                }
 
                 for (Map<String, Object> context : supplier.get()) {
 

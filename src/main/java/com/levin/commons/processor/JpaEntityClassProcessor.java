@@ -120,7 +120,6 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             TypeElement typeElement = (TypeElement) element;
 
-
             GenNameConstant genFieldNameConstant = typeElement.getAnnotation(GenNameConstant.class);
 
 
@@ -142,17 +141,21 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
 
             if (processedFiles.containsKey(newFullClassName)) {
-
-                this.processingEnv.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING, getClass().getSimpleName() + " <<<" + newFullClassName + ">>> already processed.");
-
+                this.processingEnv.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING,
+                        getClass().getSimpleName() + " <<<" + newFullClassName + ">>> already processed.");
                 continue;
             } else {
-
-                this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, getClass().getSimpleName() + " Processing class " + fullClassName + " --> " + newSimpleClassName);
-
+                this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,
+                        getClass().getSimpleName() + " Processing class " + fullClassName + " --> " + newSimpleClassName);
             }
 
-            boolean useExtends = genFieldNameConstant == null || genFieldNameConstant.extendsMode();
+            boolean useExtends = (genFieldNameConstant == null || genFieldNameConstant.extendsMode());
+
+            //父类是否是 JPA
+            boolean isSuperClassJpaEntity = typeElement.getSuperclass().getAnnotation(MappedSuperclass.class) != null || typeElement.getSuperclass().getAnnotation(Entity.class) != null;
+
+            //继承
+            useExtends = useExtends && isSuperClassJpaEntity;
 
             TypeMirror superclass = typeElement.getSuperclass();
 
@@ -198,7 +201,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
             if (typeElement.getAnnotation(MappedSuperclass.class) != null
                     || typeElement.getAnnotation(Entity.class) != null) {
                 codeBlock.append("    String ALIAS   = \"").append(getAlias(simpleClassName)).append("\"; // 别名1 \n\n");
-                codeBlock.append("    String ALIAS_2 = \"").append(getAlias(simpleClassName)+"_2").append("\"; // 别名2 \n\n");
+                codeBlock.append("    String ALIAS_2 = \"").append(getAlias(simpleClassName) + "_2").append("\"; // 别名2 \n\n");
             }
 
             processAnnotation(typeElement, simpleClassName, codeBlock);
@@ -358,7 +361,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 }
             }
 
-            fieldMap.put(fieldTableColName, "\n    @Deprecated\n    String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名，建议使用 F_"+fieldName+" 替代\n");
+            fieldMap.put(fieldTableColName, "\n    @Deprecated\n    String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名，建议使用 F_" + fieldName + " 替代\n");
 
             fieldMap.put("F_" + fieldName, "\n    String F_" + fieldName + "  = \"F$:" + fieldName + "\"; //用于替换的名称，替换字段" + name + " 对应的数据库列名 \n");
 

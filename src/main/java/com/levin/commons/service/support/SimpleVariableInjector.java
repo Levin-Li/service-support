@@ -4,6 +4,7 @@ import com.levin.commons.service.domain.InjectVar;
 import com.levin.commons.utils.ClassUtils;
 import com.levin.commons.utils.ExpressionUtils;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.ConversionService;
@@ -117,7 +118,6 @@ public interface SimpleVariableInjector extends VariableInjector {
 
             ValueHolder<Object> valueHolder = eval(varName, originalValue, fieldType, variableResolvers);
 
-            final Object newValue = valueHolder.hasValue() ? valueHolder.get() : null;
 
             if (valueHolder.hasValue()) {
                 //4、如果变量获取成功
@@ -125,7 +125,9 @@ public interface SimpleVariableInjector extends VariableInjector {
                     //转换并且注入变量
                     ConversionService conversionService = getConversionService();
 
-                    Object convertValue = conversionService != null ? conversionService.convert(newValue, fieldType) : newValue;
+                    final Object newValue = valueHolder.get();
+
+                    Object convertValue = conversionService != null ? conversionService.convert(valueHolder.get(), fieldType) : newValue;
 
                     field.set(targetBean, convertValue);
 
@@ -136,7 +138,7 @@ public interface SimpleVariableInjector extends VariableInjector {
             }
 
             //如果不允许为 null 值，则抛出异常
-            if (isRequired.get() && newValue == null) {
+            if (isRequired.get() && !valueHolder.hasValue()) {
                 //如果变量是必须的，则抛出异常
                 throw new VariableNotFoundException(injectVar.remark() + " --> " + field.getDeclaringClass().getName()
                         + "." + field.getName() + " inject var [" + varName + "] is required , but can't resolve");
@@ -251,6 +253,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
     ///////////////////////////////////////////////////////////////////////
     @AllArgsConstructor
+    @Slf4j
     abstract class ScriptResolver implements VariableResolver {
 
         protected Supplier<List<Map<String, Object>>>[] suppliers;
@@ -261,6 +264,10 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         @Override
         public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws RuntimeException {
+
+            if (log.isDebugEnabled()) {
+                log.debug("resolve variable [{}] in {}({}) ...", name, getClass().getSimpleName(), this.hashCode());
+            }
 
             if (name != null
                     && name.trim().toLowerCase().startsWith(getScriptPrefix().toLowerCase())) {
@@ -298,6 +305,7 @@ public interface SimpleVariableInjector extends VariableInjector {
     /**
      * spel 解析器
      */
+    @Slf4j
     class SpelVariableResolver extends ScriptResolver {
 
         public SpelVariableResolver(Supplier<List<Map<String, Object>>>[] suppliers) {
@@ -311,6 +319,10 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         @Override
         Object eval(String scriptText, Object originalValue) {
+
+            if (log.isDebugEnabled()) {
+                log.debug(" eval [ {} ] ...", scriptText);
+            }
 
             return ExpressionUtils.evalSpEL(null, scriptText, (ctx) -> {
 
@@ -336,6 +348,7 @@ public interface SimpleVariableInjector extends VariableInjector {
     /**
      * groovy 解析器
      */
+    @Slf4j
     class GroovyVariableResolver extends ScriptResolver {
 
         public GroovyVariableResolver(Supplier<List<Map<String, Object>>>... suppliers) {
@@ -349,6 +362,10 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         @Override
         Object eval(String scriptText, Object originalValue) {
+
+            if (log.isDebugEnabled()) {
+                log.debug(" eval [ {} ] ...", scriptText);
+            }
 
             return ExpressionUtils.evalGroovy(scriptText, (groovyScriptEvaluator, ctx) -> {
 
@@ -367,7 +384,9 @@ public interface SimpleVariableInjector extends VariableInjector {
                         );
 
                 //设置
-                groovyScriptEvaluator.setBeanClassLoader(SpringContextHolder.getClassLoader());
+                if (SpringContextHolder.getClassLoader() != null) {
+                    groovyScriptEvaluator.setBeanClassLoader(SpringContextHolder.getClassLoader());
+                }
             });
         }
 
