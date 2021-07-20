@@ -151,13 +151,14 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             boolean useExtends = (genFieldNameConstant == null || genFieldNameConstant.extendsMode());
 
+            TypeMirror superclass = typeElement.getSuperclass();
+
             //父类是否是 JPA
-            boolean isSuperClassJpaEntity = typeElement.getSuperclass().getAnnotation(MappedSuperclass.class) != null || typeElement.getSuperclass().getAnnotation(Entity.class) != null;
+            boolean isSuperClassJpaEntity = superclass.getAnnotation(MappedSuperclass.class) != null || superclass.getAnnotation(Entity.class) != null;
 
             //继承
             useExtends = useExtends && isSuperClassJpaEntity;
 
-            TypeMirror superclass = typeElement.getSuperclass();
 
             final String newSuperFullClassName = newClassName((superclass != null && !(superclass instanceof NoType)) ? superclass.toString() : "");
 
