@@ -92,8 +92,8 @@ public class DefaultVariableResolverManager
 
         VariableResolverManager resolverManager = beanFactory.getBean(VariableResolverManager.class);
 
-        //自动加入
-        this.beanFactory.getBeanProvider(VariableResolver.class).forEach(resolverManager::add);
+        //取消自动加入
+        //this.beanFactory.getBeanProvider(VariableResolver.class).forEach(resolverManager::add);
 
         this.beanFactory.getBeanProvider(VariableResolverConfigurer.class).forEach(bean -> bean.config(resolverManager));
     }
