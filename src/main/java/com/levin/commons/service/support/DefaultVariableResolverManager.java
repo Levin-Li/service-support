@@ -30,8 +30,6 @@ public class DefaultVariableResolverManager
 
     private final List<VariableResolver> defaultVariableResolvers = new LinkedList<>();
 
-    private final ThreadLocal<List<VariableResolver>> threadLevelVariableResolvers = new ThreadLocal<>();
-
     private final VariableInjector variableInjector;
 
     @Nullable
@@ -46,43 +44,25 @@ public class DefaultVariableResolverManager
         this.variableInjector = variableInjector;
 
         //加入默认的空解析器
-        this.addVariableResolverByCtx(false, Collections.emptyMap());
+        this.add(Collections.emptyMap());
+
     }
 
     /**
-     * @param isThreadLevel
      * @return
      */
     @Override
-    public List<VariableResolver> getVariableResolvers(boolean isThreadLevel) {
-
-        List<VariableResolver> temp = isThreadLevel ? threadLevelVariableResolvers.get() : defaultVariableResolvers;
-
-        return temp == null ? Collections.emptyList() : Collections.unmodifiableList(temp);
-
+    public List<VariableResolver> getVariableResolvers() {
+        return Collections.unmodifiableList(defaultVariableResolvers);
     }
 
     /**
-     * @param isThreadLevel
      * @param variableResolvers
      */
     @Override
-    public synchronized VariableResolverManager addVariableResolvers(boolean isThreadLevel, List<VariableResolver> variableResolvers) {
+    public synchronized VariableResolverManager add(List<VariableResolver> variableResolvers) {
 
-        List<VariableResolver> tempList = null;
-
-        if (isThreadLevel) {
-            tempList = threadLevelVariableResolvers.get();
-            if (tempList == null) {
-                tempList = new LinkedList<>();
-                threadLevelVariableResolvers.set(tempList);
-            }
-
-        } else {
-            tempList = defaultVariableResolvers;
-        }
-
-        List<VariableResolver> tempListRef = tempList;
+        List<VariableResolver> tempListRef = defaultVariableResolvers;
 
         variableResolvers
                 .stream()
@@ -95,13 +75,12 @@ public class DefaultVariableResolverManager
 
 
     /**
-     * @param isThreadLevel
      * @param suppliers
      */
     @Override
-    public VariableResolverManager addVariableResolversByCtx(boolean isThreadLevel, Supplier<List<Map<String, Object>>>... suppliers) {
+    public VariableResolverManager add(Supplier<List<Map<String, Object>>>... suppliers) {
 
-        addVariableResolvers(isThreadLevel, variableInjector.getVariableResolvers(suppliers));
+        add(variableInjector.getVariableResolvers(suppliers));
 
         return this;
     }
@@ -112,6 +91,9 @@ public class DefaultVariableResolverManager
         log.info("start config variable resolver manager ...");
 
         VariableResolverManager resolverManager = beanFactory.getBean(VariableResolverManager.class);
+
+        //自动加入
+        this.beanFactory.getBeanProvider(VariableResolver.class).forEach(resolverManager::add);
 
         this.beanFactory.getBeanProvider(VariableResolverConfigurer.class).forEach(bean -> bean.config(resolverManager));
     }

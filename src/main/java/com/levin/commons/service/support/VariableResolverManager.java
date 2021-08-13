@@ -11,35 +11,42 @@ import java.util.function.Supplier;
 public interface VariableResolverManager {
 
     /**
-     * 获取变量解析器列表
+     * 获取变量解析器
      *
-     * @param isThreadLevel 是否是线程级别，false 则返回全局的变量解析器
      * @return
      */
-    List<VariableResolver> getVariableResolvers(boolean isThreadLevel);
+    List<VariableResolver> getVariableResolvers();
 
     /**
+     * 加入变量解析器
+     *
      * @param variableResolvers
      */
-    default VariableResolverManager addVariableResolvers(boolean isThreadLevel, VariableResolver... variableResolvers) {
-        return addVariableResolvers(isThreadLevel, Arrays.asList(variableResolvers));
+    default VariableResolverManager add(VariableResolver... variableResolvers) {
+        return add(Arrays.asList(variableResolvers));
     }
 
     /**
+     * 加入变量解析器
+     *
      * @param variableResolvers
      */
-    VariableResolverManager addVariableResolvers(boolean isThreadLevel, List<VariableResolver> variableResolvers);
+    VariableResolverManager add(List<VariableResolver> variableResolvers);
 
     /**
+     * 加入变量解析器
+     *
      * @param ctxs
      */
-    default VariableResolverManager addVariableResolverByCtx(boolean isThreadLevel, Map<String, Object>... ctxs) {
-        return addVariableResolversByCtx(isThreadLevel, () -> Arrays.asList(ctxs));
+    default VariableResolverManager add(Map<String, Object>... ctxs) {
+        return add(() -> Arrays.asList(ctxs));
     }
 
     /**
+     * 加入变量解析器
+     *
      * @param suppliers
      */
-    VariableResolverManager addVariableResolversByCtx(boolean isThreadLevel, Supplier<List<Map<String, Object>>>... suppliers);
+    VariableResolverManager add(Supplier<List<Map<String, Object>>>... suppliers);
 
 }
