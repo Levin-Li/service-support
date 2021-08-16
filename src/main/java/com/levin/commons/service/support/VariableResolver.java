@@ -4,11 +4,12 @@ package com.levin.commons.service.support;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 /**
  * 变量解析器
@@ -37,6 +38,27 @@ public interface VariableResolver {
      */
     <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws VariableNotFoundException;
 
+    /**
+     * 是否是预期的类型
+     * <p>
+     * null 匹配所有类型
+     *
+     * @param actualType
+     * @param expectTypes
+     * @return
+     */
+    default boolean isExpectType(Class actualType, Class<?>... expectTypes) {
+
+        if (expectTypes == null
+                || expectTypes.length == 0
+                || actualType == null) {
+            return true;
+        }
+
+        List<Class<?>> classList = Arrays.stream(expectTypes).filter(Objects::nonNull).collect(Collectors.toList());
+
+        return classList.isEmpty() || classList.stream().anyMatch(c -> c.isAssignableFrom(actualType));
+    }
 
     /**
      * Map 变量解析器
@@ -50,6 +72,7 @@ public interface VariableResolver {
         @Override
         public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws RuntimeException {
 
+
             for (Supplier<List<Map<String, Object>>> supplier : suppliers) {
 
                 if (log.isDebugEnabled()) {
@@ -62,13 +85,7 @@ public interface VariableResolver {
 
                         Object value = context.get(name);
 
-                        Class type = value != null ? value.getClass() : null;
-
-                        if (expectTypes == null
-                                || expectTypes.length < 1
-                                || (type != null && Stream.of(expectTypes).filter(Objects::nonNull).anyMatch(c -> c.isAssignableFrom(type)))) {
-
-//                            System.out.println(name + " --> " + value);
+                        if (isExpectType(value != null ? value.getClass() : null, expectTypes)) {
 
                             return new ValueHolder<T>()
                                     .setRoot(context)

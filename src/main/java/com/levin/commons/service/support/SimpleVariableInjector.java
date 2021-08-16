@@ -118,7 +118,6 @@ public interface SimpleVariableInjector extends VariableInjector {
 
             ValueHolder<Object> valueHolder = eval(varName, originalValue, null, variableResolvers);
 
-
             if (valueHolder.hasValue()) {
                 //4、如果变量获取成功
                 try {
@@ -277,14 +276,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
                 Object value = eval(name, originalValue);
 
-                // System.out.println(getScriptPrefix() + name + " --> " + value);
-
-                Class type = value != null ? value.getClass() : null;
-
-                if (expectTypes == null
-                        || expectTypes.length < 1
-                        //如果有要求类型
-                        || (type != null && Stream.of(expectTypes).anyMatch(c -> c.isAssignableFrom(type)))) {
+                if (isExpectType(value != null ? value.getClass() : null, expectTypes)) {
 
                     return new ValueHolder<T>()
                             .setValue((T) value)
