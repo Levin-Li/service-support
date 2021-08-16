@@ -53,6 +53,10 @@ public abstract class MapUtils {
             return this;
         }
 
+        /**
+         * @param paramPairs
+         * @return
+         */
         public Builder<K, V> putPairs(Object... paramPairs) {
 
             if (paramPairs.length % 2 != 0) {
@@ -84,6 +88,12 @@ public abstract class MapUtils {
     }
 
 
+    /**
+     * @param map
+     * @param <K>
+     * @param <V>
+     * @return
+     */
     public static <K, V> Builder<K, V> asRef(Map<K, V> map) {
         return new Builder<K, V>(map);
     }
@@ -169,6 +179,13 @@ public abstract class MapUtils {
     }
 
 
+    /**
+     * @param isStrongReference
+     * @param isWeakReference
+     * @param <K>
+     * @param <V>
+     * @return
+     */
     public static <K, V> Map<K, V> newMap(boolean isStrongReference, boolean isWeakReference) {
 
         return isStrongReference ? new ConcurrentHashMap<>(16) : new ConcurrentReferenceHashMap<>(16

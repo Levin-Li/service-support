@@ -145,10 +145,19 @@ public abstract class ContextHolder<K, V> {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * @param key
+     * @return
+     */
     public boolean containsKey(K key) {
         return getContext().containsKey(convertKey(key));
     }
 
+    /**
+     * @param key
+     * @param <T>
+     * @return
+     */
     public <T extends V> T get(K key) {
         return (T) getContext().get(convertKey(key));
     }
@@ -178,7 +187,6 @@ public abstract class ContextHolder<K, V> {
         return getContext().size();
     }
 
-
     public <T extends V> T remove(K key) {
         return (T) getContext().remove(convertKey(key));
     }
@@ -195,8 +203,14 @@ public abstract class ContextHolder<K, V> {
         return readOnly ? Collections.unmodifiableMap(getContext()) : getContext();
     }
 
-    public void clear() {
+    public ContextHolder<K, V> putAll(Map<K, V> values) {
+        getContext().putAll(values);
+        return this;
+    }
+
+    public ContextHolder<K, V> clear() {
         getContext().clear();
+        return this;
     }
 
 }
