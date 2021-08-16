@@ -116,7 +116,7 @@ public interface SimpleVariableInjector extends VariableInjector {
                 varName = field.getName();
             }
 
-            ValueHolder<Object> valueHolder = eval(varName, originalValue, fieldType, variableResolvers);
+            ValueHolder<Object> valueHolder = eval(varName, originalValue, null, variableResolvers);
 
 
             if (valueHolder.hasValue()) {

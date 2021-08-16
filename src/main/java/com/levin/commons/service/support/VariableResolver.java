@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -65,7 +66,7 @@ public interface VariableResolver {
 
                         if (expectTypes == null
                                 || expectTypes.length < 1
-                                || (type != null && Stream.of(expectTypes).anyMatch(c -> c.isAssignableFrom(type)))) {
+                                || (type != null && Stream.of(expectTypes).filter(Objects::nonNull).anyMatch(c -> c.isAssignableFrom(type)))) {
 
 //                            System.out.println(name + " --> " + value);
 
