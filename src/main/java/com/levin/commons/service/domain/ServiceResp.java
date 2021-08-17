@@ -39,7 +39,6 @@ public interface ServiceResp<T>
      */
     String getDetailMsg();
 
-
     /**
      * 服务交互
      *
