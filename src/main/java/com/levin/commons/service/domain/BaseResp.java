@@ -35,7 +35,7 @@ public class BaseResp<T>
 
     @Schema(description = "服务响应码，不为0表示有异常")
     @NotNull
-    protected int code;
+    protected int code = 0;
 
     @Schema(description = "服务提示-用于互动")
     protected List<Interaction> interactions;
@@ -55,16 +55,23 @@ public class BaseResp<T>
     }
 
 
-    public BaseResp(int code, String msg) {
+    public BaseResp(@NotNull int code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
-    public BaseResp(int code, String msg, String detailMsg) {
+    public BaseResp(@NotNull int code, String msg, T data) {
+        this.code = code;
+        this.msg = msg;
+        this.data = data;
+    }
+
+    public BaseResp(@NotNull int code, String msg, String detailMsg) {
         this.code = code;
         this.msg = msg;
         this.detailMsg = detailMsg;
     }
+
 
     public boolean isSuccessful() {
         return code == 0;

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -47,14 +48,19 @@ public class ApiResp<T>
     }
 
     public ApiResp(int code, String msg) {
-        this.code = code;
-        this.msg = msg;
+        super(code, msg);
     }
 
     public ApiResp(int code, String msg, String detailMsg) {
-        this.code = code;
-        this.msg = msg;
-        this.detailMsg = detailMsg;
+        super(code, msg, detailMsg);
+    }
+
+    public ApiResp(@NotNull int code, String msg, T data) {
+        super(code, msg, data);
+    }
+
+    public static <T> ApiResp<T> newResp(int code, String msg, T data) {
+        return new ApiResp<>(code, msg, data);
     }
 
     public static <T> ApiResp<T> error(String msg) {
