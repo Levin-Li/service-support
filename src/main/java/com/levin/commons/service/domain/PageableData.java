@@ -31,4 +31,8 @@ public interface PageableData<T> {
     @Schema(description = "数据项列表")
     List<T> getItems();
 
+    T getFirst();
+
+    boolean isEmpty();
+
 }

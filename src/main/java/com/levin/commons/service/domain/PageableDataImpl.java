@@ -30,4 +30,15 @@ public class PageableDataImpl<T> implements PageableData<T> {
     public boolean hasMore() {
         return hasMore;
     }
+
+    @Override
+    public T getFirst() {
+        return isEmpty() ? null : items.get(0);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return items == null || items.size() == 0;
+    }
+
 }
