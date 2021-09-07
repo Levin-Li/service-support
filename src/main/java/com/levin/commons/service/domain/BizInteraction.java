@@ -40,6 +40,7 @@ public class BizInteraction
     List<Action> actions;
 
     @NoArgsConstructor
+    @AllArgsConstructor
     @Builder
     @Data
     @Accessors(chain = true)
