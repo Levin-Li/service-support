@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
+import java.beans.Transient;
 import java.util.List;
 
 @NoArgsConstructor
@@ -32,6 +33,7 @@ public class PageableDataImpl<T> implements PageableData<T> {
     }
 
     @Override
+    @Transient
     public T getFirst() {
         return isEmpty() ? null : items.get(0);
     }
