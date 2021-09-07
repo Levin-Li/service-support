@@ -1,6 +1,7 @@
 package com.levin.commons.service.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,11 +11,11 @@ import lombok.experimental.FieldNameConstants;
 import java.util.List;
 
 @NoArgsConstructor
-//@AllArgsConstructor
+@AllArgsConstructor
 @Builder
 @Data
 @Accessors(chain = true)
-@Schema(description = "服务响应对象")
+@Schema(description = "分页对象")
 @FieldNameConstants
 public class PageableDataImpl<T> implements PageableData<T> {
 
