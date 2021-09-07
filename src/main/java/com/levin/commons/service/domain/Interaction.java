@@ -45,6 +45,15 @@ public interface Interaction
         String getName();
 
         /**
+         * 图标
+         *
+         * @return
+         */
+        default String getIcon() {
+            return null;
+        }
+
+        /**
          * 命令关键字
          *
          * @return
@@ -85,7 +94,6 @@ public interface Interaction
 
     /**
      * 提示信息
-     * 如果为空，则忽略这条提示。
      *
      * @return
      */

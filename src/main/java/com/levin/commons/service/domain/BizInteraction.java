@@ -13,7 +13,6 @@ import java.util.List;
 
 /**
  * @author llw
- *
  */
 @NoArgsConstructor
 @AllArgsConstructor
@@ -39,5 +38,25 @@ public class BizInteraction
 
     @Schema(description = "交互动作")
     List<Action> actions;
+
+    @NoArgsConstructor
+    @Builder
+    @Data
+    @Accessors(chain = true)
+    @FieldNameConstants
+    public static class BizAction implements Interaction.Action {
+
+        @Schema(description = "名称")
+        String name;
+
+        @Schema(description = "图标")
+        String icon;
+
+        @Schema(description = "命令")
+        String cmd;
+
+        @Schema(description = "命令参数")
+        String args;
+    }
 
 }
