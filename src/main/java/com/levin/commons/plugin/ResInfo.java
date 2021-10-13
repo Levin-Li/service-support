@@ -37,7 +37,7 @@ public interface ResInfo<DOMAIN, CHILD, PARENT> extends Identifiable<DOMAIN> {
      *
      * @return
      */
-    @Desc(value = "菜单图标")
+    @Desc(value = "资源图标")
     default String getIcon() {
         return null;
     }
@@ -63,6 +63,18 @@ public interface ResInfo<DOMAIN, CHILD, PARENT> extends Identifiable<DOMAIN> {
     }
 
     /**
+     * 授权标识
+     * 逗号隔开
+     * eg.
+     * userManager:user:add
+     *
+     * @return
+     */
+    default String getRequireAuthorizations() {
+        return null;
+    }
+
+    /**
      * 没权限时是否展示
      *
      * @return
@@ -71,6 +83,13 @@ public interface ResInfo<DOMAIN, CHILD, PARENT> extends Identifiable<DOMAIN> {
     default boolean isAlwaysShow() {
         return false;
     }
+
+
+    @Desc(value = "备注", detail = "")
+    default String remark() {
+        return "";
+    }
+
 
     /**
      * 获取操作

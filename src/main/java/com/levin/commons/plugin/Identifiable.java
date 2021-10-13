@@ -35,6 +35,33 @@ public interface Identifiable<T> extends Serializable {
 
 
     /**
+     * 获取标签，展示使用
+     *
+     * @return
+     */
+    default String getLabel() {
+        return getName();
+    }
+
+    /**
+     * 是否允许
+     *
+     * @return
+     */
+    default boolean isEnable() {
+        return true;
+    }
+
+    /**
+     * 排序码
+     *
+     * @return
+     */
+    default int getOrderCode() {
+        return 100;
+    }
+
+    /**
      * 获取描述
      *
      * @return
