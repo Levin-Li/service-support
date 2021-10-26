@@ -84,13 +84,6 @@ public interface ResInfo<DOMAIN, CHILD, PARENT> extends Identifiable<DOMAIN> {
         return false;
     }
 
-
-    @Desc(value = "备注", detail = "")
-    default String remark() {
-        return "";
-    }
-
-
     /**
      * 获取操作
      *
@@ -106,17 +99,17 @@ public interface ResInfo<DOMAIN, CHILD, PARENT> extends Identifiable<DOMAIN> {
      *
      * @return
      */
-    default PARENT getParent() {
-        return null;
-    }
+//    default PARENT getParent() {
+//        return null;
+//    }
 
     /**
      * 获取子节点
      *
      * @return
      */
-    default List<CHILD> getChildren() {
-        return Collections.EMPTY_LIST;
-    }
+//    default List<CHILD> getChildren() {
+//        return Collections.EMPTY_LIST;
+//    }
 
 }

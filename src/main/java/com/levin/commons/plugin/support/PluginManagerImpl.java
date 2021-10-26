@@ -216,9 +216,12 @@ public class PluginManagerImpl implements PluginManager,
         return "default";
     }
 
+    /**
+     * 获取描述
+     *
+     * @return
+     */
     @Override
-    public String getDescription() {
-        return "default plugin manager";
-    }
+    public String getRemark() { return "default plugin manager";}
 
 }
