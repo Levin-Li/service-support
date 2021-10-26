@@ -14,25 +14,25 @@ public interface MenuItem extends ResInfo<MenuItem, MenuItem> {
         Default,
 
         @Schema(description = "Tab栏")
-        TabPanel, //TabPanel，默认包含
+        TabPanel,
 
         @Schema(description = "Tab栏Iframe")
-        TabPanelIFrame, //TabPanel，默认包含
+        TabPanelIFrame,
 
         @Schema(description = "新窗口")
-        NewWindow, //新窗口打开
+        NewWindow,
 
         @Schema(description = "地址栏重定向")
-        Redirect, //地址栏重定向
+        Redirect,
 
         @Schema(description = "模态窗口")
-        ModalWindow, //以模态窗口方式
+        ModalWindow,
 
         @Schema(description = "JS")
-        JavaScript, //执行js
+        JavaScript,
 
         @Schema(description = "服务端动作")
-        ServerSideAction //执行服务端动作
+        ServerSideAction
     }
 
     @Override

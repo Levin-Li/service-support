@@ -103,11 +103,23 @@ public interface ResInfo<CHILD, PARENT> extends Identifiable {
     }
 
 
+    /**
+     * 操作权限
+     */
     interface Operation extends Identifiable {
-        @Override
-        default String getId() {
-            return getName();
+
+        /**
+         * 授权标识
+         * 逗号隔开
+         * eg.
+         * userManager:user:add
+         *
+         * @return
+         */
+        default String getRequireAuthorizations() {
+            return null;
         }
+
     }
 
 }

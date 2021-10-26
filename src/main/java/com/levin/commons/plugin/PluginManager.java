@@ -53,4 +53,5 @@ public interface PluginManager extends Identifiable {
     List<Plugin> getInstalledPlugins();
 
 
+
 }
