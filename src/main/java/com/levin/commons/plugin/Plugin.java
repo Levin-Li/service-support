@@ -1,18 +1,14 @@
 package com.levin.commons.plugin;
 
 
-import java.util.Collections;
-import java.util.List;
-
 /**
- *
  * 插件接口规范
  *
+ * @author llw
  * @version 1.0
  * @since 1.1.17
- * @author llw
  */
-public interface Plugin extends Identifiable<String> {
+public interface Plugin extends Identifiable {
 
     /**
      * 插件类型
@@ -26,32 +22,14 @@ public interface Plugin extends Identifiable<String> {
     }
 
     /**
-     * 插件拥有的数据资源
-     * <p>
-     * 插件定义的资源不包含菜单
-     *
-     * <p>
-     * <p>
-     * 资源：比如地区资源，用户资源，部门资源，文档资源，栏目资源
-     * 正常需要和权限模块结合处理
-     * 资源通常是树形结构
+     * 获取插件的资源加载器
      *
      * @return
      */
-    default List<DataItem> getDataItems() {
-        return Collections.EMPTY_LIST;
+    default ResLoader getResLoader() {
+        return null;
     }
 
-    /**
-     * 获取菜单项
-     * <p>
-     * 菜单的权限由权限管理模块处理
-     *
-     * @return
-     */
-    default List<MenuItem> getMenuItems() {
-        return Collections.EMPTY_LIST;
-    }
 
     /**
      * 插件实现该方法，接收发送给插件的事件
@@ -66,6 +44,5 @@ public interface Plugin extends Identifiable<String> {
      */
     default void destroy() throws PluginException {
     }
-
 
 }

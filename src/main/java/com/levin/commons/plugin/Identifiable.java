@@ -5,26 +5,14 @@ import java.io.Serializable;
 /**
  * 可标识的对象
  */
-public interface Identifiable<T> extends Serializable {
+public interface Identifiable extends Serializable, Comparable<Identifiable> {
 
     /**
-     * 归属域
-     * <p>
-     * 通常是子系统，子模块等
-     *
-     * @return
-     */
-    default T getDomain() {
-        return null;
-    }
-
-    /**
-     * 全局唯一ID
+     * 资源 ID
      *
      * @return
      */
     String getId();
-
 
     /**
      * 名称
@@ -33,15 +21,6 @@ public interface Identifiable<T> extends Serializable {
      */
     String getName();
 
-
-    /**
-     * 获取标签，展示使用
-     *
-     * @return
-     */
-    default String getLabel() {
-        return getName();
-    }
 
     /**
      * 是否允许
@@ -68,6 +47,17 @@ public interface Identifiable<T> extends Serializable {
      */
     default String getRemark() {
         return getName() + "[" + getId() + "]";
+    }
+
+    /**
+     * 排序比较
+     *
+     * @param o
+     * @return
+     */
+    @Override
+    default int compareTo(Identifiable o) {
+        return o != null ? (getOrderCode() - o.getOrderCode()) : 1;
     }
 
 }

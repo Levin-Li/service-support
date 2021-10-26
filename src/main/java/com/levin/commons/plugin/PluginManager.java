@@ -8,7 +8,7 @@ import java.util.List;
  *
  * @author llw
  */
-public interface PluginManager extends Identifiable<String> {
+public interface PluginManager extends Identifiable {
 
     /**
      * 发送事件给插件
@@ -19,7 +19,6 @@ public interface PluginManager extends Identifiable<String> {
      * @throws PluginException 发送事件异常
      */
     boolean sendEvent(String pluginId, Object... events) throws PluginException;
-
 
     /**
      * 安装插件
@@ -52,5 +51,6 @@ public interface PluginManager extends Identifiable<String> {
      * @return
      */
     List<Plugin> getInstalledPlugins();
+
 
 }
