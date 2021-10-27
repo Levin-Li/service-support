@@ -2,9 +2,8 @@ package com.levin.commons.plugin;
 
 import com.levin.commons.service.domain.Desc;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -81,7 +80,7 @@ public interface ResInfo<CHILD, PARENT> extends Identifiable {
      * @return
      */
     @Desc(value = "资源操作", detail = "资源的操作项，比如新建，添加，修改，删除")
-    default <O extends Operation> List<O> getOperations() {
+    default <O extends Operation> Collection<O> getOperations() {
         return Collections.EMPTY_LIST;
     }
 
@@ -90,7 +89,7 @@ public interface ResInfo<CHILD, PARENT> extends Identifiable {
      *
      * @return
      */
-    default PARENT getParent() {
+    default <P extends PARENT> P getParent() {
         return null;
     }
 
@@ -99,8 +98,8 @@ public interface ResInfo<CHILD, PARENT> extends Identifiable {
      *
      * @return
      */
-    default Set<CHILD> getChildren() {
-        return Collections.EMPTY_SET;
+    default <C extends CHILD> Collection<C> getChildren() {
+        return Collections.EMPTY_LIST;
     }
 
 
