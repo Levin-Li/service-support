@@ -81,7 +81,7 @@ public interface ResInfo<CHILD, PARENT> extends Identifiable {
      * @return
      */
     @Desc(value = "资源操作", detail = "资源的操作项，比如新建，添加，修改，删除")
-    default List<Operation> getOperations() {
+    default <O extends Operation> List<O> getOperations() {
         return Collections.EMPTY_LIST;
     }
 
