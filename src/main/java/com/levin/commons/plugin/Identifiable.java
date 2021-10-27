@@ -27,7 +27,7 @@ public interface Identifiable extends Serializable, Comparable<Identifiable> {
      *
      * @return
      */
-    default Boolean isEnable() {
+    default boolean isEnable() {
         return true;
     }
 
