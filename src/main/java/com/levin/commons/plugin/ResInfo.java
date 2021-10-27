@@ -9,10 +9,11 @@ import java.util.Collections;
 /**
  * 资源抽象
  *
- * @param <CHILD>
  * @param <PARENT>
+ * @param <CHILD>
  */
-public interface ResInfo<CHILD, PARENT> extends Identifiable {
+public interface ResInfo<PARENT, CHILD>
+        extends Identifiable {
 
     /**
      * 归属域

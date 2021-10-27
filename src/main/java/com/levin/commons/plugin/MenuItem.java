@@ -7,7 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 /**
  * 菜单资源
  */
-public interface MenuItem extends ResInfo<MenuItem, MenuItem> {
+public interface MenuItem<PARENT extends ResInfo, CHILD extends ResInfo>
+        extends ResInfo<PARENT, CHILD> {
 
     enum ActionType implements EnumDesc {
         @Schema(description = "默认")

@@ -27,7 +27,7 @@ public interface Identifiable extends Serializable, Comparable<Identifiable> {
      *
      * @return
      */
-    default boolean isEnable() {
+    default Boolean isEnable() {
         return true;
     }
 
@@ -36,7 +36,7 @@ public interface Identifiable extends Serializable, Comparable<Identifiable> {
      *
      * @return
      */
-    default int getOrderCode() {
+    default Integer getOrderCode() {
         return 100;
     }
 
@@ -57,7 +57,12 @@ public interface Identifiable extends Serializable, Comparable<Identifiable> {
      */
     @Override
     default int compareTo(Identifiable o) {
-        return o != null ? (getOrderCode() - o.getOrderCode()) : 1;
+
+        int c1 = getOrderCode() != null ? getOrderCode() : 100;
+
+        int c2 = (o != null && o.getOrderCode() != null) ? o.getOrderCode() : c1 - 1;
+
+        return c1 - c2;
     }
 
 }

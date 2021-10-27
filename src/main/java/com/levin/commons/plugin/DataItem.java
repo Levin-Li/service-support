@@ -4,7 +4,7 @@ package com.levin.commons.plugin;
 /**
  * 数据资源
  */
-public interface DataItem
-        extends ResInfo<DataItem, DataItem> {
+public interface DataItem<PARENT extends ResInfo, CHILD extends ResInfo>
+        extends ResInfo<PARENT, CHILD>{
 
 }
