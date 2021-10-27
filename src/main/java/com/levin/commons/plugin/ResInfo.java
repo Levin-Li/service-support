@@ -4,6 +4,7 @@ import com.levin.commons.service.domain.Desc;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -98,8 +99,8 @@ public interface ResInfo<CHILD, PARENT> extends Identifiable {
      *
      * @return
      */
-    default List<CHILD> getChildren() {
-        return Collections.EMPTY_LIST;
+    default Set<CHILD> getChildren() {
+        return Collections.EMPTY_SET;
     }
 
 
