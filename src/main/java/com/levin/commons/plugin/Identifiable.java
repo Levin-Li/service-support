@@ -12,7 +12,7 @@ public interface Identifiable extends Serializable, Comparable<Identifiable> {
      *
      * @return
      */
-    String getId();
+    <ID extends Serializable> ID getId();
 
     /**
      * 名称

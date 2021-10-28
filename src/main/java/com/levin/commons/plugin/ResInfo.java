@@ -33,16 +33,6 @@ public interface ResInfo<PARENT, CHILD>
     @Desc("资源类型")
     String getType();
 
-
-    /**
-     * 资源 ID
-     *
-     * @return
-     */
-    @Override
-    @Desc("资源ID")
-    String getId();
-
     /**
      * 获取资源图标
      *
