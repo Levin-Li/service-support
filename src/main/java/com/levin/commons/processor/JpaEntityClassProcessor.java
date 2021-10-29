@@ -188,12 +188,12 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                     .append((useExtends && hasParent) ? (" , " + newSuperFullClassName) : "")
 
                     .append(" {\n\n")
-                    .append("    final String PACKAGE_NAME = \"").append(packageName).append("\"; // 类包名 \n\n")
+                    .append("    String PACKAGE_NAME = \"").append(packageName).append("\"; // 类包名 \n\n")
 
-                    .append("    final String CLASS_NAME = \"").append(fullClassName).append("\"; // 类全名 \n\n")
+                    .append("    String CLASS_NAME = \"").append(fullClassName).append("\"; // 类全名 \n\n")
 
-                    .append("    final String SIMPLE_CLASS_NAME = \"").append(simpleClassName).append("\"; // 类短名称 \n\n")
-                    .append("    final String CACHE_KEY_PREFIX  = \"\\\"CK_\" + CLASS_NAME + \"_\\\" + \"; // 缓存Key前缀 \n\n")
+                    .append("    String SIMPLE_CLASS_NAME = \"").append(simpleClassName).append("\"; // 类短名称 \n\n")
+                    .append("    String CACHE_KEY_PREFIX  = \"\\\"CK_\" + CLASS_NAME + \"_\\\" + \"; // 缓存Key前缀 \n\n")
 
             //    String CACHE_KEY_PREFIX = "\"PK_" + E_FXMember.CLASS_NAME + "_\" + ";
 
@@ -201,8 +201,8 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             if (typeElement.getAnnotation(MappedSuperclass.class) != null
                     || typeElement.getAnnotation(Entity.class) != null) {
-                codeBlock.append("    final String ALIAS   = \"").append(getAlias(simpleClassName)).append("\"; // 别名1 \n\n");
-                codeBlock.append("    final String ALIAS_2 = \"").append(getAlias(simpleClassName) + "_2").append("\"; // 别名2 \n\n");
+                codeBlock.append("    String ALIAS   = \"").append(getAlias(simpleClassName)).append("\"; // 别名1 \n\n");
+                codeBlock.append("    String ALIAS_2 = \"").append(getAlias(simpleClassName) + "_2").append("\"; // 别名2 \n\n");
             }
 
             processAnnotation(typeElement, simpleClassName, codeBlock);
@@ -262,7 +262,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 //只支持方法
                 .filter(e -> e.getKind() == ElementKind.METHOD)
                 .forEach(e -> {
-                    codeBlock.append("    final String ").append(e.getSimpleName()).append(" = \"").append(e.getSimpleName()).append("\";\n\n");
+                    codeBlock.append("    String ").append(e.getSimpleName()).append(" = \"").append(e.getSimpleName()).append("\";\n\n");
 
                 });
 
@@ -283,14 +283,14 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
         if (tableAnno != null) {
             String tabName = hasText(tableAnno.name()) ? tableAnno.name().trim() : simpleClassName;
-            codeBlock.append("    final String TABLE_NAME = \"").append(tabName).append("\"; //  表名 \n\n");
+            codeBlock.append("    String TABLE_NAME = \"").append(tabName).append("\"; //  表名 \n\n");
         }
 
         String entityName = (entityAnno != null && hasText(entityAnno.name())) ? entityAnno.name() : simpleClassName;
 
-        codeBlock.append("    final String ENTITY_NAME = \"").append(entityName).append("\"; //  实体名字 \n\n");
+        codeBlock.append("    String ENTITY_NAME = \"").append(entityName).append("\"; //  实体名字 \n\n");
 
-        codeBlock.append("    final String E_ENTITY_NAME = \"E$:").append(typeElement.getQualifiedName().toString()).append("\"; // 可替换的全名 \n\n");
+        codeBlock.append("    String E_ENTITY_NAME = \"E$:").append(typeElement.getQualifiedName().toString()).append("\"; // 可替换的全名 \n\n");
 
         final List<String> uniqueFields = new ArrayList<>();
 
@@ -338,12 +338,12 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 if (name.length() > 0) {
                     //public static final
                     name = replaceText(name);
-                    fieldMap.put(name, "\n    final String " + name + " = \"" + fieldName + "\"; //类字段描述 \n");
+                    fieldMap.put(name, "\n    String " + name + " = \"" + fieldName + "\"; //类字段描述 \n");
                 }
             }
 
             if (!fieldName.equals(name)) {
-                fieldMap.put(fieldName, "\n    final String " + fieldName + " = \"" + fieldName + "\"; //类字段名  \n");
+                fieldMap.put(fieldName, "\n    String " + fieldName + " = \"" + fieldName + "\"; //类字段名  \n");
             }
 
             String fieldTableColName = "T_" + fieldName;
@@ -362,18 +362,18 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 }
             }
 
-            fieldMap.put(fieldTableColName, "\n    @Deprecated\n    final String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名，建议使用 F_" + fieldName + " 替代\n");
+            fieldMap.put(fieldTableColName, "\n    @Deprecated\n    String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名，建议使用 F_" + fieldName + " 替代\n");
 
-            fieldMap.put("F_" + fieldName, "\n    final String F_" + fieldName + "  = \"F$:" + fieldName + "\"; //用于替换的名称，替换字段" + name + " 对应的数据库列名 \n");
+            fieldMap.put("F_" + fieldName, "\n    String F_" + fieldName + "  = \"F$:" + fieldName + "\"; //用于替换的名称，替换字段" + name + " 对应的数据库列名 \n");
 
             boolean isIdAttr = subEle.getAnnotation(Id.class) != null || subEle.getAnnotation(EmbeddedId.class) != null;
 
             if (isIdAttr) {
                 //   codeBlock.append("\n    String ").append("PK_ID").append(" = \"").append(fieldName).append("\";\n");
 
-                fieldMap.put("PK_ID", "\n    final String PK_ID = \"" + fieldName + "\"; //主键字段名 \n");
-                fieldMap.put("F_PK_ID", "\n    final String F_PK_ID = \"F$:" + fieldName + "\"; //主键字段名 \n");
-                fieldMap.put("T_PK_ID", "\n    final String T_PK_ID = \"" + tableColName + "\"; //主键字段对应的数据库列名 \n");
+                fieldMap.put("PK_ID", "\n    String PK_ID = \"" + fieldName + "\"; //主键字段名 \n");
+                fieldMap.put("F_PK_ID", "\n    String F_PK_ID = \"F$:" + fieldName + "\"; //主键字段名 \n");
+                fieldMap.put("T_PK_ID", "\n    String T_PK_ID = \"" + tableColName + "\"; //主键字段对应的数据库列名 \n");
 
                 uniqueFields.add(fieldName);
             }

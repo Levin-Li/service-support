@@ -167,9 +167,9 @@ public class GenNameConstantProcessor extends AbstractProcessor {
                     .append((useExtendsMode && !isRootParent && newSuperFullClassName.trim().length() > 0) ? (" , " + newSuperFullClassName) : "")
 
                     .append(" {\n\n")
-                    .append("    final String PACKAGE_NAME = \"").append(packageName).append("\"; // 类包名 \n\n")
-                    .append("    final String CLASS_NAME = \"").append(fullClassName).append("\"; // 类全名 \n\n")
-                    .append("    final String SIMPLE_CLASS_NAME = \"").append(simpleClassName).append("\"; // 类短名称 \n\n")
+                    .append("    String PACKAGE_NAME = \"").append(packageName).append("\"; // 类包名 \n\n")
+                    .append("    String CLASS_NAME = \"").append(fullClassName).append("\"; // 类全名 \n\n")
+                    .append("    String SIMPLE_CLASS_NAME = \"").append(simpleClassName).append("\"; // 类短名称 \n\n")
 
             ;
 
@@ -226,7 +226,7 @@ public class GenNameConstantProcessor extends AbstractProcessor {
                     .forEach(e -> {
                         Name name = e.getSimpleName();
                         if (!fieldMap.containsKey(name.toString())) {
-                            codeBlock.append("    final String ").append(name).append(" = \"").append(name).append("\";\n\n");
+                            codeBlock.append("    String ").append(name).append(" = \"").append(name).append("\";\n\n");
                             fieldMap.put(name.toString(), "");
                         }
                     });
