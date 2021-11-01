@@ -33,7 +33,7 @@ public interface Plugin extends Identifiable {
      *
      * @return
      */
-    default List<MenuItem> getMenuItemList() {
+    default <M extends MenuItem> List<M> getMenuList() {
         return Collections.emptyList();
     }
 
