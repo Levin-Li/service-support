@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import java.lang.annotation.*;
 
 /**
- * 插件组件
+ * 插件组件注解
  *
  * @author llw
  */
