@@ -1,6 +1,8 @@
 package com.levin.commons.plugin;
 
 
+import com.levin.commons.service.domain.Identifiable;
+
 import java.util.List;
 
 /**

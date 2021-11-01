@@ -1,16 +1,18 @@
-package com.levin.commons.plugin;
+package com.levin.commons.rbac;
 
 import com.levin.commons.service.domain.Desc;
 import com.levin.commons.service.domain.EnumDesc;
+import com.levin.commons.service.domain.Identifiable;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
- * 菜单资源
+ * 菜单
  */
-public interface MenuItem<PARENT extends ResInfo, CHILD extends ResInfo>
-        extends ResInfo<PARENT, CHILD> {
+public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
+        extends TreeObject<PARENT, CHILD>, AuthorizedObject, Identifiable {
 
     enum ActionType implements EnumDesc {
+
         @Schema(description = "默认")
         Default,
 
@@ -34,11 +36,6 @@ public interface MenuItem<PARENT extends ResInfo, CHILD extends ResInfo>
 
         @Schema(description = "服务端动作")
         ServerSideAction
-    }
-
-    @Override
-    default String getType() {
-        return "系统菜单";
     }
 
     /**
@@ -86,4 +83,23 @@ public interface MenuItem<PARENT extends ResInfo, CHILD extends ResInfo>
         return null;
     }
 
+    /**
+     * 获取资源图标
+     *
+     * @return
+     */
+    @Desc(value = "资源图标")
+    default String getIcon() {
+        return null;
+    }
+
+    /**
+     * 没权限时是否展示
+     *
+     * @return
+     */
+    @Desc(value = "是否总是显示", detail = "当没有权限的时候，是否显示，true为显示，false不显示")
+    default boolean isAlwaysShow() {
+        return false;
+    }
 }

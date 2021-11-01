@@ -1,6 +1,13 @@
 package com.levin.commons.plugin;
 
 
+import com.levin.commons.rbac.MenuItem;
+import com.levin.commons.rbac.ResLoader;
+import com.levin.commons.service.domain.Identifiable;
+
+import java.util.Collections;
+import java.util.List;
+
 /**
  * 插件接口规范
  *
@@ -22,6 +29,15 @@ public interface Plugin extends Identifiable {
     }
 
     /**
+     * 获取插件菜单列表
+     *
+     * @return
+     */
+    default List<MenuItem> getMenuItemList() {
+        return Collections.emptyList();
+    }
+
+    /**
      * 获取插件的资源加载器
      *
      * @return
@@ -29,7 +45,6 @@ public interface Plugin extends Identifiable {
     default ResLoader getResLoader() {
         return null;
     }
-
 
     /**
      * 插件实现该方法，接收发送给插件的事件

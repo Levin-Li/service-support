@@ -1,14 +1,14 @@
-package com.levin.commons.plugin;
+package com.levin.commons.service.domain;
 
 import java.io.Serializable;
 
 /**
  * 可标识的对象
  */
-public interface Identifiable extends Serializable, Comparable<Identifiable> {
+public interface Identifiable extends Serializable {
 
     /**
-     * 资源 ID
+     * ID
      *
      * @return
      */
@@ -20,7 +20,6 @@ public interface Identifiable extends Serializable, Comparable<Identifiable> {
      * @return
      */
     String getName();
-
 
     /**
      * 是否允许
@@ -49,20 +48,5 @@ public interface Identifiable extends Serializable, Comparable<Identifiable> {
         return getName() + "[" + getId() + "]";
     }
 
-    /**
-     * 排序比较
-     *
-     * @param o
-     * @return
-     */
-    @Override
-    default int compareTo(Identifiable o) {
-
-        int c1 = getOrderCode() != null ? getOrderCode() : 100;
-
-        int c2 = (o != null && o.getOrderCode() != null) ? o.getOrderCode() : c1 - 1;
-
-        return c1 - c2;
-    }
 
 }
