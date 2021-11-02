@@ -40,6 +40,18 @@ public @interface ResAuthorize {
      */
     boolean onlyRequireAuthenticated() default false;
 
+
+    /**
+     * 权限，角色和表达式3个条件是否都必须满足，否则任意一个满足即视为验证通过
+     * <p>
+     * 默认任意一个条件满足都可以
+     *
+     * @return
+     */
+    boolean isAndMode() default false;
+
+    ///////////////////// 资源许可 Permission //////////////////////
+
     /**
      * 资源域
      *
@@ -68,12 +80,14 @@ public @interface ResAuthorize {
      */
     String action() default "";
 
+    ////////////////////////////////////////////////////////////////
+
     /**
-     * 需要的角色
+     * 需要的角色，任意一个满足都视为验证通过
      *
      * @return
      */
-    String[] orRoles() default {};
+    String[] anyRoles() default {};
 
     /**
      * 验证表达式

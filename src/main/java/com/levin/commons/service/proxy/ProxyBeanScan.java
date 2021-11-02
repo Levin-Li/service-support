@@ -23,6 +23,7 @@ import org.springframework.core.annotation.AliasFor;
 import java.lang.annotation.*;
 
 /**
+ * @author llw
  * @see ProxyBeanScanAndRegistrar
  */
 @Target(ElementType.TYPE)

@@ -23,6 +23,7 @@ import java.lang.annotation.*;
 /**
  * 启动指定的注解实例化
  *
+ * @author llw
  * @see ProxyBeanScanAndRegistrar
  */
 @Target(ElementType.TYPE)
