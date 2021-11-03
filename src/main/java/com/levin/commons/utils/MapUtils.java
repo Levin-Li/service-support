@@ -156,7 +156,7 @@ public abstract class MapUtils {
         }
 
         //如果不存在值，或是存在的值不满足条件，则尝试取值
-        if ((!kvMap.containsKey(key) || !putCondition.test(value)) && suppliers != null) {
+        if ((!putCondition.test(value) || !kvMap.containsKey(key)) && suppliers != null) {
 
             for (Supplier<V> supplier : suppliers) {
 
@@ -172,7 +172,6 @@ public abstract class MapUtils {
                 }
 
             }
-
         }
 
         return value;

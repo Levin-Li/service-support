@@ -2,6 +2,7 @@ package com.levin.commons.utils;
 
 
 import com.levin.commons.service.support.Locker;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -48,6 +49,7 @@ public final class ClassUtils {
     public static boolean invokePostConstructMethod(Object bean, Object... args) {
         return invokeMethodByAnnotationTag(bean, false, PostConstruct.class, args);
     }
+
 
     /**
      * 执行指定方法
@@ -107,6 +109,46 @@ public final class ClassUtils {
                 );
 
         return result.get();
+    }
+
+
+    /**
+     * 合并注解
+     * <p>
+     * 如果 annotations 没有注解 则返回 null
+     *
+     * @param overwrite
+     * @param type
+     * @param annotations
+     * @param <A>
+     * @return 如果 annotations 没有注解 则返回 null
+     */
+    public static <A extends Annotation> A merge(Predicate<Object> overwrite, Class<A> type, Annotation... annotations) {
+
+        Map<String, Object> tempMap = new HashMap<>();
+
+        AtomicInteger count = new AtomicInteger();
+
+        Arrays.stream(annotations)
+                .filter(Objects::nonNull)
+                .map(AnnotationUtils::getAnnotationAttributes)
+                .forEachOrdered(map -> {
+                    count.incrementAndGet();
+                    map.forEach((k, v) -> {
+                        if (!tempMap.containsKey(k)
+                                || overwrite.test(v)) {
+                            tempMap.put(k, v);
+                        }
+                    });
+
+                });
+
+        //如果没有注解
+        if (count.get() < 1) {
+            return null;
+        }
+
+        return AnnotationUtils.synthesizeAnnotation(tempMap, type, null);
     }
 
 
