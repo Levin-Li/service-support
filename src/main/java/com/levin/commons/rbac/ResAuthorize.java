@@ -53,6 +53,13 @@ public @interface ResAuthorize {
     ///////////////////// 资源许可 Permission //////////////////////
 
     /**
+     * 权限域分隔符
+     *
+     * @return
+     */
+    String delimiter() default Permission.DELIMITER;
+
+    /**
      * 资源域
      *
      * @return
