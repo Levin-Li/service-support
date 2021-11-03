@@ -1,6 +1,9 @@
 package com.levin.commons.processor;
 
 import com.levin.commons.annotation.GenNameConstant;
+import com.levin.commons.service.domain.Desc;
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -88,6 +91,10 @@ public class GenNameConstantProcessor extends AbstractProcessor {
     }
 
 
+    private String getFirstNotEmptyStr(String defaultValue, String... txts) {
+        return Arrays.stream(txts).filter(StringUtils::hasText).findFirst().orElse(defaultValue);
+    }
+
     private void process(RoundEnvironment roundEnv, Set<? extends Element> elementList) {
 
 
@@ -172,6 +179,21 @@ public class GenNameConstantProcessor extends AbstractProcessor {
                     .append("    String SIMPLE_CLASS_NAME = \"").append(simpleClassName).append("\"; // 类短名称 \n\n")
 
             ;
+
+            if (typeElement.getAnnotation(Schema.class) != null) {
+
+                Schema schema = typeElement.getAnnotation(Schema.class);
+                codeBlock.append("    String BIZ_NAME = \"")
+                        .append(getFirstNotEmptyStr(simpleClassName, schema.name(), schema.title(), schema.description()))
+                        .append("\"; // 业务名称 \n\n");
+
+            } else if (typeElement.getAnnotation(Desc.class) != null) {
+
+                Desc schema = typeElement.getAnnotation(Desc.class);
+                codeBlock.append("    String BIZ_NAME = \"")
+                        .append(getFirstNotEmptyStr(simpleClassName, schema.name(), schema.detail()))
+                        .append("\"; // 业务名称 \n\n");
+            }
 
             //注解类也是接口
             ElementKind eKind = typeElement.getKind();
