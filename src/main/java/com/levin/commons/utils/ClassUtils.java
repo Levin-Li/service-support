@@ -117,15 +117,20 @@ public final class ClassUtils {
      * <p>
      * 如果 annotations 没有注解 则返回 null
      *
+     * @param baseCtx     基本参数，注意该参数不会被保护，在该方法内部会被修改
      * @param overwrite
      * @param type
      * @param annotations
      * @param <A>
      * @return 如果 annotations 没有注解 则返回 null
      */
-    public static <A extends Annotation> A merge(Predicate<Object> overwrite, Class<A> type, Annotation... annotations) {
+    public static <A extends Annotation> A merge(Map<String, Object> baseCtx, Predicate<Object> overwrite, Class<A> type, Annotation... annotations) {
 
-        Map<String, Object> tempMap = new HashMap<>();
+        if (baseCtx == null) {
+            baseCtx = new HashMap<>();
+        }
+
+        Map<String, Object> mergeMap = baseCtx;
 
         AtomicInteger count = new AtomicInteger();
 
@@ -135,9 +140,9 @@ public final class ClassUtils {
                 .forEachOrdered(map -> {
                     count.incrementAndGet();
                     map.forEach((k, v) -> {
-                        if (!tempMap.containsKey(k)
+                        if (!mergeMap.containsKey(k)
                                 || overwrite.test(v)) {
-                            tempMap.put(k, v);
+                            mergeMap.put(k, v);
                         }
                     });
 
@@ -148,7 +153,7 @@ public final class ClassUtils {
             return null;
         }
 
-        return AnnotationUtils.synthesizeAnnotation(tempMap, type, null);
+        return AnnotationUtils.synthesizeAnnotation(mergeMap, type, null);
     }
 
 
