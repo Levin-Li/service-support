@@ -2,6 +2,9 @@ package com.levin.commons.dao.domain;
 
 import java.util.Date;
 
+/**
+ * @author llw
+ */
 public interface BaseEntityObject
         extends
         EntityObject ,

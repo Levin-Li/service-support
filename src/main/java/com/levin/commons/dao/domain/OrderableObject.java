@@ -3,6 +3,7 @@ package com.levin.commons.dao.domain;
 
 /**
  * 可排序的对象
+ * @author llw
  */
 public interface OrderableObject {
 

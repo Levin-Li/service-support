@@ -16,6 +16,6 @@ public interface OrganizedObject {
      *
      * @return
      */
-    <ORG_ID extends Serializable> ORG_ID getBelongOrgId();
+    <ORG_ID extends Serializable> ORG_ID getOrgId();
 
 }

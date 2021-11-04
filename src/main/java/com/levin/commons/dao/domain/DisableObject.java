@@ -6,6 +6,7 @@ package com.levin.commons.dao.domain;
  * <p/>
  * 1 表示启用
  * 0 表示禁用
+ * @author llw
  */
 public interface DisableObject {
 

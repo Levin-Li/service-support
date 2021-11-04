@@ -5,6 +5,7 @@ import java.io.Serializable;
 
 /**
  * 可标识的对象
+ * @author llw
  */
 public interface Identifiable extends Serializable {
 

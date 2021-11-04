@@ -13,6 +13,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -124,7 +125,7 @@ public final class ClassUtils {
      * @param <A>
      * @return 如果 annotations 没有注解 则返回 null
      */
-    public static <A extends Annotation> A merge(Map<String, Object> baseCtx, Predicate<Object> overwrite, Class<A> type, Annotation... annotations) {
+    public static <A extends Annotation> A merge(Map<String, Object> baseCtx, BiFunction<String, Object, Boolean> overwrite, Class<A> type, Annotation... annotations) {
 
         if (baseCtx == null) {
             baseCtx = new HashMap<>();
@@ -141,13 +142,11 @@ public final class ClassUtils {
                     count.incrementAndGet();
                     map.forEach((k, v) -> {
                         if (!mergeMap.containsKey(k)
-                                || overwrite.test(v)) {
+                                || overwrite.apply(k, v)) {
                             mergeMap.put(k, v);
                         }
                     });
-
                 });
-
         //如果没有注解
         if (count.get() < 1) {
             return null;

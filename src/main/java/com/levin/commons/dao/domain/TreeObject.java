@@ -7,6 +7,7 @@ import java.util.Set;
 /**
  * 树对象
  * 要注意检查，是否会死锁
+ * @author llw
  */
 public interface TreeObject<P, C>
         extends Identifiable {
