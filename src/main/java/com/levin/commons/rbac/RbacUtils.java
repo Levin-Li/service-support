@@ -4,7 +4,9 @@ import com.levin.commons.service.domain.Identifiable;
 import com.levin.commons.utils.ClassUtils;
 import com.levin.commons.utils.MapUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -97,28 +99,33 @@ public abstract class RbacUtils {
 
             String beanName = it.getKey();
 
-            Class<?> cls = context.getType(beanName);
-
-            assert cls != null;
+            Class<?> beanType = AopProxyUtils.ultimateTargetClass(it.getValue());
 
             if (!beanName.contains(".")) {
-                log.warn("忽略有ResAuthorize注解的 bean {} [ {} ]", beanName, cls.getName());
+                log.warn("忽略有ResAuthorize注解的 bean {} [ {} ]", beanName, beanType.getName());
                 return;
             }
 
-            final ResAuthorize resAuthorize = AnnotatedElementUtils.getMergedAnnotation(cls, ResAuthorize.class);
+
+            Tag tag = beanType.getAnnotation(Tag.class);
+
+            if (tag == null || !StringUtils.hasText(tag.name())) {
+                log.warn("bean {} [ {} ] 无 Tag 注解或注解 name 属性 没有值，被被忽略. ", beanName, beanType.getName());
+                return;
+            }
+
+            final ResAuthorize resAuthorize = AnnotatedElementUtils.getMergedAnnotation(beanType, ResAuthorize.class);
 
             //
-            String pkgName = beanName.substring(beanName.startsWith("plugin.") ? "plugin.".length() : 0, beanName.lastIndexOf('.'));
+            final String pkgName = beanName.substring(beanName.startsWith("plugin.") ? "plugin.".length() : 0, beanName.lastIndexOf('.'));
 
             SimpleRes res = new SimpleRes()
-                    .setDomain(resAuthorize.domain())
-                    .setType(resAuthorize.type())
-                    .setId(resAuthorize.res())
+                    .setDomain(pkgName)
+                    .setId(tag.name())
                     .setActionList(new ArrayList<>(10));
 
             //获取方法上的注解描述
-            for (Method method : cls.getMethods()) {
+            for (Method method : beanType.getMethods()) {
 
                 Operation operation = method.getAnnotation(Operation.class);
 
@@ -128,6 +135,10 @@ public abstract class RbacUtils {
 
                 String actionName = operation.summary();
 
+                if (!StringUtils.hasText(actionName)) {
+                    actionName = method.getName();
+                }
+
                 ResAuthorize fieldResAuthorize = getAnnotation(MapUtils
                         .putFirst(ResPermission.Fields.domain, pkgName)
                         .put(ResPermission.Fields.type, resAuthorize.type()).build(), method, resAuthorize);
@@ -135,6 +146,9 @@ public abstract class RbacUtils {
                 if (fieldResAuthorize == null || fieldResAuthorize.ignored()) {
                     continue;
                 }
+
+                //设置资源类型
+                res.setType(fieldResAuthorize.type());
 
                 //加入操作列表
                 res.getActionList()
