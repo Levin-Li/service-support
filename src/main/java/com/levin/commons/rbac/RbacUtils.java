@@ -120,22 +120,23 @@ public abstract class RbacUtils {
             //获取类注解
             final ResAuthorize classResAuthorize = AnnotatedElementUtils.getMergedAnnotation(beanType, ResAuthorize.class);
 
-
             //获取方法上的注解描述
             for (Method method : beanType.getMethods()) {
 
                 Operation operation = method.getAnnotation(Operation.class);
 
-//                if (operation == null || !StringUtils.hasText(operation.summary())) {
-//                    log.warn("bean {} [ {} ] 无 Operation 注解或注解 summary 属性 没有值，被被忽略. ", beanName, beanType.getName());
-//                    continue;
-//                }
+                if (operation == null || !StringUtils.hasText(operation.summary())) {
+                    log.warn("bean {} [ {} ] 无 Operation 注解或注解 summary 属性 没有值，被被忽略. ", beanName, beanType.getName());
+                    continue;
+                }
+
+                //String actionName = operation != null && StringUtils.hasText(operation.summary()) ? operation.summary() : method.getName();
 
                 ResAuthorize fieldResAuthorize = getAnnotation(MapUtils
                                 .putFirst(ResPermission.Fields.domain, classResAuthorize != null ? classResAuthorize.domain() : "")
                                 .put(ResPermission.Fields.type, classResAuthorize != null ? classResAuthorize.type() : "")
                                 .put(ResPermission.Fields.res, tag.name())
-                                .put(ResPermission.Fields.action, StringUtils.hasText(operation.summary()) ? operation.summary() : method.getName())
+                                .put(ResPermission.Fields.action, operation.summary())
                                 .build()
                         , method, classResAuthorize);
 
