@@ -11,6 +11,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
+import javax.validation.constraints.NotNull;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ public abstract class RbacUtils {
      * @param pkgName
      * @return
      */
-    public static Set<Identifiable> loadResTypesFromSpringCtx(ApplicationContext context, String pkgName, Function<String, String> nameMapper) {
+    public static Set<Identifiable> loadResTypesFromSpringCtx(@NotNull ApplicationContext context, @NotNull String pkgName, Function<String, String> nameMapper) {
 //        return
 //                //获取 bean 清单
 //                context.getBeansWithAnnotation(ResAuthorize.class)
@@ -72,7 +73,7 @@ public abstract class RbacUtils {
      * @param type
      * @return
      */
-    public static List<Res> loadResTypesFromSpringCtx(ApplicationContext context, String pkgName, String type) {
+    public static List<Res> loadResFromSpringCtx(@NotNull ApplicationContext context, @NotNull String pkgName, String type) {
 
         synchronized (beanResCache) {
             initBeanResCache(context);
@@ -110,18 +111,22 @@ public abstract class RbacUtils {
             //
             String pkgName = beanName.substring(beanName.startsWith("plugin.") ? "plugin.".length() : 0, beanName.lastIndexOf('.'));
 
-
             SimpleRes res = new SimpleRes()
                     .setDomain(resAuthorize.domain())
                     .setType(resAuthorize.type())
                     .setId(resAuthorize.res())
                     .setActionList(new ArrayList<>(10));
 
-            //资源加入缓存
-            beanResCache.add(pkgName, res);
-
             //获取方法上的注解描述
             for (Method method : cls.getMethods()) {
+
+                Operation operation = method.getAnnotation(Operation.class);
+
+                if (operation == null) {
+                    continue;
+                }
+
+                String actionName = operation.summary();
 
                 ResAuthorize fieldResAuthorize = getAnnotation(MapUtils
                         .putFirst(ResPermission.Fields.domain, pkgName)
@@ -131,18 +136,15 @@ public abstract class RbacUtils {
                     continue;
                 }
 
-                String actionName = method.getName();
-
-                Operation operation = method.getAnnotation(Operation.class);
-
-                if (operation != null) {
-                    actionName = operation.summary();
-                }
-
                 //加入操作列表
                 res.getActionList()
                         .add(new SimpleResAction().setId(fieldResAuthorize.action()).setName(actionName));
 
+            }
+
+            //资源加入缓存
+            if (res.getActionList().size() > 0) {
+                beanResCache.add(pkgName, res);
             }
 
         });

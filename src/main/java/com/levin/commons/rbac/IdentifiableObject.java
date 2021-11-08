@@ -4,6 +4,7 @@ import com.levin.commons.service.domain.Identifiable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
@@ -16,6 +17,7 @@ import lombok.experimental.FieldNameConstants;
 @Accessors(chain = true)
 @FieldNameConstants
 @EqualsAndHashCode(of = "id")
+@ToString(of = "id")
 public class IdentifiableObject
         implements Identifiable {
 
