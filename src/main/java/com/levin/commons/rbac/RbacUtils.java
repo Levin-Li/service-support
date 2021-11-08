@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -94,17 +95,12 @@ public abstract class RbacUtils {
             return;
         }
 
-        context.getBeansWithAnnotation(ResAuthorize.class)
+        context.getBeansWithAnnotation(Controller.class)
                 .entrySet().parallelStream().forEach((it) -> {
 
             String beanName = it.getKey();
 
             Class<?> beanType = AopProxyUtils.ultimateTargetClass(it.getValue());
-
-            if (!beanName.contains(".")) {
-                log.warn("忽略有ResAuthorize注解的 bean {} [ {} ]", beanName, beanType.getName());
-                return;
-            }
 
 
             Tag tag = beanType.getAnnotation(Tag.class);
@@ -114,55 +110,60 @@ public abstract class RbacUtils {
                 return;
             }
 
-            final ResAuthorize resAuthorize = AnnotatedElementUtils.getMergedAnnotation(beanType, ResAuthorize.class);
 
-            //
-            final String pkgName = beanName.substring(beanName.startsWith("plugin.") ? "plugin.".length() : 0, beanName.lastIndexOf('.'));
+            //获取包名
+            // final String pkgName = beanName.substring(beanName.startsWith("plugin.") ? "plugin.".length() : 0, beanName.lastIndexOf('.'));
 
-            SimpleRes res = new SimpleRes()
-                    .setDomain(pkgName)
-                    .setId(tag.name())
-                    .setActionList(new ArrayList<>(10));
+
+            SimpleRes res = new SimpleRes().setActionList(new ArrayList<>(10));
+
+            //获取类注解
+            final ResAuthorize classResAuthorize = AnnotatedElementUtils.getMergedAnnotation(beanType, ResAuthorize.class);
+
 
             //获取方法上的注解描述
             for (Method method : beanType.getMethods()) {
 
                 Operation operation = method.getAnnotation(Operation.class);
 
-                if (operation == null) {
-                    continue;
-                }
-
-                String actionName = operation.summary();
-
-                if (!StringUtils.hasText(actionName)) {
-                    actionName = method.getName();
-                }
+//                if (operation == null || !StringUtils.hasText(operation.summary())) {
+//                    log.warn("bean {} [ {} ] 无 Operation 注解或注解 summary 属性 没有值，被被忽略. ", beanName, beanType.getName());
+//                    continue;
+//                }
 
                 ResAuthorize fieldResAuthorize = getAnnotation(MapUtils
-                                .putFirst(ResPermission.Fields.domain, pkgName)
-                                .put(ResPermission.Fields.type, resAuthorize.type())
-                                .put(ResPermission.Fields.res, res.getId())
-                                .put(ResPermission.Fields.action, actionName)
+                                .putFirst(ResPermission.Fields.domain, classResAuthorize.domain())
+                                .put(ResPermission.Fields.type, classResAuthorize.type())
+                                .put(ResPermission.Fields.res, tag.name())
+                                .put(ResPermission.Fields.action, StringUtils.hasText(operation.summary()) ? operation.summary() : method.getName())
                                 .build()
-                        , method, resAuthorize);
+                        , method, classResAuthorize);
 
                 if (fieldResAuthorize == null || fieldResAuthorize.ignored()) {
                     continue;
                 }
 
-                //设置资源类型
-                res.setType(fieldResAuthorize.type());
+                //同一个类，以第一个为准
+                if (StringUtils.hasText(fieldResAuthorize.domain())
+                        && !StringUtils.hasText(res.getDomain())) {
+                    res.setDomain(fieldResAuthorize.domain())
+                            .setType(fieldResAuthorize.type())
+                            .setId(fieldResAuthorize.res());
+                }
 
                 //加入操作列表
                 res.getActionList()
-                        .add(new SimpleResAction().setId(fieldResAuthorize.action()).setName(actionName));
+                        .add(new SimpleResAction().setId(fieldResAuthorize.action()).setName(fieldResAuthorize.action()));
 
             }
 
             //资源加入缓存
-            if (res.getActionList().size() > 0) {
-                beanResCache.add(pkgName, res);
+            if (StringUtils.hasText(res.getDomain())
+                    && res.getActionList().size() > 0) {
+                beanResCache.add(res.getDomain(), res);
+            } else {
+                log.warn("bean {} [ {} ] => {} ，被被忽略. ", beanName, beanType.getName(), res);
+                return;
             }
 
         });
