@@ -140,8 +140,12 @@ public abstract class RbacUtils {
                 }
 
                 ResAuthorize fieldResAuthorize = getAnnotation(MapUtils
-                        .putFirst(ResPermission.Fields.domain, pkgName)
-                        .put(ResPermission.Fields.type, resAuthorize.type()).build(), method, resAuthorize);
+                                .putFirst(ResPermission.Fields.domain, pkgName)
+                                .put(ResPermission.Fields.type, resAuthorize.type())
+                                .put(ResPermission.Fields.res, res.getId())
+                                .put(ResPermission.Fields.action, actionName)
+                                .build()
+                        , method, resAuthorize);
 
                 if (fieldResAuthorize == null || fieldResAuthorize.ignored()) {
                     continue;
