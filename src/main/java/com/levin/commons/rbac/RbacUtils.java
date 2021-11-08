@@ -132,8 +132,8 @@ public abstract class RbacUtils {
 //                }
 
                 ResAuthorize fieldResAuthorize = getAnnotation(MapUtils
-                                .putFirst(ResPermission.Fields.domain, classResAuthorize.domain())
-                                .put(ResPermission.Fields.type, classResAuthorize.type())
+                                .putFirst(ResPermission.Fields.domain, classResAuthorize != null ? classResAuthorize.domain() : "")
+                                .put(ResPermission.Fields.type, classResAuthorize != null ? classResAuthorize.type() : "")
                                 .put(ResPermission.Fields.res, tag.name())
                                 .put(ResPermission.Fields.action, StringUtils.hasText(operation.summary()) ? operation.summary() : method.getName())
                                 .build()
