@@ -35,7 +35,7 @@ public abstract class RbacUtils {
      * @param pkgName
      * @return
      */
-    public static Set<Identifiable> loadResTypesFromSpringCtx(@NotNull ApplicationContext context, @NotNull String pkgName, Function<String, String> nameMapper) {
+    public static Set<Identifiable> loadResTypeFromSpringCtx(@NotNull ApplicationContext context, @NotNull String pkgName, Function<String, String> nameMapper) {
 //        return
 //                //获取 bean 清单
 //                context.getBeansWithAnnotation(ResAuthorize.class)
@@ -109,7 +109,6 @@ public abstract class RbacUtils {
                 log.warn("bean {} [ {} ] 无 Tag 注解或注解 name 属性 没有值，被被忽略. ", beanName, beanType.getName());
                 return;
             }
-
 
             //获取包名
             // final String pkgName = beanName.substring(beanName.startsWith("plugin.") ? "plugin.".length() : 0, beanName.lastIndexOf('.'));
