@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public abstract class RbacUtils {
 
-    private static final MultiValueMap<String, Res> beanResCache = new LinkedMultiValueMap<>();
+    private static final LinkedMultiValueMap<String, Res> beanResCache = new LinkedMultiValueMap<>();
 
     /**
      * 获取资源类型
@@ -65,6 +65,21 @@ public abstract class RbacUtils {
                         .setName(nameMapper != null ? nameMapper.apply(res.getType()) : res.getType()))
                 .collect(Collectors.toSet());
 
+    }
+
+    /**
+     * 获取所有的资源
+     *
+     * @param context
+     * @return
+     */
+    public static MultiValueMap<String, Res> loadAllResFromSpringCtx(@NotNull ApplicationContext context) {
+
+        synchronized (beanResCache) {
+            initBeanResCache(context);
+        }
+
+        return beanResCache.clone();
     }
 
 
