@@ -53,13 +53,6 @@ public @interface ResAuthorize {
     ///////////////////// 资源许可 Permission //////////////////////
 
     /**
-     * 权限域分隔符
-     *
-     * @return
-     */
-    String delimiter() default Permission.DELIMITER;
-
-    /**
      * 资源域
      *
      * @return
@@ -102,8 +95,8 @@ public @interface ResAuthorize {
      * 建议 应用 spel 表达式
      * 建议应用 spring security 表达式
      *
-     * @return
+     * @return 表达式应该返回 true 或 false
      */
-    String expression() default "";
+    String verifyExpression() default "";
 
 }

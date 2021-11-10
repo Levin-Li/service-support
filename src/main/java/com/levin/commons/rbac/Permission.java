@@ -43,7 +43,6 @@ public interface Permission {
      */
     <A extends Serializable> A getAction();
 
-
     /**
      * @param requirePermission
      * @param currentPermission

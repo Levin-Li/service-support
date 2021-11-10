@@ -37,7 +37,7 @@ public class ResPermission implements Permission, Serializable {
      * @param expr
      * @return
      */
-    public static  ResPermission parse(String expr, String delimiter) {
+    public static ResPermission parse(String expr, String delimiter) {
 
         if (delimiter.contains(",") || delimiter.contains("*")) {
             throw new IllegalArgumentException("delimiter not allow contains comma(,) or asterisk(*)");

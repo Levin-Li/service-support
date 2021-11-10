@@ -16,10 +16,7 @@ import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -117,7 +114,6 @@ public abstract class RbacUtils {
 
             Class<?> beanType = AopProxyUtils.ultimateTargetClass(it.getValue());
 
-
             Tag tag = beanType.getAnnotation(Tag.class);
 
             if (tag == null || !StringUtils.hasText(tag.name())) {
@@ -154,7 +150,8 @@ public abstract class RbacUtils {
                                 .build()
                         , method, classResAuthorize);
 
-                if (fieldResAuthorize == null || fieldResAuthorize.ignored()) {
+                if (fieldResAuthorize == null
+                        || fieldResAuthorize.ignored()) {
                     continue;
                 }
 
@@ -168,7 +165,12 @@ public abstract class RbacUtils {
 
                 //加入操作列表
                 res.getActionList()
-                        .add(new SimpleResAction().setId(fieldResAuthorize.action()).setName(fieldResAuthorize.action()));
+                        .add(new SimpleResAction()
+                                .setId(fieldResAuthorize.action())
+                                .setAndMode(fieldResAuthorize.isAndMode())
+                                .setVerifyExpression(fieldResAuthorize.verifyExpression())
+                                .setAnyRoles(Arrays.asList(fieldResAuthorize.anyRoles()))
+                                .setName(fieldResAuthorize.action()));
 
             }
 

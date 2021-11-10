@@ -48,7 +48,6 @@ public class SimpleRes
     @Schema(description = "操作列表")
     protected List<Res.Action> actionList;
 
-
     @Override
     public String toString() {
         return String.format("%s:%s:%s:%s", domain, type, id, actionList);

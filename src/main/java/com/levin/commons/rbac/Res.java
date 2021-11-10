@@ -6,12 +6,16 @@ import com.levin.commons.service.domain.Identifiable;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 
 /**
- * 资源
+ * 资源描述
+ * <p>
+ * 对应注解类 ResAuthorize
  */
 public interface Res extends Identifiable {
+
     /**
      * 归属域
      * <p>
@@ -61,9 +65,37 @@ public interface Res extends Identifiable {
     }
 
     /**
+     *
      * 操作权限
      */
     interface Action extends Identifiable {
+
+        /**
+         * 与验证模式
+         *
+         * @return
+         */
+        default boolean isAndMode() {
+            return false;
+        }
+
+        /**
+         * 权限验证表达式
+         *
+         * @return
+         */
+        default String getVerifyExpression() {
+            return "";
+        }
+
+        /**
+         * 权限验证表达式
+         *
+         * @return
+         */
+        default List<String> getAnyRoles() {
+            return Collections.EMPTY_LIST;
+        }
 
     }
 
