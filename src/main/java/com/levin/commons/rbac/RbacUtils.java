@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Method;
@@ -140,7 +141,17 @@ public abstract class RbacUtils {
                     continue;
                 }
 
-                String actionName = operation != null && StringUtils.hasText(operation.summary()) ? operation.summary() : method.getName();
+                String actionName = operation != null && StringUtils.hasText(operation.summary()) ? operation.summary() : null;
+
+                if (!StringUtils.hasText(actionName)) {
+                    RequestMapping mapping = AnnotatedElementUtils.getMergedAnnotation(method, RequestMapping.class);
+                    if (mapping == null) {
+                        continue;
+                    } else {
+                        log.warn("控制器方法 {} 没有 Operation注解或是Operation注解的summary属性没有定义.", method);
+                        actionName = method.getName();
+                    }
+                }
 
                 ResAuthorize fieldResAuthorize = getAnnotation(MapUtils
                                 .putFirst(ResPermission.Fields.domain, classResAuthorize != null ? classResAuthorize.domain() : "")

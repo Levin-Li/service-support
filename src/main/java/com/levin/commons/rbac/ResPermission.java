@@ -71,6 +71,7 @@ public class ResPermission implements Permission, Serializable {
         }
 
         return String.join(delimiter, domain, type, res, action);
+
     }
 
     @Override
