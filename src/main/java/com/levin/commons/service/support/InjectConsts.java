@@ -21,12 +21,36 @@ public interface InjectConsts {
      */
     String WX_OPEN_ID = "openId";
 
+
     /**
-     * 组织相关
+     * 租户
+     */
+    String TENANT = "tenant";
+
+
+    /**
+     * 租户ID
+     */
+    String TENANT_ID = "tenant.id";
+
+    /**
+     * 组织对象
      */
     String ORG = "org";
+
+    /**
+     * 组织ID
+     */
     String ORG_ID = "org.id";
+
+    /**
+     * 组织路径
+     */
     String ORG_PATH = "org.path";
+
+    /**
+     * 组织名称
+     */
     String ORG_NAME = "org.name";
 
     /**
@@ -52,11 +76,16 @@ public interface InjectConsts {
     /**
      * 域名或是服务器
      */
-
     String URL = "url";
 
+    /**
+     * http or https  协议
+     */
     String URL_SCHEME = "url.scheme";
 
+    /**
+     * 服务器名称，通常是域名
+     */
     String URL_SERVERNAME = "url.serverName";
 
 }
