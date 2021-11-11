@@ -3,6 +3,7 @@ package com.levin.commons.service.support;
 import com.levin.commons.conditional.ConditionalOn;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.BeanFactory;
@@ -14,8 +15,12 @@ import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration("com.levin.commons.service.support.SpringContextHolder")
 @Slf4j
@@ -66,6 +71,33 @@ public class SpringContextHolder implements EnvironmentAware,
     @Override
     public void setEnvironment(Environment env) {
         environment = env;
+    }
+
+
+    /**
+     * 获取指定类型、指定包名的bean列表
+     *
+     * @param context
+     * @param type
+     * @param packagePrefixList
+     * @param <T>
+     * @return
+     */
+    public static <T> List<T> findBeans(ApplicationContext context, Class<T> type, String... packagePrefixList) {
+
+        if (context == null) {
+            context = getApplicationContext();
+        }
+
+        return context.getBeansOfType(type).values()
+                .parallelStream().filter(bean -> {
+                    String pkg = AopProxyUtils.ultimateTargetClass(bean).getPackage().getName();
+                    if (packagePrefixList == null || packagePrefixList.length == 0) {
+                        return true;
+                    }
+                    return Arrays.stream(packagePrefixList).filter(StringUtils::hasText).anyMatch(pkg::startsWith);
+                })
+                .collect(Collectors.toList());
     }
 
 }
