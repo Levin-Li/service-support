@@ -1,7 +1,6 @@
 package com.levin.commons.service.support;
 
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
@@ -63,11 +62,14 @@ public interface VariableResolver {
     /**
      * Map 变量解析器
      */
-    @AllArgsConstructor
     @Slf4j
     class MapVariableResolver implements VariableResolver {
 
-        Supplier<List<Map<String, Object>>>[] suppliers;
+        final Supplier<List<Map<String, Object>>>[] suppliers;
+
+        public MapVariableResolver(Supplier<List<Map<String, Object>>>... suppliers) {
+            this.suppliers = suppliers;
+        }
 
         @Override
         public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws RuntimeException {

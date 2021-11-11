@@ -130,6 +130,7 @@ public class DefaultVariableResolverManager
         if (this.beanFactory == null) {
             this.beanFactory = applicationContext;
         }
+
     }
 
     @Override

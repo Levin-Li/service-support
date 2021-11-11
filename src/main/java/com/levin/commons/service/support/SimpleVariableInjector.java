@@ -231,6 +231,9 @@ public interface SimpleVariableInjector extends VariableInjector {
     }
 
     /**
+     *
+     * 求值函数
+     *
      * @param expr
      * @param originalValue
      * @param fieldType
@@ -248,6 +251,8 @@ public interface SimpleVariableInjector extends VariableInjector {
                 .orElse(ValueHolder.notValue());
 
     }
+
+
 
 
     ///////////////////////////////////////////////////////////////////////
@@ -300,7 +305,7 @@ public interface SimpleVariableInjector extends VariableInjector {
     @Slf4j
     class SpelVariableResolver extends ScriptResolver {
 
-        public SpelVariableResolver(Supplier<List<Map<String, Object>>>[] suppliers) {
+        public SpelVariableResolver(Supplier<List<Map<String, Object>>>... suppliers) {
             super(suppliers);
         }
 
