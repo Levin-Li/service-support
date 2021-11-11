@@ -6,13 +6,13 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public abstract class DefaultHttpRequestInfoResolver implements VariableResolver {
+public abstract class HttpRequestInfoResolver implements VariableResolver {
 
     @Resource
-    HttpServletRequest request;
+    protected HttpServletRequest request;
 
     @Resource
-    HttpServletResponse response;
+    protected HttpServletResponse response;
 
     @Override
     public <T> ValueHolder<T> resolve(String name, T defaultValue, boolean throwEx, Class<?>... types) throws VariableNotFoundException {
