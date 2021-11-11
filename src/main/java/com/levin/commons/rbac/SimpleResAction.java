@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * 资源操作
  */
-
+@Schema(description = "资源操作")
 @Data
 @Accessors(chain = true)
 @FieldNameConstants

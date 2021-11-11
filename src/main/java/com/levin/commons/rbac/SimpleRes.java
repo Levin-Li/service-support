@@ -2,6 +2,7 @@ package com.levin.commons.rbac;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
@@ -11,9 +12,10 @@ import java.util.List;
 /**
  * 简单资源
  */
-
+@Schema(description = "资源")
 @Data
 @Accessors(chain = true)
+@EqualsAndHashCode(of = {"domain", "type", "id"})
 @FieldNameConstants
 public class SimpleRes
         implements Res {

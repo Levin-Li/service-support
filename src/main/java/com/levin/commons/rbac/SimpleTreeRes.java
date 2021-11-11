@@ -12,6 +12,7 @@ import java.util.List;
  * 简单资源
  */
 
+@Schema(description = "树形资源")
 @Data
 @Accessors(chain = true)
 @FieldNameConstants
