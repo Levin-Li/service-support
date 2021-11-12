@@ -17,7 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -76,7 +79,6 @@ public abstract class RbacUtils {
         synchronized (beanResCache) {
             initBeanResCache(context);
         }
-
         return beanResCache.clone();
     }
 
@@ -121,10 +123,6 @@ public abstract class RbacUtils {
                 log.warn("bean {} [ {} ] 无 Tag 注解或注解 name 属性 没有值，被被忽略. ", beanName, beanType.getName());
                 return;
             }
-
-            //获取包名
-            // final String pkgName = beanName.substring(beanName.startsWith("plugin.") ? "plugin.".length() : 0, beanName.lastIndexOf('.'));
-
 
             SimpleRes res = new SimpleRes().setActionList(new ArrayList<>(10));
 
@@ -175,13 +173,7 @@ public abstract class RbacUtils {
                 }
 
                 //加入操作列表
-                res.getActionList()
-                        .add(new SimpleResAction()
-                                .setId(fieldResAuthorize.action())
-                                .setAndMode(fieldResAuthorize.isAndMode())
-                                .setVerifyExpression(fieldResAuthorize.verifyExpression())
-                                .setAnyRoles(Arrays.asList(fieldResAuthorize.anyRoles()))
-                                .setName(fieldResAuthorize.action()));
+                res.getActionList().add(SimpleResAction.newAction(fieldResAuthorize));
 
             }
 
