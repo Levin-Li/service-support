@@ -65,10 +65,27 @@ public interface Res extends Identifiable {
     }
 
     /**
-     *
      * 操作权限
      */
     interface Action extends Identifiable {
+
+        /**
+         * 是否忽略权限要求
+         *
+         * @return
+         */
+        default boolean isIgnored() {
+            return false;
+        }
+
+        /**
+         * 是否仅要求登录
+         *
+         * @return
+         */
+        default boolean isOnlyRequireAuthenticated() {
+            return false;
+        }
 
         /**
          * 与验证模式
