@@ -66,6 +66,9 @@ public interface Res extends Identifiable {
 
     /**
      * 操作权限
+     * 和注解完全一致
+     *
+     * @see com.levin.commons.rbac.ResAuthorize
      */
     interface Action extends Identifiable {
 
