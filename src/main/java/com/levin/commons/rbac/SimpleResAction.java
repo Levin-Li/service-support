@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -23,6 +24,20 @@ public class SimpleResAction
     @Schema(description = "ID", required = true)
     protected String id;
 
+    ///////////////////////////////////////////////////////////
+    @Schema(description = "是否忽略")
+    boolean ignored;
+
+    /**
+     * 仅要求认证，不做资源授权
+     * <p>
+     * 默认是要做资源授权
+     *
+     * @return
+     */
+    @Schema(description = "仅要求认证")
+    boolean onlyRequireAuthenticated;
+
     @Schema(description = "验证表达式")
     String verifyExpression;
 
@@ -34,6 +49,7 @@ public class SimpleResAction
      */
     @Schema(description = "匹配模式")
     protected boolean isAndMode;
+    /////////////////////////////////////////////////////
 
     @Schema(description = "名称", required = true)
     protected String name;
@@ -50,5 +66,23 @@ public class SimpleResAction
     @Override
     public String toString() {
         return id;
+    }
+
+
+    public SimpleResAction setByResAuthorize(ResAuthorize resAuthorize) {
+
+        this.setAndMode(resAuthorize.isAndMode())
+                .setAnyRoles(Arrays.asList(resAuthorize.anyRoles()))
+                .setVerifyExpression(resAuthorize.verifyExpression())
+                .setIgnored(resAuthorize.ignored())
+                .setOnlyRequireAuthenticated(resAuthorize.onlyRequireAuthenticated())
+                .setId(resAuthorize.res());
+
+        return this;
+    }
+
+
+    public static SimpleResAction newAction(ResAuthorize resAuthorize) {
+        return new SimpleResAction().setByResAuthorize(resAuthorize);
     }
 }
