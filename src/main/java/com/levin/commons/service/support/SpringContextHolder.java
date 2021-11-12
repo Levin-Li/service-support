@@ -15,6 +15,7 @@ import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -79,11 +80,11 @@ public class SpringContextHolder implements EnvironmentAware,
      *
      * @param context
      * @param type
-     * @param packagePrefixList
+     * @param pkgNamePrefixList 包名前缀
      * @param <T>
      * @return
      */
-    public static <T> List<T> findBeans(ApplicationContext context, Class<T> type, String... packagePrefixList) {
+    public static <T> List<T> findBeanByPkgName(ApplicationContext context, @NonNull Class<T> type, String... pkgNamePrefixList) {
 
         if (context == null) {
             context = getApplicationContext();
@@ -91,13 +92,37 @@ public class SpringContextHolder implements EnvironmentAware,
 
         return context.getBeansOfType(type).values()
                 .parallelStream().filter(bean -> {
-                    String pkg = AopProxyUtils.ultimateTargetClass(bean).getPackage().getName();
-                    if (packagePrefixList == null || packagePrefixList.length == 0) {
+                    if (pkgNamePrefixList == null || pkgNamePrefixList.length == 0) {
                         return true;
                     }
-                    return Arrays.stream(packagePrefixList).filter(StringUtils::hasText).anyMatch(pkg::startsWith);
+                    String pkg = AopProxyUtils.ultimateTargetClass(bean).getPackage().getName();
+                    return Arrays.stream(pkgNamePrefixList).filter(StringUtils::hasText).anyMatch(pkg::startsWith);
                 })
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 获取指定类型、指定bean名称前缀的bean列表
+     *
+     * @param context
+     * @param type
+     * @param beanNamePrefixList
+     * @param <T>
+     * @return
+     */
+    public static <T> List<T> findBeanByBeanName(ApplicationContext context, @NonNull Class<T> type, String... beanNamePrefixList) {
+
+        if (context == null) {
+            context = getApplicationContext();
+        }
+
+        return context.getBeansOfType(type).entrySet()
+                .parallelStream().filter(item -> {
+                    if (beanNamePrefixList == null || beanNamePrefixList.length == 0) {
+                        return true;
+                    }
+                    return Arrays.stream(beanNamePrefixList).filter(StringUtils::hasText).anyMatch(item.getKey()::startsWith);
+                }).map(item -> item.getValue()).collect(Collectors.toList());
     }
 
 }
