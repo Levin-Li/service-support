@@ -247,7 +247,7 @@ public abstract class RbacUtils {
                 //设置权限
                 ResPermission permission = new ResPermission()
                         .setDomain(packageName)
-                        .setType(resAuthorize.type())
+                        .setType(resAuthorize != null ? resAuthorize.type() : "数据")
                         .setRes(tag != null ? tag.name() : defaultName)
                         .setAction(actionName);
                 //@todo 设置权限
@@ -262,7 +262,6 @@ public abstract class RbacUtils {
                 ;
                 menuItems.add(menuRes);
             }
-
 
             menuCache.put(packageName, menuItems);
 
