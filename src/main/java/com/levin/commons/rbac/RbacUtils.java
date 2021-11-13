@@ -1,6 +1,7 @@
 package com.levin.commons.rbac;
 
 import com.levin.commons.service.domain.Identifiable;
+import com.levin.commons.service.support.SpringContextHolder;
 import com.levin.commons.utils.ClassUtils;
 import com.levin.commons.utils.MapUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -17,10 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 public abstract class RbacUtils {
 
     private static final LinkedMultiValueMap<String, Res> beanResCache = new LinkedMultiValueMap<>();
+    private static final Map<String, List<MenuItem>> menuCache = new ConcurrentHashMap<>();
 
 
     /**
@@ -153,6 +154,7 @@ public abstract class RbacUtils {
                 } else if (actionName.endsWith(tag.name())) {
                     //权限名称，去除实体名称，如：新建用户 变为 新建
                     actionName = actionName.substring(0, actionName.length() - tag.name().length());
+
                 }
 
                 ResAuthorize fieldResAuthorize = getAnnotation(MapUtils
@@ -192,6 +194,81 @@ public abstract class RbacUtils {
 
         });
 
+    }
+
+
+    /**
+     * 扫描控制器并构建菜单项
+     * <p>
+     * 构建的菜单，仅供参考使用
+     *
+     * @param context
+     * @param packageName
+     * @param <M>
+     * @return
+     */
+    public static <M extends MenuItem> List<M> getMenuItemByController(ApplicationContext context, @NonNull final String packageName, @NonNull final String actionName) {
+
+        List<MenuItem> menuItems = menuCache.get(packageName);
+
+        if (menuItems != null) {
+            return (List<M>) menuItems;
+        }
+
+        synchronized (packageName.intern()) {
+
+            List<Object> controllers = SpringContextHolder.findBeanByPkgName(context, Controller.class, packageName);
+
+            menuItems = new LinkedList<>();
+
+            for (Object controller : controllers) {
+
+                Class<?> type = AopProxyUtils.ultimateTargetClass(controller);
+
+                String defaultName = type.getSimpleName();
+
+                if (defaultName.endsWith("Controller")) {
+                    defaultName = defaultName.toLowerCase().substring(0, defaultName.length() - "Controller".length());
+                }
+
+                RequestMapping mapping = AnnotatedElementUtils.getMergedAnnotation(type, RequestMapping.class);
+                Tag tag = AnnotatedElementUtils.getMergedAnnotation(type, Tag.class);
+                ResAuthorize resAuthorize = AnnotatedElementUtils.getMergedAnnotation(type, ResAuthorize.class);
+
+//            if (mapping == null
+//                    || tag == null
+//                    || resAuthorize == null) {
+//
+//                continue;
+//            }
+
+                SimpleMenu menuRes = new SimpleMenu();
+
+                //设置权限
+                ResPermission permission = new ResPermission()
+                        .setDomain(packageName)
+                        .setType(resAuthorize.type())
+                        .setRes(tag != null ? tag.name() : defaultName)
+                        .setAction(actionName);
+                //@todo 设置权限
+
+                //设置默认权限
+                menuRes.setRequireAuthorizations(permission.toString())
+                        .setDomain(packageName)
+                        //设置路径
+                        .setPath(Arrays.asList(mapping != null ? mapping.path() : new String[0]).parallelStream().filter(StringUtils::hasText).findFirst().orElse(defaultName))
+                        //设置菜单名称
+                        .setName(Arrays.asList(tag != null ? tag.description() : null).stream().filter(StringUtils::hasText).findFirst().orElse(defaultName))
+                ;
+                menuItems.add(menuRes);
+            }
+
+
+            menuCache.put(packageName, menuItems);
+
+        }
+
+        return (List<M>) menuItems;
     }
 
 
