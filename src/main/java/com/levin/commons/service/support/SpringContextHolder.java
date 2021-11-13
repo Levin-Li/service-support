@@ -21,6 +21,8 @@ import org.springframework.util.StringUtils;
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Configuration("com.levin.commons.service.support.SpringContextHolder")
@@ -76,53 +78,61 @@ public class SpringContextHolder implements EnvironmentAware,
 
 
     /**
-     * 获取指定类型、指定包名的bean列表
+     * 获取指定类型（或注解类型）、指定包名的bean列表
      *
      * @param context
-     * @param type
-     * @param pkgNamePrefixList 包名前缀
+     * @param type              普通类型或是注解类型
+     * @param pkgNamePrefixList 类包名前缀
      * @param <T>
      * @return
      */
-    public static <T> List<T> findBeanByPkgName(ApplicationContext context, @NonNull Class<T> type, String... pkgNamePrefixList) {
-
-        if (context == null) {
-            context = getApplicationContext();
-        }
-
-        return context.getBeansOfType(type).values()
-                .parallelStream().filter(bean -> {
-                    if (pkgNamePrefixList == null || pkgNamePrefixList.length == 0) {
-                        return true;
-                    }
-                    String pkg = AopProxyUtils.ultimateTargetClass(bean).getPackage().getName();
-                    return Arrays.stream(pkgNamePrefixList).filter(StringUtils::hasText).anyMatch(pkg::startsWith);
-                })
-                .collect(Collectors.toList());
+    public static <T> List<T> findBeanByPkgName(ApplicationContext context, @NonNull Class type, String... pkgNamePrefixList) {
+        return findBeans(context, type, true, pkgNamePrefixList);
     }
 
     /**
-     * 获取指定类型、指定bean名称前缀的bean列表
+     * 获取指定类型（或注解类型）、指定bean名称前缀的bean列表
      *
      * @param context
-     * @param type
-     * @param beanNamePrefixList
+     * @param type               普通类型或是注解类型
+     * @param beanNamePrefixList bean名前缀
      * @param <T>
      * @return
      */
-    public static <T> List<T> findBeanByBeanName(ApplicationContext context, @NonNull Class<T> type, String... beanNamePrefixList) {
+    public static <T> List<T> findBeanByBeanName(ApplicationContext context, @NonNull Class type, String... beanNamePrefixList) {
+
+        return findBeans(context, type, false, beanNamePrefixList);
+    }
+
+
+    private static <T> List<T> findBeans(ApplicationContext context, @NonNull Class type, boolean isMatchPackageNamePrefix, String... prefixList) {
 
         if (context == null) {
             context = getApplicationContext();
         }
 
-        return context.getBeansOfType(type).entrySet()
-                .parallelStream().filter(item -> {
-                    if (beanNamePrefixList == null || beanNamePrefixList.length == 0) {
-                        return true;
-                    }
-                    return Arrays.stream(beanNamePrefixList).filter(StringUtils::hasText).anyMatch(item.getKey()::startsWith);
-                }).map(item -> item.getValue()).collect(Collectors.toList());
+        //按类型或是注解扫描
+        Map<String, T> beans = type.isAnnotation() ? context.getBeansWithAnnotation(type) : context.getBeansOfType(type);
+
+        Predicate<Map.Entry<String, T>> filter = isMatchPackageNamePrefix ? (item) -> {
+            if (prefixList == null || prefixList.length == 0) {
+                return true;
+            }
+            String pkg = AopProxyUtils.ultimateTargetClass(item.getValue()).getPackage().getName();
+            return Arrays.stream(prefixList).filter(StringUtils::hasText).anyMatch(pkg::startsWith);
+        } : item -> {
+            if (prefixList == null || prefixList.length == 0) {
+                return true;
+            }
+            return Arrays.stream(prefixList).filter(StringUtils::hasText).anyMatch(item.getKey()::startsWith);
+
+        };
+
+        return beans.entrySet()
+                .parallelStream().filter(filter)
+                .map(item -> item.getValue())
+                .collect(Collectors.toList());
     }
+
 
 }
