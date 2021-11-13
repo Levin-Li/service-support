@@ -29,6 +29,7 @@ public abstract class RbacUtils {
 
     private static final LinkedMultiValueMap<String, Res> beanResCache = new LinkedMultiValueMap<>();
 
+
     /**
      * 获取资源类型
      *
@@ -149,6 +150,9 @@ public abstract class RbacUtils {
                         log.warn("控制器方法 {} 没有 Operation注解或是Operation注解的summary属性没有定义.", method);
                         actionName = method.getName();
                     }
+                } else if (actionName.endsWith(tag.name())) {
+                    //权限名称，去除实体名称，如：新建用户 变为 新建
+                    actionName = actionName.substring(0, actionName.length() - tag.name().length());
                 }
 
                 ResAuthorize fieldResAuthorize = getAnnotation(MapUtils
