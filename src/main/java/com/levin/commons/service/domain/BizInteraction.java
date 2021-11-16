@@ -54,7 +54,7 @@ public class BizInteraction
         String icon;
 
         @Schema(description = "命令")
-        String cmd;
+        Interaction.Action.Cmd cmd;
 
         @Schema(description = "命令参数")
         String args;

@@ -26,7 +26,7 @@ public interface Interaction
             @Schema(description = "自动消失的提示")
             prompt,
 
-            @Schema(description = "跳转到 UI 页面")
+            @Schema(description = "跳转到UI页面")
             jumpToPage,
 
             @Schema(description = "执行脚本")
@@ -114,7 +114,7 @@ public interface Interaction
      *
      * @return
      */
-    @Schema(description = "动作列表，客户端应该以模态对话框的方式展示，等待用户做出选择并执行响应的动作。")
+    @Schema(description = "动作列表，客户端应该以模态对话框的方式展示按钮，等待用户做出选择并执行响应的动作。")
     default List<Action> getActions() {
         return Collections.emptyList();
     }
