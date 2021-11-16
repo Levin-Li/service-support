@@ -23,12 +23,16 @@ public class PageableDataImpl<T> implements PageableData<T> {
     List<T> items;
     String pageToken;
 
-    @Setter
-    boolean hasMore;
+//    @Setter
+//    boolean hasMore;
+
+    public boolean isHasMore() {
+        return (pageSize != null && items != null && items.size() >= pageSize);
+    }
 
     @Override
     public boolean hasMore() {
-        return hasMore || (pageSize != null && items != null && items.size() >= pageSize);
+        return isHasMore();
     }
 
     @Override
