@@ -72,7 +72,7 @@ public class BaseResp<T>
         this.detailMsg = detailMsg;
     }
 
-
+    @Schema(description = "请求是否成功，等同于code == 0")
     public boolean isSuccessful() {
         return code == 0;
     }

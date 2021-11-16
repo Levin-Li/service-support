@@ -42,6 +42,7 @@ public interface Interaction
          *
          * @return
          */
+        @Schema(description = "名称")
         String getName();
 
         /**
@@ -49,6 +50,7 @@ public interface Interaction
          *
          * @return
          */
+        @Schema(description = "图标")
         default String getIcon() {
             return null;
         }
@@ -58,6 +60,7 @@ public interface Interaction
          *
          * @return
          */
+        @Schema(description = "命令")
         String getCmd();
 
         /**
@@ -65,6 +68,7 @@ public interface Interaction
          *
          * @return
          */
+        @Schema(description = "命令参数")
         String getArgs();
 
     }
@@ -74,13 +78,14 @@ public interface Interaction
      *
      * @return
      */
+    @Schema(description = "提示框标题")
     default String getTitle() {
         return "";
     }
 
     /**
      * 提示等级
-     * 越高表示越严重
+     * 值越大表示越严重
      * <p>
      * 用于处理提示框的图标，或是标题的颜色
      * <p>
@@ -88,6 +93,7 @@ public interface Interaction
      *
      * @return
      */
+    @Schema(description = "提示等级，值越大表示越严重")
     default int getLevel() {
         return 0;
     }
@@ -97,6 +103,7 @@ public interface Interaction
      *
      * @return
      */
+    @Schema(description = "提示信息")
     String getInfo();
 
     /**
@@ -104,6 +111,7 @@ public interface Interaction
      *
      * @return
      */
+    @Schema(description = "动作列表，客户端应该以模态对话框的方式展示，等待用户做出选择并执行响应的动作。")
     default List<Action> getActions() {
         return Collections.emptyList();
     }
