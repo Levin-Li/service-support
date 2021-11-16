@@ -22,20 +22,23 @@ public interface Interaction
 
     interface Action {
 
-        // 自动消失的提示
-        String PROMPT_CMD = "prompt";
+        enum Cmd implements EnumDesc {
+            @Schema(description = "自动消失的提示")
+            prompt,
 
-        //跳转到 UI 页面
-        String UI_CMD = "ui";
+            @Schema(description = "跳转到 UI 页面")
+            jumpToPage,
 
-        //执行脚本
-        String SCRIPT_CMD = "script";
+            @Schema(description = "执行脚本")
+            execScript,
 
-        //是否下一步
-        String CONTINUE_CMD = "continue";
+            @Schema(description = "是否下一步")
+            nextStep,
 
-        //访问接口
-        String API_CMD = "api";
+            @Schema(description = "访问接口")
+            requestApi,
+        }
+
 
         /**
          * 动作名称
@@ -61,7 +64,7 @@ public interface Interaction
          * @return
          */
         @Schema(description = "命令")
-        String getCmd();
+        Cmd getCmd();
 
         /**
          * 命令参数
