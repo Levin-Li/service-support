@@ -7,6 +7,8 @@ package com.levin.commons.dao.domain;
  */
 public interface OrderableObject {
 
+
+
     /**
      * 排序代码
      *
