@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 /**
  * 变量注入上下文管理器
  */
-public interface VariableResolverManager {
+public interface VariableResolverManager extends VariableResolver {
 
     /**
      * 获取变量解析器

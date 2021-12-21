@@ -32,6 +32,16 @@ public class ValueHolder<T> implements Supplier<T> {
     };
 
 
+    public static <T> ValueHolder<T> notValue(boolean throwEx, String name) {
+
+        if (throwEx) {
+            throw new VariableNotFoundException("variable " + name + " not found");
+        }
+
+        return NOT_VALUE;
+    }
+
+
     /**
      * @param <T>
      * @return
