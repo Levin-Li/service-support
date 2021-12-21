@@ -15,10 +15,6 @@ import java.util.function.Supplier;
 public class ValueHolder<T> implements Supplier<T> {
 
     public static final ValueHolder NOT_VALUE = new ValueHolder() {
-        @Override
-        public final boolean isHasValue() {
-            return hasValue();
-        }
 
         @Override
         public final boolean hasValue() {
@@ -69,6 +65,10 @@ public class ValueHolder<T> implements Supplier<T> {
         return value;
     }
 
+    public final boolean isHasValue() {
+        return hasValue();
+    }
+
     /**
      * 是否有值
      *
@@ -81,6 +81,10 @@ public class ValueHolder<T> implements Supplier<T> {
     @Override
     public T get() {
         return (T) getValue();
+    }
+
+    public T get(T defaultValue) {
+        return hasValue() ? get() : defaultValue;
     }
 
 }

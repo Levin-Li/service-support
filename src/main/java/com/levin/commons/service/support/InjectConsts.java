@@ -6,6 +6,10 @@ package com.levin.commons.service.support;
  */
 public interface InjectConsts {
 
+
+    String ACCESS_TOKEN = "accessToken";
+
+
     /**
      * 用户相关
      */
@@ -16,12 +20,29 @@ public interface InjectConsts {
     String USER_PHONE = "user.phone";
     String USER_EMAIL = "user.email";
 
+    //////////////////////////////////////////////////////////
+
     /**
      * 第三方
      */
     String WX_OPEN_ID = "openId";
 
+    /**
+     * 第三方
+     */
+    String WX_UNION_ID = "unionId";
 
+    /**
+     * 第三方
+     */
+    String ALI_USER_ID = "ali.userId";
+
+    /**
+     * 抖音
+     */
+    String DY_OPEN_ID = "dy.open_id";
+
+    ///////////////////////////////////////////////////////
     /**
      * 租户
      */
@@ -32,6 +53,8 @@ public interface InjectConsts {
      * 租户ID
      */
     String TENANT_ID = "tenant.id";
+
+    ////////////////////////////////////////////////////////
 
     /**
      * 组织对象
@@ -53,6 +76,8 @@ public interface InjectConsts {
      */
     String ORG_NAME = "org.name";
 
+    //////////////////////////////////////////////////////////////
+
     /**
      * 行政区域编码
      */
@@ -62,6 +87,8 @@ public interface InjectConsts {
      * 城市名称
      */
     String CITY_NAME = "cityName";
+
+    ////////////////////////////////////////////////////////////////
 
     /**
      * 客户端 IP 地址

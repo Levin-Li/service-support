@@ -24,6 +24,18 @@ public interface VariableResolver {
     Object NOT_VALUE = new Object();
 
     /**
+     * 尝试获取变量值
+     *
+     * @param name
+     * @param defaultValue
+     * @param <T>
+     * @return
+     */
+    default <T> T resolve(String name, T defaultValue) {
+        return (T) resolve(name, null, false).get(defaultValue);
+    }
+
+    /**
      * 获取变量
      * <p>
      * 方法必须永远返回一个ValueHolder对象
@@ -74,7 +86,6 @@ public interface VariableResolver {
         @Override
         public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws RuntimeException {
 
-
             for (Supplier<List<Map<String, Object>>> supplier : suppliers) {
 
                 if (log.isDebugEnabled()) {
@@ -100,11 +111,7 @@ public interface VariableResolver {
 
             }
 
-            if (throwExWhenNotFound) {
-                throw new VariableNotFoundException("variable " + name + " not found");
-            }
-
-            return ValueHolder.notValue();
+            return ValueHolder.notValue(throwExWhenNotFound, name);
         }
 
     }
