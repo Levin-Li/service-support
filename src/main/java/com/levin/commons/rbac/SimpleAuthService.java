@@ -2,7 +2,7 @@ package com.levin.commons.rbac;
 
 import java.util.Map;
 
-public interface SimpleAuthService {
+public interface SimpleAuthService<U extends UserBaseInfo> {
 
     /**
      * 认证，并返回token
@@ -17,24 +17,31 @@ public interface SimpleAuthService {
 
 
     /**
-     * 直接认证，并返回token
+     * 认证，并返回token
      *
      * @param userBaseInfo
      * @param userAgent
      * @param params
      * @return 认证成功后的token
      */
-    String auth(UserBaseInfo userBaseInfo, String userAgent, Map<String, Object>... params);
+    String auth(U userBaseInfo, String userAgent, Map<String, Object>... params);
 
 
     /**
      * 获取用户信息
      *
      * @param token
-     * @param <T>
      * @return
      */
-    <T extends UserBaseInfo> T getUserInfo(String token);
+    U getUserInfo(String token);
+
+
+    /**
+     * 使 token 失效
+     *
+     * @param token
+     */
+    void invalidate(String token);
 
     /**
      * 密码加密
