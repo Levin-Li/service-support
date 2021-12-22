@@ -48,7 +48,6 @@ public interface InjectConsts {
      */
     String TENANT = "tenant";
 
-
     /**
      * 租户ID
      */

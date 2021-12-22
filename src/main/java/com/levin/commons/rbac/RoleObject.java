@@ -8,6 +8,10 @@ import java.util.Collection;
  */
 public interface RoleObject {
 
+    String SA_ROLE = "SA";
+
+    String ADMIN_ROLE = "admin";
+
     /**
      * 获取授权列表
      *
