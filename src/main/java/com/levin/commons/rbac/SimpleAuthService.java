@@ -43,12 +43,12 @@ public interface SimpleAuthService<U extends UserBaseInfo> {
      */
     void invalidate(String token);
 
-    /**
-     * 密码加密
-     *
-     * @param pwd
-     * @return
-     */
-    String encryptPassword(String pwd);
+//    /**
+//     * 密码加密
+//     *
+//     * @param pwd
+//     * @return
+//     */
+//    String encryptPassword(String pwd);
 
 }
