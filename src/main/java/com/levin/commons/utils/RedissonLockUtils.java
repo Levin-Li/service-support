@@ -3,16 +3,24 @@ package com.levin.commons.utils;
 import lombok.SneakyThrows;
 import org.redisson.api.RLock;
 
+import java.util.Objects;
+import java.util.stream.Stream;
 
-public class RedissionLockUtils {
-    
+
+/**
+ * @author llw
+ */
+public abstract class RedissonLockUtils {
+
     /**
+     * 尝试锁定并执行任务
+     *
      * @param lock
-     * @param task
-     * @return boolean 是否获得锁
+     * @param tasks
+     * @return boolean true 表示获锁并执行任务
      */
     @SneakyThrows
-    public static boolean tryLockAndDoTask(final RLock lock, Runnable task) {
+    public static boolean tryLockAndDoTask(final RLock lock, Runnable... tasks) {
 
         //Redisson 自动续租看门狗机制
 //        lockWatchdogTimeout（监控锁的看门狗超时，单位：毫秒）
@@ -26,11 +34,11 @@ public class RedissionLockUtils {
         }
 
         try {
-
-            if (task != null) {
-                task.run();
+            if (tasks != null) {
+                Stream.of(tasks)
+                        .filter(Objects::nonNull)
+                        .forEachOrdered(Runnable::run);
             }
-
         } finally {
             //  为了安全，会先校验是否持有锁再释放，防止
             //  业务执行还没执行完，锁到期了。（此时没占用锁，再unlock就会报错）
