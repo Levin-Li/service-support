@@ -13,6 +13,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 @Schema(description = "分布式定时任务")
@@ -35,6 +36,9 @@ public abstract class AbstractDistributionJob<T> {
     @Getter
     @Setter
     private boolean pause = false;
+
+
+    private final AtomicLong counter = new AtomicLong(0);
 
     /**
      * 统计辅助
@@ -78,10 +82,11 @@ public abstract class AbstractDistributionJob<T> {
     /**
      * 批量获取数据
      *
-     * @param batchSize
+     * @param pageIndex
+     * @param pageSize
      * @return
      */
-    abstract protected List<T> getBatchData(int batchSize);
+    abstract protected List<T> getBatchData(int pageIndex, int pageSize);
 
     /**
      * 处理单条数据
@@ -109,13 +114,17 @@ public abstract class AbstractDistributionJob<T> {
      */
     protected void batchProcess(long timeoutMs, boolean isRunOnce, int batchSize) {
 
+        log.debug(counter.incrementAndGet() + " 开始执行批任务...");
+
         final long startTime = System.currentTimeMillis();
 
         List<T> dataList = null; //Collections.emptyList();
 
+        int pageIndex = 0;
+
         do {
 
-            dataList = getBatchData(batchSize);
+            dataList = getBatchData(++pageIndex, batchSize);
 
             if (dataList == null) {
                 break;
@@ -137,6 +146,8 @@ public abstract class AbstractDistributionJob<T> {
             }
 
         } while (!isRunOnce && dataList.size() >= 1);
+
+        log.debug(counter.incrementAndGet() + " 批任务执行完成");
 
     }
 

@@ -22,6 +22,9 @@ import java.util.stream.Stream;
  */
 public interface SimpleVariableInjector extends VariableInjector {
 
+    /**
+     * 默认注入器
+     */
     SimpleVariableInjector defaultSimpleVariableInjector = new SimpleVariableInjector() {
     };
 
@@ -30,6 +33,11 @@ public interface SimpleVariableInjector extends VariableInjector {
      */
     GenericConversionService defaultConversionService = new DefaultFormattingConversionService();
 
+    /**
+     * 获取转换服务
+     *
+     * @return
+     */
     default ConversionService getConversionService() {
         return defaultConversionService;
     }
@@ -231,7 +239,6 @@ public interface SimpleVariableInjector extends VariableInjector {
     }
 
     /**
-     *
      * 求值函数
      *
      * @param expr
@@ -251,8 +258,6 @@ public interface SimpleVariableInjector extends VariableInjector {
                 .orElse(ValueHolder.notValue());
 
     }
-
-
 
 
     ///////////////////////////////////////////////////////////////////////
