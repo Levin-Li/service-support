@@ -17,7 +17,7 @@ public class JsonStrArrayUtils {
     private static Gson gson = new Gson();
 
     public static String toStrArrayJson(Object... elements) {
-        return toStrArrayJson(Arrays.asList(elements));
+        return iterableToStrArrayJson(Arrays.asList(elements));
     }
 
     public static String getLikeQueryStr(Object element) {
@@ -32,7 +32,7 @@ public class JsonStrArrayUtils {
      * @param ignoreElementPredicates
      * @return
      */
-    public static String toStrArrayJson(Iterable elements, Predicate<Object>... ignoreElementPredicates) {
+    public static String iterableToStrArrayJson(Iterable elements, Predicate<Object>... ignoreElementPredicates) {
 
         final JsonArray jsonArray = new JsonArray();
 
