@@ -45,15 +45,16 @@ public abstract class AbstractDistributionJob<T> {
      */
     protected final StatHelper statHelper = new StatHelper();
 
+
     @PostConstruct
     public void init() {
-        log.info("分布式定时任务 " + getClass().getName() + " 初始化完成.");
+        log.info("分布式定时任务[ {} ]初始化完成.", getClass().getName());
     }
 
     /**
      * 执行任务
      *
-     * @param timeoutMs 单次任务执行时间
+     * @param timeoutMs 单次任务执行超时时间
      * @param runOnce   是否只执行一次
      * @param batchSize 数据批量大小
      */
@@ -98,6 +99,15 @@ public abstract class AbstractDistributionJob<T> {
 
 
     /**
+     * 是否统计速率
+     *
+     * @return
+     */
+    protected boolean isStatRatio() {
+        return true;
+    }
+
+    /**
      * 获取任务同步锁
      *
      * @return
@@ -114,7 +124,7 @@ public abstract class AbstractDistributionJob<T> {
      */
     protected void batchProcess(long timeoutMs, boolean isRunOnce, int batchSize) {
 
-        log.debug(counter.incrementAndGet() + " 开始执行批任务...");
+        log.info("[ {} ] 开始第[ {} ]次执行批任务...", getLockKey(), counter.incrementAndGet());
 
         final long startTime = System.currentTimeMillis();
 
@@ -132,10 +142,27 @@ public abstract class AbstractDistributionJob<T> {
 
             dataList.parallelStream().forEachOrdered(this::processData);
 
-            //如果已经超时，退出循环
-            if ((System.currentTimeMillis() - startTime) > timeoutMs) {
-                break;
+            for (T data : dataList) {
+
+                if (isStatRatio()) {
+                    statHelper.onAlarm(30, 5, 0.5, (growthRatio, ratio) -> {
+
+                        log.info("[ {} ] 第[ {} ]次批任务执行 速率: {}, 同比上一个采样周期变化率: {}", getLockKey(), counter.get(), ratio, growthRatio);
+
+                    });
+                }
+
+                processData(data);
+
+                //如果已经超时，退出循环
+                if ((System.currentTimeMillis() - startTime) > timeoutMs) {
+
+                    log.warn("*** [ {} ] 第[ {} ]次批任务执行超时，退出执行", getLockKey(), counter.get());
+
+                    return;
+                }
             }
+
 
             try {
                 //防止过快处理
@@ -147,9 +174,7 @@ public abstract class AbstractDistributionJob<T> {
 
         } while (!isRunOnce && dataList.size() >= 1);
 
-        log.debug(counter.incrementAndGet() + " 批任务执行完成");
-
+        log.info("[ {} ] 第[ {} ]次批任务执行完成", getLockKey(), counter.get());
     }
-
 
 }

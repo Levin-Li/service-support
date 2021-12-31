@@ -2,7 +2,6 @@ package com.levin.commons.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,18 +11,28 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class JsonStrArrayUtils {
+/**
+ * Json 字符串数组 处理工具
+ */
+public abstract class JsonStrArrayUtils {
 
     private static Gson gson = new Gson();
+
+    private JsonStrArrayUtils() {
+    }
+
+    public static String getLikeQueryStr(Object element) {
+
+        //只有一个元素，去除前后[]
+        String json = toStrArrayJson(element).trim();
+
+        //去除前后[]
+        return json.substring(1, json.length() - 1);
+    }
 
     public static String toStrArrayJson(Object... elements) {
         return iterableToStrArrayJson(Arrays.asList(elements));
     }
-
-    public static String getLikeQueryStr(Object element) {
-        return "\"" + element.toString() + "\"";
-    }
-
 
     /**
      * 转换为字符串对象数组对象
@@ -37,6 +46,7 @@ public class JsonStrArrayUtils {
         final JsonArray jsonArray = new JsonArray();
 
         if (elements != null) {
+
             for (Object element : elements) {
 
                 if (ignoreElementPredicates != null
@@ -49,6 +59,7 @@ public class JsonStrArrayUtils {
 
                 jsonArray.add(element != null ? element.toString() : null);
             }
+
         }
 
         return gson.toJson(jsonArray);
@@ -70,14 +81,11 @@ public class JsonStrArrayUtils {
             convert = item -> (T) item;
         }
 
-        if (filter == null) {
-            filter = StringUtils::hasText;
-        }
-
         return Stream.of(gson.fromJson(jsonArray, String[].class))
-                .filter(filter)
+                .filter(txt -> filter == null || filter.test(txt))
                 .map(convert)
                 .collect(Collectors.toList());
+
     }
 
 }
