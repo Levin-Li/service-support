@@ -23,11 +23,12 @@ public abstract class JsonStrArrayUtils {
 
     public static String getLikeQueryStr(Object element) {
 
-        //只有一个元素，去除前后[]
+        //只有一个元素，去除前后空格
         String json = toStrArrayJson(element).trim();
 
-        //去除前后[]
-        return json.substring(1, json.length() - 1);
+        //去除前后[]，再去除前后空格
+        return json.substring(1, json.length() - 1).trim();
+
     }
 
     public static String toStrArrayJson(Object... elements) {
