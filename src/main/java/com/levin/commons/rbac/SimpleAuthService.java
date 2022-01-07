@@ -1,8 +1,12 @@
 package com.levin.commons.rbac;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public interface SimpleAuthService<U extends UserBaseInfo> {
+/**
+ * 简单认证服务
+ */
+public interface SimpleAuthService {
 
     /**
      * 认证，并返回token
@@ -19,12 +23,12 @@ public interface SimpleAuthService<U extends UserBaseInfo> {
     /**
      * 认证，并返回token
      *
-     * @param userBaseInfo
+     * @param loginId   登录标识
      * @param userAgent
      * @param params
      * @return 认证成功后的token
      */
-    String auth(U userBaseInfo, String userAgent, Map<String, Object>... params);
+    <T extends Serializable> String auth(T loginId, String userAgent, Map<String, Object>... params);
 
 
     /**
@@ -33,8 +37,7 @@ public interface SimpleAuthService<U extends UserBaseInfo> {
      * @param token
      * @return
      */
-    U getUserInfo(String token);
-
+    <T extends Serializable> T getLoginId(String token);
 
     /**
      * 使 token 失效
@@ -42,13 +45,5 @@ public interface SimpleAuthService<U extends UserBaseInfo> {
      * @param token
      */
     void invalidate(String token);
-
-//    /**
-//     * 密码加密
-//     *
-//     * @param pwd
-//     * @return
-//     */
-//    String encryptPassword(String pwd);
 
 }
