@@ -1,6 +1,5 @@
 package com.levin.commons.rbac;
 
-import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -29,15 +28,15 @@ public interface SimpleAuthService {
      * @param params
      * @return 认证成功后的token
      */
-    <T extends Serializable> String auth(T loginId, String userAgent, Map<String, Object>... params);
+    String auth(String loginId, String userAgent, Map<String, Object>... params);
 
     /**
-     * 获取用户信息
+     * 获取登录ID
      *
      * @param token
      * @return
      */
-    <T extends Serializable> T getLoginIdByToken(String token);
+    String getLoginIdByToken(String token);
 
     /**
      * 使 token 失效
