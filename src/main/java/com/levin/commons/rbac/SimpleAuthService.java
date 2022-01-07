@@ -17,11 +17,12 @@ public interface SimpleAuthService {
      * @param params
      * @return 认证成功后的token
      */
-    String auth(String account, String password, String userAgent, Map<String, Object>... params);
-
+    default String auth(String account, String password, String userAgent, Map<String, Object>... params) {
+        throw new UnsupportedOperationException("不支持用户密码进行认证");
+    }
 
     /**
-     * 认证，并返回token
+     * 直接认证，并返回token
      *
      * @param loginId   登录标识
      * @param userAgent
@@ -30,14 +31,13 @@ public interface SimpleAuthService {
      */
     <T extends Serializable> String auth(T loginId, String userAgent, Map<String, Object>... params);
 
-
     /**
      * 获取用户信息
      *
      * @param token
      * @return
      */
-    <T extends Serializable> T getLoginId(String token);
+    <T extends Serializable> T getLoginIdByToken(String token);
 
     /**
      * 使 token 失效
