@@ -2,8 +2,12 @@ package com.levin.commons.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.reflect.TypeToken;
+import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -17,6 +21,9 @@ import java.util.stream.Stream;
 public abstract class JsonStrArrayUtils {
 
     private static Gson gson = new Gson();
+    public static final Type listStrType = new TypeToken<List<String>>() {
+    }.getType();
+
 
     private JsonStrArrayUtils() {
     }
@@ -42,7 +49,7 @@ public abstract class JsonStrArrayUtils {
      * @param ignoreElementPredicates
      * @return
      */
-    public  static <T extends Object> String iterableToStrArrayJson(Iterable<T> elements, Predicate<T>... ignoreElementPredicates) {
+    public static <T extends Object> String iterableToStrArrayJson(Iterable<T> elements, Predicate<T>... ignoreElementPredicates) {
 
         final JsonArray jsonArray = new JsonArray();
 
@@ -77,6 +84,10 @@ public abstract class JsonStrArrayUtils {
      * @return
      */
     public static <T> List<T> parse(String jsonArray, Predicate<String> filter, Function<String, T> convert) {
+
+        if (!StringUtils.hasText(jsonArray)) {
+            return Collections.emptyList();
+        }
 
         if (convert == null) {
             convert = item -> (T) item;
