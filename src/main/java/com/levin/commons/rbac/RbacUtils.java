@@ -63,8 +63,7 @@ public abstract class RbacUtils {
             initBeanResCache(context);
         }
 
-        return Optional.ofNullable(beanResCache.get(pkgName))
-                .orElse(Collections.emptyList())
+        return beanResCache.getOrDefault(pkgName, Collections.emptyList())
                 .parallelStream()
                 .map(res -> new IdentifiableObject()
                         .setId(res.getType())
@@ -104,8 +103,7 @@ public abstract class RbacUtils {
             initBeanResCache(context);
         }
 
-        return Optional.ofNullable(beanResCache.get(pkgName))
-                .orElse(Collections.emptyList())
+        return beanResCache.getOrDefault(pkgName, Collections.emptyList())
                 .parallelStream()
                 .filter(res -> !StringUtils.hasText(type) || type.equals(res.getType()))
                 .collect(Collectors.toList());
