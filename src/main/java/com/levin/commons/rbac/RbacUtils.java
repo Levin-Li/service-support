@@ -3,6 +3,7 @@ package com.levin.commons.rbac;
 import com.levin.commons.service.domain.Identifiable;
 import com.levin.commons.service.support.SpringContextHolder;
 import com.levin.commons.utils.ClassUtils;
+import com.levin.commons.utils.JsonStrArrayUtils;
 import com.levin.commons.utils.MapUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 public abstract class RbacUtils {
 
     private static final LinkedMultiValueMap<String, Res> beanResCache = new LinkedMultiValueMap<>();
+
     private static final Map<String, List<MenuItem>> menuCache = new ConcurrentHashMap<>();
 
 
@@ -61,7 +63,9 @@ public abstract class RbacUtils {
             initBeanResCache(context);
         }
 
-        return beanResCache.get(pkgName).parallelStream()
+        return Optional.ofNullable(beanResCache.get(pkgName))
+                .orElse(Collections.emptyList())
+                .parallelStream()
                 .map(res -> new IdentifiableObject()
                         .setId(res.getType())
                         //设置名称，试图映射名称
@@ -81,6 +85,7 @@ public abstract class RbacUtils {
         synchronized (beanResCache) {
             initBeanResCache(context);
         }
+
         return beanResCache.clone();
     }
 
@@ -99,7 +104,9 @@ public abstract class RbacUtils {
             initBeanResCache(context);
         }
 
-        return beanResCache.get(pkgName).parallelStream()
+        return Optional.ofNullable(beanResCache.get(pkgName))
+                .orElse(Collections.emptyList())
+                .parallelStream()
                 .filter(res -> !StringUtils.hasText(type) || type.equals(res.getType()))
                 .collect(Collectors.toList());
 
@@ -253,7 +260,7 @@ public abstract class RbacUtils {
                 //@todo 设置权限
 
                 //设置默认权限
-                menuRes.setRequireAuthorizations(permission.toString())
+                menuRes.setRequireAuthorizations(JsonStrArrayUtils.toStrArrayJson(permission))
                         .setDomain(packageName)
                         //设置路径
                         .setPath(Arrays.asList(mapping != null ? mapping.path() : new String[0]).parallelStream().filter(StringUtils::hasText).findFirst().orElse(defaultName))

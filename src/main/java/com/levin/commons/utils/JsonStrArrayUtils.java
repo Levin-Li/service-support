@@ -42,13 +42,13 @@ public abstract class JsonStrArrayUtils {
      * @param ignoreElementPredicates
      * @return
      */
-    public static String iterableToStrArrayJson(Iterable elements, Predicate<Object>... ignoreElementPredicates) {
+    public  static <T extends Object> String iterableToStrArrayJson(Iterable<T> elements, Predicate<T>... ignoreElementPredicates) {
 
         final JsonArray jsonArray = new JsonArray();
 
         if (elements != null) {
 
-            for (Object element : elements) {
+            for (T element : elements) {
 
                 if (ignoreElementPredicates != null
                         && Arrays.stream(ignoreElementPredicates)
