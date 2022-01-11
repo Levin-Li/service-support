@@ -140,7 +140,7 @@ public abstract class AbstractDistributionJob<T> {
                 break;
             }
 
-            dataList.parallelStream().forEachOrdered(this::processData);
+            dataList.stream().forEachOrdered(this::processData);
 
             for (T data : dataList) {
 

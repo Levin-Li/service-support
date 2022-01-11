@@ -64,7 +64,7 @@ public abstract class RbacUtils {
         }
 
         return beanResCache.getOrDefault(pkgName, Collections.emptyList())
-                .parallelStream()
+                .stream()
                 .map(res -> new IdentifiableObject()
                         .setId(res.getType())
                         //设置名称，试图映射名称
@@ -104,7 +104,7 @@ public abstract class RbacUtils {
         }
 
         return beanResCache.getOrDefault(pkgName, Collections.emptyList())
-                .parallelStream()
+                .stream()
                 .filter(res -> !StringUtils.hasText(type) || type.equals(res.getType()))
                 .collect(Collectors.toList());
 
@@ -118,7 +118,7 @@ public abstract class RbacUtils {
         }
 
         context.getBeansWithAnnotation(Controller.class)
-                .entrySet().parallelStream().forEach((it) -> {
+                .entrySet().stream().forEach((it) -> {
 
             String beanName = it.getKey();
 
@@ -261,7 +261,7 @@ public abstract class RbacUtils {
                 menuRes.setRequireAuthorizations(JsonStrArrayUtils.toStrArrayJson(permission))
                         .setDomain(packageName)
                         //设置路径
-                        .setPath(Arrays.asList(mapping != null ? mapping.path() : new String[0]).parallelStream().filter(StringUtils::hasText).findFirst().orElse(defaultName))
+                        .setPath(Arrays.asList(mapping != null ? mapping.path() : new String[0]).stream().filter(StringUtils::hasText).findFirst().orElse(defaultName))
                         //设置菜单名称
                         .setName(Arrays.asList(tag != null ? tag.description() : null).stream().filter(StringUtils::hasText).findFirst().orElse(defaultName))
                 ;

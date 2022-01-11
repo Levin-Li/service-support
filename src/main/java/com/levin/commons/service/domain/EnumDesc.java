@@ -31,7 +31,7 @@ public interface EnumDesc {
         Map<Integer, String> desc = new LinkedHashMap<>();
 
         Arrays.stream(type.getEnumConstants())
-                .parallel().forEachOrdered(anEnum -> {
+                .forEachOrdered(anEnum -> {
                     desc.put(anEnum.ordinal(), (anEnum instanceof EnumDesc) ? ((EnumDesc) anEnum).getDesc() : getDesc(anEnum));
                 }
         );
@@ -54,7 +54,7 @@ public interface EnumDesc {
         Map<String, String> desc = new LinkedHashMap<>();
 
         Arrays.stream(type.getEnumConstants())
-                .parallel().forEachOrdered(anEnum -> {
+                .forEachOrdered(anEnum -> {
                     desc.put(anEnum.name(), (anEnum instanceof EnumDesc) ? ((EnumDesc) anEnum).getDesc() : getDesc(anEnum));
                 }
         );

@@ -51,7 +51,7 @@ public class DefaultVariableResolverManager
     @Override
     public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws VariableNotFoundException {
 
-        return defaultVariableResolvers.parallelStream()
+        return defaultVariableResolvers.stream()
                 .map(resolver -> resolver.resolve(name, originalValue, false, expectTypes))
                 .filter(ValueHolder::hasValue)
                 .findFirst()

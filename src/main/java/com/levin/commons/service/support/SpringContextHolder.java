@@ -129,7 +129,7 @@ public class SpringContextHolder implements EnvironmentAware,
         };
 
         return beans.entrySet()
-                .parallelStream().filter(filter)
+                .stream().filter(filter)
                 .map(item -> item.getValue())
                 .collect(Collectors.toList());
     }
