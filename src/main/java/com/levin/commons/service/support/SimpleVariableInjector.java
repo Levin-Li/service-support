@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -64,11 +65,9 @@ public interface SimpleVariableInjector extends VariableInjector {
         List<VariableResolver> variableResolvers = Stream.of(suppliers)
                 .filter(Objects::nonNull)
                 .map(Supplier::get)
+                .flatMap(Collection::stream)
                 .filter(Objects::nonNull)
-                .reduce(new LinkedList<>(), (first, second) -> {
-                    first.addAll(second);
-                    return first;
-                });
+                .collect(Collectors.toList());
 
         for (Field field : ClassUtils.getFields(targetBean.getClass(), InjectVar.class)) {
 
