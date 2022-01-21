@@ -56,10 +56,22 @@ public class ValueHolder<T> implements Supplier<T> {
     @Setter
     private boolean hasValue = false;
 
+    public ValueHolder(T value) {
+        this.value = value;
+        this.hasValue = value != null;
+    }
+
+    public ValueHolder(Object root, String name, T value) {
+        this.root = root;
+        this.name = name;
+        this.value = value;
+        this.hasValue = value != null;
+    }
+
     public Object getValue() {
 
         if (!hasValue()) {
-            throw new IllegalStateException("not value");
+            throw new IllegalStateException(name + " not value");
         }
 
         return value;

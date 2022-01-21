@@ -1,6 +1,8 @@
 package com.levin.commons.service.domain;
 
 
+import org.springframework.core.convert.converter.Converter;
+
 import java.lang.annotation.*;
 
 @Target({ElementType.FIELD, ElementType.PARAMETER})
@@ -11,6 +13,7 @@ import java.lang.annotation.*;
 /**
  *
  * 注入域
+ *
  *
  * 把表达式求解后的值注入到被注解的字段中
  *
@@ -46,6 +49,20 @@ public @interface InjectVar {
     String value() default "";
 
     /**
+     * 预期的变量值类型
+     *
+     * @return
+     */
+    Class<?> expectType() default Void.class;
+
+    /**
+     * 转化器
+     *
+     * @return
+     */
+    Class<? extends Converter> converter() default Converter.class;
+
+    /**
      * 是否强制覆盖原字段值，表达式必须返回 true or false
      *
      * <p>
@@ -76,6 +93,7 @@ public @interface InjectVar {
      * @return
      */
     String isRequired() default "true";
+
 
     /**
      * 备注

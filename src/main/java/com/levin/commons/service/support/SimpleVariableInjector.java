@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.util.StringUtils;
@@ -84,6 +85,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
             // 1、获取原值
             Object originalValue = null;//  field.get(targetBean);
+
             try {
                 //2、获取原字段值
                 originalValue = field.get(targetBean);
@@ -123,21 +125,34 @@ public interface SimpleVariableInjector extends VariableInjector {
                 varName = field.getName();
             }
 
-            ValueHolder<Object> valueHolder = eval(varName, originalValue, null, variableResolvers);
+            Class<?> expectType = (injectVar.expectType() != null && injectVar.expectType() != Void.class) ? injectVar.expectType() : null;
+
+            ValueHolder<Object> valueHolder = eval(varName, originalValue, expectType, variableResolvers);
 
             if (valueHolder.hasValue()) {
                 //4、如果变量获取成功
                 try {
-                    //转换并且注入变量
-                    ConversionService conversionService = getConversionService();
 
-                    final Object newValue = valueHolder.get();
 
-                    Object convertValue = conversionService != null ? conversionService.convert(valueHolder.get(), fieldType) : newValue;
+                    Object newValue = valueHolder.get();
 
-                    field.set(targetBean, convertValue);
+                    if (injectVar.converter() == null
+                            || injectVar.converter() == Converter.class) {
+                        //默认的转换方式
+                        //转换并且注入变量
+                        ConversionService conversionService = getConversionService();
 
-                } catch (IllegalAccessException e) {
+                        newValue = conversionService != null ? conversionService.convert(valueHolder.get(), fieldType) : newValue;
+
+                    } else {
+                        //临时创建转化器
+                        newValue = injectVar.converter().newInstance().convert(newValue);
+
+                    }
+
+                    field.set(targetBean, newValue);
+
+                } catch (Exception e) {
                     throw new VariableInjectException(field.getDeclaringClass().getName()
                             + "." + field.getName() + " inject var [" + varName + "] can't inject," + injectVar.remark(), e);
                 }

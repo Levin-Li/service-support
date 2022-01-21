@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
@@ -25,6 +26,7 @@ import java.io.Serializable;
 @Builder
 @Data
 @Accessors(chain = true)
+@ToString(callSuper = true)
 @Schema(description = "服务响应对象")
 @FieldNameConstants
 //@Builder

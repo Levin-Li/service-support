@@ -17,6 +17,7 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 类工具
@@ -163,11 +164,11 @@ public final class ClassUtils {
      * @param type
      * @return
      */
-    public static List<Field> getFields(Class clazz, Class<? extends Annotation> type) {
+    public static List<Field> getFields(Class clazz, Class<? extends Annotation> type, Predicate<Field>... filters) {
 
         final String key = clazz.getName() + "@" + type.getName();
 
-        List<Field> fields = fieldMap.get(key);
+        List<Field> fields = null;
 
         synchronized (LOCKER.getLock(key)) {
 
@@ -179,11 +180,21 @@ public final class ClassUtils {
 
                 ReflectionUtils.doWithFields(clazz, field -> tempList.add(field), field -> field.isAnnotationPresent(type));
 
+                //超类的字段优先
+                Collections.reverse(tempList);
+
                 fields = Collections.unmodifiableList(tempList);
 
                 fieldMap.put(key, fields);
             }
 
+        }
+
+        if (filters != null
+                && filters.length > 0) {
+            return fields.stream()
+                    .filter(field -> Stream.of(filters).allMatch(fieldPredicate -> fieldPredicate.test(field)))
+                    .collect(Collectors.toList());
         }
 
         return fields;
@@ -484,8 +495,9 @@ public final class ClassUtils {
             String name = method.getName();
 
             //如果是get要求是没有参数的方法
-            if (isGet && method.getParameterTypes().length > 0)
+            if (isGet && method.getParameterTypes().length > 0) {
                 continue;
+            }
 
             if (name.startsWith(isGet ? "get" : "set") && name.length() > 3) {
                 name = Character.toUpperCase(name.charAt(3)) + name.substring(4);
@@ -568,11 +580,13 @@ public final class ClassUtils {
      */
     public static Map<String, ? extends Object> copyFields2Map(Object source, Map<String, Object> dest) {
 
-        if (dest == null)
+        if (dest == null) {
             dest = new LinkedHashMap<>();
+        }
 
-        if (source == null)
+        if (source == null) {
             return dest;
+        }
 
         Map<String, Field> fieldMap = getCachedFieldMap(source.getClass());
 
