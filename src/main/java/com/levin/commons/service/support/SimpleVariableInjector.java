@@ -125,14 +125,13 @@ public interface SimpleVariableInjector extends VariableInjector {
                 varName = field.getName();
             }
 
-            Class<?> expectType = (injectVar.expectType() != null && injectVar.expectType() != Void.class) ? injectVar.expectType() : null;
+            Class<?> expectType = (injectVar.expectType() == null || injectVar.expectType() == Void.class) ? null : injectVar.expectType();
 
             ValueHolder<Object> valueHolder = eval(varName, originalValue, expectType, variableResolvers);
 
             if (valueHolder.hasValue()) {
                 //4、如果变量获取成功
                 try {
-
 
                     Object newValue = valueHolder.get();
 
