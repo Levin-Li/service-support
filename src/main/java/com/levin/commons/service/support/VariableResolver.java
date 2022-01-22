@@ -1,6 +1,7 @@
 package com.levin.commons.service.support;
 
 
+import com.levin.commons.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
@@ -72,46 +73,54 @@ public interface VariableResolver {
     }
 
     /**
-     * Map 变量解析器
+     * Bean 变量解析器
      */
     @Slf4j
-    class MapVariableResolver implements VariableResolver {
+    class BeanVariableResolver implements VariableResolver {
 
-        final Supplier<List<Map<String, Object>>>[] suppliers;
+        final Supplier<List<?>>[] suppliers;
 
-        public MapVariableResolver(Supplier<List<Map<String, Object>>>... suppliers) {
+        public BeanVariableResolver(Supplier<List<?>>... suppliers) {
             this.suppliers = suppliers;
         }
 
         @Override
         public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws RuntimeException {
 
-            for (Supplier<List<Map<String, Object>>> supplier : suppliers) {
+            for (Supplier<List<?>> supplier : suppliers) {
 
                 if (log.isDebugEnabled()) {
                     log.debug("resolve variable [{}] in Map Supplier {}", name, supplier);
                 }
 
-                for (Map<String, Object> context : supplier.get()) {
+                for (Object context : supplier.get()) {
 
-                    if (context.containsKey(name)) {
+                    ValueHolder<?> holder = ClassUtils.getIndexValue(context, name);
 
-                        Object value = context.get(name);
+                    if (holder.hasValue()) {
+
+                        Object value = holder.getValue();
 
                         if (isExpectType(value != null ? value.getClass() : null, expectTypes)) {
-
-                            return new ValueHolder<T>()
-                                    .setRoot(context)
-                                    .setName(name)
-                                    .setValue((T) value)
-                                    .setHasValue(true);
+                            return (ValueHolder<T>) holder;
                         }
+
                     }
                 }
-
             }
 
             return ValueHolder.notValue(throwExWhenNotFound, name);
+        }
+    }
+
+    /**
+     * Map 变量解析器
+     */
+    @Slf4j
+    class MapVariableResolver extends BeanVariableResolver {
+
+        public MapVariableResolver(Supplier<List<Map<String, Object>>>... suppliers) {
+            super(suppliers);
         }
 
     }

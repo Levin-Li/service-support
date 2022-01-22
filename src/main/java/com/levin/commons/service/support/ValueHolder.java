@@ -68,7 +68,7 @@ public class ValueHolder<T> implements Supplier<T> {
         this.hasValue = value != null;
     }
 
-    public Object getValue() {
+    public T getValue() {
 
         if (!hasValue()) {
             throw new IllegalStateException(name + " not value");
@@ -92,7 +92,7 @@ public class ValueHolder<T> implements Supplier<T> {
 
     @Override
     public T get() {
-        return (T) getValue();
+        return getValue();
     }
 
     public T get(T defaultValue) {

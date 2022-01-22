@@ -2,7 +2,10 @@ package com.levin.commons.utils;
 
 
 import com.levin.commons.service.support.Locker;
+import com.levin.commons.service.support.ValueHolder;
+import lombok.SneakyThrows;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.util.Assert;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -25,21 +28,19 @@ import java.util.stream.Stream;
 
 public final class ClassUtils {
 
-
     private static Logger logger = Logger.getLogger(ClassUtils.class.getName());
-
-    private static final Map<String, Map<String, Method>> cacheSetMethods = new ConcurrentReferenceHashMap<>();
-
-    private static final Map<String, Map<String, Method>> cacheGetMethods = new ConcurrentReferenceHashMap<>();
-
-    private static final Map<String, Map<String, Field>> cacheFields = new ConcurrentReferenceHashMap<>();
 
     private static final Locker LOCKER = Locker.build();
 
-    private static final Map<String, List<Field>> fieldMap = new ConcurrentReferenceHashMap<>();
+    private static final Map<String, Map<String, Method>> setMethodCaches = new ConcurrentReferenceHashMap<>();
+
+    private static final Map<String, Map<String, Method>> getMethodCaches = new ConcurrentReferenceHashMap<>();
+
+    private static final Map<String, Map<String, Field>> classFieldCaches = new ConcurrentReferenceHashMap<>();
+
+    private static final Map<String, List<Field>> annotationFieldCaches = new ConcurrentReferenceHashMap<>();
 
     private static final Map<String, List<Method>> postConstructMethodCaches = new ConcurrentReferenceHashMap<>();
-
 
     private static final Map<String, Map<String, Method>> annotationMethodCaches = new ConcurrentReferenceHashMap<>();
 
@@ -172,7 +173,7 @@ public final class ClassUtils {
 
         synchronized (LOCKER.getLock(key)) {
 
-            fields = fieldMap.get(key);
+            fields = annotationFieldCaches.get(key);
 
             if (fields == null) {
 
@@ -185,7 +186,7 @@ public final class ClassUtils {
 
                 fields = Collections.unmodifiableList(tempList);
 
-                fieldMap.put(key, fields);
+                annotationFieldCaches.put(key, fields);
             }
 
         }
@@ -485,12 +486,12 @@ public final class ClassUtils {
 
         Map<String, Method> methodMap = new LinkedHashMap<>();
 
+        List<Method> methodList = Arrays.asList(ReflectionUtils.getAllDeclaredMethods(clazz));
 
-        Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);
+        //超类方法优先
+        Collections.reverse(methodList);
 
-        for (int i = 0; i < methods.length; i++) {
-
-            Method method = methods[i];
+        for (Method method : methodList) {
 
             String name = method.getName();
 
@@ -504,7 +505,6 @@ public final class ClassUtils {
                 methodMap.put(name, method);
             }
         }
-
 
         return methodMap;
     }
@@ -520,26 +520,37 @@ public final class ClassUtils {
 
         Map<String, Field> fieldMap = new LinkedHashMap<>();
 
-        int excludeModifiers = Modifier.FINAL | Modifier.TRANSIENT;
+        List<Field> fields = new ArrayList<>(7);
 
         ReflectionUtils.doWithFields(type, field -> {
-
             field.setAccessible(true);
-            fieldMap.put(field.getName(), field);
+            fields.add(field);
+        }, (field -> {
 
-        }, field -> !fieldMap.containsKey(field.getName())
-                && (field.getModifiers() & excludeModifiers) == 0);
+            Class<?> c = field.getDeclaringClass();
+
+            //字段过滤
+            return c != Object.class && !c.isPrimitive() && !c.isArray() && !c.isInterface();
+
+        }));
+
+        //倒序，超类字段排在前面
+        Collections.reverse(fields);
+
+        for (Field field : fields) {
+            fieldMap.put(field.getName(), field);
+        }
 
         return fieldMap;
     }
 
     private static Map<String, Method> getCachedSetMethodMap(Class clazz) {
 
-        Map<String, Method> methodMap = cacheSetMethods.get(clazz.getName());
+        Map<String, Method> methodMap = setMethodCaches.get(clazz.getName());
 
         if (methodMap == null) {
             methodMap = findMethod(clazz, false);
-            cacheSetMethods.put(clazz.getName(), methodMap);
+            setMethodCaches.put(clazz.getName(), methodMap);
         }
 
         return methodMap;
@@ -547,11 +558,11 @@ public final class ClassUtils {
 
     private static Map<String, Method> getCachedGetMethodMap(Class clazz) {
 
-        Map<String, Method> methodMap = cacheGetMethods.get(clazz.getName());
+        Map<String, Method> methodMap = getMethodCaches.get(clazz.getName());
 
         if (methodMap == null) {
             methodMap = findMethod(clazz, true);
-            cacheGetMethods.put(clazz.getName(), methodMap);
+            getMethodCaches.put(clazz.getName(), methodMap);
         }
 
         return methodMap;
@@ -560,11 +571,11 @@ public final class ClassUtils {
 
     private static Map<String, Field> getCachedFieldMap(Class clazz) {
 
-        Map<String, Field> methodMap = cacheFields.get(clazz.getName());
+        Map<String, Field> methodMap = classFieldCaches.get(clazz.getName());
 
         if (methodMap == null) {
             methodMap = findFields(clazz);
-            cacheFields.put(clazz.getName(), methodMap);
+            classFieldCaches.put(clazz.getName(), methodMap);
         }
 
         return methodMap;
@@ -600,7 +611,6 @@ public final class ClassUtils {
 
         return dest;
     }
-
 
     public static <T> T getStaticFieldValue(String className, String fieldName) throws NoSuchFieldError, ClassNotFoundException, IllegalAccessException {
 
@@ -682,6 +692,57 @@ public final class ClassUtils {
         return noSetValues;
     }
 
+    /**
+     * 获取属性值
+     *
+     * @param target
+     * @param name
+     * @return
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     */
+
+    @SneakyThrows
+    public static ValueHolder<?> getSimpleValue(Object target, String name) {
+
+        Assert.hasText(name, "name is null");
+
+        ValueHolder valueHolder = new ValueHolder().setRoot(target).setName(name);
+
+        if (target == null) {
+            return valueHolder;
+        }
+
+        if (target instanceof Map) {
+
+            Map<String, ?> map = (Map) target;
+
+            valueHolder.setHasValue(map.containsKey(name));
+
+            if (valueHolder.hasValue()) {
+                valueHolder.setValue(map.get(name));
+            }
+
+            return valueHolder;
+        }
+
+        Method method = getCachedGetMethodMap(target.getClass()).get(name);
+
+        //方法优先
+        if (method != null) {
+            return valueHolder.setHasValue(true).setValue(method.invoke(target));
+        }
+
+        Field field = getCachedFieldMap(target.getClass()).get(name);
+
+        if (field != null) {
+            //允许private 访问
+            field.setAccessible(true);
+            return valueHolder.setHasValue(true).setValue(field.get(target));
+        }
+
+        return valueHolder;
+    }
 
     /**
      * 获取属性值
@@ -692,80 +753,96 @@ public final class ClassUtils {
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
-    public static Object getValue(Object target, String name) throws InvocationTargetException, IllegalAccessException {
+    public static Object getValue(Object target, String name) {
+        return getIndexValue(target, name).get();
+    }
 
-        if (target instanceof Map) {
-            if (((Map) target).containsKey(name))
-                return ((Map) target).get(name);
-            else
-                throw new IllegalArgumentException("Map key[" + name + "] not found");
+
+    /**
+     * 获取属性值
+     *
+     * @param target
+     * @param name
+     * @return
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     */
+    public static ValueHolder<?> getIndexValue(Object target, String name) {
+        return getIndexValueByNames(target, name.split("\\."));
+    }
+
+    /**
+     * 获取属性值
+     *
+     * @param target
+     * @param names
+     * @return
+     */
+    public static ValueHolder<?> getIndexValueByNames(Object target, String... names) {
+
+        Assert.notEmpty(names, "names is empty");
+
+        ValueHolder<?> holder = null;
+
+        for (String name : names) {
+
+            if (!StringUtils.hasText(name)) {
+                continue;
+            }
+
+            holder = getSimpleValue(target, name);
+
+            if (!holder.hasValue()) {
+                break;
+            }
+
+            target = holder.get();
         }
 
-        Method method = getCachedGetMethodMap(target.getClass()).get(name);
+        Assert.notNull(holder, "names is invalid");
 
-        //方法优先
-        if (method != null) {
-            return method.invoke(target);
-        }
-
-        Field field = getCachedFieldMap(target.getClass()).get(name);
-
-        if (field != null) {
-            field.setAccessible(true);
-            return field.get(target);
-        }
-
-        throw new IllegalArgumentException(target.getClass() + "." + name + " not found");
-
+        return holder;
     }
 
     /**
      * 设置属性值
+     * <p>
+     * 会抛异常
      *
      * @param target
      * @param name
      * @param value
      * @return
      */
-    public static boolean setValue(Object target, String name, Object value) {
+    @SneakyThrows
+    public static boolean setSimpleValue(Object target, String name, Object value) {
 
         if (target instanceof Map) {
             ((Map) target).put(name, value);
             return true;
         }
 
-        boolean success = false;
-
         Method method = getCachedSetMethodMap(target.getClass()).get(name);
 
         //方法优先
         if (method != null) {
-            try {
-                if (value != null && value.getClass().isArray() && method.getParameterTypes().length > 1)
-                    method.invoke(target, (Object[]) value);
-                else
-                    method.invoke(target, value);
-
-                success = true;
-            } catch (Exception e) {
-                logger.warning("copyValue [" + name + "] error, " + e);
+            if (value != null && value.getClass().isArray() && method.getParameterTypes().length > 1) {
+                method.invoke(target, (Object[]) value);
+            } else {
+                method.invoke(target, value);
             }
-            return success;
+            return true;
         }
 
         Field field = getCachedFieldMap(target.getClass()).get(name);
 
         if (field != null) {
-            try {
-                field.setAccessible(true);
-                field.set(target, value);
-                success = true;
-            } catch (Exception e) {
-                logger.warning("copyValue [" + name + "] error, " + e);
-            }
+            field.setAccessible(true);
+            field.set(target, value);
+            return true;
         }
 
-        return success;
-    }
+        return false;
 
+    }
 }
