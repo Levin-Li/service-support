@@ -74,6 +74,12 @@ public interface SimpleVariableInjector extends VariableInjector {
 
             InjectVar injectVar = field.getAnnotation(InjectVar.class);
 
+            //如果有指定注入域，只处理指定的域
+            if (StringUtils.hasText(getInjectDomain())
+                    && !getInjectDomain().equals(injectVar.domain())) {
+                continue;
+            }
+
             ResolvableType forField = ResolvableType.forField(field, resolvableTypeRoot);
 
             //1、获取字段类型
@@ -146,7 +152,6 @@ public interface SimpleVariableInjector extends VariableInjector {
                     } else {
                         //临时创建转化器
                         newValue = injectVar.converter().newInstance().convert(newValue);
-
                     }
 
                     field.set(targetBean, newValue);
@@ -406,6 +411,4 @@ public interface SimpleVariableInjector extends VariableInjector {
         }
 
     }
-
-
 }

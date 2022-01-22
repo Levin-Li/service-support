@@ -1,6 +1,7 @@
 package com.levin.commons.service.domain;
 
 
+import com.levin.commons.service.support.VariableInjector;
 import org.springframework.core.convert.converter.Converter;
 
 import java.lang.annotation.*;
@@ -38,6 +39,14 @@ public @interface InjectVar {
      * groovy 表达式前缀
      */
     String GROOVY_PREFIX = "#!groovy:";
+
+    /**
+     * 注入域
+     *
+     * @return
+     * @see VariableInjector#getInjectDomain()
+     */
+    String domain() default "default";
 
     /**
      * 变量名称或是表达式
@@ -102,5 +111,6 @@ public @interface InjectVar {
      * @return
      */
     String remark() default "";
+
 
 }

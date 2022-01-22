@@ -1,5 +1,7 @@
 package com.levin.commons.service.support;
 
+import com.levin.commons.service.domain.InjectVar;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +14,18 @@ import java.util.function.Supplier;
 public interface VariableInjector {
 
     /**
+     * 获取注入域
+     * <p>
+     * 默认
+     *
+     * @return
+     * @see InjectVar#domain()
+     */
+    default String getInjectDomain() {
+        return "default";
+    }
+
+    /**
      * 为目标对象注入变量
      *
      * @param targetBean 被注入对象
@@ -19,7 +33,6 @@ public interface VariableInjector {
      * @return
      */
     List<String> injectByVariableResolver(Object targetBean, Supplier<List<VariableResolver>>... suppliers) throws VariableInjectException, VariableNotFoundException;
-
 
     /**
      * 获取变量解析器列表
@@ -32,14 +45,13 @@ public interface VariableInjector {
     }
 
     /**
-     * 为目标对象注入变量
+     * 获取变量解析器列表
      *
-     * @param targetBean
-     * @param suppliers  上下文环境变量支持列表
+     * @param beans
      * @return
      */
-    default List<String> inject(Object targetBean, Supplier<List<Map<String, Object>>>... suppliers) throws VariableInjectException, VariableNotFoundException {
-        return injectByVariableResolver(targetBean, getVariableResolvers(suppliers));
+    default VariableResolver getVariableResolver(Object... beans) {
+        return new VariableResolver.BeanVariableResolver(beans);
     }
 
     /**
@@ -68,6 +80,17 @@ public interface VariableInjector {
      * 为目标对象注入变量
      *
      * @param targetBean
+     * @param suppliers  上下文环境变量支持列表
+     * @return
+     */
+    default List<String> inject(Object targetBean, Supplier<List<Map<String, Object>>>... suppliers) throws VariableInjectException, VariableNotFoundException {
+        return injectByVariableResolver(targetBean, getVariableResolvers(suppliers));
+    }
+
+    /**
+     * 为目标对象注入变量
+     *
+     * @param targetBean
      * @param contexts   上下文环境
      * @return
      * @throws VariableInjectException
@@ -89,5 +112,6 @@ public interface VariableInjector {
     default List<String> inject(Object targetBean, List<Map<String, Object>> contexts) throws VariableInjectException, VariableNotFoundException {
         return inject(targetBean, () -> contexts);
     }
+
 
 }
