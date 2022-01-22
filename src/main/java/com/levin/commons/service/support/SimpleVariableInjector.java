@@ -3,7 +3,6 @@ package com.levin.commons.service.support;
 import com.levin.commons.service.domain.InjectVar;
 import com.levin.commons.utils.ClassUtils;
 import com.levin.commons.utils.ExpressionUtils;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.core.ResolvableType;
@@ -11,10 +10,12 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.format.support.DefaultFormattingConversionService;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -191,7 +192,6 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         //如果没有值
         if (!booleanValueHolder.hasValue()) {
-            //
             booleanValueHolder = eval(expr, VariableResolver.NOT_VALUE, Boolean.class,
                     (variableResolvers != null && variableResolvers.size() > 0) ?
                             variableResolvers : getVariableResolvers(() -> Arrays.asList(Collections.emptyMap())));
@@ -208,11 +208,11 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @param suppliers 上下文列表
      * @return
      */
-    @Override
-    default List<VariableResolver> getVariableResolvers(Supplier<List<Map<String, Object>>>... suppliers) {
+    //@Override
+    default List<VariableResolver> getVariableResolvers(Supplier<List<Map<String, ?>>>... suppliers) {
         return Arrays.asList(getSpelVariableResolver(suppliers)
                 , getGroovyVariableResolver(suppliers)
-                , getSimpleVariableResolver(suppliers));
+                , getMapVariableResolver(suppliers));
     }
 
     /**
@@ -221,7 +221,7 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @param suppliers 上下文列表
      * @return
      */
-    default VariableResolver getSimpleVariableResolver(Supplier<List<Map<String, Object>>>... suppliers) {
+    default VariableResolver getMapVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
         return new VariableResolver.MapVariableResolver(suppliers);
     }
 
@@ -231,7 +231,7 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @param suppliers 上下文列表
      * @return
      */
-    default VariableResolver getSpelVariableResolver(Supplier<List<Map<String, Object>>>... suppliers) {
+    default VariableResolver getSpelVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
         return new SpelVariableResolver(suppliers);
     }
 
@@ -241,7 +241,7 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @param suppliers
      * @return
      */
-    default VariableResolver getGroovyVariableResolver(Supplier<List<Map<String, Object>>>... suppliers) {
+    default VariableResolver getGroovyVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
         return new GroovyVariableResolver(suppliers);
     }
 
@@ -277,17 +277,36 @@ public interface SimpleVariableInjector extends VariableInjector {
 
     }
 
-
     ///////////////////////////////////////////////////////////////////////
-    @AllArgsConstructor
+
     @Slf4j
     abstract class ScriptResolver implements VariableResolver {
 
-        protected Supplier<List<Map<String, Object>>>[] suppliers;
+        protected final Supplier<List<Map<String, ?>>>[] suppliers;
+
+        public ScriptResolver(Supplier<List<Map<String, ?>>>... suppliers) {
+            Assert.notNull(suppliers, "var suppliers is null");
+            this.suppliers = suppliers;
+        }
 
         abstract String getScriptPrefix();
 
         abstract Object eval(String scriptText, Object originalValue);
+
+        /**
+         * 初始化上下文
+         *
+         * @param mapConsumer
+         */
+        protected void initContext(Consumer<Map> mapConsumer) {
+            Stream.of(suppliers)
+                    .filter(Objects::nonNull)
+                    .map(Supplier::get)
+                    .filter(Objects::nonNull)
+                    .flatMap(List::stream)
+                    .filter(Objects::nonNull)
+                    .forEachOrdered(mapConsumer);
+        }
 
         @Override
         public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws RuntimeException {
@@ -312,11 +331,7 @@ public interface SimpleVariableInjector extends VariableInjector {
                 }
             }
 
-            if (throwExWhenNotFound) {
-                throw new VariableNotFoundException("variable " + name + " not found");
-            }
-
-            return ValueHolder.notValue();
+            return ValueHolder.notValue(throwExWhenNotFound, name);
         }
 
     }
@@ -328,7 +343,7 @@ public interface SimpleVariableInjector extends VariableInjector {
     @Slf4j
     class SpelVariableResolver extends ScriptResolver {
 
-        public SpelVariableResolver(Supplier<List<Map<String, Object>>>... suppliers) {
+        public SpelVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
             super(suppliers);
         }
 
@@ -339,10 +354,10 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         @Override
         Object eval(String scriptText, Object originalValue) {
-
-            if (log.isDebugEnabled()) {
-                log.debug(" eval [ {} ] ...", scriptText);
-            }
+//
+//            if (log.isDebugEnabled()) {
+//                log.debug(" eval [ {} ] ...", scriptText);
+//            }
 
             return ExpressionUtils.evalSpEL(null, scriptText, (ctx) -> {
 
@@ -350,16 +365,7 @@ public interface SimpleVariableInjector extends VariableInjector {
                     ctx.setBeanResolver(new BeanFactoryResolver(SpringContextHolder.getBeanFactory()));
                 }
 
-                Stream.of(suppliers)
-                        .filter(Objects::nonNull)
-                        .map(Supplier::get)
-                        .filter(Objects::nonNull)
-                        .forEachOrdered(
-                                //设置变量到 spel 的上下文
-                                list -> list.stream()
-                                        .filter(Objects::nonNull)
-                                        .forEachOrdered(ctx::setVariables)
-                        );
+                initContext(ctx::setVariables);
             });
 
         }
@@ -371,7 +377,7 @@ public interface SimpleVariableInjector extends VariableInjector {
     @Slf4j
     class GroovyVariableResolver extends ScriptResolver {
 
-        public GroovyVariableResolver(Supplier<List<Map<String, Object>>>... suppliers) {
+        public GroovyVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
             super(suppliers);
         }
 
@@ -382,26 +388,17 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         @Override
         Object eval(String scriptText, Object originalValue) {
-
-            if (log.isDebugEnabled()) {
-                log.debug(" eval [ {} ] ...", scriptText);
-            }
+//
+//            if (log.isDebugEnabled()) {
+//                log.debug(" eval [ {} ] ...", scriptText);
+//            }
 
             return ExpressionUtils.evalGroovy(scriptText, (groovyScriptEvaluator, ctx) -> {
 
                 //注入 Spring 上下文
                 ctx.putIfAbsent("springContext", SpringContextHolder.getApplicationContext());
 
-                Stream.of(suppliers)
-                        .filter(Objects::nonNull)
-                        .map(Supplier::get)
-                        .filter(Objects::nonNull)
-                        .forEachOrdered(
-                                //设置变量到 spel 的上下文
-                                list -> list.stream()
-                                        .filter(Objects::nonNull)
-                                        .forEachOrdered(ctx::putAll)
-                        );
+                initContext(ctx::putAll);
 
                 //设置
                 if (SpringContextHolder.getClassLoader() != null) {

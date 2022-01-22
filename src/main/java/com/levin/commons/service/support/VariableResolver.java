@@ -5,7 +5,10 @@ import com.levin.commons.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -78,10 +81,6 @@ public interface VariableResolver {
 
         final List<Supplier<List<?>>> suppliers;
 
-        public BeanVariableResolver(Object... beans) {
-            this(Arrays.asList(() -> Arrays.asList(beans)));
-        }
-
         public BeanVariableResolver(Supplier<List<?>>... suppliers) {
             this(Arrays.asList(suppliers));
         }
@@ -124,23 +123,15 @@ public interface VariableResolver {
      * Map 变量解析器
      */
     @Slf4j
+    @Deprecated
     class MapVariableResolver extends BeanVariableResolver {
 
-        public MapVariableResolver(Supplier<List<Map<String, Object>>>... suppliers) {
-            super(c(suppliers));
+        public MapVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
+            this(Arrays.asList(suppliers));
         }
 
-        private static List<Supplier<List<?>>> c(Supplier<List<Map<String, Object>>>... suppliers) {
-
-            Assert.notNull(suppliers, "suppliers is null");
-
-            List<Supplier<List<?>>> supplierList = new ArrayList<>(suppliers.length);
-
-            for (Object supplier : suppliers) {
-                supplierList.add((Supplier<List<?>>) supplier);
-            }
-
-            return supplierList;
+        public MapVariableResolver(List<Supplier<List<Map<String, ?>>>> suppliers) {
+            super((List<Supplier<List<?>>>) Object.class.cast(suppliers));
         }
     }
 
