@@ -9,9 +9,10 @@ import org.springframework.util.StringUtils;
 
 import java.util.Set;
 
-public class JsonConverter implements GenericConverter {
+public class DefaultJsonConverter implements GenericConverter {
 
     private static Gson gson = new Gson();
+
 
     /**
      * @return

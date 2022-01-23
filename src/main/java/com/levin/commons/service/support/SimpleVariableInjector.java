@@ -6,7 +6,7 @@ import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
-import org.springframework.core.convert.support.GenericConversionService;
+import org.springframework.core.convert.support.ConfigurableConversionService;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.util.StringUtils;
 
@@ -31,7 +31,7 @@ public interface SimpleVariableInjector extends VariableInjector {
     /**
      * 线程安全转换服务
      */
-    GenericConversionService defaultConversionService = new DefaultFormattingConversionService();
+    ConfigurableConversionService defaultConversionService = new DefaultFormattingConversionService();
 
     /**
      * 获取转换服务
