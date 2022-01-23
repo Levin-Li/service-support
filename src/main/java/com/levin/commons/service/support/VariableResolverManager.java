@@ -9,6 +9,13 @@ import java.util.List;
 public interface VariableResolverManager extends VariableResolver {
 
     /**
+     * 获取注入器
+     *
+     * @return
+     */
+    VariableInjector getVariableInjector();
+
+    /**
      * 获取变量解析器
      *
      * @return

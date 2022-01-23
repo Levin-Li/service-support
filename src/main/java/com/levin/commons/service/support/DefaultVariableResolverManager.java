@@ -15,7 +15,10 @@ import org.springframework.core.Ordered;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 public class DefaultVariableResolverManager
@@ -36,12 +39,21 @@ public class DefaultVariableResolverManager
     @Nullable
     private ApplicationContext applicationContext;
 
+    private VariableInjector variableInjector;
 
-    public DefaultVariableResolverManager( ) {
+    public DefaultVariableResolverManager(VariableInjector variableInjector) {
+        this.variableInjector = variableInjector;
+        Assert.notNull(variableInjector, "variableInjector is null");
+    }
 
-        //加入默认的空解析器
-        // this.add(Collections.emptyMap());
-
+    /**
+     * 获取注入器
+     *
+     * @return
+     */
+    @Override
+    public VariableInjector getVariableInjector() {
+        return variableInjector;
     }
 
     @Override

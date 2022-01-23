@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Role;
 
 import javax.annotation.PostConstruct;
@@ -31,15 +30,14 @@ public class VariableResolverConfiguration {
         return SimpleVariableInjector.defaultSimpleVariableInjector;
     }
 
-
     @Bean
     @Role(ROLE_SUPPORT)
     @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = VariableResolverManager.class)
-    VariableResolverManager variableResolverManager() {
+    VariableResolverManager variableResolverManager(@Autowired VariableInjector variableInjector) {
 
         log.debug("*** init default variable resolver manager ...");
 
-        return new DefaultVariableResolverManager();
+        return new DefaultVariableResolverManager(variableInjector);
     }
 
 }
