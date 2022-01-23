@@ -125,6 +125,8 @@ public interface VariableInjector {
 
     /**
      * 为目标对象注入变量
+     * <p>
+     * 不支持groovy 和 spel 表达式
      *
      * @param targetBean
      * @param beans      上下文环境变量支持列表
@@ -136,6 +138,8 @@ public interface VariableInjector {
 
     /**
      * 为目标对象注入变量
+     * <p>
+     * 不支持groovy 和 spel 表达式
      *
      * @param targetBean
      * @param beans      上下文环境变量支持列表
@@ -149,6 +153,8 @@ public interface VariableInjector {
 
     /**
      * 为目标对象注入变量
+     * <p>
+     * 支持groovy 和 spel 表达式
      *
      * @param targetBean
      * @param contexts   上下文环境
@@ -162,6 +168,8 @@ public interface VariableInjector {
 
     /**
      * 为目标对象注入变量
+     * <p>
+     * 支持groovy 和 spel 表达式
      *
      * @param targetBean
      * @param contexts   上下文环境
