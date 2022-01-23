@@ -2,7 +2,7 @@ package com.levin.commons.service.domain;
 
 
 import com.levin.commons.service.support.VariableInjector;
-import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.converter.GenericConverter;
 
 import java.lang.annotation.*;
 
@@ -69,7 +69,7 @@ public @interface InjectVar {
      *
      * @return
      */
-    Class<? extends Converter> converter() default Converter.class;
+    Class<? extends GenericConverter> converter() default GenericConverter.class;
 
     /**
      * 是否强制覆盖原字段值，表达式必须返回 true or false

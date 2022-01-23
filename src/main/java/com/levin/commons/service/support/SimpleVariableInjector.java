@@ -4,11 +4,13 @@ import com.levin.commons.service.domain.InjectVar;
 import com.levin.commons.utils.ClassUtils;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.util.StringUtils;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Supplier;
@@ -65,7 +67,6 @@ public interface SimpleVariableInjector extends VariableInjector {
                 .flatMap(Collection::stream)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-
         //
 
         if (variableResolvers.isEmpty()) {
@@ -146,16 +147,18 @@ public interface SimpleVariableInjector extends VariableInjector {
                     Object newValue = valueHolder.get();
 
                     if (injectVar.converter() == null
-                            || injectVar.converter() == Converter.class) {
+                            || injectVar.converter() == GenericConverter.class) {
                         //默认的转换方式
                         //转换并且注入变量
                         ConversionService conversionService = getConversionService();
 
-                        newValue = conversionService != null ? conversionService.convert(valueHolder.get(), fieldType) : newValue;
+                        newValue = conversionService == null ? newValue : conversionService.convert(newValue, fieldType);
 
                     } else {
                         //临时创建转化器
-                        newValue = injectVar.converter().newInstance().convert(newValue);
+                        newValue = injectVar.converter().newInstance().convert(newValue,
+                                newValue == null ? null : new TypeDescriptor(ResolvableType.forClass(newValue.getClass()), newValue.getClass(), new Annotation[0]),
+                                new TypeDescriptor(forField, fieldType, field.getAnnotations()));
                     }
 
                     field.set(targetBean, newValue);
