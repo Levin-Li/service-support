@@ -2,20 +2,15 @@ package com.levin.commons.service.support;
 
 import com.levin.commons.service.domain.InjectVar;
 import com.levin.commons.utils.ClassUtils;
-import com.levin.commons.utils.ExpressionUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.format.support.DefaultFormattingConversionService;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -70,6 +65,14 @@ public interface SimpleVariableInjector extends VariableInjector {
                 .flatMap(Collection::stream)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+
+        //
+
+        if (variableResolvers.isEmpty()) {
+            //增加默认的脚本表达式支持
+            variableResolvers.add(newSpelVariableResolver(() -> Arrays.asList(Collections.emptyMap())));
+            variableResolvers.add(newGroovyVariableResolver(() -> Arrays.asList(Collections.emptyMap())));
+        }
 
         for (Field field : ClassUtils.getFields(targetBean.getClass(), InjectVar.class)) {
 
@@ -192,57 +195,10 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         //如果没有值
         if (!booleanValueHolder.hasValue()) {
-            booleanValueHolder = eval(expr, VariableResolver.NOT_VALUE, Boolean.class,
-                    (variableResolvers != null && variableResolvers.size() > 0) ?
-                            variableResolvers : getVariableResolvers(() -> Arrays.asList(Collections.emptyMap())));
+            booleanValueHolder = eval(expr, VariableResolver.NOT_VALUE, Boolean.class, variableResolvers);
         }
 
         return booleanValueHolder;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * 获取变量解析器列表
-     *
-     * @param suppliers 上下文列表
-     * @return
-     */
-    //@Override
-    default List<VariableResolver> getVariableResolvers(Supplier<List<Map<String, ?>>>... suppliers) {
-        return Arrays.asList(getSpelVariableResolver(suppliers)
-                , getGroovyVariableResolver(suppliers)
-                , getMapVariableResolver(suppliers));
-    }
-
-    /**
-     * 获取简单变量解析器
-     *
-     * @param suppliers 上下文列表
-     * @return
-     */
-    default VariableResolver getMapVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
-        return new VariableResolver.MapVariableResolver(suppliers);
-    }
-
-    /**
-     * 获取 Spel 变量解析器
-     *
-     * @param suppliers 上下文列表
-     * @return
-     */
-    default VariableResolver getSpelVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
-        return new SpelVariableResolver(suppliers);
-    }
-
-    /**
-     * groovy 变量解析器 上下文列表
-     *
-     * @param suppliers
-     * @return
-     */
-    default VariableResolver getGroovyVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
-        return new GroovyVariableResolver(suppliers);
     }
 
     /**
@@ -274,138 +230,6 @@ public interface SimpleVariableInjector extends VariableInjector {
                 .filter(ValueHolder::hasValue)
                 .findFirst()
                 .orElse(ValueHolder.notValue());
-
     }
 
-    ///////////////////////////////////////////////////////////////////////
-
-    @Slf4j
-    abstract class ScriptResolver implements VariableResolver {
-
-        protected final Supplier<List<Map<String, ?>>>[] suppliers;
-
-        public ScriptResolver(Supplier<List<Map<String, ?>>>... suppliers) {
-            Assert.notNull(suppliers, "var suppliers is null");
-            this.suppliers = suppliers;
-        }
-
-        abstract String getScriptPrefix();
-
-        abstract Object eval(String scriptText, Object originalValue);
-
-        /**
-         * 初始化上下文
-         *
-         * @param mapConsumer
-         */
-        protected void initContext(Consumer<Map> mapConsumer) {
-            Stream.of(suppliers)
-                    .filter(Objects::nonNull)
-                    .map(Supplier::get)
-                    .filter(Objects::nonNull)
-                    .flatMap(List::stream)
-                    .filter(Objects::nonNull)
-                    .forEachOrdered(mapConsumer);
-        }
-
-        @Override
-        public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws RuntimeException {
-
-            if (log.isDebugEnabled()) {
-                log.debug("resolve variable [{}] in {}({}) ...", name, getClass().getSimpleName(), this.hashCode());
-            }
-
-            if (name != null
-                    && name.trim().toLowerCase().startsWith(getScriptPrefix().toLowerCase())) {
-
-                //截取前缀
-                name = name.substring(getScriptPrefix().length());
-
-                Object value = eval(name, originalValue);
-
-                if (isExpectType(value != null ? value.getClass() : null, expectTypes)) {
-
-                    return new ValueHolder<T>()
-                            .setValue((T) value)
-                            .setHasValue(true);
-                }
-            }
-
-            return ValueHolder.notValue(throwExWhenNotFound, name);
-        }
-
-    }
-
-
-    /**
-     * spel 解析器
-     */
-    @Slf4j
-    class SpelVariableResolver extends ScriptResolver {
-
-        public SpelVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
-            super(suppliers);
-        }
-
-        @Override
-        String getScriptPrefix() {
-            return InjectVar.SPEL_PREFIX;
-        }
-
-        @Override
-        Object eval(String scriptText, Object originalValue) {
-//
-//            if (log.isDebugEnabled()) {
-//                log.debug(" eval [ {} ] ...", scriptText);
-//            }
-
-            return ExpressionUtils.evalSpEL(null, scriptText, (ctx) -> {
-
-                if (SpringContextHolder.getBeanFactory() != null) {
-                    ctx.setBeanResolver(new BeanFactoryResolver(SpringContextHolder.getBeanFactory()));
-                }
-
-                initContext(ctx::setVariables);
-            });
-
-        }
-    }
-
-    /**
-     * groovy 解析器
-     */
-    @Slf4j
-    class GroovyVariableResolver extends ScriptResolver {
-
-        public GroovyVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
-            super(suppliers);
-        }
-
-        @Override
-        String getScriptPrefix() {
-            return InjectVar.GROOVY_PREFIX;
-        }
-
-        @Override
-        Object eval(String scriptText, Object originalValue) {
-//
-//            if (log.isDebugEnabled()) {
-//                log.debug(" eval [ {} ] ...", scriptText);
-//            }
-
-            return ExpressionUtils.evalGroovy(scriptText, (groovyScriptEvaluator, ctx) -> {
-
-                //注入 Spring 上下文
-                ctx.putIfAbsent("springContext", SpringContextHolder.getApplicationContext());
-
-                initContext(ctx::putAll);
-
-                //设置
-                if (SpringContextHolder.getClassLoader() != null) {
-                    groovyScriptEvaluator.setBeanClassLoader(SpringContextHolder.getClassLoader());
-                }
-            });
-        }
-
-    }
 }

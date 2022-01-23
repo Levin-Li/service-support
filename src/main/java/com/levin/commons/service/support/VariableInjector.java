@@ -70,13 +70,55 @@ public interface VariableInjector {
         return newVariableResolver(() -> beans);
     }
 
-    default VariableResolver newMapVariableResolver(List<Map<String, Object>> contexts) {
+    default VariableResolver newMapVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
+        //强转
+        return newVariableResolver((Supplier<List<?>>[]) Object.class.cast(suppliers));
+    }
+
+    default VariableResolver newMapVariableResolver(List<Map<String, ?>> contexts) {
         //强转
         return newVariableResolver((List<?>) Object.class.cast(contexts));
     }
 
-    default VariableResolver newMapVariableResolver(Map<String, Object>... contexts) {
+    default VariableResolver newMapVariableResolver(Map<String, ?>... contexts) {
         return newVariableResolver(Arrays.asList(contexts));
+    }
+
+
+    /**
+     * 获取 Spel 变量解析器
+     *
+     * @param suppliers 上下文列表
+     * @return
+     */
+    default VariableResolver newSpelVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
+        return new VariableResolver.SpelVariableResolver(suppliers);
+    }
+
+    /**
+     * groovy 变量解析器 上下文列表
+     *
+     * @param suppliers
+     * @return
+     */
+    default VariableResolver newGroovyVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
+        return new VariableResolver.GroovyVariableResolver(suppliers);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * 获取变量解析器列表
+     *
+     * @param suppliers 上下文列表
+     * @return
+     */
+    //@Override
+    default List<VariableResolver> getVariableResolvers(Supplier<List<Map<String, ?>>>... suppliers) {
+        return Arrays.asList(newSpelVariableResolver(suppliers)
+                , newGroovyVariableResolver(suppliers)
+                , newMapVariableResolver(suppliers));
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,7 +156,7 @@ public interface VariableInjector {
      * @throws VariableInjectException
      * @throws VariableNotFoundException
      */
-    default List<String> injectByMap(Object targetBean, Map<String, Object>... contexts) throws VariableInjectException, VariableNotFoundException {
+    default List<String> injectByMap(Object targetBean, Map<String, ?>... contexts) throws VariableInjectException, VariableNotFoundException {
         return injectByMap(targetBean, Arrays.asList(contexts));
     }
 
@@ -127,8 +169,8 @@ public interface VariableInjector {
      * @throws VariableInjectException
      * @throws VariableNotFoundException
      */
-    default List<String> injectByMap(Object targetBean, List<Map<String, Object>> contexts) throws VariableInjectException, VariableNotFoundException {
-        return injectByVariableResolver(targetBean, newMapVariableResolver(contexts));
+    default List<String> injectByMap(Object targetBean, List<Map<String, ?>> contexts) throws VariableInjectException, VariableNotFoundException {
+        return injectByVariableResolver(targetBean, getVariableResolvers(() -> contexts));
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////

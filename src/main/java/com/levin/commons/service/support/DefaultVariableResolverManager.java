@@ -13,9 +13,9 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 
 import java.util.*;
-import java.util.function.Supplier;
 
 @Slf4j
 public class DefaultVariableResolverManager
@@ -30,8 +30,6 @@ public class DefaultVariableResolverManager
 
     private final List<VariableResolver> defaultVariableResolvers = new LinkedList<>();
 
-    private final VariableInjector variableInjector;
-
     @Nullable
     private BeanFactory beanFactory;
 
@@ -39,12 +37,10 @@ public class DefaultVariableResolverManager
     private ApplicationContext applicationContext;
 
 
-    public DefaultVariableResolverManager(VariableInjector variableInjector) {
-
-        this.variableInjector = variableInjector;
+    public DefaultVariableResolverManager( ) {
 
         //加入默认的空解析器
-        this.add(Collections.emptyMap());
+        // this.add(Collections.emptyMap());
 
     }
 
@@ -73,6 +69,8 @@ public class DefaultVariableResolverManager
     @Override
     public synchronized VariableResolverManager add(List<VariableResolver> variableResolvers) {
 
+        Assert.notNull(variableResolvers, "variableResolvers is null");
+
         List<VariableResolver> tempListRef = defaultVariableResolvers;
 
         variableResolvers
@@ -82,20 +80,8 @@ public class DefaultVariableResolverManager
                 .forEachOrdered(tempListRef::add);
 
         return this;
+
     }
-
-
-    /**
-     * @param suppliers
-     */
-    @Override
-    public VariableResolverManager add(Supplier<List<Map<String, Object>>>... suppliers) {
-
-        add(variableInjector.getVariableResolvers(suppliers));
-
-        return this;
-    }
-
 
     private void finishRegistration() {
 
