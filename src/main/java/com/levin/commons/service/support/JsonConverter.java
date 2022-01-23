@@ -5,6 +5,7 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.util.StringUtils;
 
 import java.util.Set;
 
@@ -39,9 +40,7 @@ public class JsonConverter implements GenericConverter {
             return gson.toJson(source);
 
         } else if ((source instanceof CharSequence)) {
-
-            return gson.fromJson(source.toString(), targetType.getResolvableType().getType());
-
+            return StringUtils.hasText((CharSequence) source) ? gson.fromJson(source.toString(), targetType.getResolvableType().getType()) : null;
         }
 
         return source;
