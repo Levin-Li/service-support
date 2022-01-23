@@ -62,7 +62,14 @@ public @interface InjectVar {
      *
      * @return
      */
-    Class<?> expectType() default Void.class;
+    Class<?> expectBaseType() default Void.class;
+
+    /**
+     * 泛型的子类型
+     *
+     * @return
+     */
+    Class<?>[] subGenericTypes() default {};
 
     /**
      * 转化器
