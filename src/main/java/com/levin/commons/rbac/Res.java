@@ -1,7 +1,7 @@
 package com.levin.commons.rbac;
 
 import com.levin.commons.service.domain.Desc;
-import com.levin.commons.service.domain.Identifiable;
+import com.levin.commons.service.domain.SimpleIdentifiable;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -14,7 +14,7 @@ import java.util.List;
  * <p>
  * 对应注解类 ResAuthorize
  */
-public interface Res extends Identifiable {
+public interface Res extends SimpleIdentifiable {
 
     /**
      * 归属域
@@ -70,7 +70,7 @@ public interface Res extends Identifiable {
      *
      * @see com.levin.commons.rbac.ResAuthorize
      */
-    interface Action extends Identifiable {
+    interface Action extends SimpleIdentifiable {
 
         /**
          * 是否忽略权限要求

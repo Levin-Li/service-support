@@ -2,14 +2,14 @@ package com.levin.commons.rbac;
 
 import com.levin.commons.service.domain.Desc;
 import com.levin.commons.service.domain.EnumDesc;
-import com.levin.commons.service.domain.Identifiable;
+import com.levin.commons.service.domain.SimpleIdentifiable;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * 菜单
  */
 public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
-        extends TreeObject<PARENT, CHILD>, AuthorizedObject, Identifiable {
+        extends TreeObject<PARENT, CHILD>, AuthorizedObject, SimpleIdentifiable {
 
     enum ActionType implements EnumDesc {
 

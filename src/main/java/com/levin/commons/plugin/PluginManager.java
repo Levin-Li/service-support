@@ -1,7 +1,7 @@
 package com.levin.commons.plugin;
 
 
-import com.levin.commons.service.domain.Identifiable;
+import com.levin.commons.service.domain.SimpleIdentifiable;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import java.util.List;
  *
  * @author llw
  */
-public interface PluginManager extends Identifiable {
+public interface PluginManager extends SimpleIdentifiable {
 
     /**
      * 发送事件给插件

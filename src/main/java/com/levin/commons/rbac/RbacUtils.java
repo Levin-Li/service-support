@@ -1,6 +1,6 @@
 package com.levin.commons.rbac;
 
-import com.levin.commons.service.domain.Identifiable;
+import com.levin.commons.service.domain.SimpleIdentifiable;
 import com.levin.commons.service.support.SpringContextHolder;
 import com.levin.commons.utils.ClassUtils;
 import com.levin.commons.utils.JsonStrArrayUtils;
@@ -40,7 +40,7 @@ public abstract class RbacUtils {
      * @param pkgName
      * @return
      */
-    public static Set<Identifiable> loadResTypeFromSpringCtx(@NotNull ApplicationContext context, @NotNull String pkgName, Function<String, String> nameMapper) {
+    public static Set<SimpleIdentifiable> loadResTypeFromSpringCtx(@NotNull ApplicationContext context, @NotNull String pkgName, Function<String, String> nameMapper) {
 //        return
 //                //获取 bean 清单
 //                context.getBeansWithAnnotation(ResAuthorize.class)
@@ -65,7 +65,7 @@ public abstract class RbacUtils {
 
         return beanResCache.getOrDefault(pkgName, Collections.emptyList())
                 .stream()
-                .map(res -> new IdentifiableObject()
+                .map(res -> new DefaultSimpleIdentifiableObject()
                         .setId(res.getType())
                         //设置名称，试图映射名称
                         .setName(nameMapper != null ? nameMapper.apply(res.getType()) : res.getType()))

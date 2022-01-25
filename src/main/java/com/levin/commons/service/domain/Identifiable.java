@@ -1,52 +1,24 @@
 package com.levin.commons.service.domain;
 
+
 import java.io.Serializable;
 
 /**
  * 可标识的对象
+ * @author llw
  */
-public interface Identifiable extends Serializable {
+public interface Identifiable{
 
     /**
-     * ID
+     * ID 常量，方便 Lombok 用于 @EqualsAndHashCode 注解
+     */
+    String ID = "id";
+
+    /**
+     * 获取对象标识
      *
-     * @return
+     * @return id
      */
     <ID extends Serializable> ID getId();
-
-    /**
-     * 名称
-     *
-     * @return
-     */
-    String getName();
-
-    /**
-     * 是否允许
-     *
-     * @return
-     */
-    default boolean isEnable() {
-        return true;
-    }
-
-    /**
-     * 排序码
-     *
-     * @return
-     */
-    default Integer getOrderCode() {
-        return 100;
-    }
-
-    /**
-     * 获取描述
-     *
-     * @return
-     */
-    default String getRemark() {
-        return getName() + "[" + getId() + "]";
-    }
-
 
 }

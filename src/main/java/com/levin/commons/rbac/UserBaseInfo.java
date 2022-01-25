@@ -1,7 +1,7 @@
 package com.levin.commons.rbac;
 
 
-import com.levin.commons.dao.domain.Identifiable;
+import com.levin.commons.service.domain.Identifiable;
 import com.levin.commons.dao.domain.NamedObject;
 
 

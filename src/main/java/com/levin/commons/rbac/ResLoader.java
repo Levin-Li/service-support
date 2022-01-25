@@ -1,6 +1,6 @@
 package com.levin.commons.rbac;
 
-import com.levin.commons.service.domain.Identifiable;
+import com.levin.commons.service.domain.SimpleIdentifiable;
 
 import java.util.Collection;
 import java.util.List;
@@ -19,7 +19,7 @@ public interface ResLoader {
      *
      * @return
      */
-    List<Identifiable> getResTypes();
+    List<SimpleIdentifiable> getResTypes();
 
     /**
      * 插件拥有的数据资源

@@ -1,6 +1,6 @@
 package com.levin.commons.rbac;
 
-import com.levin.commons.service.domain.Identifiable;
+import com.levin.commons.service.domain.SimpleIdentifiable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,8 +16,8 @@ import lombok.experimental.FieldNameConstants;
 @Accessors(chain = true)
 @FieldNameConstants
 @EqualsAndHashCode(of = "id")
-public class IdentifiableObject
-        implements Identifiable {
+public class DefaultSimpleIdentifiableObject
+        implements SimpleIdentifiable {
 
     @Schema(description = "ID", required = true)
     protected String id;

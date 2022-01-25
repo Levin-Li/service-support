@@ -1,5 +1,7 @@
 package com.levin.commons.dao.domain;
 
+import com.levin.commons.service.domain.Identifiable;
+
 import java.io.Serializable;
 import java.util.Set;
 
