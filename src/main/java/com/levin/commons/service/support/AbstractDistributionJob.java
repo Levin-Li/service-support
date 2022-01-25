@@ -14,6 +14,8 @@ import org.springframework.util.StringUtils;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -103,6 +105,17 @@ public abstract class AbstractDistributionJob<T> {
     }
 
     /**
+     * 获取执行器
+     * <p>
+     * 返回 null 则同步执行
+     *
+     * @return
+     */
+    protected Executor getExecutor() {
+        return null;
+    }
+
+    /**
      * 获取任务同步锁，如果返回null表示不锁
      *
      * @return
@@ -179,17 +192,20 @@ public abstract class AbstractDistributionJob<T> {
                     });
                 }
 
-                //尝试锁定记录，并且处理单条记录
-                tryLockAndDoTask(getRecordLockKey(data), () -> processData(data));
+                //使用执行器
+                Optional.ofNullable(getExecutor())
+                        .orElse(Runnable::run)
+                        .execute(() ->
+                                //尝试锁定记录，并且处理单条记录
+                                tryLockAndDoTask(getRecordLockKey(data), () -> processData(data))
+                        );
 
                 //如果已经超时，退出循环
                 if ((System.currentTimeMillis() - startTime) > timeoutMs) {
                     log.warn("*** [ {} ] 第[ {} ]次批任务执行超时，退出执行", getJobLockKey(), counter.get());
                     return;
                 }
-
             }
-
 
             try {
                 //防止过快处理
