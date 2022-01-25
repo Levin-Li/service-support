@@ -13,13 +13,17 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -86,7 +90,7 @@ public class SpringContextHolder implements EnvironmentAware,
      * @param <T>
      * @return
      */
-    public static <T> List<T> findBeanByPkgName(ApplicationContext context, @NonNull Class type, String... pkgNamePrefixList) {
+    public static <T> List<T> findBeanByPkgName(ApplicationContext context, @NonNull Type type, String... pkgNamePrefixList) {
         return findBeans(context, type, true, pkgNamePrefixList);
     }
 
@@ -99,20 +103,28 @@ public class SpringContextHolder implements EnvironmentAware,
      * @param <T>
      * @return
      */
-    public static <T> List<T> findBeanByBeanName(ApplicationContext context, @NonNull Class type, String... beanNamePrefixList) {
-
+    public static <T> List<T> findBeanByBeanName(ApplicationContext context, @NonNull Type type, String... beanNamePrefixList) {
         return findBeans(context, type, false, beanNamePrefixList);
     }
 
 
-    private static <T> List<T> findBeans(ApplicationContext context, @NonNull Class type, boolean isMatchPackageNamePrefix, String... prefixList) {
+    private static <T> List<T> findBeans(ApplicationContext context, @NonNull Type type, boolean isMatchPackageNamePrefix, String... prefixList) {
 
         if (context == null) {
             context = getApplicationContext();
         }
 
+        ResolvableType resolvableType = ResolvableType.forType(type);
+
         //按类型或是注解扫描
-        Map<String, T> beans = type.isAnnotation() ? context.getBeansWithAnnotation(type) : context.getBeansOfType(type);
+        Map<String, T> beans = resolvableType.resolve().isAnnotation() ? (Map<String, T>) context.getBeansWithAnnotation((Class<? extends Annotation>) type) : null;
+
+        if (beans == null) {
+            beans = new LinkedHashMap<>();
+            for (String beanName : context.getBeanNamesForType(resolvableType)) {
+                beans.put(beanName, (T) context.getBean(beanName));
+            }
+        }
 
         Predicate<Map.Entry<String, T>> filter = isMatchPackageNamePrefix ? (item) -> {
             if (prefixList == null || prefixList.length == 0) {
@@ -130,7 +142,7 @@ public class SpringContextHolder implements EnvironmentAware,
 
         return beans.entrySet()
                 .stream().filter(filter)
-                .map(item -> item.getValue())
+                .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
     }
 
