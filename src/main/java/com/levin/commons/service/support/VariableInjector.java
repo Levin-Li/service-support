@@ -110,7 +110,7 @@ public interface VariableInjector {
      * @return
      */
     default List<String> injectByMap(Object targetBean, List<Map<String, ?>> contexts) throws VariableInjectException, VariableNotFoundException {
-        return injectByVariableResolvers(targetBean, newBuilder().addSupportSpelAndGroovy(() -> contexts).build());
+        return injectByVariableResolvers(targetBean, newSupportSpelAndGroovyResolvers(() -> contexts));
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -157,7 +157,17 @@ public interface VariableInjector {
         return new VariableResolver.GroovyVariableResolver(suppliers);
     }
 
-    static VariableResolverListBuilder newBuilder() {
+    /**
+     * 创建支持 spel 和 groovy 的解析器
+     *
+     * @param suppliers
+     * @return
+     */
+    static List<VariableResolver> newSupportSpelAndGroovyResolvers(Supplier<List<Map<String, ?>>>... suppliers) {
+        return newResolverBuilder().addSupportSpelAndGroovy(suppliers).build();
+    }
+
+    static VariableResolverListBuilder newResolverBuilder() {
         return VariableResolverListBuilder.newBuilder();
     }
 
