@@ -130,7 +130,7 @@ public abstract class AbstractDistributionJob<T> {
      * @param record
      * @return
      */
-    protected String getRecordLockKey(T record) {
+    protected String getDataLockKey(T record) {
         return null;
     }
 
@@ -197,7 +197,7 @@ public abstract class AbstractDistributionJob<T> {
                         .orElse(Runnable::run)
                         .execute(() ->
                                 //尝试锁定记录，并且处理单条记录
-                                tryLockAndDoTask(getRecordLockKey(data), () -> processData(data))
+                                tryLockAndDoTask(getDataLockKey(data), () -> processData(data))
                         );
 
                 //如果已经超时，退出循环
