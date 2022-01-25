@@ -4,6 +4,7 @@ package com.levin.commons.utils;
 import com.levin.commons.service.support.Locker;
 import com.levin.commons.service.support.ValueHolder;
 import lombok.SneakyThrows;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ConcurrentReferenceHashMap;
@@ -730,7 +731,10 @@ public final class ClassUtils {
 
         //方法优先
         if (method != null) {
-            return valueHolder.setHasValue(true).setValue(method.invoke(target));
+            return valueHolder
+                    .setHasValue(true)
+                    .setValue(method.invoke(target))
+                    .setType(ResolvableType.forMethodReturnType(method, target.getClass()).getType());
         }
 
         Field field = getCachedFieldMap(target.getClass()).get(name);
@@ -738,7 +742,10 @@ public final class ClassUtils {
         if (field != null) {
             //允许private 访问
             field.setAccessible(true);
-            return valueHolder.setHasValue(true).setValue(field.get(target));
+            return valueHolder
+                    .setHasValue(true)
+                    .setValue(field.get(target))
+                    .setType(ResolvableType.forField(field, target.getClass()).getType());
         }
 
         return valueHolder;

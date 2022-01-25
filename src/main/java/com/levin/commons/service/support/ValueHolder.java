@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
 @Data
@@ -46,10 +47,12 @@ public class ValueHolder<T> implements Supplier<T> {
         return NOT_VALUE;
     }
 
-
     private Object root;
 
     private String name;
+
+    //类型
+    private Type type;
 
     private T value;
 
@@ -66,6 +69,10 @@ public class ValueHolder<T> implements Supplier<T> {
         this.name = name;
         this.value = value;
         this.hasValue = value != null;
+    }
+
+    public Type getType() {
+        return type != null ? type : (hasValue() && value != null ? value.getClass() : null);
     }
 
     public T getValue() {
@@ -88,6 +95,15 @@ public class ValueHolder<T> implements Supplier<T> {
      */
     public boolean hasValue() {
         return hasValue;
+    }
+
+    /**
+     * 是否非空值
+     *
+     * @return
+     */
+    public boolean isNotNull() {
+        return hasValue() && value != null;
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.levin.commons.utils.IPAddrUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Type;
 
 public abstract class HttpRequestInfoResolver implements VariableResolver {
 
@@ -15,7 +16,7 @@ public abstract class HttpRequestInfoResolver implements VariableResolver {
     protected HttpServletResponse response;
 
     @Override
-    public <T> ValueHolder<T> resolve(String name, T defaultValue, boolean throwEx, Class<?>... types) throws VariableNotFoundException {
+    public <T> ValueHolder<T> resolve(String name, T defaultValue, boolean throwEx, boolean isRequireNotNull, Type... types) throws VariableNotFoundException {
 
         String value = null;
 
@@ -55,7 +56,7 @@ public abstract class HttpRequestInfoResolver implements VariableResolver {
 
         return new ValueHolder()
                 .setValue(value)
-                .setHasValue(true);
+                .setHasValue(!isRequireNotNull || value != null);
     }
 
 }

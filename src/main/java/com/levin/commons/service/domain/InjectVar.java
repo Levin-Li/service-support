@@ -65,11 +65,11 @@ public @interface InjectVar {
     Class<?> expectBaseType() default Void.class;
 
     /**
-     * 泛型的子类型
+     * 预期泛型的子类型
      *
      * @return
      */
-    Class<?>[] subGenericTypes() default {};
+    Class<?>[] expectGenericTypes() default {};
 
     /**
      * 转化器
@@ -110,7 +110,6 @@ public @interface InjectVar {
      */
     String isRequired() default "true";
 
-
     /**
      * 备注
      * 当变量找不到，应该抛出异常包含的备注信息
@@ -118,6 +117,5 @@ public @interface InjectVar {
      * @return
      */
     String remark() default "";
-
 
 }

@@ -7,11 +7,10 @@ import com.levin.commons.utils.ExpressionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.util.Assert;
+import org.springframework.util.TypeUtils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.lang.reflect.Type;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -26,21 +25,9 @@ import java.util.stream.Stream;
 public interface VariableResolver {
 
     /**
-     *
+     * 标记没有值的特殊对象
      */
     Object NOT_VALUE = new Object();
-
-    /**
-     * 尝试获取变量值
-     *
-     * @param name
-     * @param defaultValue
-     * @param <T>
-     * @return
-     */
-    default <T> T resolve(String name, T defaultValue) {
-        return (T) resolve(name, null, false).get(defaultValue);
-    }
 
     /**
      * 获取变量
@@ -54,7 +41,19 @@ public interface VariableResolver {
      * @return ValueHolder<T>
      * @throws VariableNotFoundException 如果变量无法获取将抛出异常
      */
-    <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws VariableNotFoundException;
+    <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, boolean isRequireNotNull, Type... expectTypes) throws VariableNotFoundException;
+
+    /**
+     * 尝试获取变量值
+     *
+     * @param name
+     * @param defaultValue
+     * @param <T>
+     * @return
+     */
+    default <T> T resolve(String name, boolean isRequireNotNull, T defaultValue) {
+        return (T) resolve(name, null, false, isRequireNotNull).get(defaultValue);
+    }
 
     /**
      * 是否是预期的类型
@@ -65,7 +64,7 @@ public interface VariableResolver {
      * @param expectTypes
      * @return
      */
-    default boolean isExpectType(Class actualType, Class<?>... expectTypes) {
+    default boolean isExpectType(Type actualType, Type... expectTypes) {
 
         if (expectTypes == null
                 || expectTypes.length == 0
@@ -73,10 +72,15 @@ public interface VariableResolver {
             return true;
         }
 
-        List<Class<?>> classList = Arrays.stream(expectTypes).filter(Objects::nonNull).collect(Collectors.toList());
+        // List<?> isAssignable List<String>
+        // List<?> aa = new ArrayList<String>();
 
-        return classList.isEmpty() || classList.stream().anyMatch(c -> c.isAssignableFrom(actualType));
+        List<Type> typeList = Arrays.stream(expectTypes).filter(Objects::nonNull).collect(Collectors.toList());
+
+        return typeList.isEmpty() || typeList.stream().anyMatch(expectType -> TypeUtils.isAssignableBound(expectType, actualType));
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Bean 变量解析器
@@ -96,7 +100,7 @@ public interface VariableResolver {
         }
 
         @Override
-        public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws RuntimeException {
+        public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, boolean isRequireNotNull, Type... expectTypes) throws RuntimeException {
 
             for (Supplier<List<?>> supplier : suppliers) {
 
@@ -108,21 +112,22 @@ public interface VariableResolver {
 
                     ValueHolder<?> holder = ClassUtils.getIndexValue(context, name);
 
-                    if (holder.hasValue()) {
-
-                        Object value = holder.getValue();
-
-                        if (isExpectType(value != null ? value.getClass() : null, expectTypes)) {
-                            return (ValueHolder<T>) holder;
-                        }
-
+                    if (holder.hasValue()
+                            //是否允许空值
+                            && (!isRequireNotNull || holder.isNotNull())
+                            // 是否类型匹配
+                            && isExpectType(holder.getType(), expectTypes)) {
+                        return (ValueHolder<T>) holder;
                     }
+
                 }
             }
 
             return ValueHolder.notValue(throwExWhenNotFound, name);
         }
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Map 变量解析器
@@ -140,8 +145,7 @@ public interface VariableResolver {
         }
     }
 
-
-    ///////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Slf4j
     abstract class ScriptResolver implements VariableResolver {
@@ -173,7 +177,7 @@ public interface VariableResolver {
         }
 
         @Override
-        public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws RuntimeException {
+        public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, boolean isRequireNotNull, Type... expectTypes) throws RuntimeException {
 
             if (log.isDebugEnabled()) {
                 log.debug("resolve variable [{}] in {}({}) ...", name, getClass().getSimpleName(), this.hashCode());
@@ -185,9 +189,22 @@ public interface VariableResolver {
                 //截取前缀
                 name = name.substring(getScriptPrefix().length());
 
-                Object value = eval(name, originalValue);
+                Object value = null;
 
-                if (isExpectType(value != null ? value.getClass() : null, expectTypes)) {
+                try {
+                    value = eval(name, originalValue);
+                } catch (Exception e) {
+
+                    //脚本执行异常
+                    if (log.isDebugEnabled()) {
+                        log.debug("eval [" + name + "] error", e);
+                    }
+
+                    return ValueHolder.notValue(throwExWhenNotFound, name);
+                }
+
+                if ((!isRequireNotNull || value != null)
+                        && isExpectType(value != null ? value.getClass() : null, expectTypes)) {
 
                     return new ValueHolder<T>()
                             .setValue((T) value)
@@ -235,6 +252,8 @@ public interface VariableResolver {
 
         }
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * groovy 解析器

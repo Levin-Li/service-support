@@ -15,6 +15,7 @@ import org.springframework.core.Ordered;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,10 +58,10 @@ public class DefaultVariableResolverManager
     }
 
     @Override
-    public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, Class<?>... expectTypes) throws VariableNotFoundException {
+    public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, boolean isRequireNotNull, Type... expectTypes) throws VariableNotFoundException {
 
         return defaultVariableResolvers.stream()
-                .map(resolver -> resolver.resolve(name, originalValue, false, expectTypes))
+                .map(resolver -> resolver.resolve(name, originalValue, false, isRequireNotNull, expectTypes))
                 .filter(ValueHolder::hasValue)
                 .findFirst()
                 .orElse(ValueHolder.notValue(throwExWhenNotFound, name));

@@ -12,6 +12,7 @@ import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -54,7 +55,7 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @throws VariableNotFoundException
      */
     @Override
-    default List<String> injectByVariableResolver(Object targetBean, Supplier<List<VariableResolver>>... suppliers) throws VariableInjectException, VariableNotFoundException {
+    default List<String> injectByVariableResolvers(Object targetBean, Supplier<List<VariableResolver>>... suppliers) throws VariableInjectException, VariableNotFoundException {
 
         List<String> injectFields = new LinkedList<>();
 
@@ -71,8 +72,8 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         if (variableResolvers.isEmpty()) {
             //增加默认的脚本表达式支持
-            variableResolvers.add(newSpelVariableResolver(() -> Arrays.asList(Collections.emptyMap())));
-            variableResolvers.add(newGroovyVariableResolver(() -> Arrays.asList(Collections.emptyMap())));
+            variableResolvers.add(VariableInjector.newSpelVariableResolver(() -> Arrays.asList(Collections.emptyMap())));
+            variableResolvers.add(VariableInjector.newGroovyVariableResolver(() -> Arrays.asList(Collections.emptyMap())));
         }
 
         for (Field field : ClassUtils.getFields(targetBean.getClass(), InjectVar.class)) {
@@ -136,9 +137,16 @@ public interface SimpleVariableInjector extends VariableInjector {
                 varName = field.getName();
             }
 
-            Class<?> expectType = (injectVar.expectBaseType() == null || injectVar.expectBaseType() == Void.class) ? null : injectVar.expectBaseType();
+            //获取类型
+            Class<?> expectBaseType = injectVar.expectBaseType();
+            Class<?>[] expectGenericTypes = injectVar.expectGenericTypes();
 
-            ValueHolder<Object> valueHolder = eval(varName, originalValue, expectType, variableResolvers);
+            boolean hasSubTypes = expectGenericTypes != null && expectGenericTypes.length > 0;
+
+            Type expectType = (expectBaseType == null || expectBaseType == Void.class) ? null
+                    : (hasSubTypes ? ResolvableType.forClassWithGenerics(expectBaseType, expectGenericTypes).getType() : ResolvableType.forClass(expectBaseType).getType());
+
+            ValueHolder<Object> valueHolder = eval(varName, originalValue, expectType, isRequired.get(), variableResolvers);
 
             if (valueHolder.hasValue()) {
                 //4、如果变量获取成功
@@ -198,7 +206,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         //如果没有值
         if (!booleanValueHolder.hasValue()) {
-            booleanValueHolder = eval(expr, VariableResolver.NOT_VALUE, Boolean.class, variableResolvers);
+            booleanValueHolder = eval(expr, VariableResolver.NOT_VALUE, Boolean.class, true, variableResolvers);
         }
 
         return booleanValueHolder;
@@ -207,12 +215,12 @@ public interface SimpleVariableInjector extends VariableInjector {
     /**
      * @param expr
      * @param originalValue
-     * @param fieldType
+     * @param expectType
      * @param variableResolvers
      * @return
      */
-    static ValueHolder<Object> eval(String expr, Object originalValue, Class fieldType, VariableResolver... variableResolvers) {
-        return eval(expr, originalValue, fieldType, Arrays.asList(variableResolvers));
+    static ValueHolder<Object> eval(String expr, Object originalValue, Type expectType, boolean isRequireNotNull, VariableResolver... variableResolvers) {
+        return eval(expr, originalValue, expectType, isRequireNotNull, Arrays.asList(variableResolvers));
     }
 
     /**
@@ -220,15 +228,15 @@ public interface SimpleVariableInjector extends VariableInjector {
      *
      * @param expr
      * @param originalValue
-     * @param fieldType
+     * @param expectType
      * @param variableResolvers
      * @return
      */
-    static <T> ValueHolder<T> eval(String expr, Object originalValue, Class fieldType, List<VariableResolver> variableResolvers) {
+    static <T> ValueHolder<T> eval(String expr, Object originalValue, Type expectType, boolean isRequireNotNull, List<VariableResolver> variableResolvers) {
 
         return (ValueHolder<T>) variableResolvers.stream()
                 .filter(Objects::nonNull)
-                .map(variableResolver -> variableResolver.resolve(expr, originalValue, false, fieldType))
+                .map(variableResolver -> variableResolver.resolve(expr, originalValue, false, isRequireNotNull, expectType))
                 .filter(Objects::nonNull)
                 .filter(ValueHolder::hasValue)
                 .findFirst()

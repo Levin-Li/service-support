@@ -6,19 +6,17 @@ package com.levin.commons.service.support;
  */
 public interface InjectConsts {
 
-
     String ACCESS_TOKEN = "accessToken";
-
 
     /**
      * 用户相关
      */
     String USER = "user";
-    String USER_ID = "user.id";
-    String USER_NAME = "user.name";
-    String USER_LOGIN_NAME = "user.loginName";
-    String USER_PHONE = "user.phone";
-    String USER_EMAIL = "user.email";
+    String USER_ID = "userId";
+    String USER_NAME = "userName";
+    String USER_LOGIN_NAME = "userLoginName";
+    String USER_PHONE = "userPhone";
+    String USER_EMAIL = "userEmail";
 
     //////////////////////////////////////////////////////////
 
@@ -35,12 +33,12 @@ public interface InjectConsts {
     /**
      * 第三方
      */
-    String ALI_USER_ID = "ali.userId";
+    String ALI_USER_ID = "aliUserId";
 
     /**
      * 抖音
      */
-    String DY_OPEN_ID = "dy.open_id";
+    String DY_OPEN_ID = "dyOpenId";
 
     ///////////////////////////////////////////////////////
     /**
@@ -51,7 +49,9 @@ public interface InjectConsts {
     /**
      * 租户ID
      */
-    String TENANT_ID = "tenant.id";
+    String TENANT_ID = "tenantId";
+
+    String TENANT_NAME = "tenantName";
 
     ////////////////////////////////////////////////////////
 
@@ -63,17 +63,17 @@ public interface InjectConsts {
     /**
      * 组织ID
      */
-    String ORG_ID = "org.id";
+    String ORG_ID = "orgId";
 
     /**
      * 组织路径
      */
-    String ORG_PATH = "org.path";
+    String ORG_PATH = "orgPath";
 
     /**
      * 组织名称
      */
-    String ORG_NAME = "org.name";
+    String ORG_NAME = "orgName";
 
     //////////////////////////////////////////////////////////////
 
@@ -107,11 +107,11 @@ public interface InjectConsts {
     /**
      * http or https  协议
      */
-    String URL_SCHEME = "url.scheme";
+    String URL_SCHEME = "urlScheme";
 
     /**
      * 服务器名称，通常是域名
      */
-    String URL_SERVERNAME = "url.serverName";
+    String URL_SERVERNAME = "urlServerName";
 
 }
