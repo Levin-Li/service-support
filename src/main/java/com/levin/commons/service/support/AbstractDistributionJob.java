@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RedissonClient;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -70,14 +72,53 @@ public abstract class AbstractDistributionJob<T> {
                 if (standalone) {
                     batchProcess(timeoutMs, runOnce, batchSize);
                 } else {
-                    RedissonLockUtils.tryLockAndDoTask(redissonClient.getLock(getLockKey())
-                            , () -> batchProcess(timeoutMs, runOnce, batchSize));
+                    tryLockAndDoTask(getJobLockKey(), () -> batchProcess(timeoutMs, runOnce, batchSize));
                 }
             } finally {
                 running.set(false);
             }
         }
 
+    }
+
+    /**
+     * 尝试锁定并执行任务
+     *
+     * @param lockKey 如果参数值为空，则认为不需要锁定
+     * @param tasks   任务
+     * @return
+     */
+    protected boolean tryLockAndDoTask(String lockKey, Runnable... tasks) {
+
+        Assert.notEmpty(tasks, "not tasks to do");
+
+        if (StringUtils.hasText(lockKey)) {
+            return RedissonLockUtils.tryLockAndDoTask(redissonClient.getLock(lockKey), tasks);
+        } else {
+            for (Runnable task : tasks) {
+                task.run();
+            }
+            return true;
+        }
+    }
+
+    /**
+     * 获取任务同步锁，如果返回null表示不锁
+     *
+     * @return
+     */
+    protected String getJobLockKey() {
+        return getClass().getName();
+    }
+
+    /**
+     * 获取记录同步锁，如果返回null表示不锁
+     *
+     * @param record
+     * @return
+     */
+    protected String getRecordLockKey(T record) {
+        return null;
     }
 
     /**
@@ -97,7 +138,6 @@ public abstract class AbstractDistributionJob<T> {
      */
     abstract protected boolean processData(T data);
 
-
     /**
      * 是否统计速率
      *
@@ -105,15 +145,6 @@ public abstract class AbstractDistributionJob<T> {
      */
     protected boolean isStatRatio() {
         return true;
-    }
-
-    /**
-     * 获取任务同步锁
-     *
-     * @return
-     */
-    protected String getLockKey() {
-        return getClass().getName();
     }
 
 
@@ -124,7 +155,7 @@ public abstract class AbstractDistributionJob<T> {
      */
     protected void batchProcess(long timeoutMs, boolean isRunOnce, int batchSize) {
 
-        log.info("[ {} ] 开始第[ {} ]次执行批任务...", getLockKey(), counter.incrementAndGet());
+        log.info("[ {} ] 开始第[ {} ]次执行批任务...", getJobLockKey(), counter.incrementAndGet());
 
         final long startTime = System.currentTimeMillis();
 
@@ -140,27 +171,23 @@ public abstract class AbstractDistributionJob<T> {
                 break;
             }
 
-            dataList.stream().forEachOrdered(this::processData);
-
             for (T data : dataList) {
 
                 if (isStatRatio()) {
                     statHelper.onAlarm(30, 5, 0.5, (growthRatio, ratio) -> {
-
-                        log.info("[ {} ] 第[ {} ]次批任务执行 速率: {}, 同比上一个采样周期变化率: {}", getLockKey(), counter.get(), ratio, growthRatio);
-
+                        log.info("[ {} ] 第[ {} ]次批任务执行 速率: {}, 同比上一个采样周期变化率: {}", getJobLockKey(), counter.get(), ratio, growthRatio);
                     });
                 }
 
-                processData(data);
+                //尝试锁定记录，并且处理单条记录
+                tryLockAndDoTask(getRecordLockKey(data), () -> processData(data));
 
                 //如果已经超时，退出循环
                 if ((System.currentTimeMillis() - startTime) > timeoutMs) {
-
-                    log.warn("*** [ {} ] 第[ {} ]次批任务执行超时，退出执行", getLockKey(), counter.get());
-
+                    log.warn("*** [ {} ] 第[ {} ]次批任务执行超时，退出执行", getJobLockKey(), counter.get());
                     return;
                 }
+
             }
 
 
@@ -174,7 +201,7 @@ public abstract class AbstractDistributionJob<T> {
 
         } while (!isRunOnce && dataList.size() >= 1);
 
-        log.info("[ {} ] 第[ {} ]次批任务执行完成", getLockKey(), counter.get());
+        log.info("[ {} ] 第[ {} ]次批任务执行完成", getJobLockKey(), counter.get());
     }
 
 }
