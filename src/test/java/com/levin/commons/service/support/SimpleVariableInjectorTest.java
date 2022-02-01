@@ -61,7 +61,6 @@ class SimpleVariableInjectorTest {
     }
 
 
-
     @Data
     class testOneInjectDto {
 
@@ -142,17 +141,16 @@ class SimpleVariableInjectorTest {
     @Test
     void getVariableResolvers() {
 
-        getVariableResolversByUser(张三);
+        testVariableResolversByUser(张三);
 
-        getVariableResolversByUser(普通管理员);
+        testVariableResolversByUser(普通管理员);
 
-        getVariableResolversByUser(超级管理员);
-
+        testVariableResolversByUser(超级管理员);
 
     }
 
     @Test
-    void testOneInjectDto(){
+    void testOneInjectDto() {
 
         Map<String, Object> ctx = MapUtils
                 .putFirst(InjectConsts.USER, 张三)
@@ -162,33 +160,32 @@ class SimpleVariableInjectorTest {
 
         SimpleVariableInjector injector = SimpleVariableInjector.defaultSimpleVariableInjector;
 
-
         testOneInjectDto dto = new testOneInjectDto();
 
-
-        injector.inject(dto, ctx, ctx, ctx, ctx, ctx);
+        injector.injectByMap(dto, ctx, ctx, ctx, ctx, ctx);
 
 
         Assertions.assertEquals(dto.user, 张三);
     }
 
-    void getVariableResolversByUser(User user) {
+    void testVariableResolversByUser(User user) {
 
         Map<String, Object> ctx = MapUtils
                 .putFirst(InjectConsts.USER, user)
+                .put(InjectConsts.USER_ID, user.id)
                 .put(InjectConsts.ORG, user.org)
+                .put(InjectConsts.ORG_ID, user.org.id)
                 .put(InjectConsts.IP_ADDR, "192.168.0.1")
                 .build();
 
         SimpleVariableInjector injector = SimpleVariableInjector.defaultSimpleVariableInjector;
-
 
         Dto dto = new Dto();
 
         dto.setTargetOrgId("9999");
         dto.setStatTargetOrgId("8888");
 
-        injector.inject(dto, ctx, ctx, ctx, ctx, ctx);
+        injector.injectByMap(dto, ctx);
 
         Assertions.assertEquals(dto.org, user.org);
 

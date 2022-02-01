@@ -374,6 +374,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             String tableColName = fieldName;
 
+
             if (subEle.getAnnotation(Column.class) != null) {
 
                 if (hasText(subEle.getAnnotation(Column.class).name())) {
