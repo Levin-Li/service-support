@@ -1,22 +1,40 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Page
  *
- * \"amis Page 渲染器。详情请见：https://baidu.gitee.io/amis/docs/components/page\"
+ * amis Page 渲染器。详情请见：https://baidu.gitee.io/amis/docs/components/page
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"amis Page 渲染器。详情请见：https://baidu.gitee.io/amis/docs/components/page\"")
+@Schema(description = "amis Page 渲染器。详情请见：https://baidu.gitee.io/amis/docs/components/page")
 public @interface Page {
+///////////////////////////////////////////
+
+	//默认不设置自动感觉内容来决定要不要展示这些区域 如果配置了，以配置为主。
+	enum Region{
+		aside,
+		body,
+		toolbar,
+		header,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为 page 渲染器。
@@ -26,14 +44,14 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "指定为 page 渲染器。")
-    String type() default "";
+    String type() default "page";
 
     /**
      * 配置容器 className
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置容器 className")
     String className() default "";
@@ -53,7 +71,7 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +91,7 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +111,7 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -123,17 +141,17 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "页面描述, 标题旁边会出现个小图标，放上去会显示这个属性配置的内容。")
-    String remark() default "";
+    Remark remark() ;
 
     /**
      * 内容区域
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "内容区域")
     String body() default "";
@@ -143,7 +161,7 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "内容区 css 类名")
     String bodyClassName() default "";
@@ -153,7 +171,7 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "边栏区域")
     String aside() default "";
@@ -193,7 +211,7 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "边栏区 css 类名")
     String asideClassName() default "";
@@ -223,7 +241,7 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaDefaultData"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "页面级别的初始数据")
     String data() default "";
@@ -233,7 +251,7 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 header 容器 className")
     String headerClassName() default "";
@@ -243,7 +261,7 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "页面初始化的时候，可以设置一个 API 让其取拉取，发送数据会携带当前 data 数据（包含地址栏参数），获取得数据会合并到 data 中，供组件内使用。")
     String initApi() default "";
@@ -263,7 +281,7 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否默认就拉取表达式")
     String initFetchOn() default "";
@@ -273,17 +291,17 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaMessage"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "messages")
-    String messages() default "";
+    Message messages() ;
 
     /**
      * name
      *
      * 参考定义: "#/definitions/SchemaName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "name")
     String name() default "";
@@ -293,7 +311,7 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "页面顶部区域，当存在 title 时在右上角显示。")
     String toolbar() default "";
@@ -303,7 +321,7 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 toolbar 容器 className")
     String toolbarClassName() default "";
@@ -343,7 +361,7 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置停止轮询的条件。")
     String stopAutoRefreshWhen() default "";
@@ -376,7 +394,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "默认不设置自动感觉内容来决定要不要展示这些区域 如果配置了，以配置为主。")
-    String[] regions() default {};
+    Region[] regions() ;
 
     /**
      * 自定义样式
@@ -387,6 +405,5 @@ public @interface Page {
      */
     @Schema(description = "自定义样式")
     String style() default "";
-
 
 }

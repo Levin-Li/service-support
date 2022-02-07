@@ -1,22 +1,28 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Link
  *
- * \"Link 链接展示控件。 文档：https://baidu.gitee.io/amis/docs/components/link\"
+ * Link 链接展示控件。 文档：https://baidu.gitee.io/amis/docs/components/link
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Link 链接展示控件。 文档：https://baidu.gitee.io/amis/docs/components/link\"")
+@Schema(description = "Link 链接展示控件。 文档：https://baidu.gitee.io/amis/docs/components/link")
 public @interface Link {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为 link 链接展示控件
@@ -26,14 +32,14 @@ public @interface Link {
      * @see 
      */
     @Schema(description = "指定为 link 链接展示控件")
-    String type() default "";
+    String type() default "link";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +59,7 @@ public @interface Link {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +79,7 @@ public @interface Link {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +99,7 @@ public @interface Link {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -113,20 +119,20 @@ public @interface Link {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "链接内容，如果不配置将显示链接地址。")
-    String body() default "";
+    Tpl body() ;
 
     /**
      * 角标
      *
      * 参考定义: "#/definitions/BadgeSchema"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "角标")
-    String badge() default "";
+    Badge badge() ;
 
     /**
      * a标签原生target属性
@@ -157,6 +163,5 @@ public @interface Link {
      */
     @Schema(description = "右侧图标")
     String rightIcon() default "";
-
 
 }

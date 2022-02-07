@@ -1,22 +1,59 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * TableColumnObject
  *
- * \"表格列，不指定类型时默认为文本类型。\"
+ * 表格列，不指定类型时默认为文本类型。
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"表格列，不指定类型时默认为文本类型。\"")
+@Schema(description = "表格列，不指定类型时默认为文本类型。")
 public @interface TableColumnObject {
+///////////////////////////////////////////
+
+	//配置是否固定当前列
+	enum Fixed{
+		left,
+		right,
+		none,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//列对齐方式
+	enum Align{
+		left,
+		right,
+		center,
+		justify,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//结合表格的 footable 一起使用。 填写 *、xs、sm、md、lg指定 footable 的触发条件，可以填写多个用空格隔开
+	enum Breakpoint{
+		xs,
+		sm,
+		md,
+		lg,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
 
     /**
      * 列标题
@@ -36,7 +73,7 @@ public @interface TableColumnObject {
      * @see 
      */
     @Schema(description = "配置是否固定当前列")
-    String fixed() default "";
+    Fixed fixed() ;
 
     /**
      * 绑定字段名
@@ -53,7 +90,7 @@ public @interface TableColumnObject {
      *
      * 参考定义: "#/definitions/SchemaPopOver"
      *
-     * @see Boolean
+     * @see 
      */
     @Schema(description = "配置查看详情功能")
     boolean popOver() default false;
@@ -63,7 +100,7 @@ public @interface TableColumnObject {
      *
      * 参考定义: "#/definitions/SchemaQuickEdit"
      *
-     * @see Boolean
+     * @see 
      */
     @Schema(description = "配置快速编辑功能")
     boolean quickEdit() default false;
@@ -73,7 +110,7 @@ public @interface TableColumnObject {
      *
      * 参考定义: "#/definitions/SchemaQuickEdit"
      *
-     * @see Boolean
+     * @see 
      */
     @Schema(description = "作为表单项时，可以单独配置编辑时的快速编辑面板。")
     boolean quickEditOnUpdate() default false;
@@ -83,7 +120,7 @@ public @interface TableColumnObject {
      *
      * 参考定义: "#/definitions/SchemaCopyable"
      *
-     * @see Boolean
+     * @see 
      */
     @Schema(description = "配置点击复制功能")
     boolean copyable() default false;
@@ -136,7 +173,7 @@ public @interface TableColumnObject {
      * @see 
      */
     @Schema(description = "列对齐方式")
-    String align() default "";
+    Align align() ;
 
     /**
      * 列样式表
@@ -186,17 +223,17 @@ public @interface TableColumnObject {
      * @see 
      */
     @Schema(description = "结合表格的 footable 一起使用。 填写 *、xs、sm、md、lg指定 footable 的触发条件，可以填写多个用空格隔开")
-    String breakpoint() default "";
+    Breakpoint breakpoint() ;
 
     /**
      * 提示信息
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "提示信息")
-    String remark() default "";
+    Remark remark() ;
 
     /**
      * 默认值, 只有在 inputTable 里面才有用
@@ -217,6 +254,5 @@ public @interface TableColumnObject {
      */
     @Schema(description = "是否唯一, 只有在 inputTable 里面才有用")
     boolean unique() default false;
-
 
 }

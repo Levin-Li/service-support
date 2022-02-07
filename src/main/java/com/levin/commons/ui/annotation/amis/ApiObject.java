@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:28
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,6 +16,38 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "ApiObject")
 public @interface ApiObject {
+///////////////////////////////////////////
+
+	//API 发送类型
+	enum Method{
+		get,
+		post,
+		put,
+		delete,
+		patch,
+		jsonp,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//发送体的格式
+	enum DataType{
+		json,
+		form_data,
+		form,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * API 发送类型
@@ -26,7 +57,7 @@ public @interface ApiObject {
      * @see 
      */
     @Schema(description = "API 发送类型")
-    String method() default "";
+    Method method() ;
 
     /**
      * API 发送目标地址
@@ -36,7 +67,7 @@ public @interface ApiObject {
      * @see 
      */
     @Schema(description = "API 发送目标地址")
-    UrlPath url() ;
+    String url() default "";
 
     /**
      * 用来控制携带数据. 当key 为 `&` 值为 `$$` 时, 将所有原始数据打平设置到 data 中. 当值为 $$ 将所有原始数据赋值到对应的 key 中. 当值为 $ 打头时, 将变量值设置到 key 中.
@@ -86,7 +117,7 @@ public @interface ApiObject {
      * @see 
      */
     @Schema(description = "发送体的格式")
-    String dataType() default "";
+    DataType dataType() ;
 
     /**
      * 如果是文件下载接口，请配置这个。
@@ -96,7 +127,7 @@ public @interface ApiObject {
      * @see 
      */
     @Schema(description = "如果是文件下载接口，请配置这个。")
-    String responseType() default "";
+    String responseType() default "blob";
 
     /**
      * 携带 headers，用法和 data 一样，可以用变量。
@@ -113,7 +144,7 @@ public @interface ApiObject {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "设置发送条件")
     String sendOn() default "";
@@ -167,6 +198,5 @@ public @interface ApiObject {
      */
     @Schema(description = "qs 配置项")
     String qsOptions() default "";
-
 
 }

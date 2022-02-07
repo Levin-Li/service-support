@@ -1,22 +1,48 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * List
  *
- * \"List 列表展示控件。 文档：https://baidu.gitee.io/amis/docs/components/card\"
+ * List 列表展示控件。 文档：https://baidu.gitee.io/amis/docs/components/card
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"List 列表展示控件。 文档：https://baidu.gitee.io/amis/docs/components/card\"")
+@Schema(description = "List 列表展示控件。 文档：https://baidu.gitee.io/amis/docs/components/card")
 public @interface List {
+///////////////////////////////////////////
+
+	//指定为 List 列表展示控件。
+	enum Type{
+		list,
+		static_list,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//大小
+	enum Size{
+		sm,
+		base,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为 List 列表展示控件。
@@ -26,14 +52,14 @@ public @interface List {
      * @see 
      */
     @Schema(description = "指定为 List 列表展示控件。")
-    String type() default "";
+    Type type() ;
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +79,7 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +99,7 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +119,7 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -103,17 +129,17 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "标题")
-    String title() default "";
+    Tpl title() ;
 
     /**
      * 底部区域
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "底部区域")
     String footer() default "";
@@ -123,7 +149,7 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "底部区域类名")
     String footerClassName() default "";
@@ -133,7 +159,7 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "顶部区域")
     String header() default "";
@@ -143,7 +169,7 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "顶部区域类名")
     String headerClassName() default "";
@@ -153,17 +179,17 @@ public @interface List {
      *
      * 参考定义: "#/definitions/ListItemSchema"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "单条数据展示内容配置")
-    String listItem() default "";
+    ListItem listItem() ;
 
     /**
      * 数据源: 绑定当前环境变量
      *
      * 参考定义: "#/definitions/SchemaTokenizeableString"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "数据源: 绑定当前环境变量")
     String source() default "";
@@ -193,10 +219,10 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "无数据提示")
-    String placeholder() default "";
+    Tpl placeholder() ;
 
     /**
      * 是否隐藏勾选框
@@ -223,7 +249,7 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置某项是否可以点选")
     String itemCheckableOn() default "";
@@ -233,7 +259,7 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置某项是否可拖拽排序，前提是要开启拖拽功能")
     String itemDraggableOn() default "";
@@ -266,17 +292,16 @@ public @interface List {
      * @see 
      */
     @Schema(description = "大小")
-    String size() default "";
+    Size size() ;
 
     /**
      * 点击列表项的行为
      *
      * 参考定义: "#/definitions/ActionSchema"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "点击列表项的行为")
     String itemAction() default "";
-
 
 }

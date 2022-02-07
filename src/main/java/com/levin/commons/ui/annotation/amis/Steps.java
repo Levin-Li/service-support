@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,6 +16,19 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "Steps")
 public @interface Steps {
+///////////////////////////////////////////
+
+	//展示模式
+	enum Mode{
+		horizontal,
+		vertical,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
 
     /**
      * 指定为 Steps 步骤条渲染器
@@ -26,14 +38,14 @@ public @interface Steps {
      * @see 
      */
     @Schema(description = "指定为 Steps 步骤条渲染器")
-    String type() default "";
+    String type() default "steps";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +65,7 @@ public @interface Steps {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +85,7 @@ public @interface Steps {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +105,7 @@ public @interface Steps {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -101,12 +113,12 @@ public @interface Steps {
     /**
      * 步骤
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/StepSchema"},"description":"步骤"}
+     * 参考定义: "#/definitions/StepSchema"
      *
      * @see 
      */
     @Schema(description = "步骤")
-    String[] steps() default {};
+    Step[] steps() ;
 
     /**
      * API 或 数据映射
@@ -156,7 +168,6 @@ public @interface Steps {
      * @see 
      */
     @Schema(description = "展示模式")
-    String mode() default "";
-
+    Mode mode() ;
 
 }

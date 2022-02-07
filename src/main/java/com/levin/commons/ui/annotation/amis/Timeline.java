@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,6 +16,34 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "Timeline")
 public @interface Timeline {
+///////////////////////////////////////////
+
+	//文字相对于时间轴展示方向
+	enum Mode{
+		left,
+		right,
+		alternate,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//展示方向
+	enum Direction{
+		horizontal,
+		vertical,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为 Timeline 时间轴渲染器
@@ -26,14 +53,14 @@ public @interface Timeline {
      * @see 
      */
     @Schema(description = "指定为 Timeline 时间轴渲染器")
-    String type() default "";
+    String type() default "timeline";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +80,7 @@ public @interface Timeline {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +100,7 @@ public @interface Timeline {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +120,7 @@ public @interface Timeline {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -101,12 +128,12 @@ public @interface Timeline {
     /**
      * 节点数据
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/TimelineItemSchema"},"description":"节点数据"}
+     * 参考定义: "#/definitions/TimelineItemSchema"
      *
      * @see 
      */
     @Schema(description = "节点数据")
-    String[] items() default {};
+    TimelineItem[] items() ;
 
     /**
      * API 或 数据映射
@@ -126,7 +153,7 @@ public @interface Timeline {
      * @see 
      */
     @Schema(description = "文字相对于时间轴展示方向")
-    String mode() default "";
+    Mode mode() ;
 
     /**
      * 展示方向
@@ -136,7 +163,7 @@ public @interface Timeline {
      * @see 
      */
     @Schema(description = "展示方向")
-    String direction() default "";
+    Direction direction() ;
 
     /**
      * 节点倒序
@@ -147,6 +174,5 @@ public @interface Timeline {
      */
     @Schema(description = "节点倒序")
     boolean reverse() default false;
-
 
 }

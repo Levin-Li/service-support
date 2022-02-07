@@ -1,22 +1,38 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Divider
  *
- * \"Divider 分割线渲染器。 文档：https://baidu.gitee.io/amis/docs/components/divider\"
+ * Divider 分割线渲染器。 文档：https://baidu.gitee.io/amis/docs/components/divider
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Divider 分割线渲染器。 文档：https://baidu.gitee.io/amis/docs/components/divider\"")
+@Schema(description = "Divider 分割线渲染器。 文档：https://baidu.gitee.io/amis/docs/components/divider")
 public @interface Divider {
+///////////////////////////////////////////
+
+	//null
+	enum LineStyle{
+		dashed,
+		solid,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * type
@@ -26,14 +42,14 @@ public @interface Divider {
      * @see 
      */
     @Schema(description = "type")
-    String type() default "";
+    String type() default "divider";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +69,7 @@ public @interface Divider {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +89,7 @@ public @interface Divider {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +109,7 @@ public @interface Divider {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -106,7 +122,6 @@ public @interface Divider {
      * @see 
      */
     @Schema(description = "lineStyle")
-    String lineStyle() default "";
-
+    LineStyle lineStyle() ;
 
 }

@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,6 +16,33 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "TableControl")
 public @interface TableControl {
+///////////////////////////////////////////
+
+	//表单项大小
+	enum Size{
+		xs,
+		sm,
+		md,
+		lg,
+		full,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//配置当前表单项展示模式
+	enum Mode{
+		normal,
+		inline,
+		horizontal,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
 
     /**
      * 是否固定表头
@@ -31,12 +57,12 @@ public @interface TableControl {
     /**
      * 表格的列信息
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/TableColumn"},"description":"表格的列信息"}
+     * 参考定义: "#/definitions/TableColumn"
      *
      * @see 
      */
     @Schema(description = "表格的列信息")
-    String[] columns() default {};
+    String[] columns() default "";
 
     /**
      * 展示列显示开关，自动即：列数量大于或等于5个时自动开启
@@ -63,7 +89,7 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "底部外层 CSS 类名")
     String footerClassName() default "";
@@ -73,7 +99,7 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "顶部外层 CSS 类名")
     String headerClassName() default "";
@@ -113,7 +139,7 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaTokenizeableString"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "数据源：绑定当前环境变量")
     String source() default "";
@@ -123,7 +149,7 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "表格 CSS 类名")
     String tableClassName() default "";
@@ -143,7 +169,7 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "工具栏 CSS 类名")
     String toolbarClassName() default "";
@@ -171,22 +197,22 @@ public @interface TableControl {
     /**
      * 顶部总结行
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/SchemaObject"},"description":"顶部总结行"}
+     * 参考定义: "#/definitions/SchemaObject"
      *
      * @see 
      */
     @Schema(description = "顶部总结行")
-    String[] prefixRow() default {};
+    String[] prefixRow() default "";
 
     /**
      * 底部总结行
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/SchemaObject"},"description":"底部总结行"}
+     * 参考定义: "#/definitions/SchemaObject"
      *
      * @see 
      */
     @Schema(description = "底部总结行")
-    String[] affixRow() default {};
+    String[] affixRow() default "";
 
     /**
      * 是否可调整列宽
@@ -213,10 +239,10 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/BadgeSchema"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "行角标")
-    String itemBadge() default "";
+    Badge itemBadge() ;
 
     /**
      * 开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单
@@ -233,7 +259,7 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -253,7 +279,7 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -273,7 +299,7 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -293,7 +319,7 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -306,7 +332,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "表单项类型")
-    String type() default "";
+    String type() default "input-table";
 
     /**
      * 表单项大小
@@ -316,7 +342,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "表单项大小")
-    String size() default "";
+    Size size() ;
 
     /**
      * 描述标题
@@ -333,7 +359,7 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 label className")
     String labelClassName() default "";
@@ -353,20 +379,20 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容")
-    String remark() default "";
+    Remark remark() ;
 
     /**
      * 显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起")
-    String labelRemark() default "";
+    Remark labelRemark() ;
 
     /**
      * 输入提示，聚焦的时候显示
@@ -433,7 +459,7 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置描述上的 className")
     String descriptionClassName() default "";
@@ -446,17 +472,17 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "配置当前表单项展示模式")
-    String mode() default "";
+    Mode mode() ;
 
     /**
      * 当配置为水平布局的时候，用来配置具体的左右分配。
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "当配置为水平布局的时候，用来配置具体的左右分配。")
-    String horizontal() default "";
+    FormHorizontal horizontal() ;
 
     /**
      * 表单 control 是否为 inline 模式。
@@ -473,7 +499,7 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 input className")
     String inputClassName() default "";
@@ -533,7 +559,7 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "远端校验表单项接口")
     String validateApi() default "";
@@ -603,7 +629,7 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "新增 API")
     String addApi() default "";
@@ -653,7 +679,7 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "删除的 API")
     String deleteApi() default "";
@@ -753,7 +779,7 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "更新 API")
     String updateApi() default "";
@@ -827,6 +853,5 @@ public @interface TableControl {
      */
     @Schema(description = "分页个数，默认不分页")
     double perPage() default 0;
-
 
 }

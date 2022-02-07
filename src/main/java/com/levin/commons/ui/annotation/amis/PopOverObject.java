@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,6 +16,100 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "PopOverObject")
 public @interface PopOverObject {
+///////////////////////////////////////////
+
+	//弹出模式
+	enum Mode{
+		dialog,
+		drawer,
+		popOver,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//是弹窗形式的时候有用。
+	enum Size{
+		sm,
+		md,
+		lg,
+		xl,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//弹出位置
+	enum Position{
+		center,
+		left_top,
+		left_top_left_top,
+		left_top_left_center,
+		left_top_left_bottom,
+		left_top_center_top,
+		left_top_center_center,
+		left_top_center_bottom,
+		left_top_right_top,
+		left_top_right_center,
+		left_top_right_bottom,
+		right_top,
+		right_top_left_top,
+		right_top_left_center,
+		right_top_left_bottom,
+		right_top_center_top,
+		right_top_center_center,
+		right_top_center_bottom,
+		right_top_right_top,
+		right_top_right_center,
+		right_top_right_bottom,
+		left_bottom,
+		left_bottom_left_top,
+		left_bottom_left_center,
+		left_bottom_left_bottom,
+		left_bottom_center_top,
+		left_bottom_center_center,
+		left_bottom_center_bottom,
+		left_bottom_right_top,
+		left_bottom_right_center,
+		left_bottom_right_bottom,
+		right_bottom,
+		right_bottom_left_top,
+		right_bottom_left_center,
+		right_bottom_left_bottom,
+		right_bottom_center_top,
+		right_bottom_center_center,
+		right_bottom_center_bottom,
+		right_bottom_right_top,
+		right_bottom_right_center,
+		right_bottom_right_bottom,
+		fixed_center,
+		fixed_left_top,
+		fixed_right_top,
+		fixed_left_bottom,
+		fixed_right_bottom,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//触发条件，默认是 click
+	enum Trigger{
+		click,
+		hover,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 类名
@@ -43,7 +136,7 @@ public @interface PopOverObject {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置当前行是否启动，要用表达式")
     String popOverEnableOn() default "";
@@ -56,7 +149,7 @@ public @interface PopOverObject {
      * @see 
      */
     @Schema(description = "弹出模式")
-    String mode() default "";
+    Mode mode() ;
 
     /**
      * 是弹窗形式的时候有用。
@@ -66,7 +159,7 @@ public @interface PopOverObject {
      * @see 
      */
     @Schema(description = "是弹窗形式的时候有用。")
-    String size() default "";
+    Size size() ;
 
     /**
      * 弹出位置
@@ -76,7 +169,7 @@ public @interface PopOverObject {
      * @see 
      */
     @Schema(description = "弹出位置")
-    String position() default "";
+    Position position() ;
 
     /**
      * 触发条件，默认是 click
@@ -86,7 +179,7 @@ public @interface PopOverObject {
      * @see 
      */
     @Schema(description = "触发条件，默认是 click")
-    String trigger() default "";
+    Trigger trigger() ;
 
     /**
      * 是否显示查看更多的 icon，通常是放大图标。
@@ -123,10 +216,9 @@ public @interface PopOverObject {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "body")
     String body() default "";
-
 
 }

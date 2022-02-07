@@ -1,22 +1,38 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * CollapseGroup
  *
- * \"CollapseGroup 折叠渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/collapse\"
+ * CollapseGroup 折叠渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/collapse
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"CollapseGroup 折叠渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/collapse\"")
+@Schema(description = "CollapseGroup 折叠渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/collapse")
 public @interface CollapseGroup {
+///////////////////////////////////////////
+
+	//设置图标位置
+	enum ExpandIconPosition{
+		left,
+		right,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为折叠器类型
@@ -26,14 +42,14 @@ public @interface CollapseGroup {
      * @see 
      */
     @Schema(description = "指定为折叠器类型")
-    String type() default "";
+    String type() default "collapse-group";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +69,7 @@ public @interface CollapseGroup {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +89,7 @@ public @interface CollapseGroup {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +109,7 @@ public @interface CollapseGroup {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -106,7 +122,7 @@ public @interface CollapseGroup {
      * @see 
      */
     @Schema(description = "激活面板")
-    String[] activeKey() default {};
+    String[] activeKey() default "";
 
     /**
      * 手风琴模式
@@ -123,7 +139,7 @@ public @interface CollapseGroup {
      *
      * 参考定义: "#/definitions/SchemaObject"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "自定义切换图标")
     String expandIcon() default "";
@@ -136,17 +152,16 @@ public @interface CollapseGroup {
      * @see 
      */
     @Schema(description = "设置图标位置")
-    String expandIconPosition() default "";
+    ExpandIconPosition expandIconPosition() ;
 
     /**
      * 内容区域
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "内容区域")
     String body() default "";
-
 
 }

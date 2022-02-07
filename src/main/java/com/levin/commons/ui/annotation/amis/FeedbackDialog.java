@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:28
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,23 +16,44 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "FeedbackDialog")
 public @interface FeedbackDialog {
+///////////////////////////////////////////
+
+	//Dialog 大小
+	enum Size{
+		xs,
+		sm,
+		md,
+		lg,
+		xl,
+		full,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 默认不用填写，自动会创建确认和取消按钮。
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/ActionSchema"},"description":"默认不用填写，自动会创建确认和取消按钮。"}
+     * 参考定义: "#/definitions/ActionSchema"
      *
      * @see 
      */
     @Schema(description = "默认不用填写，自动会创建确认和取消按钮。")
-    String[] actions() default {};
+    String[] actions() default "";
 
     /**
      * 内容区域
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "内容区域")
     String body() default "";
@@ -43,7 +63,7 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 Body 容器 className")
     String bodyClassName() default "";
@@ -76,7 +96,7 @@ public @interface FeedbackDialog {
      * @see 
      */
     @Schema(description = "name")
-    Name name() ;
+    String name() default "";
 
     /**
      * Dialog 大小
@@ -86,14 +106,14 @@ public @interface FeedbackDialog {
      * @see 
      */
     @Schema(description = "Dialog 大小")
-    String size() default "";
+    Size size() ;
 
     /**
      * 请通过配置 title 设置标题
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "请通过配置 title 设置标题")
     String title() default "";
@@ -103,7 +123,7 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "header")
     String header() default "";
@@ -113,7 +133,7 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "headerClassName")
     String headerClassName() default "";
@@ -123,7 +143,7 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "footer")
     String footer() default "";
@@ -163,7 +183,7 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -183,7 +203,7 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -203,7 +223,7 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -247,6 +267,5 @@ public @interface FeedbackDialog {
      */
     @Schema(description = "feedback 弹框确认是否中断后续操作")
     boolean skipRestOnConfirm() default false;
-
 
 }

@@ -1,33 +1,43 @@
-package com.levin.commons.service.support;
+package com.levin.commons.amis;
 
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
+import com.levin.commons.service.support.ContextHolder;
 import com.levin.commons.utils.MapUtils;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.DefaultObjectWrapperBuilder;
 import freemarker.template.Template;
+import lombok.Data;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Test;
+import lombok.experimental.Accessors;
 import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
 
-class SchemaTest {
+@Data
+@Accessors(chain = true)
+public class SchemaCodeGen {
+
+    String outDir;
+
+    String schemaFile;
+
+    public static void main(String[] args) {
+        new SchemaCodeGen().genCode();
+    }
 
     @SneakyThrows
-    @Test
-    void get() {
+    public void genCode() {
 
         Gson gson = new Gson();
 
         String schema = "Schema";
 
-        JsonReader jsonReader = gson.newJsonReader(new FileReader("schema.json"));
+        JsonReader jsonReader = gson.newJsonReader(new FileReader(StringUtils.hasText(schemaFile) ? schemaFile : "src/main/resources/json/schema/amis.schema.json"));
 
         JsonObject root = (JsonObject) JsonParser.parseReader(jsonReader);
 
@@ -50,16 +60,80 @@ class SchemaTest {
 
         parse(false, comTypes, dataTypes, null);
 
-        File dir = new File("src/main/java/com/levin/commons/ui/annotation/amis");
+        final Predicate<String> isPrimitive = type -> Arrays.asList("string", "boolean", "number").stream().anyMatch(type::equalsIgnoreCase);
+
+
+        Set<String> typeMapSet = new HashSet<>();
+
+        //再处理一次类型
+        dataTypes.entrySet().stream().forEachOrdered(item -> {
+
+            DataType dataType = item.getValue();
+
+            dataType.properties.values().stream().forEachOrdered(p -> {
+
+                        String type = p.type;
+
+                        StringBuilder info = new StringBuilder();
+
+                        info.append(dataType.name).append(" --> ").append(type).append(p.isArray ? "[]" : "");
+
+                        while (dataTypes.containsKey(type)
+                                && dataTypes.get(type).properties.isEmpty()) {
+
+                            DataType refDataType = dataTypes.get(type);
+
+                            if (refDataType == null) {
+                                break;
+                            }
+
+                            type = refDataType.type;
+
+                            if (refDataType.isArray) {
+                                p.setArray(true);
+                            }
+
+                            info.append(" --> ").append(type).append(p.isArray ? "[]" : "");
+
+                            if (isPrimitive.test(type)) {
+                                dataType.refType = refDataType.type;
+                                break;
+                            }
+                        }
+
+                        if (!p.type.equals(type)) {
+                            typeMapSet.add(info.toString());
+                        }
+
+                        p.type = type;
+                        p.isPrimitive = isPrimitive.test(type);
+
+                        if (dataType.name.equals(p.type)) {
+                            //如果是嵌套对象
+                            p.type = "String";
+                        }
+                    }
+            );
+
+        });
+
+        //打印类型转换
+        typeMapSet.forEach(txt -> System.out.println(txt));
+
+        File dir = new File(StringUtils.hasText(outDir) ? outDir : "src/main/java/com/levin/commons/ui/annotation/amis");
 
         dir.mkdirs();
+
+        System.out.println("输出路径：" + dir);
 
         for (Map.Entry<String, DataType> entry : dataTypes.entrySet()) {
 
             String name = entry.getKey();
 
+            DataType dataType = entry.getValue();
+
             Map<String, Object> params = MapUtils
-                    .putFirst("ui", entry.getValue())
+                    .putFirst("ui", dataType)
                     .put("name", name)
                     .build();
 
@@ -68,7 +142,11 @@ class SchemaTest {
             System.out.println("开始生成 " + name);
 
             try {
-                getTemplate("UIAnnotation.java").process(params, hWriter);
+                if (dataType.isEnum) {
+                    getTemplate("UIEnum.java").process(params, hWriter);
+                } else {
+                    getTemplate("UIAnnotation.java").process(params, hWriter);
+                }
             } finally {
                 hWriter.close();
             }
@@ -77,10 +155,25 @@ class SchemaTest {
 
     }
 
+    private List<String> toList(JsonArray array) {
+
+        List<String> list = new ArrayList<>();
+
+        Iterator<JsonElement> iterator = array.iterator();
+
+        while (iterator.hasNext()) {
+            list.add(iterator.next().getAsString());
+        }
+
+        return list;
+    }
+
 
     private Map<String, DataType> parse(boolean isProps, Map<String, JsonObject> definitions, Map<String, DataType> dataTypes, Map<String, DataType> props) {
 
         String schema = "Schema";
+
+        Predicate<String> isPrimitive = type -> Arrays.asList("string", "boolean", "number").stream().anyMatch(type::equalsIgnoreCase);
 
         definitions.entrySet().stream().forEach(item -> {
 
@@ -94,7 +187,7 @@ class SchemaTest {
                 name = "_" + name;
             }
 
-            if(name.contains("-") ){
+            if (name.contains("-")) {
                 return;
             }
 
@@ -102,9 +195,22 @@ class SchemaTest {
 
             String type = "";
 
-            JsonArray anEnum = value.getAsJsonArray("enum");
             JsonElement typeDesc = value.get("type");
+            JsonArray anEnum = value.getAsJsonArray("enum");
             JsonElement ref = value.get("$ref");
+
+            boolean isArray = typeDesc != null && typeDesc.isJsonPrimitive() && typeDesc.getAsString().contentEquals("array");
+
+            if (isArray) {
+                JsonObject items = value.getAsJsonObject("items");
+                ref = items.get("$ref");
+                if (items.has("type")) {
+                    typeDesc = items.get("type");
+                }
+                if (items.has("enum")) {
+                    anEnum = items.getAsJsonArray("enum");
+                }
+            }
 
             JsonElement anyOf = value.get("anyOf");
 
@@ -116,33 +222,23 @@ class SchemaTest {
             boolean isEnum = false;
 
             DataType dataType = new DataType()
+                    .setArray(isArray)
                     .setProps(isProps);
 
             if (typeDesc != null
                     && typeDesc.isJsonPrimitive()) {
-                type = typeDesc.toString();
+                type = typeDesc.getAsString();
                 if (anEnum != null) {
                     type = "string";
                     isEnum = true;
                     addInfo.append("枚举值：" + anEnum.toString());
+                    dataType.enums = toList(anEnum);
                 }
             }
 
             if (ref != null) {
                 if (ref.isJsonPrimitive()) {
-
-                    type = ref.getAsString();
-
-                    if (type.contains(DataType.TYPE_PREFIX)) {
-                        type = type.replace(DataType.TYPE_PREFIX, "");
-                    } else if (type.contains(DataType.TYPE_PREFIX_2)) {
-                        type = type.replace(DataType.TYPE_PREFIX_2, "");
-                    } else {
-                        throw new RuntimeException(type);
-                    }
-
-                    type = type.replace(schema, "");
-
+                    type = getType(schema, ref);
                 } else {
                     System.err.println(" " + ref);
                 }
@@ -169,42 +265,23 @@ class SchemaTest {
 
             if (!StringUtils.hasText(type)) {
                 type = "string";
-            } else if (type.trim().equalsIgnoreCase("array")) {
-                type = "string[]";
-            } else if (dataTypes.containsKey(type)) {
-
-                while (dataTypes.containsKey(type)) {
-
-                    DataType refDataType = dataTypes.get(type);
-
-                    if (refDataType == null) {
-                        break;
-                    }
-
-                    type = refDataType.type;
-
-                    if (refDataType.isPrimitive) {
-                        dataType.refType = refDataType.type;
-                        break;
-                    }
-                }
-
-            } else {
-                System.out.println(item.getKey() + " --- type --- : " + type);
             }
 
             type = type.replace("\"", "");
 
             if (type.equalsIgnoreCase("object")) {
                 type = "String";
+            } else if (type.contentEquals("array")) {
+                dataType.setArray(isArray = true);
+                type = "String";
             }
 
             dataType.setProps(isProps)
                     .setType(type)
-                    .setRef(ref != null ? ref.toString() : value.toString())
+                    .setRef(ref != null ? ref : value)
                     .setEnum(isEnum);
 
-            dataType.isPrimitive = Arrays.asList("string", "boolean", "number").stream().anyMatch(type::equalsIgnoreCase);
+            dataType.isPrimitive = isPrimitive.test(type);
 
             if (properties != null) {
 
@@ -244,25 +321,42 @@ class SchemaTest {
 
                 dataType.setName(name);
 
-                if (type.equalsIgnoreCase("Expression")) {
-                    System.out.println(dataType);
-                }
-
                 if (!isProps) {
                 }
             } else {
-                if (!isProps)
+                if (!isProps) {
                     System.out.println("unknown item " + item);
+                }
             }
         });
 
         return isProps ? props : dataTypes;
     }
 
+    private String getType(String schema, JsonElement ref) {
+
+        String type;
+
+        type = ref.getAsString();
+
+        if (type.contains(DataType.TYPE_PREFIX)) {
+            type = type.replace(DataType.TYPE_PREFIX, "");
+        } else if (type.contains(DataType.TYPE_PREFIX_2)) {
+            type = type.replace(DataType.TYPE_PREFIX_2, "");
+        } else {
+            throw new RuntimeException(type);
+        }
+
+        type = type.replace(schema, "");
+
+        return type;
+    }
+
     private static String replace(String info) {
-        return info.replace("\\", "\"")
-                 .replace("\n", "\\n")
-                .replace("\"", "\\\"")
+        return info.replace("\\", "")
+                .replace("\n", "\\n")
+//                .replace("\"", "\\\"")
+                .replace("\"", "")
                 .replace("\r", "\\n");
     }
 

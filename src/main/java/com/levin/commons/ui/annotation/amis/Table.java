@@ -1,22 +1,38 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Table
  *
- * \"Table 表格渲染器。 文档：https://baidu.gitee.io/amis/docs/components/table\"
+ * Table 表格渲染器。 文档：https://baidu.gitee.io/amis/docs/components/table
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Table 表格渲染器。 文档：https://baidu.gitee.io/amis/docs/components/table\"")
+@Schema(description = "Table 表格渲染器。 文档：https://baidu.gitee.io/amis/docs/components/table")
 public @interface Table {
+///////////////////////////////////////////
+
+	//指定为表格渲染器。
+	enum Type{
+		table,
+		static_table,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为表格渲染器。
@@ -26,14 +42,14 @@ public @interface Table {
      * @see 
      */
     @Schema(description = "指定为表格渲染器。")
-    String type() default "";
+    Type type() ;
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +69,7 @@ public @interface Table {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +89,7 @@ public @interface Table {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +109,7 @@ public @interface Table {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -111,12 +127,12 @@ public @interface Table {
     /**
      * 表格的列信息
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/TableColumn"},"description":"表格的列信息"}
+     * 参考定义: "#/definitions/TableColumn"
      *
      * @see 
      */
     @Schema(description = "表格的列信息")
-    String[] columns() default {};
+    String[] columns() default "";
 
     /**
      * 展示列显示开关，自动即：列数量大于或等于5个时自动开启
@@ -143,7 +159,7 @@ public @interface Table {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "底部外层 CSS 类名")
     String footerClassName() default "";
@@ -153,7 +169,7 @@ public @interface Table {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "顶部外层 CSS 类名")
     String headerClassName() default "";
@@ -193,7 +209,7 @@ public @interface Table {
      *
      * 参考定义: "#/definitions/SchemaTokenizeableString"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "数据源：绑定当前环境变量")
     String source() default "";
@@ -203,7 +219,7 @@ public @interface Table {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "表格 CSS 类名")
     String tableClassName() default "";
@@ -223,7 +239,7 @@ public @interface Table {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "工具栏 CSS 类名")
     String toolbarClassName() default "";
@@ -251,22 +267,22 @@ public @interface Table {
     /**
      * 顶部总结行
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/SchemaObject"},"description":"顶部总结行"}
+     * 参考定义: "#/definitions/SchemaObject"
      *
      * @see 
      */
     @Schema(description = "顶部总结行")
-    String[] prefixRow() default {};
+    String[] prefixRow() default "";
 
     /**
      * 底部总结行
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/SchemaObject"},"description":"底部总结行"}
+     * 参考定义: "#/definitions/SchemaObject"
      *
      * @see 
      */
     @Schema(description = "底部总结行")
-    String[] affixRow() default {};
+    String[] affixRow() default "";
 
     /**
      * 是否可调整列宽
@@ -293,10 +309,10 @@ public @interface Table {
      *
      * 参考定义: "#/definitions/BadgeSchema"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "行角标")
-    String itemBadge() default "";
+    Badge itemBadge() ;
 
     /**
      * 开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单
@@ -307,6 +323,5 @@ public @interface Table {
      */
     @Schema(description = "开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单")
     boolean autoGenerateFilter() default false;
-
 
 }

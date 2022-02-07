@@ -1,22 +1,38 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Icon
  *
- * \"Icon 图表渲染器 文档：https://baidu.gitee.io/amis/docs/components/icon\"
+ * Icon 图表渲染器 文档：https://baidu.gitee.io/amis/docs/components/icon
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:28
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Icon 图表渲染器 文档：https://baidu.gitee.io/amis/docs/components/icon\"")
+@Schema(description = "Icon 图表渲染器 文档：https://baidu.gitee.io/amis/docs/components/icon")
 public @interface Icon {
+///////////////////////////////////////////
+
+	//null
+	enum Vendor{
+		iconfont,
+		fa,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * type
@@ -26,14 +42,14 @@ public @interface Icon {
      * @see 
      */
     @Schema(description = "type")
-    String type() default "";
+    String type() default "icon";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +69,7 @@ public @interface Icon {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +89,7 @@ public @interface Icon {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +109,7 @@ public @interface Icon {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -116,7 +132,7 @@ public @interface Icon {
      * @see 
      */
     @Schema(description = "vendor")
-    String vendor() default "";
+    Vendor vendor() ;
 
     /**
      * 角标
@@ -127,6 +143,5 @@ public @interface Icon {
      */
     @Schema(description = "角标")
     Badge badge() ;
-
 
 }

@@ -1,22 +1,40 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * ButtonGroup
  *
- * \"Button Group 渲染器。 文档：https://baidu.gitee.io/amis/docs/components/button-group\"
+ * Button Group 渲染器。 文档：https://baidu.gitee.io/amis/docs/components/button-group
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:28
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Button Group 渲染器。 文档：https://baidu.gitee.io/amis/docs/components/button-group\"")
+@Schema(description = "Button Group 渲染器。 文档：https://baidu.gitee.io/amis/docs/components/button-group")
 public @interface ButtonGroup {
+///////////////////////////////////////////
+
+	//按钮大小
+	enum Size{
+		xs,
+		sm,
+		md,
+		lg,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为提交按钮类型
@@ -26,14 +44,14 @@ public @interface ButtonGroup {
      * @see 
      */
     @Schema(description = "指定为提交按钮类型")
-    String type() default "";
+    String type() default "button-group";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +71,7 @@ public @interface ButtonGroup {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "通过 JS 表达式来配置当前表单项的禁用状态。")
     String disabledOn() default "";
@@ -73,7 +91,7 @@ public @interface ButtonGroup {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +111,7 @@ public @interface ButtonGroup {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "通过 JS 表达式来配置当前表单项是否显示")
     String visibleOn() default "";
@@ -103,7 +121,7 @@ public @interface ButtonGroup {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "给 Button 配置 className。")
     String btnClassName() default "";
@@ -121,12 +139,12 @@ public @interface ButtonGroup {
     /**
      * 按钮集合
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/ActionSchema"},"description":"按钮集合"}
+     * 参考定义: "#/definitions/ActionSchema"
      *
      * @see 
      */
     @Schema(description = "按钮集合")
-    String[] buttons() default {};
+    String[] buttons() default "";
 
     /**
      * 按钮样式级别
@@ -176,7 +194,6 @@ public @interface ButtonGroup {
      * @see 
      */
     @Schema(description = "按钮大小")
-    String size() default "";
-
+    Size size() ;
 
 }

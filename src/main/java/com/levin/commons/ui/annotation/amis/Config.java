@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,6 +16,25 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "Config")
 public @interface Config {
+///////////////////////////////////////////
+
+	//null
+	enum ValueType{
+		value,
+		field,
+		func,
+		formula,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * valueTypes
@@ -26,7 +44,7 @@ public @interface Config {
      * @see 
      */
     @Schema(description = "valueTypes")
-    String[] valueTypes() default {};
+    ValueType[] valueTypes() ;
 
     /**
      * fields
@@ -36,7 +54,7 @@ public @interface Config {
      * @see 
      */
     @Schema(description = "fields")
-    String[] fields() default {};
+    String[] fields() default "";
 
     /**
      * funcs
@@ -46,7 +64,7 @@ public @interface Config {
      * @see 
      */
     @Schema(description = "funcs")
-    String[] funcs() default {};
+    String[] funcs() default "";
 
     /**
      * maxLevel
@@ -67,6 +85,5 @@ public @interface Config {
      */
     @Schema(description = "types")
     String types() default "";
-
 
 }

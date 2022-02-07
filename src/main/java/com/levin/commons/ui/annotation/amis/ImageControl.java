@@ -1,29 +1,75 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * ImageControl
  *
- * \"Image 图片上传控件 文档：https://baidu.gitee.io/amis/docs/components/form/image\"
+ * Image 图片上传控件 文档：https://baidu.gitee.io/amis/docs/components/form/image
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Image 图片上传控件 文档：https://baidu.gitee.io/amis/docs/components/form/image\"")
+@Schema(description = "Image 图片上传控件 文档：https://baidu.gitee.io/amis/docs/components/form/image")
 public @interface ImageControl {
+///////////////////////////////////////////
+
+	//表单项大小
+	enum Size{
+		xs,
+		sm,
+		md,
+		lg,
+		full,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//配置当前表单项展示模式
+	enum Mode{
+		normal,
+		inline,
+		horizontal,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//缩路图展示模式
+	enum ThumbMode{
+		w_full,
+		h_full,
+		contain,
+		cover,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//缩路图展示比率。
+	enum ThumbRatio{
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -43,7 +89,7 @@ public @interface ImageControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -63,7 +109,7 @@ public @interface ImageControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -83,7 +129,7 @@ public @interface ImageControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -96,7 +142,7 @@ public @interface ImageControl {
      * @see 
      */
     @Schema(description = "指定为图片上传控件")
-    String type() default "";
+    String type() default "input-image";
 
     /**
      * 表单项大小
@@ -106,7 +152,7 @@ public @interface ImageControl {
      * @see 
      */
     @Schema(description = "表单项大小")
-    String size() default "";
+    Size size() ;
 
     /**
      * 描述标题
@@ -123,7 +169,7 @@ public @interface ImageControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 label className")
     String labelClassName() default "";
@@ -143,20 +189,20 @@ public @interface ImageControl {
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容")
-    String remark() default "";
+    Remark remark() ;
 
     /**
      * 显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起")
-    String labelRemark() default "";
+    Remark labelRemark() ;
 
     /**
      * 输入提示，聚焦的时候显示
@@ -223,7 +269,7 @@ public @interface ImageControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置描述上的 className")
     String descriptionClassName() default "";
@@ -236,17 +282,17 @@ public @interface ImageControl {
      * @see 
      */
     @Schema(description = "配置当前表单项展示模式")
-    String mode() default "";
+    Mode mode() ;
 
     /**
      * 当配置为水平布局的时候，用来配置具体的左右分配。
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "当配置为水平布局的时候，用来配置具体的左右分配。")
-    String horizontal() default "";
+    FormHorizontal horizontal() ;
 
     /**
      * 表单 control 是否为 inline 模式。
@@ -263,7 +309,7 @@ public @interface ImageControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 input className")
     String inputClassName() default "";
@@ -333,7 +379,7 @@ public @interface ImageControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "远端校验表单项接口")
     String validateApi() default "";
@@ -343,7 +389,7 @@ public @interface ImageControl {
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "默认展示图片的链接")
     String src() default "";
@@ -393,7 +439,7 @@ public @interface ImageControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "选择图片按钮的 CSS 类名")
     String btnClassName() default "";
@@ -403,7 +449,7 @@ public @interface ImageControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "上传按钮的 CSS 类名")
     String btnUploadClassName() default "";
@@ -513,7 +559,7 @@ public @interface ImageControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "默认 `/api/upload` 如果想自己存储，请设置此选项。")
     String receiver() default "";
@@ -586,7 +632,7 @@ public @interface ImageControl {
      * @see 
      */
     @Schema(description = "缩路图展示模式")
-    String thumbMode() default "";
+    ThumbMode thumbMode() ;
 
     /**
      * 缩路图展示比率。
@@ -596,7 +642,7 @@ public @interface ImageControl {
      * @see 
      */
     @Schema(description = "缩路图展示比率。")
-    String thumbRatio() default "";
+    ThumbRatio thumbRatio() ;
 
     /**
      * 上传后把其他字段同步到表单内部。
@@ -613,7 +659,7 @@ public @interface ImageControl {
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "默认占位图图片地址")
     String frameImage() default "";
@@ -633,10 +679,9 @@ public @interface ImageControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "固定尺寸的 CSS类名")
     String fixedSizeClassName() default "";
-
 
 }

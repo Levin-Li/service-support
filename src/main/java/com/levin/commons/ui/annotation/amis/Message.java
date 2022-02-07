@@ -1,22 +1,28 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Message
  *
- * \"消息文案配置，记住这个优先级是最低的，如果你的接口返回了 msg，接口返回的优先。\"
+ * 消息文案配置，记住这个优先级是最低的，如果你的接口返回了 msg，接口返回的优先。
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"消息文案配置，记住这个优先级是最低的，如果你的接口返回了 msg，接口返回的优先。\"")
+@Schema(description = "消息文案配置，记住这个优先级是最低的，如果你的接口返回了 msg，接口返回的优先。")
 public @interface Message {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 获取失败时的提示
@@ -57,6 +63,5 @@ public @interface Message {
      */
     @Schema(description = "保存成功时的提示。")
     String saveSuccess() default "";
-
 
 }

@@ -1,22 +1,54 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Images
  *
- * \"图片集展示控件。 文档：https://baidu.gitee.io/amis/docs/components/images\"
+ * 图片集展示控件。 文档：https://baidu.gitee.io/amis/docs/components/images
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"图片集展示控件。 文档：https://baidu.gitee.io/amis/docs/components/images\"")
+@Schema(description = "图片集展示控件。 文档：https://baidu.gitee.io/amis/docs/components/images")
 public @interface Images {
+///////////////////////////////////////////
+
+	//指定为图片集渲染器
+	enum Type{
+		images,
+		static_images,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//预览图模式
+	enum ThumbMode{
+		w_full,
+		h_full,
+		contain,
+		cover,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//预览图比率
+	enum ThumbRatio{
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
 
     /**
      * 指定为图片集渲染器
@@ -26,14 +58,14 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "指定为图片集渲染器")
-    String type() default "";
+    Type type() ;
 
     /**
      * 外层 CSS 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "外层 CSS 类名")
     String className() default "";
@@ -53,7 +85,7 @@ public @interface Images {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +105,7 @@ public @interface Images {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +125,7 @@ public @interface Images {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -103,7 +135,7 @@ public @interface Images {
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "默认图片地址")
     String defaultImage() default "";
@@ -136,7 +168,7 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "预览图模式")
-    String thumbMode() default "";
+    ThumbMode thumbMode() ;
 
     /**
      * 预览图比率
@@ -146,7 +178,7 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "预览图比率")
-    String thumbRatio() default "";
+    ThumbRatio thumbRatio() ;
 
     /**
      * 关联字段名，也可以直接配置 src
@@ -186,7 +218,7 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "options")
-    String[] options() default {};
+    String[] options() default "";
 
     /**
      * 图片地址，默认读取数据中的 image 属性，如果不是请配置 ,如  ${imageUrl}
@@ -233,10 +265,9 @@ public @interface Images {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "列表 CSS 类名")
     String listClassName() default "";
-
 
 }

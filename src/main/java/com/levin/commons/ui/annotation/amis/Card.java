@@ -1,22 +1,28 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Card
  *
- * \"Card 卡片渲染器。 文档：https://baidu.gitee.io/amis/docs/components/card\"
+ * Card 卡片渲染器。 文档：https://baidu.gitee.io/amis/docs/components/card
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:28
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Card 卡片渲染器。 文档：https://baidu.gitee.io/amis/docs/components/card\"")
+@Schema(description = "Card 卡片渲染器。 文档：https://baidu.gitee.io/amis/docs/components/card")
 public @interface Card {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为 card 类型
@@ -26,14 +32,14 @@ public @interface Card {
      * @see 
      */
     @Schema(description = "指定为 card 类型")
-    String type() default "";
+    String type() default "card";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +59,7 @@ public @interface Card {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +79,7 @@ public @interface Card {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +99,7 @@ public @interface Card {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -111,12 +117,12 @@ public @interface Card {
     /**
      * 内容区域
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/CardBodyField"},"description":"内容区域"}
+     * 参考定义: "#/definitions/CardBodyField"
      *
      * @see 
      */
     @Schema(description = "内容区域")
-    String[] body() default {};
+    String[] body() default "";
 
     /**
      * 多媒体区域
@@ -131,32 +137,31 @@ public @interface Card {
     /**
      * 底部按钮集合。
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/ActionSchema"},"description":"底部按钮集合。"}
+     * 参考定义: "#/definitions/ActionSchema"
      *
      * @see 
      */
     @Schema(description = "底部按钮集合。")
-    String[] actions() default {};
+    String[] actions() default "";
 
     /**
      * 工具栏按钮
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/ActionSchema"},"description":"工具栏按钮"}
+     * 参考定义: "#/definitions/ActionSchema"
      *
      * @see 
      */
     @Schema(description = "工具栏按钮")
-    String[] toolbar() default {};
+    String[] toolbar() default "";
 
     /**
      * 次要说明
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "次要说明")
-    String secondary() default "";
-
+    Tpl secondary() ;
 
 }

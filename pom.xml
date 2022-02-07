@@ -199,7 +199,7 @@
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <version>2.3.31</version>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -305,12 +305,12 @@
             </plugin>
 
 
-            <plugin>
+<!--            <plugin>
                 <groupId>org.jsonschema2pojo</groupId>
                 <artifactId>jsonschema2pojo-maven-plugin</artifactId>
                 <version>1.1.1</version>
 
-                <!-- amis 项目  npm run build-schemas-->
+                &lt;!&ndash; amis 项目  npm run build-schemas&ndash;&gt;
 
                 <executions>
 
@@ -327,7 +327,7 @@
                     <targetPackage>${project.groupId}.ui.annotation.amis</targetPackage>
                     <addCompileSourceRoot>true</addCompileSourceRoot>
                     <annotationStyle>jackson2</annotationStyle>
-                    <!--                    <useTitleAsClassname>true</useTitleAsClassname>-->
+                    &lt;!&ndash;                    <useTitleAsClassname>true</useTitleAsClassname>&ndash;&gt;
                     <includeTypeInfo>false</includeTypeInfo>
                     <includeHashcodeAndEquals>false</includeHashcodeAndEquals>
                     <includeToString>false</includeToString>
@@ -336,7 +336,7 @@
                     <includeSetters>false</includeSetters>
                     <includeAllPropertiesConstructor>false</includeAllPropertiesConstructor>
                 </configuration>
-            </plugin>
+            </plugin>-->
 
         </plugins>
     </build>

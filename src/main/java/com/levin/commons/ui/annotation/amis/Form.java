@@ -1,22 +1,39 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Form
  *
- * \"Form 表单渲染器。\"n\"n说明：https://baidu.gitee.io/amis/docs/components/form/index\"
+ * Form 表单渲染器。nn说明：https://baidu.gitee.io/amis/docs/components/form/index
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Form 表单渲染器。\"n\"n说明：https://baidu.gitee.io/amis/docs/components/form/index\"")
+@Schema(description = "Form 表单渲染器。nn说明：https://baidu.gitee.io/amis/docs/components/form/index")
 public @interface Form {
+///////////////////////////////////////////
+
+	//配置表单项默认的展示方式。
+	enum Mode{
+		normal,
+		inline,
+		horizontal,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为表单渲染器。
@@ -26,14 +43,14 @@ public @interface Form {
      * @see 
      */
     @Schema(description = "指定为表单渲染器。")
-    String type() default "";
+    String type() default "form";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +70,7 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +90,7 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +110,7 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -111,19 +128,19 @@ public @interface Form {
     /**
      * 按钮集合，会固定在底部显示。
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/ActionSchema"},"description":"按钮集合，会固定在底部显示。"}
+     * 参考定义: "#/definitions/ActionSchema"
      *
      * @see 
      */
     @Schema(description = "按钮集合，会固定在底部显示。")
-    String[] actions() default {};
+    String[] actions() default "";
 
     /**
      * 表单项集合
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "表单项集合")
     String body() default "";
@@ -153,7 +170,7 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaDefaultData"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "data")
     String data() default "";
@@ -173,7 +190,7 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "用来初始化表单数据")
     String initApi() default "";
@@ -183,7 +200,7 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "Form 用来获取初始数据的 api,与initApi不同的是，会一直轮询请求该接口，直到返回 finished 属性为 true 才 结束。")
     String initAsyncApi() default "";
@@ -223,7 +240,7 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "建议改成 api 的 sendOn 属性。")
     String initFetchOn() default "";
@@ -283,7 +300,7 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "Form 用来保存数据的 api。\n\n详情：https://baidu.gitee.io/amis/docs/components/form/index#%E8%A1%A8%E5%8D%95%E6%8F%90%E4%BA%A4")
     String api() default "";
@@ -293,17 +310,17 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/DialogSchemaBase"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "Form 也可以配置 feedback。")
-    String feedback() default "";
+    DialogBase feedback() ;
 
     /**
      * 设置此属性后，表单提交发送保存接口后，还会继续轮询请求该接口，直到返回 finished 属性为 true 才 结束。
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "设置此属性后，表单提交发送保存接口后，还会继续轮询请求该接口，直到返回 finished 属性为 true 才 结束。")
     String asyncApi() default "";
@@ -356,7 +373,7 @@ public @interface Form {
      * @see 
      */
     @Schema(description = "配置表单项默认的展示方式。")
-    String mode() default "";
+    Mode mode() ;
 
     /**
      * 表单项显示为几列
@@ -373,10 +390,10 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
-    String horizontal() default "";
+    FormHorizontal horizontal() ;
 
     /**
      * 是否自动将第一个表单元素聚焦。
@@ -403,7 +420,7 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "name")
     String name() default "";
@@ -413,7 +430,7 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置容器 panel className")
     String panelClassName() default "";
@@ -433,7 +450,7 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaRedirect"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "redirect")
     String redirect() default "";
@@ -443,7 +460,7 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaReload"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "reload")
     String reload() default "";
@@ -536,7 +553,7 @@ public @interface Form {
      * @see 
      */
     @Schema(description = "组合校验规则，选填")
-    String[] rules() default {};
+    String[] rules() default "";
 
     /**
      * 禁用回车提交
@@ -547,6 +564,5 @@ public @interface Form {
      */
     @Schema(description = "禁用回车提交")
     boolean preventEnterSubmit() default false;
-
 
 }

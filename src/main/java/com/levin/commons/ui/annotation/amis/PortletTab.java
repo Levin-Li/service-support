@@ -1,29 +1,45 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * PortletTab
  *
- * \"栏目容器渲染器。 文档：https://baidu.gitee.io/amis/docs/components/portlet\"
+ * 栏目容器渲染器。 文档：https://baidu.gitee.io/amis/docs/components/portlet
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"栏目容器渲染器。 文档：https://baidu.gitee.io/amis/docs/components/portlet\"")
+@Schema(description = "栏目容器渲染器。 文档：https://baidu.gitee.io/amis/docs/components/portlet")
 public @interface PortletTab {
+///////////////////////////////////////////
+
+	//null
+	enum IconPosition{
+		left,
+		right,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -43,7 +59,7 @@ public @interface PortletTab {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -63,7 +79,7 @@ public @interface PortletTab {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -83,7 +99,7 @@ public @interface PortletTab {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -103,7 +119,7 @@ public @interface PortletTab {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "内容")
     String tab() default "";
@@ -111,19 +127,19 @@ public @interface PortletTab {
     /**
      * 可以在右侧配置点其他功能按钮，随着tab切换而切换
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/ActionSchema"},"description":"可以在右侧配置点其他功能按钮，随着tab切换而切换"}
+     * 参考定义: "#/definitions/ActionSchema"
      *
      * @see 
      */
     @Schema(description = "可以在右侧配置点其他功能按钮，随着tab切换而切换")
-    String[] toolbar() default {};
+    String[] toolbar() default "";
 
     /**
      * 内容
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "内容")
     String body() default "";
@@ -133,10 +149,10 @@ public @interface PortletTab {
      *
      * 参考定义: "#/definitions/SchemaIcon"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "按钮图标")
-    String icon() default "";
+    Icon icon() ;
 
     /**
      * iconPosition
@@ -146,7 +162,7 @@ public @interface PortletTab {
      * @see 
      */
     @Schema(description = "iconPosition")
-    String iconPosition() default "";
+    IconPosition iconPosition() ;
 
     /**
      * 设置以后内容每次都会重新渲染
@@ -177,6 +193,5 @@ public @interface PortletTab {
      */
     @Schema(description = "卡片隐藏就销毁卡片节点。")
     boolean unmountOnExit() default false;
-
 
 }

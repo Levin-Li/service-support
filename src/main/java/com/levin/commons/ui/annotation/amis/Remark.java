@@ -1,22 +1,51 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Remark
  *
- * \"提示渲染器，默认会显示个小图标，鼠标放上来的时候显示配置的内容。\"
+ * 提示渲染器，默认会显示个小图标，鼠标放上来的时候显示配置的内容。
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:28
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"提示渲染器，默认会显示个小图标，鼠标放上来的时候显示配置的内容。\"")
+@Schema(description = "提示渲染器，默认会显示个小图标，鼠标放上来的时候显示配置的内容。")
 public @interface Remark {
+///////////////////////////////////////////
+
+	//触发规则
+	enum Trigger{
+		click,
+		hover,
+		focus,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//显示位置
+	enum Placement{
+		top,
+		right,
+		bottom,
+		left,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为提示类型
@@ -26,14 +55,14 @@ public @interface Remark {
      * @see 
      */
     @Schema(description = "指定为提示类型")
-    String type() default "";
+    String type() default "remark";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +82,7 @@ public @interface Remark {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +102,7 @@ public @interface Remark {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +122,7 @@ public @interface Remark {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -123,7 +152,7 @@ public @interface Remark {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "tooltipClassName")
     String tooltipClassName() default "";
@@ -136,7 +165,7 @@ public @interface Remark {
      * @see 
      */
     @Schema(description = "触发规则")
-    String[] trigger() default {};
+    Trigger[] trigger() ;
 
     /**
      * 提示标题
@@ -156,7 +185,7 @@ public @interface Remark {
      * @see 
      */
     @Schema(description = "提示内容")
-    String content() ;
+    Tpl content() ;
 
     /**
      * 显示位置
@@ -166,7 +195,7 @@ public @interface Remark {
      * @see 
      */
     @Schema(description = "显示位置")
-    String placement() default "";
+    Placement placement() ;
 
     /**
      * 点击其他内容时是否关闭弹框信息
@@ -177,6 +206,5 @@ public @interface Remark {
      */
     @Schema(description = "点击其他内容时是否关闭弹框信息")
     boolean rootClose() default false;
-
 
 }

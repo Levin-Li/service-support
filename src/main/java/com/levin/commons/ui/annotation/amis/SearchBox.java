@@ -1,22 +1,28 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * SearchBox
  *
- * \"搜索框渲染器\"
+ * 搜索框渲染器
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"搜索框渲染器\"")
+@Schema(description = "搜索框渲染器")
 public @interface SearchBox {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为搜索框。\n\n文档：https://baidu.gitee.io/amis/docs/components/search-box
@@ -26,14 +32,14 @@ public @interface SearchBox {
      * @see 
      */
     @Schema(description = "指定为搜索框。\n\n文档：https://baidu.gitee.io/amis/docs/components/search-box")
-    String type() default "";
+    String type() default "search-box";
 
     /**
      * 外层 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "外层 css 类名")
     String className() default "";
@@ -53,7 +59,7 @@ public @interface SearchBox {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +79,7 @@ public @interface SearchBox {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +99,7 @@ public @interface SearchBox {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -137,6 +143,5 @@ public @interface SearchBox {
      */
     @Schema(description = "是否立马搜索。")
     boolean searchImediately() default false;
-
 
 }

@@ -1,22 +1,42 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Date
  *
- * \"Date 展示渲染器。 文档：https://baidu.gitee.io/amis/docs/components/date\"
+ * Date 展示渲染器。 文档：https://baidu.gitee.io/amis/docs/components/date
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Date 展示渲染器。 文档：https://baidu.gitee.io/amis/docs/components/date\"")
+@Schema(description = "Date 展示渲染器。 文档：https://baidu.gitee.io/amis/docs/components/date")
 public @interface Date {
+///////////////////////////////////////////
+
+	//指定为日期展示类型
+	enum Type{
+		date,
+		datetime,
+		time,
+		static_date,
+		static_datetime,
+		static_time,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为日期展示类型
@@ -26,14 +46,14 @@ public @interface Date {
      * @see 
      */
     @Schema(description = "指定为日期展示类型")
-    String type() default "";
+    Type type() ;
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +73,7 @@ public @interface Date {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +93,7 @@ public @interface Date {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +113,7 @@ public @interface Date {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -147,6 +167,5 @@ public @interface Date {
      */
     @Schema(description = "更新频率， 默认为1分钟")
     double updateFrequency() default 0;
-
 
 }

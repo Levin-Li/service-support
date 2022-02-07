@@ -1,22 +1,142 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * EditorControl
  *
- * \"Editor 代码编辑器 文档：https://baidu.gitee.io/amis/docs/components/form/editor\"
+ * Editor 代码编辑器 文档：https://baidu.gitee.io/amis/docs/components/form/editor
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Editor 代码编辑器 文档：https://baidu.gitee.io/amis/docs/components/form/editor\"")
+@Schema(description = "Editor 代码编辑器 文档：https://baidu.gitee.io/amis/docs/components/form/editor")
 public @interface EditorControl {
+///////////////////////////////////////////
+
+	//表单项类型
+	enum Type{
+		editor,
+		bat_editor,
+		c_editor,
+		coffeescript_editor,
+		cpp_editor,
+		csharp_editor,
+		css_editor,
+		dockerfile_editor,
+		fsharp_editor,
+		go_editor,
+		handlebars_editor,
+		html_editor,
+		ini_editor,
+		java_editor,
+		javascript_editor,
+		json_editor,
+		less_editor,
+		lua_editor,
+		markdown_editor,
+		msdax_editor,
+		objective_c_editor,
+		php_editor,
+		plaintext_editor,
+		postiats_editor,
+		powershell_editor,
+		pug_editor,
+		python_editor,
+		r_editor,
+		razor_editor,
+		ruby_editor,
+		sb_editor,
+		scss_editor,
+		sol_editor,
+		sql_editor,
+		swift_editor,
+		typescript_editor,
+		vb_editor,
+		xml_editor,
+		yaml_editor,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//配置当前表单项展示模式
+	enum Mode{
+		normal,
+		inline,
+		horizontal,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//语言类型
+	enum Language{
+		bat,
+		c,
+		coffeescript,
+		cpp,
+		csharp,
+		css,
+		dockerfile,
+		fsharp,
+		go,
+		handlebars,
+		html,
+		ini,
+		java,
+		javascript,
+		json,
+		less,
+		lua,
+		markdown,
+		msdax,
+		objective_c,
+		php,
+		plaintext,
+		postiats,
+		powershell,
+		pug,
+		python,
+		r,
+		razor,
+		ruby,
+		sb,
+		scss,
+		shell,
+		sol,
+		sql,
+		swift,
+		typescript,
+		vb,
+		xml,
+		yaml,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//编辑器大小
+	enum Size{
+		sm,
+		md,
+		lg,
+		xl,
+		xxl,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
 
     /**
      * 表单项类型
@@ -26,7 +146,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "表单项类型")
-    String type() default "";
+    Type type() ;
 
     /**
      * 描述标题
@@ -43,7 +163,7 @@ public @interface EditorControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 label className")
     String labelClassName() default "";
@@ -63,20 +183,20 @@ public @interface EditorControl {
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容")
-    String remark() default "";
+    Remark remark() ;
 
     /**
      * 显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起")
-    String labelRemark() default "";
+    Remark labelRemark() ;
 
     /**
      * 输入提示，聚焦的时候显示
@@ -143,7 +263,7 @@ public @interface EditorControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置描述上的 className")
     String descriptionClassName() default "";
@@ -156,17 +276,17 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "配置当前表单项展示模式")
-    String mode() default "";
+    Mode mode() ;
 
     /**
      * 当配置为水平布局的时候，用来配置具体的左右分配。
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "当配置为水平布局的时候，用来配置具体的左右分配。")
-    String horizontal() default "";
+    FormHorizontal horizontal() ;
 
     /**
      * 表单 control 是否为 inline 模式。
@@ -183,7 +303,7 @@ public @interface EditorControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 input className")
     String inputClassName() default "";
@@ -253,7 +373,7 @@ public @interface EditorControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "远端校验表单项接口")
     String validateApi() default "";
@@ -263,7 +383,7 @@ public @interface EditorControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -283,7 +403,7 @@ public @interface EditorControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -303,7 +423,7 @@ public @interface EditorControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -323,7 +443,7 @@ public @interface EditorControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -336,7 +456,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "语言类型")
-    String language() default "";
+    Language language() ;
 
     /**
      * 编辑器大小
@@ -346,7 +466,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "编辑器大小")
-    String size() default "";
+    Size size() ;
 
     /**
      * 是否展示全屏模式开关
@@ -357,6 +477,5 @@ public @interface EditorControl {
      */
     @Schema(description = "是否展示全屏模式开关")
     boolean allowFullscreen() default false;
-
 
 }

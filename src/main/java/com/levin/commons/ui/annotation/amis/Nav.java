@@ -1,22 +1,28 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Nav
  *
- * \"Nav 导航渲染器 文档：https://baidu.gitee.io/amis/docs/components/nav\"
+ * Nav 导航渲染器 文档：https://baidu.gitee.io/amis/docs/components/nav
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Nav 导航渲染器 文档：https://baidu.gitee.io/amis/docs/components/nav\"")
+@Schema(description = "Nav 导航渲染器 文档：https://baidu.gitee.io/amis/docs/components/nav")
 public @interface Nav {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为 Nav 导航渲染器
@@ -26,14 +32,14 @@ public @interface Nav {
      * @see 
      */
     @Schema(description = "指定为 Nav 导航渲染器")
-    String type() default "";
+    String type() default "nav";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +59,7 @@ public @interface Nav {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +79,7 @@ public @interface Nav {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +99,7 @@ public @interface Nav {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -101,12 +107,12 @@ public @interface Nav {
     /**
      * 链接地址集合
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/NavItemSchema"},"description":"链接地址集合"}
+     * 参考定义: "#/definitions/NavItemSchema"
      *
      * @see 
      */
     @Schema(description = "链接地址集合")
-    String[] links() default {};
+    NavItem[] links() ;
 
     /**
      * indentSize
@@ -123,7 +129,7 @@ public @interface Nav {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "可以通过 API 拉取。")
     String source() default "";
@@ -133,7 +139,7 @@ public @interface Nav {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "懒加载 api，如果不配置复用 source 接口。")
     String deferApi() default "";
@@ -153,7 +159,7 @@ public @interface Nav {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "更多操作菜单列表")
     String itemActions() default "";
@@ -173,7 +179,7 @@ public @interface Nav {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "保存排序的 api")
     String saveOrderApi() default "";
@@ -183,10 +189,10 @@ public @interface Nav {
      *
      * 参考定义: "#/definitions/BadgeSchema"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "角标")
-    String itemBadge() default "";
+    Badge itemBadge() ;
 
     /**
      * 仅允许同层级拖拽
@@ -197,6 +203,5 @@ public @interface Nav {
      */
     @Schema(description = "仅允许同层级拖拽")
     boolean dragOnSameLevel() default false;
-
 
 }

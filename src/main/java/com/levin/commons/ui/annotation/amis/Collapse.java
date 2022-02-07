@@ -1,22 +1,51 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Collapse
  *
- * \"Collapse 折叠渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/collapse\"
+ * Collapse 折叠渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/collapse
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Collapse 折叠渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/collapse\"")
+@Schema(description = "Collapse 折叠渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/collapse")
 public @interface Collapse {
+///////////////////////////////////////////
+
+	//标题展示位置
+	enum HeaderPosition{
+		top,
+		bottom,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//控件大小
+	enum Size{
+		xs,
+		sm,
+		md,
+		lg,
+		base,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为折叠器类型
@@ -26,14 +55,14 @@ public @interface Collapse {
      * @see 
      */
     @Schema(description = "指定为折叠器类型")
-    String type() default "";
+    String type() default "collapse";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +82,7 @@ public @interface Collapse {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +102,7 @@ public @interface Collapse {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +122,7 @@ public @interface Collapse {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -116,7 +145,7 @@ public @interface Collapse {
      * @see 
      */
     @Schema(description = "标题展示位置")
-    String headerPosition() default "";
+    HeaderPosition headerPosition() ;
 
     /**
      * 标题
@@ -133,7 +162,7 @@ public @interface Collapse {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "内容区域")
     String body() default "";
@@ -183,7 +212,7 @@ public @interface Collapse {
      *
      * 参考定义: "#/definitions/SchemaObject"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "自定义切换图标")
     String expandIcon() default "";
@@ -203,10 +232,10 @@ public @interface Collapse {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "收起的标题")
-    String collapseHeader() default "";
+    Tpl collapseHeader() ;
 
     /**
      * 控件大小
@@ -216,7 +245,7 @@ public @interface Collapse {
      * @see 
      */
     @Schema(description = "控件大小")
-    String size() default "";
+    Size size() ;
 
     /**
      * 点开时才加载内容
@@ -237,6 +266,5 @@ public @interface Collapse {
      */
     @Schema(description = "卡片隐藏就销毁内容。")
     boolean unmountOnExit() default false;
-
 
 }

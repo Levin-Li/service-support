@@ -1,22 +1,50 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * QRCode
  *
- * \"二维码展示控件。 文档：https://baidu.gitee.io/amis/docs/components/qrcode\"
+ * 二维码展示控件。 文档：https://baidu.gitee.io/amis/docs/components/qrcode
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"二维码展示控件。 文档：https://baidu.gitee.io/amis/docs/components/qrcode\"")
+@Schema(description = "二维码展示控件。 文档：https://baidu.gitee.io/amis/docs/components/qrcode")
 public @interface QRCode {
+///////////////////////////////////////////
+
+	//null
+	enum Type{
+		qrcode,
+		qr_code,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//二维码复杂级别
+	enum Level{
+		L,
+		M,
+		Q,
+		H,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * type
@@ -26,14 +54,14 @@ public @interface QRCode {
      * @see 
      */
     @Schema(description = "type")
-    String type() default "";
+    Type type() ;
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +81,7 @@ public @interface QRCode {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +101,7 @@ public @interface QRCode {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +121,7 @@ public @interface QRCode {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -113,7 +141,7 @@ public @interface QRCode {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "css 类名")
     String qrcodeClassName() default "";
@@ -156,7 +184,7 @@ public @interface QRCode {
      * @see 
      */
     @Schema(description = "二维码复杂级别")
-    String level() default "";
+    Level level() ;
 
     /**
      * 占位符
@@ -167,6 +195,5 @@ public @interface QRCode {
      */
     @Schema(description = "占位符")
     String placeholder() default "";
-
 
 }

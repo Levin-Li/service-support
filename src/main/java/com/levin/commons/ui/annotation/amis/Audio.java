@@ -1,22 +1,41 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Audio
  *
- * \"Audio 音频渲染器。 文档：https://baidu.gitee.io/amis/docs/components/audio\"
+ * Audio 音频渲染器。 文档：https://baidu.gitee.io/amis/docs/components/audio
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:28
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Audio 音频渲染器。 文档：https://baidu.gitee.io/amis/docs/components/audio\"")
+@Schema(description = "Audio 音频渲染器。 文档：https://baidu.gitee.io/amis/docs/components/audio")
 public @interface Audio {
+///////////////////////////////////////////
+
+	//可以配置控制器
+	enum Control{
+		rates,
+		play,
+		time,
+		process,
+		volume,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为音频播放器
@@ -26,14 +45,14 @@ public @interface Audio {
      * @see 
      */
     @Schema(description = "指定为音频播放器")
-    String type() default "";
+    String type() default "audio";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +72,7 @@ public @interface Audio {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +92,7 @@ public @interface Audio {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +112,7 @@ public @interface Audio {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -109,13 +128,13 @@ public @interface Audio {
     boolean inline() default false;
 
     /**
-     * \"视频播放地址, 支持 $ 取变量。
+     * 视频播放地址, 支持 $ 取变量。
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
-     * @see String
+     * @see 
      */
-    @Schema(description = "\"视频播放地址, 支持 $ 取变量。")
+    @Schema(description = "视频播放地址, 支持 $ 取变量。")
     String src() default "";
 
     /**
@@ -146,7 +165,7 @@ public @interface Audio {
      * @see 
      */
     @Schema(description = "配置可选播放倍速")
-    String[] rates() default {};
+    double[] rates() default 0;
 
     /**
      * 可以配置控制器
@@ -156,7 +175,6 @@ public @interface Audio {
      * @see 
      */
     @Schema(description = "可以配置控制器")
-    String[] controls() default {};
-
+    Control[] controls() ;
 
 }

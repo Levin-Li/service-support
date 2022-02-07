@@ -1,22 +1,28 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Operation
  *
- * \"操作栏渲染器。 文档：https://baidu.gitee.io/amis/docs/components/operation\"
+ * 操作栏渲染器。 文档：https://baidu.gitee.io/amis/docs/components/operation
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"操作栏渲染器。 文档：https://baidu.gitee.io/amis/docs/components/operation\"")
+@Schema(description = "操作栏渲染器。 文档：https://baidu.gitee.io/amis/docs/components/operation")
 public @interface Operation {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为操作栏
@@ -26,14 +32,14 @@ public @interface Operation {
      * @see 
      */
     @Schema(description = "指定为操作栏")
-    String type() default "";
+    String type() default "operation";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +59,7 @@ public @interface Operation {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +79,7 @@ public @interface Operation {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +99,7 @@ public @interface Operation {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -111,12 +117,11 @@ public @interface Operation {
     /**
      * buttons
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/ActionSchema"}}
+     * 参考定义: "#/definitions/ActionSchema"
      *
      * @see 
      */
     @Schema(description = "buttons")
-    String[] buttons() default {};
-
+    String[] buttons() default "";
 
 }

@@ -1,22 +1,28 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Service
  *
- * \"Service 服务类控件。 文档：https://baidu.gitee.io/amis/docs/components/service\"
+ * Service 服务类控件。 文档：https://baidu.gitee.io/amis/docs/components/service
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Service 服务类控件。 文档：https://baidu.gitee.io/amis/docs/components/service\"")
+@Schema(description = "Service 服务类控件。 文档：https://baidu.gitee.io/amis/docs/components/service")
 public @interface Service {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为 Service 数据拉取控件。
@@ -26,14 +32,14 @@ public @interface Service {
      * @see 
      */
     @Schema(description = "指定为 Service 数据拉取控件。")
-    String type() default "";
+    String type() default "service";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +59,7 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +79,7 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +99,7 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -103,7 +109,7 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "页面初始化的时候，可以设置一个 API 让其取拉取，发送数据会携带当前 data 数据（包含地址栏参数），获取得数据会合并到 data 中，供组件内使用。")
     String api() default "";
@@ -133,7 +139,7 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "内容区域")
     String body() default "";
@@ -143,7 +149,7 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "fetchOn")
     String fetchOn() default "";
@@ -163,7 +169,7 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否默认就拉取？通过表达式来决定.")
     String initFetchOn() default "";
@@ -173,7 +179,7 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "用来获取远程 Schema 的 api")
     String schemaApi() default "";
@@ -203,7 +209,7 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "关闭轮询的条件。")
     String stopAutoRefreshWhen() default "";
@@ -213,20 +219,19 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaMessage"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "messages")
-    String messages() default "";
+    Message messages() ;
 
     /**
      * name
      *
      * 参考定义: "#/definitions/SchemaName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "name")
     String name() default "";
-
 
 }

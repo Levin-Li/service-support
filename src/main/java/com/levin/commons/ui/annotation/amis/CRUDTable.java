@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,6 +16,13 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "CRUDTable")
 public @interface CRUDTable {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 是否固定表头
@@ -31,12 +37,12 @@ public @interface CRUDTable {
     /**
      * 表格的列信息
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/TableColumn"},"description":"表格的列信息"}
+     * 参考定义: "#/definitions/TableColumn"
      *
      * @see 
      */
     @Schema(description = "表格的列信息")
-    String[] columns() default {};
+    String[] columns() default "";
 
     /**
      * 展示列显示开关，自动即：列数量大于或等于5个时自动开启
@@ -63,7 +69,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "底部外层 CSS 类名")
     String footerClassName() default "";
@@ -73,7 +79,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "顶部外层 CSS 类名")
     String headerClassName() default "";
@@ -113,7 +119,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaTokenizeableString"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "也可以直接从环境变量中读取，但是不太推荐。")
     String source() default "";
@@ -123,7 +129,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "表格 CSS 类名")
     String tableClassName() default "";
@@ -143,7 +149,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "工具栏 CSS 类名")
     String toolbarClassName() default "";
@@ -171,22 +177,22 @@ public @interface CRUDTable {
     /**
      * 顶部总结行
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/SchemaObject"},"description":"顶部总结行"}
+     * 参考定义: "#/definitions/SchemaObject"
      *
      * @see 
      */
     @Schema(description = "顶部总结行")
-    String[] prefixRow() default {};
+    String[] prefixRow() default "";
 
     /**
      * 底部总结行
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/SchemaObject"},"description":"底部总结行"}
+     * 参考定义: "#/definitions/SchemaObject"
      *
      * @see 
      */
     @Schema(description = "底部总结行")
-    String[] affixRow() default {};
+    String[] affixRow() default "";
 
     /**
      * 是否可调整列宽
@@ -213,10 +219,10 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/BadgeSchema"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "行角标")
-    String itemBadge() default "";
+    Badge itemBadge() ;
 
     /**
      * 开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单
@@ -233,7 +239,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -253,7 +259,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -273,7 +279,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -293,7 +299,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -306,7 +312,7 @@ public @interface CRUDTable {
      * @see 
      */
     @Schema(description = "指定内容区的展示模式。")
-    String mode() default "";
+    String mode() default "table";
 
     /**
      * 指定为 CRUD 渲染器。
@@ -316,14 +322,14 @@ public @interface CRUDTable {
      * @see 
      */
     @Schema(description = "指定为 CRUD 渲染器。")
-    String type() default "";
+    String type() default "crud";
 
     /**
      * 初始化数据 API
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "初始化数据 API")
     String api() default "";
@@ -331,22 +337,22 @@ public @interface CRUDTable {
     /**
      * 批量操作
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/ActionSchema"},"description":"批量操作"}
+     * 参考定义: "#/definitions/ActionSchema"
      *
      * @see 
      */
     @Schema(description = "批量操作")
-    String[] bulkActions() default {};
+    String[] bulkActions() default "";
 
     /**
      * 单条操作
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/ActionSchema"},"description":"单条操作"}
+     * 参考定义: "#/definitions/ActionSchema"
      *
      * @see 
      */
     @Schema(description = "单条操作")
-    String[] itemActions() default {};
+    String[] itemActions() default "";
 
     /**
      * 每页个数，默认为 10，如果不是请设置。
@@ -359,13 +365,13 @@ public @interface CRUDTable {
     double perPage() default 0;
 
     /**
-     * 可以默认给定初始参数如： {\"\"perPage\"\": 24}
+     * 可以默认给定初始参数如： {perPage: 24}
      *
      * 参考定义: "#/definitions/PlainObject"
      *
-     * @see String
+     * @see 
      */
-    @Schema(description = "可以默认给定初始参数如： {\"\"perPage\"\": 24}")
+    @Schema(description = "可以默认给定初始参数如： {perPage: 24}")
     String defaultParams() default "";
 
     /**
@@ -383,7 +389,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否可通过拖拽排序，通过表达式来配置")
     String draggableOn() default "";
@@ -393,7 +399,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "name")
     String name() default "";
@@ -423,7 +429,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "初始是否拉取，用表达式来配置。")
     String initFetchOn() default "";
@@ -433,7 +439,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置内部 DOM 的 className")
     String innerClassName() default "";
@@ -483,7 +489,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "快速编辑后用来批量保存的 API")
     String quickSaveApi() default "";
@@ -493,7 +499,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "快速编辑配置成及时保存时使用的 API")
     String quickSaveItemApi() default "";
@@ -503,7 +509,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "保存排序的 api")
     String saveOrderApi() default "";
@@ -526,7 +532,7 @@ public @interface CRUDTable {
      * @see 
      */
     @Schema(description = "顶部工具栏")
-    String[] headerToolbar() default {};
+    String[] headerToolbar() default "";
 
     /**
      * 底部工具栏
@@ -536,7 +542,7 @@ public @interface CRUDTable {
      * @see 
      */
     @Schema(description = "底部工具栏")
-    String[] footerToolbar() default {};
+    String[] footerToolbar() default "";
 
     /**
      * 每页显示多少个空间成员的配置如： [10, 20, 50, 100]。
@@ -546,17 +552,17 @@ public @interface CRUDTable {
      * @see 
      */
     @Schema(description = "每页显示多少个空间成员的配置如： [10, 20, 50, 100]。")
-    String[] perPageAvailable() default {};
+    double[] perPageAvailable() default 0;
 
     /**
      * messages
      *
      * 参考定义: "#/definitions/SchemaMessage"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "messages")
-    String messages() default "";
+    Message messages() ;
 
     /**
      * 是否隐藏快速编辑的按钮。
@@ -593,7 +599,7 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "stopAutoRefreshWhen")
     String stopAutoRefreshWhen() default "";
@@ -653,10 +659,10 @@ public @interface CRUDTable {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "当配置 keepItemSelectionOnPageChange 时有用，用来配置已勾选项的文案。")
-    String labelTpl() default "";
+    Tpl labelTpl() ;
 
     /**
      * 是否为前端单次加载模式，可以用来实现前端分页。
@@ -707,6 +713,5 @@ public @interface CRUDTable {
      */
     @Schema(description = "内容区域占满屏幕剩余空间")
     boolean autoFillHeight() default false;
-
 
 }

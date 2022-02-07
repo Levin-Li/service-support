@@ -1,22 +1,38 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Tpl
  *
- * \"tpl 渲染器\"
+ * tpl 渲染器
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:28
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"tpl 渲染器\"")
+@Schema(description = "tpl 渲染器")
 public @interface Tpl {
+///////////////////////////////////////////
+
+	//指定为模板渲染器。\n\n文档：https://baidu.gitee.io/amis/docs/concepts/template
+	enum Type{
+		tpl,
+		html,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为模板渲染器。\n\n文档：https://baidu.gitee.io/amis/docs/concepts/template
@@ -26,14 +42,14 @@ public @interface Tpl {
      * @see 
      */
     @Schema(description = "指定为模板渲染器。\n\n文档：https://baidu.gitee.io/amis/docs/concepts/template")
-    String type() default "";
+    Type type() ;
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +69,7 @@ public @interface Tpl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +89,7 @@ public @interface Tpl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +109,7 @@ public @interface Tpl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -106,7 +122,7 @@ public @interface Tpl {
      * @see 
      */
     @Schema(description = "tpl")
-    String tpl() ;
+    String tpl() default "";
 
     /**
      * html
@@ -116,7 +132,7 @@ public @interface Tpl {
      * @see 
      */
     @Schema(description = "html")
-    String html() ;
+    String html() default "";
 
     /**
      * text
@@ -126,7 +142,7 @@ public @interface Tpl {
      * @see 
      */
     @Schema(description = "text")
-    String text() ;
+    String text() default "";
 
     /**
      * raw
@@ -167,6 +183,5 @@ public @interface Tpl {
      */
     @Schema(description = "角标")
     Badge badge() ;
-
 
 }

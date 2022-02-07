@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,6 +16,13 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "Func")
 public @interface Func {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * type
@@ -36,17 +42,17 @@ public @interface Func {
      * @see 
      */
     @Schema(description = "returnType")
-    FieldTypes returnType() ;
+    String returnType() default "";
 
     /**
      * args
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/FuncArg"}}
+     * 参考定义: "#/definitions/FuncArg"
      *
      * @see 
      */
     @Schema(description = "args")
-    String[] args() default {};
+    FuncArg[] args() ;
 
     /**
      * label
@@ -57,6 +63,5 @@ public @interface Func {
      */
     @Schema(description = "label")
     String label() default "";
-
 
 }

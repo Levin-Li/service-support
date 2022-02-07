@@ -1,22 +1,39 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Panel
  *
- * \"Panel渲染器。 文档：https://baidu.gitee.io/amis/docs/components/panel\"
+ * Panel渲染器。 文档：https://baidu.gitee.io/amis/docs/components/panel
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Panel渲染器。 文档：https://baidu.gitee.io/amis/docs/components/panel\"")
+@Schema(description = "Panel渲染器。 文档：https://baidu.gitee.io/amis/docs/components/panel")
 public @interface Panel {
+///////////////////////////////////////////
+
+	//配置子表单项默认的展示方式。
+	enum SubFormMode{
+		normal,
+		inline,
+		horizontal,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为Panel渲染器。
@@ -26,14 +43,14 @@ public @interface Panel {
      * @see 
      */
     @Schema(description = "指定为Panel渲染器。")
-    String type() default "";
+    String type() default "panel";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +70,7 @@ public @interface Panel {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +90,7 @@ public @interface Panel {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +110,7 @@ public @interface Panel {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -101,19 +118,19 @@ public @interface Panel {
     /**
      * 按钮集合
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/ActionSchema"},"description":"按钮集合"}
+     * 参考定义: "#/definitions/ActionSchema"
      *
      * @see 
      */
     @Schema(description = "按钮集合")
-    String[] actions() default {};
+    String[] actions() default "";
 
     /**
      * 按钮集合外层类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "按钮集合外层类名")
     String actionsClassName() default "";
@@ -123,7 +140,7 @@ public @interface Panel {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "内容区域")
     String body() default "";
@@ -133,7 +150,7 @@ public @interface Panel {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 Body 容器 className")
     String bodyClassName() default "";
@@ -143,7 +160,7 @@ public @interface Panel {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "底部内容区域")
     String footer() default "";
@@ -153,7 +170,7 @@ public @interface Panel {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 footer 容器 className")
     String footerClassName() default "";
@@ -163,7 +180,7 @@ public @interface Panel {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "footer 和 actions 外层 div 类名。")
     String footerWrapClassName() default "";
@@ -173,7 +190,7 @@ public @interface Panel {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "头部内容, 和 title 二选一。")
     String header() default "";
@@ -183,7 +200,7 @@ public @interface Panel {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 header 容器 className")
     String headerClassName() default "";
@@ -193,10 +210,10 @@ public @interface Panel {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "Panel 标题")
-    String title() default "";
+    Tpl title() ;
 
     /**
      * 固定底部, 想要把按钮固定在底部的时候配置。
@@ -216,17 +233,16 @@ public @interface Panel {
      * @see 
      */
     @Schema(description = "配置子表单项默认的展示方式。")
-    String subFormMode() default "";
+    SubFormMode subFormMode() ;
 
     /**
      * 如果是水平排版，这个属性可以细化水平排版的左右宽度占比。
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
-    String subFormHorizontal() default "";
-
+    FormHorizontal subFormHorizontal() ;
 
 }

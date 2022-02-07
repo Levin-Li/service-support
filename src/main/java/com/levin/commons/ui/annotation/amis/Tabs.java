@@ -1,22 +1,52 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Tabs
  *
- * \"选项卡控件。 文档：https://baidu.gitee.io/amis/docs/components/tabs\"
+ * 选项卡控件。 文档：https://baidu.gitee.io/amis/docs/components/tabs
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"选项卡控件。 文档：https://baidu.gitee.io/amis/docs/components/tabs\"")
+@Schema(description = "选项卡控件。 文档：https://baidu.gitee.io/amis/docs/components/tabs")
 public @interface Tabs {
+///////////////////////////////////////////
+
+	//展示形式
+	enum TabsMode{
+		line,
+		card,
+		radio,
+		vertical,
+		tiled,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//配置子表单项默认的展示方式。
+	enum SubFormMode{
+		normal,
+		inline,
+		horizontal,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * type
@@ -26,14 +56,14 @@ public @interface Tabs {
      * @see 
      */
     @Schema(description = "type")
-    String type() default "";
+    String type() default "tabs";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +83,7 @@ public @interface Tabs {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +103,7 @@ public @interface Tabs {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +123,7 @@ public @interface Tabs {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -101,12 +131,12 @@ public @interface Tabs {
     /**
      * 选项卡成员。当配置了 source 时，选项卡成员，将会根据目标数据进行重复。
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/TabSchema"},"description":"选项卡成员。当配置了 source 时，选项卡成员，将会根据目标数据进行重复。"}
+     * 参考定义: "#/definitions/TabSchema"
      *
      * @see 
      */
     @Schema(description = "选项卡成员。当配置了 source 时，选项卡成员，将会根据目标数据进行重复。")
-    String[] tabs() default {};
+    Tab[] tabs() ;
 
     /**
      * 关联已有数据，选项卡直接根据目标数据重复。
@@ -123,7 +153,7 @@ public @interface Tabs {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "类名")
     String tabsClassName() default "";
@@ -136,14 +166,14 @@ public @interface Tabs {
      * @see 
      */
     @Schema(description = "展示形式")
-    String tabsMode() default "";
+    TabsMode tabsMode() ;
 
     /**
      * 内容类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "内容类名")
     String contentClassName() default "";
@@ -153,7 +183,7 @@ public @interface Tabs {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "链接外层类名")
     String linksClassName() default "";
@@ -183,7 +213,7 @@ public @interface Tabs {
      *
      * 参考定义: "#/definitions/ActionSchema"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "可以在右侧配置点其他功能按钮。")
     String toolbar() default "";
@@ -196,17 +226,17 @@ public @interface Tabs {
      * @see 
      */
     @Schema(description = "配置子表单项默认的展示方式。")
-    String subFormMode() default "";
+    SubFormMode subFormMode() ;
 
     /**
      * 如果是水平排版，这个属性可以细化水平排版的左右宽度占比。
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
-    String subFormHorizontal() default "";
+    FormHorizontal subFormHorizontal() ;
 
     /**
      * 是否支持溢出滚动
@@ -217,6 +247,5 @@ public @interface Tabs {
      */
     @Schema(description = "是否支持溢出滚动")
     boolean scrollable() default false;
-
 
 }

@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,13 +16,41 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "Tab")
 public @interface Tab {
+///////////////////////////////////////////
+
+	//null
+	enum IconPosition{
+		left,
+		right,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//配置子表单项默认的展示方式。
+	enum Mode{
+		normal,
+		inline,
+		horizontal,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -43,7 +70,7 @@ public @interface Tab {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -63,7 +90,7 @@ public @interface Tab {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -83,7 +110,7 @@ public @interface Tab {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -103,7 +130,7 @@ public @interface Tab {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "内容")
     String tab() default "";
@@ -113,7 +140,7 @@ public @interface Tab {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "内容")
     String body() default "";
@@ -143,10 +170,10 @@ public @interface Tab {
      *
      * 参考定义: "#/definitions/SchemaIcon"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "按钮图标")
-    String icon() default "";
+    Icon icon() ;
 
     /**
      * iconPosition
@@ -156,7 +183,7 @@ public @interface Tab {
      * @see 
      */
     @Schema(description = "iconPosition")
-    String iconPosition() default "";
+    IconPosition iconPosition() ;
 
     /**
      * 设置以后内容每次都会重新渲染
@@ -196,17 +223,16 @@ public @interface Tab {
      * @see 
      */
     @Schema(description = "配置子表单项默认的展示方式。")
-    String mode() default "";
+    Mode mode() ;
 
     /**
      * 如果是水平排版，这个属性可以细化水平排版的左右宽度占比。
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
-    String horizontal() default "";
-
+    FormHorizontal horizontal() ;
 
 }

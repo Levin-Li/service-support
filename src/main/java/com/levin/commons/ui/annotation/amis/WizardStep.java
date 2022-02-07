@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,13 +16,31 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "WizardStep")
 public @interface WizardStep {
+///////////////////////////////////////////
+
+	//配置表单项默认的展示方式。
+	enum Mode{
+		normal,
+		inline,
+		horizontal,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * Form 用来保存数据的 api。\n\n详情：https://baidu.gitee.io/amis/docs/components/form/index#%E8%A1%A8%E5%8D%95%E6%8F%90%E4%BA%A4
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "Form 用来保存数据的 api。\n\n详情：https://baidu.gitee.io/amis/docs/components/form/index#%E8%A1%A8%E5%8D%95%E6%8F%90%E4%BA%A4")
     String api() default "";
@@ -33,7 +50,7 @@ public @interface WizardStep {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "设置此属性后，表单提交发送保存接口后，还会继续轮询请求该接口，直到返回 finished 属性为 true 才 结束。")
     String asyncApi() default "";
@@ -43,7 +60,7 @@ public @interface WizardStep {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "用来初始化表单数据")
     String initApi() default "";
@@ -63,7 +80,7 @@ public @interface WizardStep {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "通过 JS 表达式来配置当前步骤可否被直接跳转到。")
     String jumpableOn() default "";
@@ -91,12 +108,12 @@ public @interface WizardStep {
     /**
      * 按钮集合，会固定在底部显示。
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/ActionSchema"},"description":"按钮集合，会固定在底部显示。"}
+     * 参考定义: "#/definitions/ActionSchema"
      *
      * @see 
      */
     @Schema(description = "按钮集合，会固定在底部显示。")
-    String[] actions() default {};
+    String[] actions() default "";
 
     /**
      * redirect
@@ -106,14 +123,14 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "redirect")
-    Redirect redirect() ;
+    String redirect() default "";
 
     /**
      * reload
      *
      * 参考定义: "#/definitions/SchemaReload"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "reload")
     String reload() default "";
@@ -133,7 +150,7 @@ public @interface WizardStep {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "表单项集合")
     String body() default "";
@@ -166,7 +183,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "data")
-    DefaultData data() ;
+    String data() default "";
 
     /**
      * 是否开启调试，开启后会在顶部实时显示表单项数据。
@@ -183,7 +200,7 @@ public @interface WizardStep {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "Form 用来获取初始数据的 api,与initApi不同的是，会一直轮询请求该接口，直到返回 finished 属性为 true 才 结束。")
     String initAsyncApi() default "";
@@ -223,7 +240,7 @@ public @interface WizardStep {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "建议改成 api 的 sendOn 属性。")
     String initFetchOn() default "";
@@ -283,10 +300,10 @@ public @interface WizardStep {
      *
      * 参考定义: "#/definitions/DialogSchemaBase"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "Form 也可以配置 feedback。")
-    String feedback() default "";
+    DialogBase feedback() ;
 
     /**
      * 轮询请求的时间间隔，默认为 3秒。设置 asyncApi 才有效
@@ -336,7 +353,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "配置表单项默认的展示方式。")
-    String mode() default "";
+    Mode mode() ;
 
     /**
      * 表单项显示为几列
@@ -353,10 +370,10 @@ public @interface WizardStep {
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
-    String horizontal() default "";
+    FormHorizontal horizontal() ;
 
     /**
      * 是否自动将第一个表单元素聚焦。
@@ -383,7 +400,7 @@ public @interface WizardStep {
      *
      * 参考定义: "#/definitions/SchemaName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "name")
     String name() default "";
@@ -393,7 +410,7 @@ public @interface WizardStep {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置容器 panel className")
     String panelClassName() default "";
@@ -486,7 +503,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "组合校验规则，选填")
-    String[] rules() default {};
+    String[] rules() default "";
 
     /**
      * 禁用回车提交
@@ -503,7 +520,7 @@ public @interface WizardStep {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -523,7 +540,7 @@ public @interface WizardStep {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -543,7 +560,7 @@ public @interface WizardStep {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -563,10 +580,9 @@ public @interface WizardStep {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
-
 
 }

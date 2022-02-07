@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,13 +16,30 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "ListItem")
 public @interface ListItem {
+///////////////////////////////////////////
+
+	//操作位置，默认在右侧，可以设置成左侧。
+	enum ActionsPosition{
+		left,
+		right,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -43,7 +59,7 @@ public @interface ListItem {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -63,7 +79,7 @@ public @interface ListItem {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -83,7 +99,7 @@ public @interface ListItem {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -91,12 +107,12 @@ public @interface ListItem {
     /**
      * actions
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/ActionSchema"}}
+     * 参考定义: "#/definitions/ActionSchema"
      *
      * @see 
      */
     @Schema(description = "actions")
-    String[] actions() default {};
+    String[] actions() default "";
 
     /**
      * 操作位置，默认在右侧，可以设置成左侧。
@@ -106,14 +122,14 @@ public @interface ListItem {
      * @see 
      */
     @Schema(description = "操作位置，默认在右侧，可以设置成左侧。")
-    String actionsPosition() default "";
+    ActionsPosition actionsPosition() ;
 
     /**
      * 图片地址
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "图片地址")
     String avatar() default "";
@@ -126,47 +142,46 @@ public @interface ListItem {
      * @see 
      */
     @Schema(description = "内容区域")
-    String[] body() default {};
+    String[] body() default "";
 
     /**
      * 描述
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "描述")
-    String desc() default "";
+    Tpl desc() ;
 
     /**
      * tooltip 说明
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "tooltip 说明")
-    String remark() default "";
+    Remark remark() ;
 
     /**
      * 标题
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "标题")
-    String title() default "";
+    Tpl title() ;
 
     /**
      * 副标题
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "副标题")
-    String subTitle() default "";
-
+    Tpl subTitle() ;
 
 }

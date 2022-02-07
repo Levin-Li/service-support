@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,26 +16,32 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "CopyableObject")
 public @interface CopyableObject {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 可以配置图标
      *
      * 参考定义: "#/definitions/SchemaIcon"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "可以配置图标")
-    String icon() default "";
+    Icon icon() ;
 
     /**
      * 配置复制时的内容模板。
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置复制时的内容模板。")
-    String content() default "";
-
+    Tpl content() ;
 
 }

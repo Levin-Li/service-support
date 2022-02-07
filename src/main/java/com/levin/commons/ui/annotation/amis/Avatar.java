@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:28
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,6 +16,47 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "Avatar")
 public @interface Avatar {
+///////////////////////////////////////////
+
+	//图片相对于容器的缩放方式
+	enum Fit{
+		fill,
+		contain,
+		cover,
+		none,
+		scale_down,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//形状
+	enum Shape{
+		circle,
+		square,
+		rounded,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//图片CORS属性
+	enum CrossOrigin{
+		anonymous,
+		use_credentials,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * type
@@ -26,14 +66,14 @@ public @interface Avatar {
      * @see 
      */
     @Schema(description = "type")
-    String type() default "";
+    String type() default "avatar";
 
     /**
      * 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "类名")
     String className() default "";
@@ -53,7 +93,7 @@ public @interface Avatar {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +113,7 @@ public @interface Avatar {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +133,7 @@ public @interface Avatar {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -113,10 +153,10 @@ public @interface Avatar {
      *
      * 参考定义: "#/definitions/BadgeSchema"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "角标")
-    String badge() default "";
+    Badge badge() ;
 
     /**
      * 图片地址
@@ -146,7 +186,7 @@ public @interface Avatar {
      * @see 
      */
     @Schema(description = "图片相对于容器的缩放方式")
-    String fit() default "";
+    Fit fit() ;
 
     /**
      * 形状
@@ -156,7 +196,7 @@ public @interface Avatar {
      * @see 
      */
     @Schema(description = "形状")
-    String shape() default "";
+    Shape shape() ;
 
     /**
      * 大小
@@ -216,7 +256,7 @@ public @interface Avatar {
      * @see 
      */
     @Schema(description = "图片CORS属性")
-    String crossOrigin() default "";
+    CrossOrigin crossOrigin() ;
 
     /**
      * 图片加载失败的是否默认处理，字符串函数
@@ -227,6 +267,5 @@ public @interface Avatar {
      */
     @Schema(description = "图片加载失败的是否默认处理，字符串函数")
     String onError() default "";
-
 
 }

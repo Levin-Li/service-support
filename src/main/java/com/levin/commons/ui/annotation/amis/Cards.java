@@ -1,22 +1,28 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Cards
  *
- * \"Cards 卡片集合渲染器。 文档：https://baidu.gitee.io/amis/docs/components/card\"
+ * Cards 卡片集合渲染器。 文档：https://baidu.gitee.io/amis/docs/components/card
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Cards 卡片集合渲染器。 文档：https://baidu.gitee.io/amis/docs/components/card\"")
+@Schema(description = "Cards 卡片集合渲染器。 文档：https://baidu.gitee.io/amis/docs/components/card")
 public @interface Cards {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为 cards 类型
@@ -26,14 +32,14 @@ public @interface Cards {
      * @see 
      */
     @Schema(description = "指定为 cards 类型")
-    String type() default "";
+    String type() default "cards";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +59,7 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +79,7 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +99,7 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -113,7 +119,7 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "头部 CSS 类名")
     String headerClassName() default "";
@@ -123,7 +129,7 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "底部 CSS 类名")
     String footerClassName() default "";
@@ -133,7 +139,7 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "卡片 CSS 类名")
     String itemClassName() default "";
@@ -143,10 +149,10 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "无数据提示")
-    String placeholder() default "";
+    Tpl placeholder() ;
 
     /**
      * 是否显示底部
@@ -173,7 +179,7 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaTokenizeableString"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "数据源: 绑定当前环境变量")
     String source() default "";
@@ -183,10 +189,10 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "标题")
-    String title() default "";
+    Tpl title() ;
 
     /**
      * 是否隐藏勾选框
@@ -213,7 +219,7 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "顶部区域")
     String header() default "";
@@ -223,7 +229,7 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "底部区域")
     String footer() default "";
@@ -233,7 +239,7 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置某项是否可以点选")
     String itemCheckableOn() default "";
@@ -243,7 +249,7 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置某项是否可拖拽排序，前提是要开启拖拽功能")
     String itemDraggableOn() default "";
@@ -277,6 +283,5 @@ public @interface Cards {
      */
     @Schema(description = "可以用来作为值的字段")
     String valueField() default "";
-
 
 }

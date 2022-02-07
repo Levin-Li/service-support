@@ -1,22 +1,77 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * HBox
  *
- * \"Hbox 水平布局渲染器。 文档：https://baidu.gitee.io/amis/docs/components/hbox\"
+ * Hbox 水平布局渲染器。 文档：https://baidu.gitee.io/amis/docs/components/hbox
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Hbox 水平布局渲染器。 文档：https://baidu.gitee.io/amis/docs/components/hbox\"")
+@Schema(description = "Hbox 水平布局渲染器。 文档：https://baidu.gitee.io/amis/docs/components/hbox")
 public @interface HBox {
+///////////////////////////////////////////
+
+	//配置子表单项默认的展示方式。
+	enum SubFormMode{
+		normal,
+		inline,
+		horizontal,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//水平间距
+	enum Gap{
+		xs,
+		sm,
+		base,
+		none,
+		md,
+		lg,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//垂直对齐方式
+	enum Valign{
+		top,
+		middle,
+		bottom,
+		between,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//水平对齐方式
+	enum Align{
+		left,
+		right,
+		between,
+		center,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为each展示类型
@@ -26,14 +81,14 @@ public @interface HBox {
      * @see 
      */
     @Schema(description = "指定为each展示类型")
-    String type() default "";
+    String type() default "hbox";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +108,7 @@ public @interface HBox {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +128,7 @@ public @interface HBox {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +148,7 @@ public @interface HBox {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -101,12 +156,12 @@ public @interface HBox {
     /**
      * columns
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/HBoxColumn"}}
+     * 参考定义: "#/definitions/HBoxColumn"
      *
      * @see 
      */
     @Schema(description = "columns")
-    String[] columns() default {};
+    HBoxColumnObject[] columns() ;
 
     /**
      * 配置子表单项默认的展示方式。
@@ -116,17 +171,17 @@ public @interface HBox {
      * @see 
      */
     @Schema(description = "配置子表单项默认的展示方式。")
-    String subFormMode() default "";
+    SubFormMode subFormMode() ;
 
     /**
      * 如果是水平排版，这个属性可以细化水平排版的左右宽度占比。
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
-    String subFormHorizontal() default "";
+    FormHorizontal subFormHorizontal() ;
 
     /**
      * 水平间距
@@ -136,7 +191,7 @@ public @interface HBox {
      * @see 
      */
     @Schema(description = "水平间距")
-    String gap() default "";
+    Gap gap() ;
 
     /**
      * 垂直对齐方式
@@ -146,7 +201,7 @@ public @interface HBox {
      * @see 
      */
     @Schema(description = "垂直对齐方式")
-    String valign() default "";
+    Valign valign() ;
 
     /**
      * 水平对齐方式
@@ -156,7 +211,6 @@ public @interface HBox {
      * @see 
      */
     @Schema(description = "水平对齐方式")
-    String align() default "";
-
+    Align align() ;
 
 }

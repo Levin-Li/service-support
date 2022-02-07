@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -17,6 +16,15 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "${ui.description!name}")
 public @interface ${name} {
+///////////////////////////////////////////
+${ui.getEnumDefines()}
+////////////////////////////////////////////
+<#if ui.isPrimitive() && !ui.hasValueKey() >
+   /**
+    *
+    */
+   ${ui.getTypeInfo()} value() ${ui.defaultValue()};
+</#if>
 
 <#list ui.properties?keys as porpsName>
 <#assign props=ui.properties[porpsName]>
@@ -31,5 +39,4 @@ public @interface ${name} {
     ${props.getTypeInfo()} ${porpsName}() ${props.defaultValue()};
 
 </#list>
-
 }

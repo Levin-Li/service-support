@@ -1,29 +1,77 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * ComboControl
  *
- * \"Combo 组合输入框类型 文档：https://baidu.gitee.io/amis/docs/components/form/combo\"
+ * Combo 组合输入框类型 文档：https://baidu.gitee.io/amis/docs/components/form/combo
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Combo 组合输入框类型 文档：https://baidu.gitee.io/amis/docs/components/form/combo\"")
+@Schema(description = "Combo 组合输入框类型 文档：https://baidu.gitee.io/amis/docs/components/form/combo")
 public @interface ComboControl {
+///////////////////////////////////////////
+
+	//表单项大小
+	enum Size{
+		xs,
+		sm,
+		md,
+		lg,
+		full,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//配置当前表单项展示模式
+	enum Mode{
+		normal,
+		inline,
+		horizontal,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//子表单的模式。
+	enum SubFormMode{
+		normal,
+		horizontal,
+		inline,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//Tabs 的展示模式。
+	enum TabsStyle{
+		line,
+		card,
+		radio,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -43,7 +91,7 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -63,7 +111,7 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -83,7 +131,7 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -96,7 +144,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "指定为组合输入框类型")
-    String type() default "";
+    String type() default "combo";
 
     /**
      * 表单项大小
@@ -106,7 +154,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "表单项大小")
-    String size() default "";
+    Size size() ;
 
     /**
      * 描述标题
@@ -123,7 +171,7 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 label className")
     String labelClassName() default "";
@@ -143,20 +191,20 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容")
-    String remark() default "";
+    Remark remark() ;
 
     /**
      * 显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起")
-    String labelRemark() default "";
+    Remark labelRemark() ;
 
     /**
      * 输入提示，聚焦的时候显示
@@ -223,7 +271,7 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置描述上的 className")
     String descriptionClassName() default "";
@@ -236,17 +284,17 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "配置当前表单项展示模式")
-    String mode() default "";
+    Mode mode() ;
 
     /**
      * 当配置为水平布局的时候，用来配置具体的左右分配。
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "当配置为水平布局的时候，用来配置具体的左右分配。")
-    String horizontal() default "";
+    FormHorizontal horizontal() ;
 
     /**
      * 表单 control 是否为 inline 模式。
@@ -263,7 +311,7 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 input className")
     String inputClassName() default "";
@@ -333,7 +381,7 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "远端校验表单项接口")
     String validateApi() default "";
@@ -373,7 +421,7 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "删除时调用的api")
     String deleteApi() default "";
@@ -391,19 +439,19 @@ public @interface ComboControl {
     /**
      * 符合某类条件后才渲染的schema
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/ComboCondition"},"description":"符合某类条件后才渲染的schema"}
+     * 参考定义: "#/definitions/ComboCondition"
      *
      * @see 
      */
     @Schema(description = "符合某类条件后才渲染的schema")
-    String[] conditions() default {};
+    ComboCondition[] conditions() ;
 
     /**
      * 内部单组表单项的类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "内部单组表单项的类名")
     String formClassName() default "";
@@ -413,7 +461,7 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "新增按钮CSS类名")
     String addButtonClassName() default "";
@@ -441,12 +489,12 @@ public @interface ComboControl {
     /**
      * 数组输入框的子项
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/ComboSubControl"},"description":"数组输入框的子项"}
+     * 参考定义: "#/definitions/ComboSubControl"
      *
      * @see 
      */
     @Schema(description = "数组输入框的子项")
-    String[] items() default {};
+    String[] items() default "";
 
     /**
      * 是否可拖拽排序
@@ -556,7 +604,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "子表单的模式。")
-    String subFormMode() default "";
+    SubFormMode subFormMode() ;
 
     /**
      * 是否可以访问父级数据，正常 combo 已经关联到数组成员，是不能访问父级数据的。
@@ -586,17 +634,17 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "Tabs 的展示模式。")
-    String tabsStyle() default "";
+    TabsStyle tabsStyle() ;
 
     /**
      * 选项卡标题的生成模板。
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "选项卡标题的生成模板。")
-    String tabsLabelTpl() default "";
+    Tpl tabsLabelTpl() ;
 
     /**
      * 数据比较多，比较卡时，可以试试开启。
@@ -619,14 +667,14 @@ public @interface ComboControl {
     boolean strictMode() default false;
 
     /**
-     * 配置同步字段。只有 `strictMode` 为 `false` 时有效。 如果 Combo 层级比较深，底层的获取外层的数据可能不同步。 但是给 combo 配置这个属性就能同步下来。输入格式：`[\"os\"]`
+     * 配置同步字段。只有 `strictMode` 为 `false` 时有效。 如果 Combo 层级比较深，底层的获取外层的数据可能不同步。 但是给 combo 配置这个属性就能同步下来。输入格式：`[os]`
      *
      * 参考定义: {"type":"array","items":{"type":"string"},"description":"配置同步字段。只有 `strictMode` 为 `false` 时有效。 如果 Combo 层级比较深，底层的获取外层的数据可能不同步。 但是给 combo 配置这个属性就能同步下来。输入格式：`[\"os\"]`"}
      *
      * @see 
      */
-    @Schema(description = "配置同步字段。只有 `strictMode` 为 `false` 时有效。 如果 Combo 层级比较深，底层的获取外层的数据可能不同步。 但是给 combo 配置这个属性就能同步下来。输入格式：`[\"os\"]`")
-    String[] syncFields() default {};
+    @Schema(description = "配置同步字段。只有 `strictMode` 为 `false` 时有效。 如果 Combo 层级比较深，底层的获取外层的数据可能不同步。 但是给 combo 配置这个属性就能同步下来。输入格式：`[os]`")
+    String[] syncFields() default "";
 
     /**
      * 允许为空，如果子表单项里面配置验证器，且又是单条模式。可以允许用户选择清空（不填）。
@@ -647,6 +695,5 @@ public @interface ComboControl {
      */
     @Schema(description = "提示信息")
     String messages() default "";
-
 
 }

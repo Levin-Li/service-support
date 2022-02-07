@@ -1,22 +1,39 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * PaginationWrapper
  *
- * \"分页容器功能性渲染器。详情请见：https://baidu.gitee.io/amis/docs/components/pagination-wrapper\"
+ * 分页容器功能性渲染器。详情请见：https://baidu.gitee.io/amis/docs/components/pagination-wrapper
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"分页容器功能性渲染器。详情请见：https://baidu.gitee.io/amis/docs/components/pagination-wrapper\"")
+@Schema(description = "分页容器功能性渲染器。详情请见：https://baidu.gitee.io/amis/docs/components/pagination-wrapper")
 public @interface PaginationWrapper {
+///////////////////////////////////////////
+
+	//分页显示位置，如果配置为 none 则需要自己在内容区域配置 pagination 组件，否则不显示。
+	enum Position{
+		top,
+		bottom,
+		none,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为分页容器功能性渲染器
@@ -26,14 +43,14 @@ public @interface PaginationWrapper {
      * @see 
      */
     @Schema(description = "指定为分页容器功能性渲染器")
-    String type() default "";
+    String type() default "pagination-wrapper";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +70,7 @@ public @interface PaginationWrapper {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +90,7 @@ public @interface PaginationWrapper {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +110,7 @@ public @interface PaginationWrapper {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -156,17 +173,16 @@ public @interface PaginationWrapper {
      * @see 
      */
     @Schema(description = "分页显示位置，如果配置为 none 则需要自己在内容区域配置 pagination 组件，否则不显示。")
-    String position() default "";
+    Position position() ;
 
     /**
      * 内容区域
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "内容区域")
     String body() default "";
-
 
 }

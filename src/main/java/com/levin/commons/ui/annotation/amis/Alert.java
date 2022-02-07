@@ -1,22 +1,41 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Alert
  *
- * \"Alert 提示渲染器。 文档：https://baidu.gitee.io/amis/docs/components/alert\"
+ * Alert 提示渲染器。 文档：https://baidu.gitee.io/amis/docs/components/alert
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:28
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Alert 提示渲染器。 文档：https://baidu.gitee.io/amis/docs/components/alert\"")
+@Schema(description = "Alert 提示渲染器。 文档：https://baidu.gitee.io/amis/docs/components/alert")
 public @interface Alert {
+///////////////////////////////////////////
+
+	//提示类型
+	enum Level{
+		info,
+		warning,
+		success,
+		error,
+		danger,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为提示框类型
@@ -26,14 +45,14 @@ public @interface Alert {
      * @see 
      */
     @Schema(description = "指定为提示框类型")
-    String type() default "";
+    String type() default "alert";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +72,7 @@ public @interface Alert {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +92,7 @@ public @interface Alert {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +112,7 @@ public @interface Alert {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -113,7 +132,7 @@ public @interface Alert {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "内容区域")
     String body() default "";
@@ -126,7 +145,7 @@ public @interface Alert {
      * @see 
      */
     @Schema(description = "提示类型")
-    String level() default "";
+    Level level() ;
 
     /**
      * 是否显示关闭按钮
@@ -163,10 +182,10 @@ public @interface Alert {
      *
      * 参考定义: "#/definitions/SchemaIcon"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "左侧图标")
-    String icon() default "";
+    Icon icon() ;
 
     /**
      * 图标CSS类名
@@ -177,6 +196,5 @@ public @interface Alert {
      */
     @Schema(description = "图标CSS类名")
     String iconClassName() default "";
-
 
 }

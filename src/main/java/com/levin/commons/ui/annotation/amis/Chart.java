@@ -1,22 +1,28 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Chart
  *
- * \"Chart 图表渲染器。 文档：https://baidu.gitee.io/amis/docs/components/carousel\"
+ * Chart 图表渲染器。 文档：https://baidu.gitee.io/amis/docs/components/carousel
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Chart 图表渲染器。 文档：https://baidu.gitee.io/amis/docs/components/carousel\"")
+@Schema(description = "Chart 图表渲染器。 文档：https://baidu.gitee.io/amis/docs/components/carousel")
 public @interface Chart {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为 chart 类型
@@ -26,14 +32,14 @@ public @interface Chart {
      * @see 
      */
     @Schema(description = "指定为 chart 类型")
-    String type() default "";
+    String type() default "chart";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +59,7 @@ public @interface Chart {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +79,7 @@ public @interface Chart {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +99,7 @@ public @interface Chart {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -113,7 +119,7 @@ public @interface Chart {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "图表配置接口")
     String api() default "";
@@ -133,7 +139,7 @@ public @interface Chart {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否初始加载用表达式来配置")
     String initFetchOn() default "";
@@ -193,7 +199,7 @@ public @interface Chart {
      *
      * 参考定义: "#/definitions/SchemaName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "name")
     String name() default "";
@@ -216,14 +222,14 @@ public @interface Chart {
      * @see 
      */
     @Schema(description = "dataFilter")
-    Function dataFilter() ;
+    String dataFilter() default "";
 
     /**
      * source
      *
      * 参考定义: "#/definitions/SchemaTokenizeableString"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "source")
     String source() default "";
@@ -243,7 +249,7 @@ public @interface Chart {
      *
      * 参考定义: "#/definitions/ActionSchema"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "点击行为配置，可以用来满足下钻操作等。")
     String clickAction() default "";
@@ -267,6 +273,5 @@ public @interface Chart {
      */
     @Schema(description = "不可见的时候隐藏")
     boolean unMountOnHidden() default false;
-
 
 }

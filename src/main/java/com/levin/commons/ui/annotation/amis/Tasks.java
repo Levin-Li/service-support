@@ -1,22 +1,28 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Tasks
  *
- * \"Tasks 渲染器，格式说明 文档：https://baidu.gitee.io/amis/docs/components/tasks\"
+ * Tasks 渲染器，格式说明 文档：https://baidu.gitee.io/amis/docs/components/tasks
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Tasks 渲染器，格式说明 文档：https://baidu.gitee.io/amis/docs/components/tasks\"")
+@Schema(description = "Tasks 渲染器，格式说明 文档：https://baidu.gitee.io/amis/docs/components/tasks")
 public @interface Tasks {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为任务类型
@@ -26,14 +32,14 @@ public @interface Tasks {
      * @see 
      */
     @Schema(description = "指定为任务类型")
-    String type() default "";
+    String type() default "tasks";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +59,7 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +79,7 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +99,7 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -103,7 +109,7 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "btnClassName")
     String btnClassName() default "";
@@ -123,7 +129,7 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "用来获取任务状态的 API，当没有进行时任务时不会发送。")
     String checkApi() default "";
@@ -146,14 +152,14 @@ public @interface Tasks {
      * @see 
      */
     @Schema(description = "items")
-    String[] items() default {};
+    String[] items() default "";
 
     /**
      * name
      *
      * 参考定义: "#/definitions/SchemaName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "name")
     String name() default "";
@@ -173,7 +179,7 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "如果任务失败，且可以重试，提交的时候会使用此 API")
     String reSubmitApi() default "";
@@ -193,7 +199,7 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置容器重试按钮 className")
     String retryBtnClassName() default "";
@@ -226,7 +232,7 @@ public @interface Tasks {
      * @see 
      */
     @Schema(description = "状态显示对应的类名配置。")
-    String[] statusLabelMap() default {};
+    String[] statusLabelMap() default "";
 
     /**
      * 状态显示对应的文字显示配置。
@@ -236,14 +242,14 @@ public @interface Tasks {
      * @see 
      */
     @Schema(description = "状态显示对应的文字显示配置。")
-    String[] statusTextMap() default {};
+    String[] statusTextMap() default "";
 
     /**
      * 提交任务使用的 API
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "提交任务使用的 API")
     String submitApi() default "";
@@ -253,7 +259,7 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 table className")
     String tableClassName() default "";
@@ -327,6 +333,5 @@ public @interface Tasks {
      */
     @Schema(description = "errorStatusCode")
     double errorStatusCode() default 0;
-
 
 }

@@ -1,22 +1,28 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Color
  *
- * \"Color 显示渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/color\"
+ * Color 显示渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/color
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Color 显示渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/color\"")
+@Schema(description = "Color 显示渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/color")
 public @interface Color {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为颜色显示控件
@@ -26,14 +32,14 @@ public @interface Color {
      * @see 
      */
     @Schema(description = "指定为颜色显示控件")
-    String type() default "";
+    String type() default "color";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +59,7 @@ public @interface Color {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +79,7 @@ public @interface Color {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +99,7 @@ public @interface Color {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -117,6 +123,5 @@ public @interface Color {
      */
     @Schema(description = "是否用文字显示值。")
     boolean showValue() default false;
-
 
 }

@@ -1,22 +1,38 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Wizard
  *
- * \"表单向导 文档：https://baidu.gitee.io/amis/docs/components/wizard\"
+ * 表单向导 文档：https://baidu.gitee.io/amis/docs/components/wizard
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"表单向导 文档：https://baidu.gitee.io/amis/docs/components/wizard\"")
+@Schema(description = "表单向导 文档：https://baidu.gitee.io/amis/docs/components/wizard")
 public @interface Wizard {
+///////////////////////////////////////////
+
+	//展示模式
+	enum Mode{
+		vertical,
+		horizontal,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为表单向导
@@ -26,14 +42,14 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "指定为表单向导")
-    String type() default "";
+    String type() default "wizard";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +69,7 @@ public @interface Wizard {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +89,7 @@ public @interface Wizard {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +109,7 @@ public @interface Wizard {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -103,7 +119,7 @@ public @interface Wizard {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置按钮 className")
     String actionClassName() default "";
@@ -153,7 +169,7 @@ public @interface Wizard {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "Wizard 用来保存数据的 api。 [详情](https://baidu.github.io/amis/docs/api#wizard)")
     String api() default "";
@@ -173,7 +189,7 @@ public @interface Wizard {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "Wizard 用来获取初始数据的 api。")
     String initApi() default "";
@@ -186,14 +202,14 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "展示模式")
-    String mode() default "";
+    Mode mode() ;
 
     /**
      * name
      *
      * 参考定义: "#/definitions/SchemaName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "name")
     String name() default "";
@@ -223,7 +239,7 @@ public @interface Wizard {
      *
      * 参考定义: "#/definitions/SchemaReload"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "reload")
     String reload() default "";
@@ -251,12 +267,12 @@ public @interface Wizard {
     /**
      * steps
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/WizardStepSchema"}}
+     * 参考定义: "#/definitions/WizardStepSchema"
      *
      * @see 
      */
     @Schema(description = "steps")
-    String[] steps() default {};
+    WizardStep[] steps() ;
 
     /**
      * startStep
@@ -267,6 +283,5 @@ public @interface Wizard {
      */
     @Schema(description = "startStep")
     String startStep() default "";
-
 
 }

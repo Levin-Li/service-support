@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,6 +16,9 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "Option")
 public @interface Option {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
 
     /**
      * 用来显示的文字
@@ -66,7 +68,7 @@ public @interface Option {
      * @see 
      */
     @Schema(description = "支持嵌套")
-    Options children() ;
+    String[] children() default "";
 
     /**
      * 是否可见
@@ -113,7 +115,7 @@ public @interface Option {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "如果设置了，优先级更高，不设置走 source 接口加载。")
     String deferApi() default "";
@@ -137,6 +139,5 @@ public @interface Option {
      */
     @Schema(description = "只有设置了 defer 才有意义，内部字段不可以外部设置")
     boolean loaded() default false;
-
 
 }

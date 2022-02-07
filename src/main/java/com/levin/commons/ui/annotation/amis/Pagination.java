@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,6 +16,23 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "Pagination")
 public @interface Pagination {
+///////////////////////////////////////////
+
+	//模式，默认显示多个分页数字，如果只想简单显示可以配置成 `simple`。
+	enum Mode{
+		simple,
+		normal,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * type
@@ -26,14 +42,14 @@ public @interface Pagination {
      * @see 
      */
     @Schema(description = "type")
-    String type() default "";
+    String type() default "pagination";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +69,7 @@ public @interface Pagination {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +89,7 @@ public @interface Pagination {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +109,7 @@ public @interface Pagination {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -116,7 +132,7 @@ public @interface Pagination {
      * @see 
      */
     @Schema(description = "模式，默认显示多个分页数字，如果只想简单显示可以配置成 `simple`。")
-    String mode() default "";
+    Mode mode() ;
 
     /**
      * 最多显示多少个分页按钮。
@@ -127,6 +143,5 @@ public @interface Pagination {
      */
     @Schema(description = "最多显示多少个分页按钮。")
     double maxButtons() default 0;
-
 
 }

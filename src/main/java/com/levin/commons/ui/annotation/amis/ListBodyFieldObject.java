@@ -1,22 +1,28 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * ListBodyFieldObject
  *
- * \"不指定类型默认就是文本\"
+ * 不指定类型默认就是文本
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"不指定类型默认就是文本\"")
+@Schema(description = "不指定类型默认就是文本")
 public @interface ListBodyFieldObject {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 列标题
@@ -33,7 +39,7 @@ public @interface ListBodyFieldObject {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "label 类名")
     String labelClassName() default "";
@@ -53,7 +59,7 @@ public @interface ListBodyFieldObject {
      *
      * 参考定义: "#/definitions/SchemaPopOver"
      *
-     * @see Boolean
+     * @see 
      */
     @Schema(description = "配置查看详情功能")
     boolean popOver() default false;
@@ -63,7 +69,7 @@ public @interface ListBodyFieldObject {
      *
      * 参考定义: "#/definitions/SchemaQuickEdit"
      *
-     * @see Boolean
+     * @see 
      */
     @Schema(description = "配置快速编辑功能")
     boolean quickEdit() default false;
@@ -73,10 +79,9 @@ public @interface ListBodyFieldObject {
      *
      * 参考定义: "#/definitions/SchemaCopyable"
      *
-     * @see Boolean
+     * @see 
      */
     @Schema(description = "配置点击复制功能")
     boolean copyable() default false;
-
 
 }

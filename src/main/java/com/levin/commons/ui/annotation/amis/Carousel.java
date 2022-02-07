@@ -1,22 +1,68 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Carousel
  *
- * \"Carousel 轮播图渲染器。 文档：https://baidu.gitee.io/amis/docs/components/carousel\"
+ * Carousel 轮播图渲染器。 文档：https://baidu.gitee.io/amis/docs/components/carousel
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Carousel 轮播图渲染器。 文档：https://baidu.gitee.io/amis/docs/components/carousel\"")
+@Schema(description = "Carousel 轮播图渲染器。 文档：https://baidu.gitee.io/amis/docs/components/carousel")
 public @interface Carousel {
+///////////////////////////////////////////
+
+	//null
+	enum ControlsTheme{
+		light,
+		dark,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//配置控件内容
+	enum Control{
+		dots,
+		arrows,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//动画类型
+	enum Animation{
+		fade,
+		slide,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//预览图模式
+	enum ThumbMode{
+		contain,
+		cover,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为轮播图类型
@@ -26,14 +72,14 @@ public @interface Carousel {
      * @see 
      */
     @Schema(description = "指定为轮播图类型")
-    String type() default "";
+    String type() default "carousel";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +99,7 @@ public @interface Carousel {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +119,7 @@ public @interface Carousel {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +139,7 @@ public @interface Carousel {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -156,7 +202,7 @@ public @interface Carousel {
      * @see 
      */
     @Schema(description = "controlsTheme")
-    String controlsTheme() default "";
+    ControlsTheme controlsTheme() ;
 
     /**
      * 占位
@@ -176,7 +222,7 @@ public @interface Carousel {
      * @see 
      */
     @Schema(description = "配置控件内容")
-    String[] controls() default {};
+    Control[] controls() ;
 
     /**
      * 动画类型
@@ -186,14 +232,14 @@ public @interface Carousel {
      * @see 
      */
     @Schema(description = "动画类型")
-    String animation() default "";
+    Animation animation() ;
 
     /**
      * item
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "item")
     String item() default "";
@@ -203,7 +249,7 @@ public @interface Carousel {
      *
      * 参考定义: "#/definitions/SchemaName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "name")
     String name() default "";
@@ -216,7 +262,7 @@ public @interface Carousel {
      * @see 
      */
     @Schema(description = "预览图模式")
-    String thumbMode() default "";
+    ThumbMode thumbMode() ;
 
     /**
      * 配置固定值
@@ -226,7 +272,6 @@ public @interface Carousel {
      * @see 
      */
     @Schema(description = "配置固定值")
-    String[] options() default {};
-
+    String[] options() default "";
 
 }

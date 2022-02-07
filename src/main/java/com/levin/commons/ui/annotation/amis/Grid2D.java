@@ -1,22 +1,28 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Grid2D
  *
- * \"二维布局渲染器。 文档：https://baidu.gitee.io/amis/docs/components/grid-2d\"
+ * 二维布局渲染器。 文档：https://baidu.gitee.io/amis/docs/components/grid-2d
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"二维布局渲染器。 文档：https://baidu.gitee.io/amis/docs/components/grid-2d\"")
+@Schema(description = "二维布局渲染器。 文档：https://baidu.gitee.io/amis/docs/components/grid-2d")
 public @interface Grid2D {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为 grid-2d 展示类型
@@ -26,14 +32,14 @@ public @interface Grid2D {
      * @see 
      */
     @Schema(description = "指定为 grid-2d 展示类型")
-    String type() default "";
+    String type() default "grid-2d";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +59,7 @@ public @interface Grid2D {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +79,7 @@ public @interface Grid2D {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +99,7 @@ public @interface Grid2D {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -151,12 +157,11 @@ public @interface Grid2D {
     /**
      * 每个格子的配置
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/Grid"},"description":"每个格子的配置"}
+     * 参考定义: "#/definitions/Grid"
      *
      * @see 
      */
     @Schema(description = "每个格子的配置")
-    String[] grids() default {};
-
+    String[] grids() default "";
 
 }

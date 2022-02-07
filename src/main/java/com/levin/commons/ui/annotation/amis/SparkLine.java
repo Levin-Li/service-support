@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,6 +16,9 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "SparkLine")
 public @interface SparkLine {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
 
     /**
      * type
@@ -26,14 +28,14 @@ public @interface SparkLine {
      * @see 
      */
     @Schema(description = "type")
-    String type() default "";
+    String type() default "sparkline";
 
     /**
      * css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "css 类名")
     String className() default "";
@@ -53,7 +55,7 @@ public @interface SparkLine {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +75,7 @@ public @interface SparkLine {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +95,7 @@ public @interface SparkLine {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -133,7 +135,7 @@ public @interface SparkLine {
      *
      * 参考定义: "#/definitions/ActionSchema"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "点击行为")
     String clickAction() default "";
@@ -156,7 +158,6 @@ public @interface SparkLine {
      * @see 
      */
     @Schema(description = "value")
-    String[] value() default {};
-
+    String[] value() default "";
 
 }

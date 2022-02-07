@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,6 +16,25 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "Type")
 public @interface Type {
+///////////////////////////////////////////
+
+	//null
+	enum ValueType{
+		value,
+		field,
+		func,
+		formula,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * defaultOp
@@ -26,17 +44,17 @@ public @interface Type {
      * @see 
      */
     @Schema(description = "defaultOp")
-    OperatorType defaultOp() ;
+    String defaultOp() default "";
 
     /**
      * operators
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/OperatorType"}}
+     * 参考定义: "#/definitions/OperatorType"
      *
      * @see 
      */
     @Schema(description = "operators")
-    String[] operators() default {};
+    String[] operators() default "";
 
     /**
      * placeholder
@@ -56,7 +74,6 @@ public @interface Type {
      * @see 
      */
     @Schema(description = "valueTypes")
-    String[] valueTypes() default {};
-
+    ValueType[] valueTypes() ;
 
 }

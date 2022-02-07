@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,6 +16,13 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "ComboCondition")
 public @interface ComboCondition {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * test
@@ -31,12 +37,12 @@ public @interface ComboCondition {
     /**
      * items
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/ComboSubControl"}}
+     * 参考定义: "#/definitions/ComboSubControl"
      *
      * @see 
      */
     @Schema(description = "items")
-    String[] items() default {};
+    String[] items() default "";
 
     /**
      * label
@@ -67,6 +73,5 @@ public @interface ComboCondition {
      */
     @Schema(description = "mode")
     String mode() default "";
-
 
 }

@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:28
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,6 +16,64 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "UrlAction")
 public @interface UrlAction {
+///////////////////////////////////////////
+
+	//指定按钮类型，支持 button、submit或者reset三种类型。
+	enum Type{
+		button,
+		submit,
+		reset,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//按钮样式
+	enum Level{
+		info,
+		success,
+		warning,
+		danger,
+		link,
+		primary,
+		dark,
+		light,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//按钮大小
+	enum Size{
+		xs,
+		sm,
+		md,
+		lg,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//null
+	enum TooltipPlacement{
+		top,
+		right,
+		bottom,
+		left,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定按钮类型，支持 button、submit或者reset三种类型。
@@ -26,14 +83,14 @@ public @interface UrlAction {
      * @see 
      */
     @Schema(description = "指定按钮类型，支持 button、submit或者reset三种类型。")
-    String type() default "";
+    Type type() ;
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +110,7 @@ public @interface UrlAction {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +130,7 @@ public @interface UrlAction {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +150,7 @@ public @interface UrlAction {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -133,17 +190,17 @@ public @interface UrlAction {
      *
      * 参考定义: "#/definitions/SchemaIcon"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "按钮图标， iconfont 的类名")
-    String icon() default "";
+    Icon icon() ;
 
     /**
      * icon 上的css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "icon 上的css 类名")
     String iconClassName() default "";
@@ -153,17 +210,17 @@ public @interface UrlAction {
      *
      * 参考定义: "#/definitions/SchemaIcon"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "右侧按钮图标， iconfont 的类名")
-    String rightIcon() default "";
+    Icon rightIcon() ;
 
     /**
      * 右侧 icon 上的 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "右侧 icon 上的 css 类名")
     String rightIconClassName() default "";
@@ -173,7 +230,7 @@ public @interface UrlAction {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "loading 上的css 类名")
     String loadingClassName() default "";
@@ -196,7 +253,7 @@ public @interface UrlAction {
      * @see 
      */
     @Schema(description = "按钮样式")
-    String level() default "";
+    Level level() ;
 
     /**
      * primary
@@ -216,14 +273,14 @@ public @interface UrlAction {
      * @see 
      */
     @Schema(description = "按钮大小")
-    String size() default "";
+    Size size() ;
 
     /**
      * tooltip
      *
      * 参考定义: "#/definitions/SchemaTooltip"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "tooltip")
     String tooltip() default "";
@@ -236,7 +293,7 @@ public @interface UrlAction {
      * @see 
      */
     @Schema(description = "tooltipPlacement")
-    String tooltipPlacement() default "";
+    TooltipPlacement tooltipPlacement() ;
 
     /**
      * 提示文字，配置了操作前会要求用户确认。
@@ -256,7 +313,7 @@ public @interface UrlAction {
      * @see 
      */
     @Schema(description = "如果按钮在form中，配置此属性会要求用户把指定的字段通过验证后才会触发行为。")
-    String[] required() default {};
+    String[] required() default "";
 
     /**
      * 激活状态时的样式
@@ -343,10 +400,10 @@ public @interface UrlAction {
      *
      * 参考定义: "#/definitions/BadgeSchema"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "角标")
-    String badge() default "";
+    Badge badge() ;
 
     /**
      * 键盘快捷键
@@ -383,7 +440,7 @@ public @interface UrlAction {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "子内容")
     String body() default "";
@@ -396,7 +453,7 @@ public @interface UrlAction {
      * @see 
      */
     @Schema(description = "指定为打开链接")
-    String actionType() default "";
+    String actionType() default "url";
 
     /**
      * 是否新窗口打开
@@ -417,6 +474,5 @@ public @interface UrlAction {
      */
     @Schema(description = "打开的目标地址")
     String url() default "";
-
 
 }

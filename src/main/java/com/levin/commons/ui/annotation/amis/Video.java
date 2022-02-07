@@ -1,22 +1,37 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Video
  *
- * \"视频播放器 文档：https://baidu.gitee.io/amis/docs/components/video\"
+ * 视频播放器 文档：https://baidu.gitee.io/amis/docs/components/video
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"视频播放器 文档：https://baidu.gitee.io/amis/docs/components/video\"")
+@Schema(description = "视频播放器 文档：https://baidu.gitee.io/amis/docs/components/video")
 public @interface Video {
+///////////////////////////////////////////
+
+	//视频比率
+	enum AspectRatio{
+		auto,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为视频类型
@@ -26,14 +41,14 @@ public @interface Video {
      * @see 
      */
     @Schema(description = "指定为视频类型")
-    String type() default "";
+    String type() default "video";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +68,7 @@ public @interface Video {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +88,7 @@ public @interface Video {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +108,7 @@ public @interface Video {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -133,7 +148,7 @@ public @interface Video {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置帧列表容器className")
     String framesClassName() default "";
@@ -173,7 +188,7 @@ public @interface Video {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置播放器 className")
     String playerClassName() default "";
@@ -183,7 +198,7 @@ public @interface Video {
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "视频封面地址")
     String poster() default "";
@@ -203,7 +218,7 @@ public @interface Video {
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "视频播放地址")
     String src() default "";
@@ -226,7 +241,7 @@ public @interface Video {
      * @see 
      */
     @Schema(description = "视频比率")
-    String aspectRatio() default "";
+    AspectRatio aspectRatio() ;
 
     /**
      * 视频速率
@@ -236,7 +251,7 @@ public @interface Video {
      * @see 
      */
     @Schema(description = "视频速率")
-    String[] rates() default {};
+    double[] rates() default 0;
 
     /**
      * 跳转到帧时，往前多少秒。
@@ -247,6 +262,5 @@ public @interface Video {
      */
     @Schema(description = "跳转到帧时，往前多少秒。")
     double jumpBufferDuration() default 0;
-
 
 }

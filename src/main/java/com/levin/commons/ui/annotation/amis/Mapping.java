@@ -1,22 +1,38 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Mapping
  *
- * \"Mapping 映射展示控件。 文档：https://baidu.gitee.io/amis/docs/components/mapping\"
+ * Mapping 映射展示控件。 文档：https://baidu.gitee.io/amis/docs/components/mapping
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Mapping 映射展示控件。 文档：https://baidu.gitee.io/amis/docs/components/mapping\"")
+@Schema(description = "Mapping 映射展示控件。 文档：https://baidu.gitee.io/amis/docs/components/mapping")
 public @interface Mapping {
+///////////////////////////////////////////
+
+	//指定为映射展示控件
+	enum Type{
+		map,
+		mapping,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为映射展示控件
@@ -26,14 +42,14 @@ public @interface Mapping {
      * @see 
      */
     @Schema(description = "指定为映射展示控件")
-    String type() default "";
+    Type type() ;
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +69,7 @@ public @interface Mapping {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +89,7 @@ public @interface Mapping {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +109,7 @@ public @interface Mapping {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -137,6 +153,5 @@ public @interface Mapping {
      */
     @Schema(description = "占位符")
     String placeholder() default "";
-
 
 }

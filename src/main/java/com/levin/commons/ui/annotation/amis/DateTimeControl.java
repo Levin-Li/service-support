@@ -1,29 +1,66 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * DateTimeControl
  *
- * \"Datetime日期时间选择控件 文档：https://baidu.gitee.io/amis/docs/components/form/datetime\"
+ * Datetime日期时间选择控件 文档：https://baidu.gitee.io/amis/docs/components/form/datetime
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"Datetime日期时间选择控件 文档：https://baidu.gitee.io/amis/docs/components/form/datetime\"")
+@Schema(description = "Datetime日期时间选择控件 文档：https://baidu.gitee.io/amis/docs/components/form/datetime")
 public @interface DateTimeControl {
+///////////////////////////////////////////
+
+	//表单项大小
+	enum Size{
+		xs,
+		sm,
+		md,
+		lg,
+		full,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//配置当前表单项展示模式
+	enum Mode{
+		normal,
+		inline,
+		horizontal,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//边框模式，全边框，还是半边框，或者没边框。
+	enum BorderMode{
+		full,
+		half,
+		none,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -43,7 +80,7 @@ public @interface DateTimeControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -63,7 +100,7 @@ public @interface DateTimeControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -83,7 +120,7 @@ public @interface DateTimeControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -96,7 +133,7 @@ public @interface DateTimeControl {
      * @see 
      */
     @Schema(description = "指定为日期时间选择控件")
-    String type() default "";
+    String type() default "input-datetime";
 
     /**
      * 表单项大小
@@ -106,7 +143,7 @@ public @interface DateTimeControl {
      * @see 
      */
     @Schema(description = "表单项大小")
-    String size() default "";
+    Size size() ;
 
     /**
      * 描述标题
@@ -123,7 +160,7 @@ public @interface DateTimeControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 label className")
     String labelClassName() default "";
@@ -143,20 +180,20 @@ public @interface DateTimeControl {
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容")
-    String remark() default "";
+    Remark remark() ;
 
     /**
      * 显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起")
-    String labelRemark() default "";
+    Remark labelRemark() ;
 
     /**
      * 输入提示，聚焦的时候显示
@@ -223,7 +260,7 @@ public @interface DateTimeControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置描述上的 className")
     String descriptionClassName() default "";
@@ -236,17 +273,17 @@ public @interface DateTimeControl {
      * @see 
      */
     @Schema(description = "配置当前表单项展示模式")
-    String mode() default "";
+    Mode mode() ;
 
     /**
      * 当配置为水平布局的时候，用来配置具体的左右分配。
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "当配置为水平布局的时候，用来配置具体的左右分配。")
-    String horizontal() default "";
+    FormHorizontal horizontal() ;
 
     /**
      * 表单 control 是否为 inline 模式。
@@ -263,7 +300,7 @@ public @interface DateTimeControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "配置 input className")
     String inputClassName() default "";
@@ -333,7 +370,7 @@ public @interface DateTimeControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "远端校验表单项接口")
     String validateApi() default "";
@@ -396,7 +433,7 @@ public @interface DateTimeControl {
      * @see 
      */
     @Schema(description = "边框模式，全边框，还是半边框，或者没边框。")
-    String borderMode() default "";
+    BorderMode borderMode() ;
 
     /**
      * 时间的格式。
@@ -437,6 +474,5 @@ public @interface DateTimeControl {
      */
     @Schema(description = "不记得了")
     String timeConstraints() default "";
-
 
 }

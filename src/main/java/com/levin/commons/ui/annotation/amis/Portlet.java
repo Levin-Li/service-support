@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,13 +16,33 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "Portlet")
 public @interface Portlet {
+///////////////////////////////////////////
+
+	//展示形式
+	enum TabsMode{
+		line,
+		card,
+		radio,
+		vertical,
+		tiled,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -43,7 +62,7 @@ public @interface Portlet {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -63,7 +82,7 @@ public @interface Portlet {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -83,7 +102,7 @@ public @interface Portlet {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -96,17 +115,17 @@ public @interface Portlet {
      * @see 
      */
     @Schema(description = "指定为 portlet 类型")
-    String type() default "";
+    String type() default "portlet";
 
     /**
      * tabs
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/PortletTabSchema"}}
+     * 参考定义: "#/definitions/PortletTabSchema"
      *
      * @see 
      */
     @Schema(description = "tabs")
-    String[] tabs() default {};
+    PortletTab[] tabs() ;
 
     /**
      * 关联已有数据，选项卡直接根据目标数据重复。
@@ -123,7 +142,7 @@ public @interface Portlet {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "类名")
     String tabsClassName() default "";
@@ -136,14 +155,14 @@ public @interface Portlet {
      * @see 
      */
     @Schema(description = "展示形式")
-    String tabsMode() default "";
+    TabsMode tabsMode() ;
 
     /**
      * 内容类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "内容类名")
     String contentClassName() default "";
@@ -153,7 +172,7 @@ public @interface Portlet {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "链接外层类名")
     String linksClassName() default "";
@@ -181,12 +200,12 @@ public @interface Portlet {
     /**
      * 可以在右侧配置点其他功能按钮。不会随着tab切换
      *
-     * 参考定义: {"type":"array","items":{"$ref":"#/definitions/ActionSchema"},"description":"可以在右侧配置点其他功能按钮。不会随着tab切换"}
+     * 参考定义: "#/definitions/ActionSchema"
      *
      * @see 
      */
     @Schema(description = "可以在右侧配置点其他功能按钮。不会随着tab切换")
-    String[] toolbar() default {};
+    String[] toolbar() default "";
 
     /**
      * 是否支持溢出滚动
@@ -213,10 +232,10 @@ public @interface Portlet {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "标题右侧的描述")
-    String description() default "";
+    Tpl description() ;
 
     /**
      * 隐藏头部
@@ -237,6 +256,5 @@ public @interface Portlet {
      */
     @Schema(description = "自定义样式")
     String style() default "";
-
 
 }

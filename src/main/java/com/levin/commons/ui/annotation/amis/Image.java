@@ -1,22 +1,68 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Image
  *
- * \"图片展示控件。 文档：https://baidu.gitee.io/amis/docs/components/image\"
+ * 图片展示控件。 文档：https://baidu.gitee.io/amis/docs/components/image
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"图片展示控件。 文档：https://baidu.gitee.io/amis/docs/components/image\"")
+@Schema(description = "图片展示控件。 文档：https://baidu.gitee.io/amis/docs/components/image")
 public @interface Image {
+///////////////////////////////////////////
+
+	//指定为图片展示类型
+	enum Type{
+		image,
+		static_image,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//图片展示模式，默认为缩略图模式、可以配置成原图模式
+	enum ImageMode{
+		thumb,
+		original,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//预览图模式
+	enum ThumbMode{
+		w_full,
+		h_full,
+		contain,
+		cover,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//预览图比率
+	enum ThumbRatio{
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为图片展示类型
@@ -26,14 +72,14 @@ public @interface Image {
      * @see 
      */
     @Schema(description = "指定为图片展示类型")
-    String type() default "";
+    Type type() ;
 
     /**
      * 外层 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "外层 css 类名")
     String className() default "";
@@ -53,7 +99,7 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +119,7 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +139,7 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -103,7 +149,7 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "默认图片地址")
     String defaultImage() default "";
@@ -113,10 +159,10 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "图片标题")
-    String title() default "";
+    Tpl title() ;
 
     /**
      * 关联字段名，也可以直接配置 src
@@ -133,17 +179,17 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "图片描述信息")
-    String imageCaption() default "";
+    Tpl imageCaption() ;
 
     /**
      * 图片地址，如果配置了 name，这个属性不用配置。
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "图片地址，如果配置了 name，这个属性不用配置。")
     String src() default "";
@@ -153,7 +199,7 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "大图地址，不设置用 src")
     String originalSrc() default "";
@@ -203,7 +249,7 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "图片 css 类名")
     String imageClassName() default "";
@@ -213,7 +259,7 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "图片缩率图外层 css 类名")
     String thumbClassName() default "";
@@ -223,10 +269,10 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "caption")
-    String caption() default "";
+    Tpl caption() ;
 
     /**
      * 图片展示模式，默认为缩略图模式、可以配置成原图模式
@@ -236,7 +282,7 @@ public @interface Image {
      * @see 
      */
     @Schema(description = "图片展示模式，默认为缩略图模式、可以配置成原图模式")
-    String imageMode() default "";
+    ImageMode imageMode() ;
 
     /**
      * 预览图模式
@@ -246,7 +292,7 @@ public @interface Image {
      * @see 
      */
     @Schema(description = "预览图模式")
-    String thumbMode() default "";
+    ThumbMode thumbMode() ;
 
     /**
      * 预览图比率
@@ -256,17 +302,17 @@ public @interface Image {
      * @see 
      */
     @Schema(description = "预览图比率")
-    String thumbRatio() default "";
+    ThumbRatio thumbRatio() ;
 
     /**
      * 链接地址
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "链接地址")
-    String href() default "";
+    Tpl href() ;
 
     /**
      * 是否新窗口打开
@@ -287,6 +333,5 @@ public @interface Image {
      */
     @Schema(description = "链接的 target")
     String htmlTarget() default "";
-
 
 }

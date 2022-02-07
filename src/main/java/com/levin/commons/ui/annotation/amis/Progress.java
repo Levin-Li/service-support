@@ -1,22 +1,51 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
  * Progress
  *
- * \"进度展示控件。 文档：https://baidu.gitee.io/amis/docs/components/progress\"
+ * 进度展示控件。 文档：https://baidu.gitee.io/amis/docs/components/progress
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:29
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "\"进度展示控件。 文档：https://baidu.gitee.io/amis/docs/components/progress\"")
+@Schema(description = "进度展示控件。 文档：https://baidu.gitee.io/amis/docs/components/progress")
 public @interface Progress {
+///////////////////////////////////////////
+
+	//进度条类型。
+	enum Mode{
+		line,
+		circle,
+		dashboard,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+	//仪表盘进度条缺口位置
+	enum GapPosition{
+		top,
+		bottom,
+		left,
+		right,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * type
@@ -26,14 +55,14 @@ public @interface Progress {
      * @see 
      */
     @Schema(description = "type")
-    String type() default "";
+    String type() default "progress";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +82,7 @@ public @interface Progress {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +102,7 @@ public @interface Progress {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +122,7 @@ public @interface Progress {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -116,14 +145,14 @@ public @interface Progress {
      * @see 
      */
     @Schema(description = "进度条类型。")
-    String mode() default "";
+    Mode mode() ;
 
     /**
      * 进度条 CSS 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "进度条 CSS 类名")
     String progressClassName() default "";
@@ -133,7 +162,7 @@ public @interface Progress {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "进度外层 CSS 类名")
     String progressBarClassName() default "";
@@ -146,7 +175,7 @@ public @interface Progress {
      * @see 
      */
     @Schema(description = "配置不通的值段，用不通的样式提示用户")
-    String[] map() default {};
+    String[] map() default "";
 
     /**
      * 是否显示值
@@ -216,7 +245,7 @@ public @interface Progress {
      * @see 
      */
     @Schema(description = "仪表盘进度条缺口位置")
-    String gapPosition() default "";
+    GapPosition gapPosition() ;
 
     /**
      * 内容的模板函数
@@ -227,6 +256,5 @@ public @interface Progress {
      */
     @Schema(description = "内容的模板函数")
     String valueTpl() default "";
-
 
 }

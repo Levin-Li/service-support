@@ -1,7 +1,6 @@
 package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 /**
@@ -9,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-1 16:13:20
+ * @author auto gen by service-support at 2022-2-7 23:06:28
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,6 +16,13 @@ import java.lang.annotation.*;
 @Inherited
 @Schema(description = "Calendar")
 public @interface Calendar {
+///////////////////////////////////////////
+
+////////////////////////////////////////////
+   /**
+    *
+    */
+   String value() default "";
 
     /**
      * 指定为日历选择控件
@@ -26,14 +32,14 @@ public @interface Calendar {
      * @see 
      */
     @Schema(description = "指定为日历选择控件")
-    String type() default "";
+    String type() default "calendar";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "容器 css 类名")
     String className() default "";
@@ -53,7 +59,7 @@ public @interface Calendar {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否禁用表达式")
     String disabledOn() default "";
@@ -73,7 +79,7 @@ public @interface Calendar {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否隐藏表达式")
     String hiddenOn() default "";
@@ -93,7 +99,7 @@ public @interface Calendar {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "是否显示表达式")
     String visibleOn() default "";
@@ -106,7 +112,7 @@ public @interface Calendar {
      * @see 
      */
     @Schema(description = "日程")
-    String[] schedules() default {};
+    String[] schedules() default "";
 
     /**
      * 日程显示颜色自定义
@@ -116,17 +122,16 @@ public @interface Calendar {
      * @see 
      */
     @Schema(description = "日程显示颜色自定义")
-    String[] scheduleClassNames() default {};
+    String[] scheduleClassNames() default "";
 
     /**
      * 日程点击展示
      *
      * 参考定义: "#/definitions/SchemaObject"
      *
-     * @see String
+     * @see 
      */
     @Schema(description = "日程点击展示")
     String scheduleAction() default "";
-
 
 }
