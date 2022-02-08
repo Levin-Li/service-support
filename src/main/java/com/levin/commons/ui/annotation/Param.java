@@ -20,7 +20,7 @@ public @interface Param {
      *
      * @return
      */
-    String evalExpr();
+    String evalExpr() default "";
 
     /**
      * 是否是可搜索的

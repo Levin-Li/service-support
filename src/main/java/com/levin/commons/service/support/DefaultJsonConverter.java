@@ -9,10 +9,16 @@ import org.springframework.util.StringUtils;
 
 import java.util.Set;
 
+/**
+ *
+ * Json 和  对象 转换器
+ *
+ * 基于Spring 转化器
+ *
+ */
 public class DefaultJsonConverter implements GenericConverter {
 
     private static Gson gson = new Gson();
-
 
     /**
      * @return

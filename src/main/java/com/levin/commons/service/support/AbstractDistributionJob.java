@@ -31,7 +31,7 @@ public abstract class AbstractDistributionJob<T> {
     RedissonClient redissonClient;
 
     /**
-     * 单机模式，部署分布式模式
+     * 是否单机模式，默认为分布式模式
      */
     @Getter
     @Setter
@@ -107,7 +107,7 @@ public abstract class AbstractDistributionJob<T> {
     /**
      * 获取执行器
      * <p>
-     * 返回 null 则同步执行
+     * 如果返回 null 则同步执行
      *
      * @return
      */
@@ -162,6 +162,18 @@ public abstract class AbstractDistributionJob<T> {
 
 
     /**
+     * 每条记录处理完成后的睡眠时间
+     * 用于防止过快处理
+     * <p>
+     * 如果返回小余0的数，则不睡眠
+     *
+     * @return
+     */
+    protected long getSleepByPerRecord() {
+        return 1;
+    }
+
+    /**
      * @param timeoutMs
      * @param isRunOnce
      * @param batchSize
@@ -200,6 +212,19 @@ public abstract class AbstractDistributionJob<T> {
                                 tryLockAndDoTask(getDataLockKey(data), () -> processData(data))
                         );
 
+                try {
+                    //防止过快处理，占满CPU
+                    long sleepByPerRecord = getSleepByPerRecord();
+
+                    if (sleepByPerRecord > 0) {
+                        Thread.sleep(sleepByPerRecord);
+                    }
+
+                } catch (InterruptedException e) {
+                    //如果被中断，退出循环
+                    break;
+                }
+
                 //如果已经超时，退出循环
                 if ((System.currentTimeMillis() - startTime) > timeoutMs) {
                     log.warn("*** [ {} ] 第[ {} ]次批任务执行超时，退出执行", getJobLockKey(), counter.get());
@@ -208,8 +233,8 @@ public abstract class AbstractDistributionJob<T> {
             }
 
             try {
-                //防止过快处理
-                Thread.sleep(300);
+                //防止过快处理，占满CPU
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 //如果被中断，退出循环
                 break;

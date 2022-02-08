@@ -148,7 +148,7 @@ public @interface TextControl {
      * @see 
      */
     @Schema(description = "表单项类型")
-    Type type() ;
+    Type type() default Type.input_text;
 
     /**
      * 表单项大小
@@ -158,7 +158,7 @@ public @interface TextControl {
      * @see 
      */
     @Schema(description = "表单项大小")
-    Size size() ;
+    Size size() default Size.md;
 
     /**
      * 描述标题
@@ -658,7 +658,7 @@ public @interface TextControl {
      * @see 
      */
     @Schema(description = "边框模式，全边框，还是半边框，或者没边框。")
-    BorderMode borderMode() ;
+    BorderMode borderMode() default BorderMode.full;
 
     /**
      * 限制文字个数

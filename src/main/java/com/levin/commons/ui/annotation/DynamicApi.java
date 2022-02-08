@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.SOURCE)
 @Documented
 @Inherited
-public @interface Api {
+public @interface DynamicApi {
 
     /**
      * API 的 URL
