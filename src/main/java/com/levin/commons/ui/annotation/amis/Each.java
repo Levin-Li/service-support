@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Each 循环功能渲染器。 文档：https://baidu.gitee.io/amis/docs/components/each
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface Each {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为each展示类型
@@ -42,7 +42,7 @@ public @interface Each {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -62,7 +62,7 @@ public @interface Each {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -82,7 +82,7 @@ public @interface Each {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -102,7 +102,7 @@ public @interface Each {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 关联字段名
@@ -112,7 +112,7 @@ public @interface Each {
      * @see 
      */
     @Schema(description = "关联字段名")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 关联字段名 支持数据映射
@@ -122,7 +122,7 @@ public @interface Each {
      * @see 
      */
     @Schema(description = "关联字段名 支持数据映射")
-    String source() default "";
+    String source() default "	";
 
     /**
      * items
@@ -132,7 +132,7 @@ public @interface Each {
      * @see 
      */
     @Schema(description = "items")
-    String items() default "";
+    String items() default "	";
 
     /**
      * placeholder
@@ -142,6 +142,6 @@ public @interface Each {
      * @see 
      */
     @Schema(description = "placeholder")
-    String placeholder() default "";
+    String placeholder() default "	";
 
 }

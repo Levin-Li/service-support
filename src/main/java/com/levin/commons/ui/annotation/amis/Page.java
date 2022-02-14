@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * amis Page 渲染器。详情请见：https://baidu.gitee.io/amis/docs/components/page
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:43
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -34,7 +34,7 @@ public @interface Page {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为 page 渲染器。
@@ -54,7 +54,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "配置容器 className")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -74,7 +74,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -94,7 +94,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -114,7 +114,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 页面标题
@@ -124,7 +124,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "页面标题")
-    String title() default "";
+    String title() default "	";
 
     /**
      * 页面副标题
@@ -134,7 +134,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "页面副标题")
-    String subTitle() default "";
+    String subTitle() default "	";
 
     /**
      * 页面描述, 标题旁边会出现个小图标，放上去会显示这个属性配置的内容。
@@ -154,7 +154,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "内容区域")
-    String body() default "";
+    String body() default "	";
 
     /**
      * 内容区 css 类名
@@ -164,7 +164,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "内容区 css 类名")
-    String bodyClassName() default "";
+    String bodyClassName() default "	";
 
     /**
      * 边栏区域
@@ -174,7 +174,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "边栏区域")
-    String aside() default "";
+    String aside() default "	";
 
     /**
      * 边栏是否允许拖动
@@ -214,7 +214,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "边栏区 css 类名")
-    String asideClassName() default "";
+    String asideClassName() default "	";
 
     /**
      * 自定义页面级别样式表
@@ -224,7 +224,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "自定义页面级别样式表")
-    String css() default "";
+    String css() default "	";
 
     /**
      * 移动端下的样式表
@@ -234,7 +234,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "移动端下的样式表")
-    String mobileCSS() default "";
+    String mobileCSS() default "	";
 
     /**
      * 页面级别的初始数据
@@ -244,7 +244,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "页面级别的初始数据")
-    String data() default "";
+    String data() default "	";
 
     /**
      * 配置 header 容器 className
@@ -254,7 +254,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "配置 header 容器 className")
-    String headerClassName() default "";
+    String headerClassName() default "	";
 
     /**
      * 页面初始化的时候，可以设置一个 API 让其取拉取，发送数据会携带当前 data 数据（包含地址栏参数），获取得数据会合并到 data 中，供组件内使用。
@@ -264,7 +264,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "页面初始化的时候，可以设置一个 API 让其取拉取，发送数据会携带当前 data 数据（包含地址栏参数），获取得数据会合并到 data 中，供组件内使用。")
-    String initApi() default "";
+    String initApi() default "	";
 
     /**
      * 是否默认就拉取？
@@ -284,7 +284,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "是否默认就拉取表达式")
-    String initFetchOn() default "";
+    String initFetchOn() default "	";
 
     /**
      * messages
@@ -304,7 +304,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "name")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 页面顶部区域，当存在 title 时在右上角显示。
@@ -314,7 +314,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "页面顶部区域，当存在 title 时在右上角显示。")
-    String toolbar() default "";
+    String toolbar() default "	";
 
     /**
      * 配置 toolbar 容器 className
@@ -324,7 +324,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "配置 toolbar 容器 className")
-    String toolbarClassName() default "";
+    String toolbarClassName() default "	";
 
     /**
      * definitions
@@ -334,7 +334,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "definitions")
-    String definitions() default "";
+    String definitions() default "	";
 
     /**
      * 配置轮询间隔，配置后 initApi 将轮询加载。
@@ -364,7 +364,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "配置停止轮询的条件。")
-    String stopAutoRefreshWhen() default "";
+    String stopAutoRefreshWhen() default "	";
 
     /**
      * 是否显示错误信息，默认是显示的。
@@ -384,7 +384,7 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "css 变量")
-    String cssVars() default "";
+    String cssVars() default "	";
 
     /**
      * 默认不设置自动感觉内容来决定要不要展示这些区域 如果配置了，以配置为主。
@@ -404,6 +404,6 @@ public @interface Page {
      * @see 
      */
     @Schema(description = "自定义样式")
-    String style() default "";
+    String style() default "	";
 
 }

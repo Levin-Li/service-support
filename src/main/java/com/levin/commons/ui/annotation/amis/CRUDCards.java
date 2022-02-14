@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface CRUDCards {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * Construct a type with the properties of T except for those in type K.
@@ -32,7 +32,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "Construct a type with the properties of T except for those in type K.")
-    String card() default "";
+    String card() default "	";
 
     /**
      * 头部 CSS 类名
@@ -42,7 +42,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "头部 CSS 类名")
-    String headerClassName() default "";
+    String headerClassName() default "	";
 
     /**
      * 底部 CSS 类名
@@ -52,7 +52,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "底部 CSS 类名")
-    String footerClassName() default "";
+    String footerClassName() default "	";
 
     /**
      * 卡片 CSS 类名
@@ -62,7 +62,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "卡片 CSS 类名")
-    String itemClassName() default "";
+    String itemClassName() default "	";
 
     /**
      * 无数据提示
@@ -102,7 +102,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "也可以直接从环境变量中读取，但是不太推荐。")
-    String source() default "";
+    String source() default "	";
 
     /**
      * 标题
@@ -142,7 +142,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "顶部区域")
-    String header() default "";
+    String header() default "	";
 
     /**
      * 底部区域
@@ -152,7 +152,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "底部区域")
-    String footer() default "";
+    String footer() default "	";
 
     /**
      * 配置某项是否可以点选
@@ -162,7 +162,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "配置某项是否可以点选")
-    String itemCheckableOn() default "";
+    String itemCheckableOn() default "	";
 
     /**
      * 配置某项是否可拖拽排序，前提是要开启拖拽功能
@@ -172,7 +172,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "配置某项是否可拖拽排序，前提是要开启拖拽功能")
-    String itemDraggableOn() default "";
+    String itemDraggableOn() default "	";
 
     /**
      * 点击卡片的时候是否勾选卡片。
@@ -202,7 +202,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "可以用来作为值的字段")
-    String valueField() default "";
+    String valueField() default "	";
 
     /**
      * 容器 css 类名
@@ -212,7 +212,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -232,7 +232,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -252,7 +252,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -272,7 +272,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 指定内容区的展示模式。
@@ -302,7 +302,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "初始化数据 API")
-    String api() default "";
+    String api() default "	";
 
     /**
      * 批量操作
@@ -312,7 +312,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "批量操作")
-    String[] bulkActions() default "";
+    String[] bulkActions() default "	";
 
     /**
      * 单条操作
@@ -322,7 +322,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "单条操作")
-    String[] itemActions() default "";
+    String[] itemActions() default "	";
 
     /**
      * 每页个数，默认为 10，如果不是请设置。
@@ -342,7 +342,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "可以默认给定初始参数如： {perPage: 24}")
-    String defaultParams() default "";
+    String defaultParams() default "	";
 
     /**
      * 是否可通过拖拽排序
@@ -362,7 +362,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "是否可通过拖拽排序，通过表达式来配置")
-    String draggableOn() default "";
+    String draggableOn() default "	";
 
     /**
      * name
@@ -372,7 +372,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "name")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 过滤器表单
@@ -382,7 +382,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "过滤器表单")
-    String filter() default "";
+    String filter() default "	";
 
     /**
      * 初始是否拉取
@@ -402,7 +402,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "初始是否拉取，用表达式来配置。")
-    String initFetchOn() default "";
+    String initFetchOn() default "	";
 
     /**
      * 配置内部 DOM 的 className
@@ -412,7 +412,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "配置内部 DOM 的 className")
-    String innerClassName() default "";
+    String innerClassName() default "	";
 
     /**
      * 设置自动刷新时间
@@ -432,7 +432,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "设置用来确定位置的字段名，设置后新的顺序将被赋值到该字段中。")
-    String orderField() default "";
+    String orderField() default "	";
 
     /**
      * 设置分页页码字段名。
@@ -442,7 +442,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "设置分页页码字段名。")
-    String pageField() default "";
+    String pageField() default "	";
 
     /**
      * 设置分页一页显示的多少条数据的字段名。
@@ -452,7 +452,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "设置分页一页显示的多少条数据的字段名。")
-    String perPageField() default "";
+    String perPageField() default "	";
 
     /**
      * 快速编辑后用来批量保存的 API
@@ -462,7 +462,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "快速编辑后用来批量保存的 API")
-    String quickSaveApi() default "";
+    String quickSaveApi() default "	";
 
     /**
      * 快速编辑配置成及时保存时使用的 API
@@ -472,7 +472,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "快速编辑配置成及时保存时使用的 API")
-    String quickSaveItemApi() default "";
+    String quickSaveItemApi() default "	";
 
     /**
      * 保存排序的 api
@@ -482,7 +482,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "保存排序的 api")
-    String saveOrderApi() default "";
+    String saveOrderApi() default "	";
 
     /**
      * 是否将过滤条件的参数同步到地址栏,默认为true
@@ -502,7 +502,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "顶部工具栏")
-    String[] headerToolbar() default "";
+    String[] headerToolbar() default "	";
 
     /**
      * 底部工具栏
@@ -512,7 +512,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "底部工具栏")
-    String[] footerToolbar() default "";
+    String[] footerToolbar() default "	";
 
     /**
      * 每页显示多少个空间成员的配置如： [10, 20, 50, 100]。
@@ -572,7 +572,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "stopAutoRefreshWhen")
-    String stopAutoRefreshWhen() default "";
+    String stopAutoRefreshWhen() default "	";
 
     /**
      * stopAutoRefreshWhenModalIsOpen
@@ -662,7 +662,7 @@ public @interface CRUDCards {
      * @see 
      */
     @Schema(description = "如果时内嵌模式，可以通过这个来配置默认的展开选项。")
-    String expandConfig() default "";
+    String expandConfig() default "	";
 
     /**
      * 默认只有当分页数大于 1 是才显示，如果总是想显示请配置。

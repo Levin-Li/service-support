@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:43
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -62,7 +62,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "表格的列信息")
-    String[] columns() default "";
+    String[] columns() default "	";
 
     /**
      * 展示列显示开关，自动即：列数量大于或等于5个时自动开启
@@ -92,7 +92,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "底部外层 CSS 类名")
-    String footerClassName() default "";
+    String footerClassName() default "	";
 
     /**
      * 顶部外层 CSS 类名
@@ -102,7 +102,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "顶部外层 CSS 类名")
-    String headerClassName() default "";
+    String headerClassName() default "	";
 
     /**
      * 占位符
@@ -112,7 +112,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "占位符")
-    String placeholder() default "";
+    String placeholder() default "	";
 
     /**
      * 是否显示底部
@@ -142,7 +142,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "数据源：绑定当前环境变量")
-    String source() default "";
+    String source() default "	";
 
     /**
      * 表格 CSS 类名
@@ -152,7 +152,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "表格 CSS 类名")
-    String tableClassName() default "";
+    String tableClassName() default "	";
 
     /**
      * 标题
@@ -162,7 +162,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "标题")
-    String title() default "";
+    String title() default "	";
 
     /**
      * 工具栏 CSS 类名
@@ -172,7 +172,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "工具栏 CSS 类名")
-    String toolbarClassName() default "";
+    String toolbarClassName() default "	";
 
     /**
      * 合并单元格配置，配置数字表示从左到右的多少列自动合并单元格。
@@ -202,7 +202,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "顶部总结行")
-    String[] prefixRow() default "";
+    String[] prefixRow() default "	";
 
     /**
      * 底部总结行
@@ -212,7 +212,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "底部总结行")
-    String[] affixRow() default "";
+    String[] affixRow() default "	";
 
     /**
      * 是否可调整列宽
@@ -232,7 +232,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "行样式表表达式")
-    String rowClassNameExpr() default "";
+    String rowClassNameExpr() default "	";
 
     /**
      * 行角标
@@ -262,7 +262,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -282,7 +282,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -302,7 +302,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -322,7 +322,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 表单项类型
@@ -352,7 +352,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "描述标题")
-    String label() default "";
+    String label() default "	";
 
     /**
      * 配置 label className
@@ -362,7 +362,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "配置 label className")
-    String labelClassName() default "";
+    String labelClassName() default "	";
 
     /**
      * 字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c
@@ -372,7 +372,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 显示一个小图标, 鼠标放上去的时候显示提示内容
@@ -402,7 +402,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "输入提示，聚焦的时候显示")
-    String hint() default "";
+    String hint() default "	";
 
     /**
      * 当修改完的时候是否提交表单。
@@ -442,7 +442,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "描述内容，支持 Html 片段。")
-    String description() default "";
+    String description() default "	";
 
     /**
      * desc
@@ -452,7 +452,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "desc")
-    String desc() default "";
+    String desc() default "	";
 
     /**
      * 配置描述上的 className
@@ -462,7 +462,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "配置描述上的 className")
-    String descriptionClassName() default "";
+    String descriptionClassName() default "	";
 
     /**
      * 配置当前表单项展示模式
@@ -502,7 +502,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "配置 input className")
-    String inputClassName() default "";
+    String inputClassName() default "	";
 
     /**
      * 是否为必填
@@ -522,7 +522,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "验证失败的提示信息")
-    String validationErrors() default "";
+    String validationErrors() default "	";
 
     /**
      * validations
@@ -532,7 +532,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "validations")
-    String validations() default "";
+    String validations() default "	";
 
     /**
      * 默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。
@@ -542,7 +542,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。")
-    String value() default "";
+    String value() default "	";
 
     /**
      * 表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉
@@ -562,7 +562,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "远端校验表单项接口")
-    String validateApi() default "";
+    String validateApi() default "	";
 
     /**
      * 可新增
@@ -592,7 +592,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "复制按钮文字")
-    String copyBtnLabel() default "";
+    String copyBtnLabel() default "	";
 
     /**
      * 复制按钮图标
@@ -602,7 +602,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "复制按钮图标")
-    String copyBtnIcon() default "";
+    String copyBtnIcon() default "	";
 
     /**
      * 是否显示复制按钮
@@ -632,7 +632,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "新增 API")
-    String addApi() default "";
+    String addApi() default "	";
 
     /**
      * 新增按钮文字
@@ -642,7 +642,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "新增按钮文字")
-    String addBtnLabel() default "";
+    String addBtnLabel() default "	";
 
     /**
      * 新增按钮图标
@@ -652,7 +652,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "新增按钮图标")
-    String addBtnIcon() default "";
+    String addBtnIcon() default "	";
 
     /**
      * 显示新增按钮
@@ -682,7 +682,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "删除的 API")
-    String deleteApi() default "";
+    String deleteApi() default "	";
 
     /**
      * 可否编辑
@@ -702,7 +702,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "更新按钮名称")
-    String editBtnLabel() default "";
+    String editBtnLabel() default "	";
 
     /**
      * 更新按钮图标
@@ -712,7 +712,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "更新按钮图标")
-    String editBtnIcon() default "";
+    String editBtnIcon() default "	";
 
     /**
      * 确认按钮文字
@@ -722,7 +722,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "确认按钮文字")
-    String confirmBtnLabel() default "";
+    String confirmBtnLabel() default "	";
 
     /**
      * 确认按钮图标
@@ -732,7 +732,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "确认按钮图标")
-    String confirmBtnIcon() default "";
+    String confirmBtnIcon() default "	";
 
     /**
      * 取消按钮文字
@@ -742,7 +742,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "取消按钮文字")
-    String cancelBtnLabel() default "";
+    String cancelBtnLabel() default "	";
 
     /**
      * 取消按钮图标
@@ -752,7 +752,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "取消按钮图标")
-    String cancelBtnIcon() default "";
+    String cancelBtnIcon() default "	";
 
     /**
      * 删除按钮文字
@@ -762,7 +762,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "删除按钮文字")
-    String deleteBtnLabel() default "";
+    String deleteBtnLabel() default "	";
 
     /**
      * 删除按钮图标
@@ -772,7 +772,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "删除按钮图标")
-    String deleteBtnIcon() default "";
+    String deleteBtnIcon() default "	";
 
     /**
      * 更新 API
@@ -782,7 +782,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "更新 API")
-    String updateApi() default "";
+    String updateApi() default "	";
 
     /**
      * 初始值，新增的时候
@@ -792,7 +792,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "初始值，新增的时候")
-    String scaffold() default "";
+    String scaffold() default "	";
 
     /**
      * 删除确认文字
@@ -802,7 +802,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "删除确认文字")
-    String deleteConfirmText() default "";
+    String deleteConfirmText() default "	";
 
     /**
      * 值字段
@@ -812,7 +812,7 @@ public @interface TableControl {
      * @see 
      */
     @Schema(description = "值字段")
-    String valueField() default "";
+    String valueField() default "	";
 
     /**
      * 是否为确认的编辑模式。

@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 消息文案配置，记住这个优先级是最低的，如果你的接口返回了 msg，接口返回的优先。
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface Message {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 获取失败时的提示
@@ -32,7 +32,7 @@ public @interface Message {
      * @see 
      */
     @Schema(description = "获取失败时的提示")
-    String fetchFailed() default "";
+    String fetchFailed() default "	";
 
     /**
      * 获取成功的提示，默认为空。
@@ -42,7 +42,7 @@ public @interface Message {
      * @see 
      */
     @Schema(description = "获取成功的提示，默认为空。")
-    String fetchSuccess() default "";
+    String fetchSuccess() default "	";
 
     /**
      * 保存失败时的提示。
@@ -52,7 +52,7 @@ public @interface Message {
      * @see 
      */
     @Schema(description = "保存失败时的提示。")
-    String saveFailed() default "";
+    String saveFailed() default "	";
 
     /**
      * 保存成功时的提示。
@@ -62,6 +62,6 @@ public @interface Message {
      * @see 
      */
     @Schema(description = "保存成功时的提示。")
-    String saveSuccess() default "";
+    String saveSuccess() default "	";
 
 }

@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -45,7 +45,7 @@ public @interface HBoxColumnObject {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 列上 CSS 类名
@@ -55,7 +55,7 @@ public @interface HBoxColumnObject {
      * @see 
      */
     @Schema(description = "列上 CSS 类名")
-    String columnClassName() default "";
+    String columnClassName() default "	";
 
     /**
      * 垂直对齐方式
@@ -75,7 +75,7 @@ public @interface HBoxColumnObject {
      * @see 
      */
     @Schema(description = "宽度")
-    String width() default "";
+    String width() default "	";
 
     /**
      * 高度
@@ -85,7 +85,7 @@ public @interface HBoxColumnObject {
      * @see 
      */
     @Schema(description = "高度")
-    String height() default "";
+    String height() default "	";
 
     /**
      * 其他样式
@@ -95,7 +95,7 @@ public @interface HBoxColumnObject {
      * @see 
      */
     @Schema(description = "其他样式")
-    String style() default "";
+    String style() default "	";
 
     /**
      * 配置子表单项默认的展示方式。
@@ -125,7 +125,7 @@ public @interface HBoxColumnObject {
      * @see 
      */
     @Schema(description = "内容区")
-    String body() default "";
+    String body() default "	";
 
     /**
      * 是否显示
@@ -145,6 +145,6 @@ public @interface HBoxColumnObject {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
 }

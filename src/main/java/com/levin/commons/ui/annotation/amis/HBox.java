@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Hbox 水平布局渲染器。 文档：https://baidu.gitee.io/amis/docs/components/hbox
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -71,7 +71,7 @@ public @interface HBox {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为each展示类型
@@ -91,7 +91,7 @@ public @interface HBox {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -111,7 +111,7 @@ public @interface HBox {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -131,7 +131,7 @@ public @interface HBox {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -151,7 +151,7 @@ public @interface HBox {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * columns

@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -34,7 +34,7 @@ public @interface Config {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * valueTypes
@@ -54,7 +54,7 @@ public @interface Config {
      * @see 
      */
     @Schema(description = "fields")
-    String[] fields() default "";
+    String[] fields() default "	";
 
     /**
      * funcs
@@ -64,7 +64,7 @@ public @interface Config {
      * @see 
      */
     @Schema(description = "funcs")
-    String[] funcs() default "";
+    String[] funcs() default "	";
 
     /**
      * maxLevel
@@ -84,6 +84,6 @@ public @interface Config {
      * @see 
      */
     @Schema(description = "types")
-    String types() default "";
+    String types() default "	";
 
 }

@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Chart 图表渲染器。 文档：https://baidu.gitee.io/amis/docs/components/carousel
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface Chart {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为 chart 类型
@@ -42,7 +42,7 @@ public @interface Chart {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -62,7 +62,7 @@ public @interface Chart {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -82,7 +82,7 @@ public @interface Chart {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -102,7 +102,7 @@ public @interface Chart {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * Chart 主题配置
@@ -112,7 +112,7 @@ public @interface Chart {
      * @see 
      */
     @Schema(description = "Chart 主题配置")
-    String chartTheme() default "";
+    String chartTheme() default "	";
 
     /**
      * 图表配置接口
@@ -122,7 +122,7 @@ public @interface Chart {
      * @see 
      */
     @Schema(description = "图表配置接口")
-    String api() default "";
+    String api() default "	";
 
     /**
      * 是否初始加载。
@@ -142,7 +142,7 @@ public @interface Chart {
      * @see 
      */
     @Schema(description = "是否初始加载用表达式来配置")
-    String initFetchOn() default "";
+    String initFetchOn() default "	";
 
     /**
      * 配置echart的config，支持数据映射。如果用了数据映射，为了同步更新，请设置 trackExpression
@@ -152,7 +152,7 @@ public @interface Chart {
      * @see 
      */
     @Schema(description = "配置echart的config，支持数据映射。如果用了数据映射，为了同步更新，请设置 trackExpression")
-    String config() default "";
+    String config() default "	";
 
     /**
      * 跟踪表达式，如果这个表达式的运行结果发生变化了，则会更新 Echart，当 config 中用了数据映射时有用。
@@ -162,7 +162,7 @@ public @interface Chart {
      * @see 
      */
     @Schema(description = "跟踪表达式，如果这个表达式的运行结果发生变化了，则会更新 Echart，当 config 中用了数据映射时有用。")
-    String trackExpression() default "";
+    String trackExpression() default "	";
 
     /**
      * 宽度设置
@@ -202,7 +202,7 @@ public @interface Chart {
      * @see 
      */
     @Schema(description = "name")
-    String name() default "";
+    String name() default "	";
 
     /**
      * style样式
@@ -212,7 +212,7 @@ public @interface Chart {
      * @see 
      */
     @Schema(description = "style样式")
-    String style() default "";
+    String style() default "	";
 
     /**
      * dataFilter
@@ -222,7 +222,7 @@ public @interface Chart {
      * @see 
      */
     @Schema(description = "dataFilter")
-    String dataFilter() default "";
+    String dataFilter() default "	";
 
     /**
      * source
@@ -232,7 +232,7 @@ public @interface Chart {
      * @see 
      */
     @Schema(description = "source")
-    String source() default "";
+    String source() default "	";
 
     /**
      * 默认开启 Config 中的数据映射，如果想关闭，请开启此功能。
@@ -252,7 +252,7 @@ public @interface Chart {
      * @see 
      */
     @Schema(description = "点击行为配置，可以用来满足下钻操作等。")
-    String clickAction() default "";
+    String clickAction() default "	";
 
     /**
      * 默认配置时追加的，如果更新配置想完全替换配置请配置为 true.

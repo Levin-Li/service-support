@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -33,7 +33,7 @@ public @interface WizardStep {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * Form 用来保存数据的 api。\n\n详情：https://baidu.gitee.io/amis/docs/components/form/index#%E8%A1%A8%E5%8D%95%E6%8F%90%E4%BA%A4
@@ -43,7 +43,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "Form 用来保存数据的 api。\n\n详情：https://baidu.gitee.io/amis/docs/components/form/index#%E8%A1%A8%E5%8D%95%E6%8F%90%E4%BA%A4")
-    String api() default "";
+    String api() default "	";
 
     /**
      * 设置此属性后，表单提交发送保存接口后，还会继续轮询请求该接口，直到返回 finished 属性为 true 才 结束。
@@ -53,7 +53,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "设置此属性后，表单提交发送保存接口后，还会继续轮询请求该接口，直到返回 finished 属性为 true 才 结束。")
-    String asyncApi() default "";
+    String asyncApi() default "	";
 
     /**
      * 用来初始化表单数据
@@ -63,7 +63,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "用来初始化表单数据")
-    String initApi() default "";
+    String initApi() default "	";
 
     /**
      * 是否可直接跳转到该步骤，一般编辑模式需要可直接跳转查看。
@@ -83,7 +83,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "通过 JS 表达式来配置当前步骤可否被直接跳转到。")
-    String jumpableOn() default "";
+    String jumpableOn() default "	";
 
     /**
      * 表单标题
@@ -93,7 +93,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "表单标题")
-    String title() default "";
+    String title() default "	";
 
     /**
      * label
@@ -103,7 +103,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "label")
-    String label() default "";
+    String label() default "	";
 
     /**
      * 按钮集合，会固定在底部显示。
@@ -113,7 +113,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "按钮集合，会固定在底部显示。")
-    String[] actions() default "";
+    String[] actions() default "	";
 
     /**
      * redirect
@@ -123,7 +123,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "redirect")
-    String redirect() default "";
+    String redirect() default "	";
 
     /**
      * reload
@@ -133,7 +133,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "reload")
-    String reload() default "";
+    String reload() default "	";
 
     /**
      * 默认表单提交自己会通过发送 api 保存数据，但是也可以设定另外一个 form 的 name 值，或者另外一个 `CRUD` 模型的 name 值。 如果 target 目标是一个 `Form` ，则目标 `Form` 会重新触发 `initApi` 和 `schemaApi`，api 可以拿到当前 form 数据。如果目标是一个 `CRUD` 模型，则目标模型会重新触发搜索，参数为当前 Form 数据。
@@ -143,7 +143,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "默认表单提交自己会通过发送 api 保存数据，但是也可以设定另外一个 form 的 name 值，或者另外一个 `CRUD` 模型的 name 值。 如果 target 目标是一个 `Form` ，则目标 `Form` 会重新触发 `initApi` 和 `schemaApi`，api 可以拿到当前 form 数据。如果目标是一个 `CRUD` 模型，则目标模型会重新触发搜索，参数为当前 Form 数据。")
-    String target() default "";
+    String target() default "	";
 
     /**
      * 表单项集合
@@ -153,7 +153,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "表单项集合")
-    String body() default "";
+    String body() default "	";
 
     /**
      * tabs
@@ -163,7 +163,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "tabs")
-    String tabs() default "";
+    String tabs() default "	";
 
     /**
      * fieldSet
@@ -173,7 +173,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "fieldSet")
-    String fieldSet() default "";
+    String fieldSet() default "	";
 
     /**
      * data
@@ -183,7 +183,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "data")
-    String data() default "";
+    String data() default "	";
 
     /**
      * 是否开启调试，开启后会在顶部实时显示表单项数据。
@@ -203,7 +203,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "Form 用来获取初始数据的 api,与initApi不同的是，会一直轮询请求该接口，直到返回 finished 属性为 true 才 结束。")
-    String initAsyncApi() default "";
+    String initAsyncApi() default "	";
 
     /**
      * 设置了initAsyncApi后，默认会从返回数据的data.finished来判断是否完成，也可以设置成其他的xxx，就会从data.xxx中获取
@@ -213,7 +213,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "设置了initAsyncApi后，默认会从返回数据的data.finished来判断是否完成，也可以设置成其他的xxx，就会从data.xxx中获取")
-    String initFinishedField() default "";
+    String initFinishedField() default "	";
 
     /**
      * 设置了initAsyncApi以后，默认拉取的时间间隔
@@ -243,7 +243,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "建议改成 api 的 sendOn 属性。")
-    String initFetchOn() default "";
+    String initFetchOn() default "	";
 
     /**
      * 设置后将轮询调用 initApi
@@ -273,7 +273,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "配置停止轮询的条件")
-    String stopAutoRefreshWhen() default "";
+    String stopAutoRefreshWhen() default "	";
 
     /**
      * 是否开启本地缓存
@@ -283,7 +283,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "是否开启本地缓存")
-    String persistData() default "";
+    String persistData() default "	";
 
     /**
      * 提交成功后清空本地缓存
@@ -323,7 +323,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "如果决定结束的字段名不是 `finished` 请设置此属性，比如 `is_success`")
-    String finishedField() default "";
+    String finishedField() default "	";
 
     /**
      * 提交完后重置表单
@@ -393,7 +393,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "消息文案配置，记住这个优先级是最低的，如果你的接口返回了 msg，接口返回的优先。")
-    String messages() default "";
+    String messages() default "	";
 
     /**
      * name
@@ -403,7 +403,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "name")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 配置容器 panel className
@@ -413,7 +413,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "配置容器 panel className")
-    String panelClassName() default "";
+    String panelClassName() default "	";
 
     /**
      * 设置主键 id, 当设置后，检测表单是否完成时（asyncApi），只会携带此数据。
@@ -423,7 +423,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "设置主键 id, 当设置后，检测表单是否完成时（asyncApi），只会携带此数据。")
-    String primaryField() default "";
+    String primaryField() default "	";
 
     /**
      * 修改的时候是否直接提交表单。
@@ -453,7 +453,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "默认的提交按钮名称，如果设置成空，则可以把默认按钮去掉。")
-    String submitText() default "";
+    String submitText() default "	";
 
     /**
      * 是否用 panel 包裹起来
@@ -493,7 +493,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "具体的提示信息，选填。")
-    String promptPageLeaveMessage() default "";
+    String promptPageLeaveMessage() default "	";
 
     /**
      * 组合校验规则，选填
@@ -503,7 +503,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "组合校验规则，选填")
-    String[] rules() default "";
+    String[] rules() default "	";
 
     /**
      * 禁用回车提交
@@ -523,7 +523,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -543,7 +543,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -563,7 +563,7 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -583,6 +583,6 @@ public @interface WizardStep {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
 }

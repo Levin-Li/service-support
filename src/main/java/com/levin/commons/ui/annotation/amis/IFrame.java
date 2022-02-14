@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * IFrame 渲染器 文档：https://baidu.gitee.io/amis/docs/components/iframe
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface IFrame {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * type
@@ -42,7 +42,7 @@ public @interface IFrame {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -62,7 +62,7 @@ public @interface IFrame {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -82,7 +82,7 @@ public @interface IFrame {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -102,7 +102,7 @@ public @interface IFrame {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 页面地址
@@ -112,7 +112,7 @@ public @interface IFrame {
      * @see 
      */
     @Schema(description = "页面地址")
-    String src() default "";
+    String src() default "	";
 
     /**
      * 事件相应，配置后当 iframe 通过 postMessage 发送事件时，可以触发 AMIS 内部的动作。
@@ -122,7 +122,7 @@ public @interface IFrame {
      * @see 
      */
     @Schema(description = "事件相应，配置后当 iframe 通过 postMessage 发送事件时，可以触发 AMIS 内部的动作。")
-    String events() default "";
+    String events() default "	";
 
     /**
      * width
@@ -132,7 +132,7 @@ public @interface IFrame {
      * @see 
      */
     @Schema(description = "width")
-    String width() default "";
+    String width() default "	";
 
     /**
      * height
@@ -142,6 +142,6 @@ public @interface IFrame {
      * @see 
      */
     @Schema(description = "height")
-    String height() default "";
+    String height() default "	";
 
 }

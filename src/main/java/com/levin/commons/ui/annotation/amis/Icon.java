@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Icon 图表渲染器 文档：https://baidu.gitee.io/amis/docs/components/icon
  *
- * @author auto gen by service-support at 2022-2-7 23:06:28
+ * @author auto gen by service-support at 2022-2-10 12:04:41
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -32,7 +32,7 @@ public @interface Icon {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * type
@@ -52,7 +52,7 @@ public @interface Icon {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -72,7 +72,7 @@ public @interface Icon {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -92,7 +92,7 @@ public @interface Icon {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -112,7 +112,7 @@ public @interface Icon {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 按钮类型
@@ -122,7 +122,7 @@ public @interface Icon {
      * @see 
      */
     @Schema(description = "按钮类型")
-    String icon() default "";
+    String icon() default "	";
 
     /**
      * vendor

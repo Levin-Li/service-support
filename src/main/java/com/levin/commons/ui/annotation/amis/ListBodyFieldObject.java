@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 不指定类型默认就是文本
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface ListBodyFieldObject {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 列标题
@@ -32,7 +32,7 @@ public @interface ListBodyFieldObject {
      * @see 
      */
     @Schema(description = "列标题")
-    String label() default "";
+    String label() default "	";
 
     /**
      * label 类名
@@ -42,7 +42,7 @@ public @interface ListBodyFieldObject {
      * @see 
      */
     @Schema(description = "label 类名")
-    String labelClassName() default "";
+    String labelClassName() default "	";
 
     /**
      * 绑定字段名
@@ -52,7 +52,7 @@ public @interface ListBodyFieldObject {
      * @see 
      */
     @Schema(description = "绑定字段名")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 配置查看详情功能

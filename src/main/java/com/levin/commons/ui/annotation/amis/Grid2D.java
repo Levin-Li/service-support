@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 二维布局渲染器。 文档：https://baidu.gitee.io/amis/docs/components/grid-2d
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface Grid2D {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为 grid-2d 展示类型
@@ -42,7 +42,7 @@ public @interface Grid2D {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -62,7 +62,7 @@ public @interface Grid2D {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -82,7 +82,7 @@ public @interface Grid2D {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -102,7 +102,7 @@ public @interface Grid2D {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 列数量，默认是 12
@@ -132,7 +132,7 @@ public @interface Grid2D {
      * @see 
      */
     @Schema(description = "格子间距，默认 0，包含行和列")
-    String gap() default "";
+    String gap() default "	";
 
     /**
      * 格子行级别的间距，如果不设置就和 gap 一样
@@ -142,7 +142,7 @@ public @interface Grid2D {
      * @see 
      */
     @Schema(description = "格子行级别的间距，如果不设置就和 gap 一样")
-    String gapRow() default "";
+    String gapRow() default "	";
 
     /**
      * 单位行高度，默认 50 px
@@ -152,7 +152,7 @@ public @interface Grid2D {
      * @see 
      */
     @Schema(description = "单位行高度，默认 50 px")
-    String rowHeight() default "";
+    String rowHeight() default "	";
 
     /**
      * 每个格子的配置
@@ -162,6 +162,6 @@ public @interface Grid2D {
      * @see 
      */
     @Schema(description = "每个格子的配置")
-    String[] grids() default "";
+    String[] grids() default "	";
 
 }

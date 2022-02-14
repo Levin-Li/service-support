@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * AnchorNavSection 锚点区域渲染器 文档：https://baidu.gitee.io/amis/docs/components/anchor-nav
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface AnchorNavSection {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 容器 css 类名
@@ -32,7 +32,7 @@ public @interface AnchorNavSection {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -52,7 +52,7 @@ public @interface AnchorNavSection {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -72,7 +72,7 @@ public @interface AnchorNavSection {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -92,7 +92,7 @@ public @interface AnchorNavSection {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 导航文字说明
@@ -102,7 +102,7 @@ public @interface AnchorNavSection {
      * @see 
      */
     @Schema(description = "导航文字说明")
-    String title() default "";
+    String title() default "	";
 
     /**
      * 锚点链接
@@ -112,7 +112,7 @@ public @interface AnchorNavSection {
      * @see 
      */
     @Schema(description = "锚点链接")
-    String href() default "";
+    String href() default "	";
 
     /**
      * 内容
@@ -122,6 +122,6 @@ public @interface AnchorNavSection {
      * @see 
      */
     @Schema(description = "内容")
-    String body() default "";
+    String body() default "	";
 
 }

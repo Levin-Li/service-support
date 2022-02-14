@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * TabsTransferPicker 穿梭器的弹框形态 文档：https://baidu.gitee.io/amis/docs/components/form/tabs-transfer-picker
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:43
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -169,7 +169,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "当 selectMode 为 table 时定义表格列信息。")
-    String[] columns() default "";
+    String[] columns() default "	";
 
     /**
      * 当 searchResultMode 为 table 时定义表格列信息。
@@ -179,7 +179,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "当 searchResultMode 为 table 时定义表格列信息。")
-    String[] searchResultColumns() default "";
+    String[] searchResultColumns() default "	";
 
     /**
      * 可搜索？
@@ -199,7 +199,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "搜索 API")
-    String searchApi() default "";
+    String searchApi() default "	";
 
     /**
      * 左侧的标题文字
@@ -209,7 +209,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "左侧的标题文字")
-    String selectTitle() default "";
+    String selectTitle() default "	";
 
     /**
      * 右侧结果的标题文字
@@ -219,7 +219,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "右侧结果的标题文字")
-    String resultTitle() default "";
+    String resultTitle() default "	";
 
     /**
      * 用来丰富选项展示
@@ -229,7 +229,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "用来丰富选项展示")
-    String menuTpl() default "";
+    String menuTpl() default "	";
 
     /**
      * 用来丰富值的展示
@@ -239,7 +239,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "用来丰富值的展示")
-    String valueTpl() default "";
+    String valueTpl() default "	";
 
     /**
      * 选项集合
@@ -249,7 +249,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "选项集合")
-    String[] options() default "";
+    String[] options() default "	";
 
     /**
      * 可用来通过 API 拉取 options。
@@ -259,7 +259,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "可用来通过 API 拉取 options。")
-    String source() default "";
+    String source() default "	";
 
     /**
      * 默认选择选项第一个值。
@@ -279,7 +279,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "用表达式来配置 source 接口初始要不要拉取")
-    String initFetchOn() default "";
+    String initFetchOn() default "	";
 
     /**
      * 配置 source 接口初始拉不拉取。
@@ -319,7 +319,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "分割符")
-    String delimiter() default "";
+    String delimiter() default "	";
 
     /**
      * 开启后将选中的选项 value 的值封装为数组，作为当前表单项的值。
@@ -349,7 +349,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "点清除按钮时，将表单项设置成当前配置的值。")
-    String resetValue() default "";
+    String resetValue() default "	";
 
     /**
      * 延时加载的 API，当选项中有 defer: true 的选项时，点开会通过此接口扩充。
@@ -359,7 +359,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "延时加载的 API，当选项中有 defer: true 的选项时，点开会通过此接口扩充。")
-    String deferApi() default "";
+    String deferApi() default "	";
 
     /**
      * 添加时调用的接口
@@ -369,7 +369,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "添加时调用的接口")
-    String addApi() default "";
+    String addApi() default "	";
 
     /**
      * 新增时的表单项。
@@ -379,7 +379,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "新增时的表单项。")
-    String[] addControls() default "";
+    String[] addControls() default "	";
 
     /**
      * 是否可以新增
@@ -399,7 +399,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "新增文字")
-    String createBtnLabel() default "";
+    String createBtnLabel() default "	";
 
     /**
      * 是否可以编辑
@@ -419,7 +419,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "编辑时调用的 API")
-    String editApi() default "";
+    String editApi() default "	";
 
     /**
      * 选项修改的表单项
@@ -429,7 +429,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "选项修改的表单项")
-    String[] editControls() default "";
+    String[] editControls() default "	";
 
     /**
      * 是否可删除
@@ -449,7 +449,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "选项删除 API")
-    String deleteApi() default "";
+    String deleteApi() default "	";
 
     /**
      * 选项删除提示文字。
@@ -459,7 +459,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "选项删除提示文字。")
-    String deleteConfirmText() default "";
+    String deleteConfirmText() default "	";
 
     /**
      * 自动填充，当选项被选择的时候，将选项中的其他值同步设置到表单内。
@@ -469,7 +469,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "自动填充，当选项被选择的时候，将选项中的其他值同步设置到表单内。")
-    String autoFill() default "";
+    String autoFill() default "	";
 
     /**
      * 表单项大小
@@ -489,7 +489,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "描述标题")
-    String label() default "";
+    String label() default "	";
 
     /**
      * 配置 label className
@@ -499,7 +499,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "配置 label className")
-    String labelClassName() default "";
+    String labelClassName() default "	";
 
     /**
      * 字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c
@@ -509,7 +509,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 显示一个小图标, 鼠标放上去的时候显示提示内容
@@ -539,7 +539,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "输入提示，聚焦的时候显示")
-    String hint() default "";
+    String hint() default "	";
 
     /**
      * 当修改完的时候是否提交表单。
@@ -579,7 +579,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "描述内容，支持 Html 片段。")
-    String description() default "";
+    String description() default "	";
 
     /**
      * desc
@@ -589,7 +589,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "desc")
-    String desc() default "";
+    String desc() default "	";
 
     /**
      * 配置描述上的 className
@@ -599,7 +599,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "配置描述上的 className")
-    String descriptionClassName() default "";
+    String descriptionClassName() default "	";
 
     /**
      * 配置当前表单项展示模式
@@ -639,7 +639,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "配置 input className")
-    String inputClassName() default "";
+    String inputClassName() default "	";
 
     /**
      * 占位符
@@ -649,7 +649,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "占位符")
-    String placeholder() default "";
+    String placeholder() default "	";
 
     /**
      * 是否为必填
@@ -669,7 +669,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "验证失败的提示信息")
-    String validationErrors() default "";
+    String validationErrors() default "	";
 
     /**
      * validations
@@ -679,7 +679,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "validations")
-    String validations() default "";
+    String validations() default "	";
 
     /**
      * 默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。
@@ -689,7 +689,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。")
-    String value() default "";
+    String value() default "	";
 
     /**
      * 表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉
@@ -709,7 +709,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "远端校验表单项接口")
-    String validateApi() default "";
+    String validateApi() default "	";
 
     /**
      * 容器 css 类名
@@ -719,7 +719,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -739,7 +739,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -759,7 +759,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -779,7 +779,7 @@ public @interface TabsTransferPickerControl {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * type

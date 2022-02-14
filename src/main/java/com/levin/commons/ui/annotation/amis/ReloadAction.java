@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:28
+ * @author auto gen by service-support at 2022-2-10 12:04:41
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -73,7 +73,7 @@ public @interface ReloadAction {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定按钮类型，支持 button、submit或者reset三种类型。
@@ -93,7 +93,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -113,7 +113,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -133,7 +133,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -153,7 +153,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 主要用于用户行为跟踪里区分是哪个按钮
@@ -163,7 +163,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "主要用于用户行为跟踪里区分是哪个按钮")
-    String id() default "";
+    String id() default "	";
 
     /**
      * 是否为块状展示，默认为内联。
@@ -183,7 +183,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "禁用时的文案提示。")
-    String disabledTip() default "";
+    String disabledTip() default "	";
 
     /**
      * 按钮图标， iconfont 的类名
@@ -203,7 +203,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "icon 上的css 类名")
-    String iconClassName() default "";
+    String iconClassName() default "	";
 
     /**
      * 右侧按钮图标， iconfont 的类名
@@ -223,7 +223,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "右侧 icon 上的 css 类名")
-    String rightIconClassName() default "";
+    String rightIconClassName() default "	";
 
     /**
      * loading 上的css 类名
@@ -233,7 +233,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "loading 上的css 类名")
-    String loadingClassName() default "";
+    String loadingClassName() default "	";
 
     /**
      * 按钮文字
@@ -243,7 +243,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "按钮文字")
-    String label() default "";
+    String label() default "	";
 
     /**
      * 按钮样式
@@ -283,7 +283,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "tooltip")
-    String tooltip() default "";
+    String tooltip() default "	";
 
     /**
      * tooltipPlacement
@@ -303,7 +303,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "提示文字，配置了操作前会要求用户确认。")
-    String confirmText() default "";
+    String confirmText() default "	";
 
     /**
      * 如果按钮在form中，配置此属性会要求用户把指定的字段通过验证后才会触发行为。
@@ -313,7 +313,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "如果按钮在form中，配置此属性会要求用户把指定的字段通过验证后才会触发行为。")
-    String[] required() default "";
+    String[] required() default "	";
 
     /**
      * 激活状态时的样式
@@ -323,7 +323,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "激活状态时的样式")
-    String activeLevel() default "";
+    String activeLevel() default "	";
 
     /**
      * 激活状态时的类名
@@ -333,7 +333,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "激活状态时的类名")
-    String activeClassName() default "";
+    String activeClassName() default "	";
 
     /**
      * 如果按钮在弹框中，可以配置这个动作完成后是否关闭弹窗，或者指定关闭目标弹框。
@@ -343,7 +343,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "如果按钮在弹框中，可以配置这个动作完成后是否关闭弹窗，或者指定关闭目标弹框。")
-    String close() default "";
+    String close() default "	";
 
     /**
      * 当按钮时批量操作按钮时，默认必须有勾选元素才能可点击，如果此属性配置成 false，则没有点选成员也能点击。
@@ -373,7 +373,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "指定目标组件。")
-    String target() default "";
+    String target() default "	";
 
     /**
      * 点击后的禁止倒计时（秒）
@@ -393,7 +393,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "倒计时文字自定义")
-    String countDownTpl() default "";
+    String countDownTpl() default "	";
 
     /**
      * 角标
@@ -413,7 +413,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "键盘快捷键")
-    String hotKey() default "";
+    String hotKey() default "	";
 
     /**
      * 是否显示loading效果
@@ -423,7 +423,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "是否显示loading效果")
-    String loadingOn() default "";
+    String loadingOn() default "	";
 
     /**
      * 自定义事件处理函数
@@ -433,7 +433,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "自定义事件处理函数")
-    String onClick() default "";
+    String onClick() default "	";
 
     /**
      * 子内容
@@ -443,7 +443,7 @@ public @interface ReloadAction {
      * @see 
      */
     @Schema(description = "子内容")
-    String body() default "";
+    String body() default "	";
 
     /**
      * 指定为刷新目标组件。

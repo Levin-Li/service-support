@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:28
+ * @author auto gen by service-support at 2022-2-10 12:04:41
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -56,7 +56,7 @@ public @interface Avatar {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * type
@@ -76,7 +76,7 @@ public @interface Avatar {
      * @see 
      */
     @Schema(description = "类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -96,7 +96,7 @@ public @interface Avatar {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -116,7 +116,7 @@ public @interface Avatar {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -136,7 +136,7 @@ public @interface Avatar {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 自定义样式
@@ -146,7 +146,7 @@ public @interface Avatar {
      * @see 
      */
     @Schema(description = "自定义样式")
-    String style() default "";
+    String style() default "	";
 
     /**
      * 角标
@@ -166,7 +166,7 @@ public @interface Avatar {
      * @see 
      */
     @Schema(description = "图片地址")
-    String src() default "";
+    String src() default "	";
 
     /**
      * 图标
@@ -176,7 +176,7 @@ public @interface Avatar {
      * @see 
      */
     @Schema(description = "图标")
-    String icon() default "";
+    String icon() default "	";
 
     /**
      * 图片相对于容器的缩放方式
@@ -216,7 +216,7 @@ public @interface Avatar {
      * @see 
      */
     @Schema(description = "文本")
-    String text() default "";
+    String text() default "	";
 
     /**
      * 字符类型距离左右两侧边界单位像素
@@ -236,7 +236,7 @@ public @interface Avatar {
      * @see 
      */
     @Schema(description = "图片无法显示时的替换文字地址")
-    String alt() default "";
+    String alt() default "	";
 
     /**
      * 图片是否允许拖动
@@ -266,6 +266,6 @@ public @interface Avatar {
      * @see 
      */
     @Schema(description = "图片加载失败的是否默认处理，字符串函数")
-    String onError() default "";
+    String onError() default "	";
 
 }

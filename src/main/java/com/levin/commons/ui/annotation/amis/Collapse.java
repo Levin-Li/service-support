@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Collapse 折叠渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/collapse
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -45,7 +45,7 @@ public @interface Collapse {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为折叠器类型
@@ -65,7 +65,7 @@ public @interface Collapse {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -85,7 +85,7 @@ public @interface Collapse {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -105,7 +105,7 @@ public @interface Collapse {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -125,7 +125,7 @@ public @interface Collapse {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 标识
@@ -135,7 +135,7 @@ public @interface Collapse {
      * @see 
      */
     @Schema(description = "标识")
-    String key() default "";
+    String key() default "	";
 
     /**
      * 标题展示位置
@@ -155,7 +155,7 @@ public @interface Collapse {
      * @see 
      */
     @Schema(description = "标题")
-    String header() default "";
+    String header() default "	";
 
     /**
      * 内容区域
@@ -165,7 +165,7 @@ public @interface Collapse {
      * @see 
      */
     @Schema(description = "内容区域")
-    String body() default "";
+    String body() default "	";
 
     /**
      * 配置 Body 容器 className
@@ -175,7 +175,7 @@ public @interface Collapse {
      * @see 
      */
     @Schema(description = "配置 Body 容器 className")
-    String bodyClassName() default "";
+    String bodyClassName() default "	";
 
     /**
      * 是否可折叠
@@ -215,7 +215,7 @@ public @interface Collapse {
      * @see 
      */
     @Schema(description = "自定义切换图标")
-    String expandIcon() default "";
+    String expandIcon() default "	";
 
     /**
      * 标题 CSS 类名
@@ -225,7 +225,7 @@ public @interface Collapse {
      * @see 
      */
     @Schema(description = "标题 CSS 类名")
-    String headingClassName() default "";
+    String headingClassName() default "	";
 
     /**
      * 收起的标题

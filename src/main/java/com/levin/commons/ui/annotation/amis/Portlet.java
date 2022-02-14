@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -35,7 +35,7 @@ public @interface Portlet {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 容器 css 类名
@@ -45,7 +45,7 @@ public @interface Portlet {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -65,7 +65,7 @@ public @interface Portlet {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -85,7 +85,7 @@ public @interface Portlet {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -105,7 +105,7 @@ public @interface Portlet {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 指定为 portlet 类型
@@ -135,7 +135,7 @@ public @interface Portlet {
      * @see 
      */
     @Schema(description = "关联已有数据，选项卡直接根据目标数据重复。")
-    String source() default "";
+    String source() default "	";
 
     /**
      * 类名
@@ -145,7 +145,7 @@ public @interface Portlet {
      * @see 
      */
     @Schema(description = "类名")
-    String tabsClassName() default "";
+    String tabsClassName() default "	";
 
     /**
      * 展示形式
@@ -165,7 +165,7 @@ public @interface Portlet {
      * @see 
      */
     @Schema(description = "内容类名")
-    String contentClassName() default "";
+    String contentClassName() default "	";
 
     /**
      * 链接外层类名
@@ -175,7 +175,7 @@ public @interface Portlet {
      * @see 
      */
     @Schema(description = "链接外层类名")
-    String linksClassName() default "";
+    String linksClassName() default "	";
 
     /**
      * 卡片是否只有在点开的时候加载？
@@ -205,7 +205,7 @@ public @interface Portlet {
      * @see 
      */
     @Schema(description = "可以在右侧配置点其他功能按钮。不会随着tab切换")
-    String[] toolbar() default "";
+    String[] toolbar() default "	";
 
     /**
      * 是否支持溢出滚动
@@ -255,6 +255,6 @@ public @interface Portlet {
      * @see 
      */
     @Schema(description = "自定义样式")
-    String style() default "";
+    String style() default "	";
 
 }

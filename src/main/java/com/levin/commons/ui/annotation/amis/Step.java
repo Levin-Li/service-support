@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -28,7 +28,7 @@ public @interface Step {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -48,7 +48,7 @@ public @interface Step {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -68,7 +68,7 @@ public @interface Step {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -88,7 +88,7 @@ public @interface Step {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 标题
@@ -98,7 +98,7 @@ public @interface Step {
      * @see 
      */
     @Schema(description = "标题")
-    String title() default "";
+    String title() default "	";
 
     /**
      * 子标题
@@ -108,7 +108,7 @@ public @interface Step {
      * @see 
      */
     @Schema(description = "子标题")
-    String subTitle() default "";
+    String subTitle() default "	";
 
     /**
      * 图标
@@ -118,7 +118,7 @@ public @interface Step {
      * @see 
      */
     @Schema(description = "图标")
-    String icon() default "";
+    String icon() default "	";
 
     /**
      * value
@@ -128,7 +128,7 @@ public @interface Step {
      * @see 
      */
     @Schema(description = "value")
-    String value() default "";
+    String value() default "	";
 
     /**
      * 描述
@@ -138,6 +138,6 @@ public @interface Step {
      * @see 
      */
     @Schema(description = "描述")
-    String description() default "";
+    String description() default "	";
 
 }

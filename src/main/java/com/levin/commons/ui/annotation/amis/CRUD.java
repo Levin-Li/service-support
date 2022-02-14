@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * CRUD 增删改查渲染器。 文档：https://baidu.gitee.io/amis/docs/components/crud
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,6 +22,6 @@ public @interface CRUD {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
 }

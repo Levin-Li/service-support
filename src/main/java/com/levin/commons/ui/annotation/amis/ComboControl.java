@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Combo 组合输入框类型 文档：https://baidu.gitee.io/amis/docs/components/form/combo
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -74,7 +74,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -94,7 +94,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -114,7 +114,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -134,7 +134,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 指定为组合输入框类型
@@ -164,7 +164,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "描述标题")
-    String label() default "";
+    String label() default "	";
 
     /**
      * 配置 label className
@@ -174,7 +174,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "配置 label className")
-    String labelClassName() default "";
+    String labelClassName() default "	";
 
     /**
      * 字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c
@@ -184,7 +184,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 显示一个小图标, 鼠标放上去的时候显示提示内容
@@ -214,7 +214,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "输入提示，聚焦的时候显示")
-    String hint() default "";
+    String hint() default "	";
 
     /**
      * 当修改完的时候是否提交表单。
@@ -254,7 +254,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "描述内容，支持 Html 片段。")
-    String description() default "";
+    String description() default "	";
 
     /**
      * desc
@@ -264,7 +264,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "desc")
-    String desc() default "";
+    String desc() default "	";
 
     /**
      * 配置描述上的 className
@@ -274,7 +274,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "配置描述上的 className")
-    String descriptionClassName() default "";
+    String descriptionClassName() default "	";
 
     /**
      * 配置当前表单项展示模式
@@ -314,7 +314,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "配置 input className")
-    String inputClassName() default "";
+    String inputClassName() default "	";
 
     /**
      * 没有成员时显示。
@@ -324,7 +324,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "没有成员时显示。")
-    String placeholder() default "";
+    String placeholder() default "	";
 
     /**
      * 是否为必填
@@ -344,7 +344,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "验证失败的提示信息")
-    String validationErrors() default "";
+    String validationErrors() default "	";
 
     /**
      * validations
@@ -354,7 +354,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "validations")
-    String validations() default "";
+    String validations() default "	";
 
     /**
      * 默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。
@@ -364,7 +364,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。")
-    String value() default "";
+    String value() default "	";
 
     /**
      * 表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉
@@ -384,7 +384,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "远端校验表单项接口")
-    String validateApi() default "";
+    String validateApi() default "	";
 
     /**
      * 单组表单项初始值。默认为 `{}`
@@ -394,7 +394,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "单组表单项初始值。默认为 `{}`")
-    String scaffold() default "";
+    String scaffold() default "	";
 
     /**
      * 是否含有边框
@@ -414,7 +414,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "确认删除时的提示")
-    String deleteConfirmText() default "";
+    String deleteConfirmText() default "	";
 
     /**
      * 删除时调用的api
@@ -424,7 +424,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "删除时调用的api")
-    String deleteApi() default "";
+    String deleteApi() default "	";
 
     /**
      * 是否可切换条件，配合`conditions`使用
@@ -454,7 +454,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "内部单组表单项的类名")
-    String formClassName() default "";
+    String formClassName() default "	";
 
     /**
      * 新增按钮CSS类名
@@ -464,7 +464,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "新增按钮CSS类名")
-    String addButtonClassName() default "";
+    String addButtonClassName() default "	";
 
     /**
      * 新增按钮文字
@@ -474,7 +474,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "新增按钮文字")
-    String addButtonText() default "";
+    String addButtonText() default "	";
 
     /**
      * 是否可新增
@@ -494,7 +494,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "数组输入框的子项")
-    String[] items() default "";
+    String[] items() default "	";
 
     /**
      * 是否可拖拽排序
@@ -514,7 +514,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "可拖拽排序的提示信息。")
-    String draggableTip() default "";
+    String draggableTip() default "	";
 
     /**
      * 是否将结果扁平化(去掉name),只有当controls的length为1且multiple为true的时候才有效
@@ -534,7 +534,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "当扁平化开启并且joinValues为true时，用什么分隔符")
-    String delimiter() default "";
+    String delimiter() default "	";
 
     /**
      * 当扁平化开启的时候，是否用分隔符的形式发送给后端，否则采用array的方式
@@ -674,7 +674,7 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "配置同步字段。只有 `strictMode` 为 `false` 时有效。 如果 Combo 层级比较深，底层的获取外层的数据可能不同步。 但是给 combo 配置这个属性就能同步下来。输入格式：`[os]`")
-    String[] syncFields() default "";
+    String[] syncFields() default "	";
 
     /**
      * 允许为空，如果子表单项里面配置验证器，且又是单条模式。可以允许用户选择清空（不填）。
@@ -694,6 +694,6 @@ public @interface ComboControl {
      * @see 
      */
     @Schema(description = "提示信息")
-    String messages() default "";
+    String messages() default "	";
 
 }

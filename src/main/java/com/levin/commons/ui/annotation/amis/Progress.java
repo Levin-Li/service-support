@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 进度展示控件。 文档：https://baidu.gitee.io/amis/docs/components/progress
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -45,7 +45,7 @@ public @interface Progress {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * type
@@ -65,7 +65,7 @@ public @interface Progress {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -85,7 +85,7 @@ public @interface Progress {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -105,7 +105,7 @@ public @interface Progress {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -125,7 +125,7 @@ public @interface Progress {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 关联字段名。
@@ -135,7 +135,7 @@ public @interface Progress {
      * @see 
      */
     @Schema(description = "关联字段名。")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 进度条类型。
@@ -155,7 +155,7 @@ public @interface Progress {
      * @see 
      */
     @Schema(description = "进度条 CSS 类名")
-    String progressClassName() default "";
+    String progressClassName() default "	";
 
     /**
      * 进度外层 CSS 类名
@@ -165,7 +165,7 @@ public @interface Progress {
      * @see 
      */
     @Schema(description = "进度外层 CSS 类名")
-    String progressBarClassName() default "";
+    String progressBarClassName() default "	";
 
     /**
      * 配置不通的值段，用不通的样式提示用户
@@ -175,7 +175,7 @@ public @interface Progress {
      * @see 
      */
     @Schema(description = "配置不通的值段，用不通的样式提示用户")
-    String[] map() default "";
+    String[] map() default "	";
 
     /**
      * 是否显示值
@@ -195,7 +195,7 @@ public @interface Progress {
      * @see 
      */
     @Schema(description = "占位符")
-    String placeholder() default "";
+    String placeholder() default "	";
 
     /**
      * 是否显示背景间隔
@@ -255,6 +255,6 @@ public @interface Progress {
      * @see 
      */
     @Schema(description = "内容的模板函数")
-    String valueTpl() default "";
+    String valueTpl() default "	";
 
 }

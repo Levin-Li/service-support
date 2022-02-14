@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:43
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -34,7 +34,7 @@ public @interface Type {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * defaultOp
@@ -44,7 +44,7 @@ public @interface Type {
      * @see 
      */
     @Schema(description = "defaultOp")
-    String defaultOp() default "";
+    String defaultOp() default "	";
 
     /**
      * operators
@@ -54,7 +54,7 @@ public @interface Type {
      * @see 
      */
     @Schema(description = "operators")
-    String[] operators() default "";
+    String[] operators() default "	";
 
     /**
      * placeholder
@@ -64,7 +64,7 @@ public @interface Type {
      * @see 
      */
     @Schema(description = "placeholder")
-    String placeholder() default "";
+    String placeholder() default "	";
 
     /**
      * valueTypes

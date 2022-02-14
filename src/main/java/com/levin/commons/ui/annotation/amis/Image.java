@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 图片展示控件。 文档：https://baidu.gitee.io/amis/docs/components/image
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -62,7 +62,7 @@ public @interface Image {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为图片展示类型
@@ -82,7 +82,7 @@ public @interface Image {
      * @see 
      */
     @Schema(description = "外层 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -102,7 +102,7 @@ public @interface Image {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -122,7 +122,7 @@ public @interface Image {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -142,7 +142,7 @@ public @interface Image {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 默认图片地址
@@ -152,7 +152,7 @@ public @interface Image {
      * @see 
      */
     @Schema(description = "默认图片地址")
-    String defaultImage() default "";
+    String defaultImage() default "	";
 
     /**
      * 图片标题
@@ -172,7 +172,7 @@ public @interface Image {
      * @see 
      */
     @Schema(description = "关联字段名，也可以直接配置 src")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 图片描述信息
@@ -192,7 +192,7 @@ public @interface Image {
      * @see 
      */
     @Schema(description = "图片地址，如果配置了 name，这个属性不用配置。")
-    String src() default "";
+    String src() default "	";
 
     /**
      * 大图地址，不设置用 src
@@ -202,7 +202,7 @@ public @interface Image {
      * @see 
      */
     @Schema(description = "大图地址，不设置用 src")
-    String originalSrc() default "";
+    String originalSrc() default "	";
 
     /**
      * 是否启动放大功能。
@@ -222,7 +222,7 @@ public @interface Image {
      * @see 
      */
     @Schema(description = "图片无法显示时的替换文本")
-    String alt() default "";
+    String alt() default "	";
 
     /**
      * 高度
@@ -252,7 +252,7 @@ public @interface Image {
      * @see 
      */
     @Schema(description = "图片 css 类名")
-    String imageClassName() default "";
+    String imageClassName() default "	";
 
     /**
      * 图片缩率图外层 css 类名
@@ -262,7 +262,7 @@ public @interface Image {
      * @see 
      */
     @Schema(description = "图片缩率图外层 css 类名")
-    String thumbClassName() default "";
+    String thumbClassName() default "	";
 
     /**
      * caption
@@ -332,6 +332,6 @@ public @interface Image {
      * @see 
      */
     @Schema(description = "链接的 target")
-    String htmlTarget() default "";
+    String htmlTarget() default "	";
 
 }

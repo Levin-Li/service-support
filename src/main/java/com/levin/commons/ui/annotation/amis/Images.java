@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 图片集展示控件。 文档：https://baidu.gitee.io/amis/docs/components/images
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -68,7 +68,7 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "外层 CSS 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -88,7 +88,7 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -108,7 +108,7 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -128,7 +128,7 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 默认图片地址
@@ -138,7 +138,7 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "默认图片地址")
-    String defaultImage() default "";
+    String defaultImage() default "	";
 
     /**
      * 列表为空时显示
@@ -148,7 +148,7 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "列表为空时显示")
-    String placeholder() default "";
+    String placeholder() default "	";
 
     /**
      * 配置值的连接符
@@ -158,7 +158,7 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "配置值的连接符")
-    String delimiter() default "";
+    String delimiter() default "	";
 
     /**
      * 预览图模式
@@ -188,7 +188,7 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "关联字段名，也可以直接配置 src")
-    String name() default "";
+    String name() default "	";
 
     /**
      * value
@@ -198,7 +198,7 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "value")
-    String value() default "";
+    String value() default "	";
 
     /**
      * source
@@ -208,7 +208,7 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "source")
-    String source() default "";
+    String source() default "	";
 
     /**
      * options
@@ -218,7 +218,7 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "options")
-    String[] options() default "";
+    String[] options() default "	";
 
     /**
      * 图片地址，默认读取数据中的 image 属性，如果不是请配置 ,如  ${imageUrl}
@@ -228,7 +228,7 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "图片地址，默认读取数据中的 image 属性，如果不是请配置 ,如  ${imageUrl}")
-    String src() default "";
+    String src() default "	";
 
     /**
      * 大图地址，不设置用 src 属性，如果不是请配置，如：${imageOriginUrl}
@@ -238,7 +238,7 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "大图地址，不设置用 src 属性，如果不是请配置，如：${imageOriginUrl}")
-    String originalSrc() default "";
+    String originalSrc() default "	";
 
     /**
      * 是否启动放大功能。
@@ -268,6 +268,6 @@ public @interface Images {
      * @see 
      */
     @Schema(description = "列表 CSS 类名")
-    String listClassName() default "";
+    String listClassName() default "	";
 
 }

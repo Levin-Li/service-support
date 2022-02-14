@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 垂直布局控件 文档：https://baidu.gitee.io/amis/docs/components/vbox
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface VBox {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * type
@@ -42,7 +42,7 @@ public @interface VBox {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -62,7 +62,7 @@ public @interface VBox {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -82,7 +82,7 @@ public @interface VBox {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -102,7 +102,7 @@ public @interface VBox {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 行集合
@@ -112,6 +112,6 @@ public @interface VBox {
      * @see 
      */
     @Schema(description = "行集合")
-    String[] rows() default "";
+    String[] rows() default "	";
 
 }

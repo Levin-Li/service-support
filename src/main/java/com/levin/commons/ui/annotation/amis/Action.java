@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:28
+ * @author auto gen by service-support at 2022-2-10 12:04:41
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,6 +22,6 @@ public @interface Action {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
 }

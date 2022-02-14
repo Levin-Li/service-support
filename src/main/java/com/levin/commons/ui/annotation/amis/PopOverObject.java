@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:41
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -109,7 +109,7 @@ public @interface PopOverObject {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 类名
@@ -119,7 +119,7 @@ public @interface PopOverObject {
      * @see 
      */
     @Schema(description = "类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 弹框外层类名
@@ -129,7 +129,7 @@ public @interface PopOverObject {
      * @see 
      */
     @Schema(description = "弹框外层类名")
-    String popOverClassName() default "";
+    String popOverClassName() default "	";
 
     /**
      * 配置当前行是否启动，要用表达式
@@ -139,7 +139,7 @@ public @interface PopOverObject {
      * @see 
      */
     @Schema(description = "配置当前行是否启动，要用表达式")
-    String popOverEnableOn() default "";
+    String popOverEnableOn() default "	";
 
     /**
      * 弹出模式
@@ -199,7 +199,7 @@ public @interface PopOverObject {
      * @see 
      */
     @Schema(description = "偏移量")
-    String offset() default "";
+    String offset() default "	";
 
     /**
      * 标题
@@ -209,7 +209,7 @@ public @interface PopOverObject {
      * @see 
      */
     @Schema(description = "标题")
-    String title() default "";
+    String title() default "	";
 
     /**
      * body
@@ -219,6 +219,6 @@ public @interface PopOverObject {
      * @see 
      */
     @Schema(description = "body")
-    String body() default "";
+    String body() default "	";
 
 }

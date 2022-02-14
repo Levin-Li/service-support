@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -34,7 +34,7 @@ public @interface FuncArg {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * type
@@ -44,7 +44,7 @@ public @interface FuncArg {
      * @see 
      */
     @Schema(description = "type")
-    String type() default "";
+    String type() default "	";
 
     /**
      * label
@@ -54,7 +54,7 @@ public @interface FuncArg {
      * @see 
      */
     @Schema(description = "label")
-    String label() default "";
+    String label() default "	";
 
     /**
      * valueTypes
@@ -74,7 +74,7 @@ public @interface FuncArg {
      * @see 
      */
     @Schema(description = "operators")
-    String[] operators() default "";
+    String[] operators() default "	";
 
     /**
      * funcs
@@ -84,7 +84,7 @@ public @interface FuncArg {
      * @see 
      */
     @Schema(description = "funcs")
-    String[] funcs() default "";
+    String[] funcs() default "	";
 
     /**
      * defaultValue
@@ -94,7 +94,7 @@ public @interface FuncArg {
      * @see 
      */
     @Schema(description = "defaultValue")
-    String defaultValue() default "";
+    String defaultValue() default "	";
 
     /**
      * placeholder
@@ -104,7 +104,7 @@ public @interface FuncArg {
      * @see 
      */
     @Schema(description = "placeholder")
-    String placeholder() default "";
+    String placeholder() default "	";
 
     /**
      * isOptional

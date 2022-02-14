@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 分页容器功能性渲染器。详情请见：https://baidu.gitee.io/amis/docs/components/pagination-wrapper
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -33,7 +33,7 @@ public @interface PaginationWrapper {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为分页容器功能性渲染器
@@ -53,7 +53,7 @@ public @interface PaginationWrapper {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -73,7 +73,7 @@ public @interface PaginationWrapper {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -93,7 +93,7 @@ public @interface PaginationWrapper {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -113,7 +113,7 @@ public @interface PaginationWrapper {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 是否显示快速跳转输入框
@@ -143,7 +143,7 @@ public @interface PaginationWrapper {
      * @see 
      */
     @Schema(description = "输入字段名")
-    String inputName() default "";
+    String inputName() default "	";
 
     /**
      * 输出字段名
@@ -153,7 +153,7 @@ public @interface PaginationWrapper {
      * @see 
      */
     @Schema(description = "输出字段名")
-    String outputName() default "";
+    String outputName() default "	";
 
     /**
      * 每页显示多条数据。
@@ -183,6 +183,6 @@ public @interface PaginationWrapper {
      * @see 
      */
     @Schema(description = "内容区域")
-    String body() default "";
+    String body() default "	";
 
 }

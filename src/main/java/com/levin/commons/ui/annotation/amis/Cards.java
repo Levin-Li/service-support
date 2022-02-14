@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Cards 卡片集合渲染器。 文档：https://baidu.gitee.io/amis/docs/components/card
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface Cards {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为 cards 类型
@@ -42,7 +42,7 @@ public @interface Cards {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -62,7 +62,7 @@ public @interface Cards {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -82,7 +82,7 @@ public @interface Cards {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -102,7 +102,7 @@ public @interface Cards {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * Construct a type with the properties of T except for those in type K.
@@ -112,7 +112,7 @@ public @interface Cards {
      * @see 
      */
     @Schema(description = "Construct a type with the properties of T except for those in type K.")
-    String card() default "";
+    String card() default "	";
 
     /**
      * 头部 CSS 类名
@@ -122,7 +122,7 @@ public @interface Cards {
      * @see 
      */
     @Schema(description = "头部 CSS 类名")
-    String headerClassName() default "";
+    String headerClassName() default "	";
 
     /**
      * 底部 CSS 类名
@@ -132,7 +132,7 @@ public @interface Cards {
      * @see 
      */
     @Schema(description = "底部 CSS 类名")
-    String footerClassName() default "";
+    String footerClassName() default "	";
 
     /**
      * 卡片 CSS 类名
@@ -142,7 +142,7 @@ public @interface Cards {
      * @see 
      */
     @Schema(description = "卡片 CSS 类名")
-    String itemClassName() default "";
+    String itemClassName() default "	";
 
     /**
      * 无数据提示
@@ -182,7 +182,7 @@ public @interface Cards {
      * @see 
      */
     @Schema(description = "数据源: 绑定当前环境变量")
-    String source() default "";
+    String source() default "	";
 
     /**
      * 标题
@@ -222,7 +222,7 @@ public @interface Cards {
      * @see 
      */
     @Schema(description = "顶部区域")
-    String header() default "";
+    String header() default "	";
 
     /**
      * 底部区域
@@ -232,7 +232,7 @@ public @interface Cards {
      * @see 
      */
     @Schema(description = "底部区域")
-    String footer() default "";
+    String footer() default "	";
 
     /**
      * 配置某项是否可以点选
@@ -242,7 +242,7 @@ public @interface Cards {
      * @see 
      */
     @Schema(description = "配置某项是否可以点选")
-    String itemCheckableOn() default "";
+    String itemCheckableOn() default "	";
 
     /**
      * 配置某项是否可拖拽排序，前提是要开启拖拽功能
@@ -252,7 +252,7 @@ public @interface Cards {
      * @see 
      */
     @Schema(description = "配置某项是否可拖拽排序，前提是要开启拖拽功能")
-    String itemDraggableOn() default "";
+    String itemDraggableOn() default "	";
 
     /**
      * 点击卡片的时候是否勾选卡片。
@@ -282,6 +282,6 @@ public @interface Cards {
      * @see 
      */
     @Schema(description = "可以用来作为值的字段")
-    String valueField() default "";
+    String valueField() default "	";
 
 }

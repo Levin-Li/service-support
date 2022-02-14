@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Nav 导航渲染器 文档：https://baidu.gitee.io/amis/docs/components/nav
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface Nav {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为 Nav 导航渲染器
@@ -42,7 +42,7 @@ public @interface Nav {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -62,7 +62,7 @@ public @interface Nav {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -82,7 +82,7 @@ public @interface Nav {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -102,7 +102,7 @@ public @interface Nav {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 链接地址集合
@@ -132,7 +132,7 @@ public @interface Nav {
      * @see 
      */
     @Schema(description = "可以通过 API 拉取。")
-    String source() default "";
+    String source() default "	";
 
     /**
      * 懒加载 api，如果不配置复用 source 接口。
@@ -142,7 +142,7 @@ public @interface Nav {
      * @see 
      */
     @Schema(description = "懒加载 api，如果不配置复用 source 接口。")
-    String deferApi() default "";
+    String deferApi() default "	";
 
     /**
      * true 为垂直排列，false 为水平排列类似如 tabs。
@@ -162,7 +162,7 @@ public @interface Nav {
      * @see 
      */
     @Schema(description = "更多操作菜单列表")
-    String itemActions() default "";
+    String itemActions() default "	";
 
     /**
      * 可拖拽
@@ -182,7 +182,7 @@ public @interface Nav {
      * @see 
      */
     @Schema(description = "保存排序的 api")
-    String saveOrderApi() default "";
+    String saveOrderApi() default "	";
 
     /**
      * 角标

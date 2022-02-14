@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:28
+ * @author auto gen by service-support at 2022-2-10 12:04:41
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -47,7 +47,7 @@ public @interface ApiObject {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * API 发送类型
@@ -67,7 +67,7 @@ public @interface ApiObject {
      * @see 
      */
     @Schema(description = "API 发送目标地址")
-    String url() default "";
+    String url() default "	";
 
     /**
      * 用来控制携带数据. 当key 为 `&` 值为 `$$` 时, 将所有原始数据打平设置到 data 中. 当值为 $$ 将所有原始数据赋值到对应的 key 中. 当值为 $ 打头时, 将变量值设置到 key 中.
@@ -77,7 +77,7 @@ public @interface ApiObject {
      * @see 
      */
     @Schema(description = "用来控制携带数据. 当key 为 `&` 值为 `$$` 时, 将所有原始数据打平设置到 data 中. 当值为 $$ 将所有原始数据赋值到对应的 key 中. 当值为 $ 打头时, 将变量值设置到 key 中.")
-    String data() default "";
+    String data() default "	";
 
     /**
      * 默认数据映射中的key如果带点，或者带大括号，会转成对象比如：\n\n{   'a.b': '123' }\n\n经过数据映射后变成 {  a: {   b: '123  } }\n\n如果想要关闭此功能，请设置 convertKeyToPath 为 false
@@ -97,7 +97,7 @@ public @interface ApiObject {
      * @see 
      */
     @Schema(description = "用来做接口返回的数据映射。")
-    String responseData() default "";
+    String responseData() default "	";
 
     /**
      * 如果 method 为 get 的接口，设置了 data 信息。 默认 data 会自动附带在 query 里面发送给后端。\n\n如果想通过 body 发送给后端，那么请把这个配置成 false。\n\n但是，浏览器还不支持啊，设置了只是摆设。除非服务端支持 method-override
@@ -137,7 +137,7 @@ public @interface ApiObject {
      * @see 
      */
     @Schema(description = "携带 headers，用法和 data 一样，可以用变量。")
-    String headers() default "";
+    String headers() default "	";
 
     /**
      * 设置发送条件
@@ -147,7 +147,7 @@ public @interface ApiObject {
      * @see 
      */
     @Schema(description = "设置发送条件")
-    String sendOn() default "";
+    String sendOn() default "	";
 
     /**
      * 默认都是追加模式，如果想完全替换把这个配置成 true
@@ -177,7 +177,7 @@ public @interface ApiObject {
      * @see 
      */
     @Schema(description = "当开启自动刷新的时候，默认是 api 的 url 来自动跟踪变量变化的。 如果你希望监控 url 外的变量，请配置 traceExpression。")
-    String trackExpression() default "";
+    String trackExpression() default "	";
 
     /**
      * 如果设置了值，同一个接口，相同参数，指定的时间（单位：ms）内请求将直接走缓存。
@@ -197,6 +197,6 @@ public @interface ApiObject {
      * @see 
      */
     @Schema(description = "qs 配置项")
-    String qsOptions() default "";
+    String qsOptions() default "	";
 
 }

@@ -133,7 +133,8 @@ public class DataType {
                 return "";
             }
 
-            return "default \"\"";
+            //默认值是 \t 表示 不需要出现的值
+            return "default \"\t\"";
 
         } else if (type.endsWith("[]")) {
             return "default {}";

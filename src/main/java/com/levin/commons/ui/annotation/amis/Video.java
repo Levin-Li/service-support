@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 视频播放器 文档：https://baidu.gitee.io/amis/docs/components/video
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -31,7 +31,7 @@ public @interface Video {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为视频类型
@@ -51,7 +51,7 @@ public @interface Video {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -71,7 +71,7 @@ public @interface Video {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -91,7 +91,7 @@ public @interface Video {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -111,7 +111,7 @@ public @interface Video {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 是否自动播放
@@ -141,7 +141,7 @@ public @interface Video {
      * @see 
      */
     @Schema(description = "设置后，可以显示切帧.点击帧的时候会将视频跳到对应时间。\n\nframes: {  '01:22': 'http://domain/xxx.jpg' }")
-    String frames() default "";
+    String frames() default "	";
 
     /**
      * 配置帧列表容器className
@@ -151,7 +151,7 @@ public @interface Video {
      * @see 
      */
     @Schema(description = "配置帧列表容器className")
-    String framesClassName() default "";
+    String framesClassName() default "	";
 
     /**
      * 如果是实时的，请标记一下
@@ -191,7 +191,7 @@ public @interface Video {
      * @see 
      */
     @Schema(description = "配置播放器 className")
-    String playerClassName() default "";
+    String playerClassName() default "	";
 
     /**
      * 视频封面地址
@@ -201,7 +201,7 @@ public @interface Video {
      * @see 
      */
     @Schema(description = "视频封面地址")
-    String poster() default "";
+    String poster() default "	";
 
     /**
      * 是否将视频和封面分开显示
@@ -221,7 +221,7 @@ public @interface Video {
      * @see 
      */
     @Schema(description = "视频播放地址")
-    String src() default "";
+    String src() default "	";
 
     /**
      * 视频类型如： video/x-flv
@@ -231,7 +231,7 @@ public @interface Video {
      * @see 
      */
     @Schema(description = "视频类型如： video/x-flv")
-    String videoType() default "";
+    String videoType() default "	";
 
     /**
      * 视频比率

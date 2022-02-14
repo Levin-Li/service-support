@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface TimelineItem {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 容器 css 类名
@@ -32,7 +32,7 @@ public @interface TimelineItem {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -52,7 +52,7 @@ public @interface TimelineItem {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -72,7 +72,7 @@ public @interface TimelineItem {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -92,7 +92,7 @@ public @interface TimelineItem {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 时间点
@@ -102,7 +102,7 @@ public @interface TimelineItem {
      * @see 
      */
     @Schema(description = "时间点")
-    String time() default "";
+    String time() default "	";
 
     /**
      * 时间节点标题
@@ -112,7 +112,7 @@ public @interface TimelineItem {
      * @see 
      */
     @Schema(description = "时间节点标题")
-    String title() default "";
+    String title() default "	";
 
     /**
      * 详细内容
@@ -122,7 +122,7 @@ public @interface TimelineItem {
      * @see 
      */
     @Schema(description = "详细内容")
-    String detail() default "";
+    String detail() default "	";
 
     /**
      * detail折叠时文案
@@ -132,7 +132,7 @@ public @interface TimelineItem {
      * @see 
      */
     @Schema(description = "detail折叠时文案")
-    String detailCollapsedText() default "";
+    String detailCollapsedText() default "	";
 
     /**
      * detail展开时文案
@@ -142,7 +142,7 @@ public @interface TimelineItem {
      * @see 
      */
     @Schema(description = "detail展开时文案")
-    String detailExpandedText() default "";
+    String detailExpandedText() default "	";
 
     /**
      * 时间点圆圈颜色
@@ -152,7 +152,7 @@ public @interface TimelineItem {
      * @see 
      */
     @Schema(description = "时间点圆圈颜色")
-    String color() default "";
+    String color() default "	";
 
     /**
      * 图标
@@ -162,6 +162,6 @@ public @interface TimelineItem {
      * @see 
      */
     @Schema(description = "图标")
-    String icon() default "";
+    String icon() default "	";
 
 }

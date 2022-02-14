@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 状态展示控件。 文档：https://baidu.gitee.io/amis/docs/components/status
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface Status {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为状态展示控件
@@ -42,7 +42,7 @@ public @interface Status {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -62,7 +62,7 @@ public @interface Status {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -82,7 +82,7 @@ public @interface Status {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -102,7 +102,7 @@ public @interface Status {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 占位符
@@ -112,7 +112,7 @@ public @interface Status {
      * @see 
      */
     @Schema(description = "占位符")
-    String placeholder() default "";
+    String placeholder() default "	";
 
     /**
      * 状态图标映射关系
@@ -122,7 +122,7 @@ public @interface Status {
      * @see 
      */
     @Schema(description = "状态图标映射关系")
-    String map() default "";
+    String map() default "	";
 
     /**
      * 文字映射关系
@@ -132,6 +132,6 @@ public @interface Status {
      * @see 
      */
     @Schema(description = "文字映射关系")
-    String labelMap() default "";
+    String labelMap() default "	";
 
 }

@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Button Group 渲染器。 文档：https://baidu.gitee.io/amis/docs/components/button-group
  *
- * @author auto gen by service-support at 2022-2-7 23:06:28
+ * @author auto gen by service-support at 2022-2-10 12:04:41
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -34,7 +34,7 @@ public @interface ButtonGroup {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为提交按钮类型
@@ -54,7 +54,7 @@ public @interface ButtonGroup {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否为禁用状态。
@@ -74,7 +74,7 @@ public @interface ButtonGroup {
      * @see 
      */
     @Schema(description = "通过 JS 表达式来配置当前表单项的禁用状态。")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -94,7 +94,7 @@ public @interface ButtonGroup {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -114,7 +114,7 @@ public @interface ButtonGroup {
      * @see 
      */
     @Schema(description = "通过 JS 表达式来配置当前表单项是否显示")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 给 Button 配置 className。
@@ -124,7 +124,7 @@ public @interface ButtonGroup {
      * @see 
      */
     @Schema(description = "给 Button 配置 className。")
-    String btnClassName() default "";
+    String btnClassName() default "	";
 
     /**
      * 给选中态 Button 配置 className。
@@ -134,7 +134,7 @@ public @interface ButtonGroup {
      * @see 
      */
     @Schema(description = "给选中态 Button 配置 className。")
-    String btnActiveClassName() default "";
+    String btnActiveClassName() default "	";
 
     /**
      * 按钮集合
@@ -144,7 +144,7 @@ public @interface ButtonGroup {
      * @see 
      */
     @Schema(description = "按钮集合")
-    String[] buttons() default "";
+    String[] buttons() default "	";
 
     /**
      * 按钮样式级别
@@ -154,7 +154,7 @@ public @interface ButtonGroup {
      * @see 
      */
     @Schema(description = "按钮样式级别")
-    String btnLevel() default "";
+    String btnLevel() default "	";
 
     /**
      * 按钮选中的样式级别
@@ -164,7 +164,7 @@ public @interface ButtonGroup {
      * @see 
      */
     @Schema(description = "按钮选中的样式级别")
-    String btnActiveLevel() default "";
+    String btnActiveLevel() default "	";
 
     /**
      * 垂直展示？

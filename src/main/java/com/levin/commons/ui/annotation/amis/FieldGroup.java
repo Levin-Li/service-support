@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface FieldGroup {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * label
@@ -32,7 +32,7 @@ public @interface FieldGroup {
      * @see 
      */
     @Schema(description = "label")
-    String label() default "";
+    String label() default "	";
 
     /**
      * children
@@ -42,6 +42,6 @@ public @interface FieldGroup {
      * @see 
      */
     @Schema(description = "children")
-    String[] children() default "";
+    String[] children() default "	";
 
 }

@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Alert 提示渲染器。 文档：https://baidu.gitee.io/amis/docs/components/alert
  *
- * @author auto gen by service-support at 2022-2-7 23:06:28
+ * @author auto gen by service-support at 2022-2-10 12:04:41
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -35,7 +35,7 @@ public @interface Alert {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为提示框类型
@@ -55,7 +55,7 @@ public @interface Alert {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -75,7 +75,7 @@ public @interface Alert {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -95,7 +95,7 @@ public @interface Alert {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -115,7 +115,7 @@ public @interface Alert {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 提示框标题
@@ -125,7 +125,7 @@ public @interface Alert {
      * @see 
      */
     @Schema(description = "提示框标题")
-    String title() default "";
+    String title() default "	";
 
     /**
      * 内容区域
@@ -135,7 +135,7 @@ public @interface Alert {
      * @see 
      */
     @Schema(description = "内容区域")
-    String body() default "";
+    String body() default "	";
 
     /**
      * 提示类型
@@ -165,7 +165,7 @@ public @interface Alert {
      * @see 
      */
     @Schema(description = "关闭按钮CSS类名")
-    String closeButtonClassName() default "";
+    String closeButtonClassName() default "	";
 
     /**
      * 是否显示ICON
@@ -195,6 +195,6 @@ public @interface Alert {
      * @see 
      */
     @Schema(description = "图标CSS类名")
-    String iconClassName() default "";
+    String iconClassName() default "	";
 
 }

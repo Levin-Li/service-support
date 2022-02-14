@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * AnchorNav 锚点导航渲染器 文档：https://baidu.gitee.io/amis/docs/components/anchor-nav
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -32,7 +32,7 @@ public @interface AnchorNav {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为 AnchorNav 锚点导航渲染器
@@ -52,7 +52,7 @@ public @interface AnchorNav {
      * @see 
      */
     @Schema(description = "样式名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -72,7 +72,7 @@ public @interface AnchorNav {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -92,7 +92,7 @@ public @interface AnchorNav {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -112,7 +112,7 @@ public @interface AnchorNav {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 楼层集合
@@ -132,7 +132,7 @@ public @interface AnchorNav {
      * @see 
      */
     @Schema(description = "被激活（定位）的楼层")
-    String active() default "";
+    String active() default "	";
 
     /**
      * 导航样式名
@@ -142,7 +142,7 @@ public @interface AnchorNav {
      * @see 
      */
     @Schema(description = "导航样式名")
-    String linkClassName() default "";
+    String linkClassName() default "	";
 
     /**
      * 楼层样式名
@@ -152,7 +152,7 @@ public @interface AnchorNav {
      * @see 
      */
     @Schema(description = "楼层样式名")
-    String sectionClassName() default "";
+    String sectionClassName() default "	";
 
     /**
      * direction

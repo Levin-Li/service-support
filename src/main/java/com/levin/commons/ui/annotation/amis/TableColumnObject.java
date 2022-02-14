@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 表格列，不指定类型时默认为文本类型。
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -63,7 +63,7 @@ public @interface TableColumnObject {
      * @see 
      */
     @Schema(description = "列标题")
-    String label() default "";
+    String label() default "	";
 
     /**
      * 配置是否固定当前列
@@ -83,7 +83,7 @@ public @interface TableColumnObject {
      * @see 
      */
     @Schema(description = "绑定字段名")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 配置查看详情功能
@@ -163,7 +163,7 @@ public @interface TableColumnObject {
      * @see 
      */
     @Schema(description = "列宽度")
-    String width() default "";
+    String width() default "	";
 
     /**
      * 列对齐方式
@@ -183,7 +183,7 @@ public @interface TableColumnObject {
      * @see 
      */
     @Schema(description = "列样式表")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 单元格样式表达式
@@ -193,7 +193,7 @@ public @interface TableColumnObject {
      * @see 
      */
     @Schema(description = "单元格样式表达式")
-    String classNameExpr() default "";
+    String classNameExpr() default "	";
 
     /**
      * 列头样式表
@@ -203,7 +203,7 @@ public @interface TableColumnObject {
      * @see 
      */
     @Schema(description = "列头样式表")
-    String labelClassName() default "";
+    String labelClassName() default "	";
 
     /**
      * todo
@@ -243,7 +243,7 @@ public @interface TableColumnObject {
      * @see 
      */
     @Schema(description = "默认值, 只有在 inputTable 里面才有用")
-    String value() default "";
+    String value() default "	";
 
     /**
      * 是否唯一, 只有在 inputTable 里面才有用

@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 提示渲染器，默认会显示个小图标，鼠标放上来的时候显示配置的内容。
  *
- * @author auto gen by service-support at 2022-2-7 23:06:28
+ * @author auto gen by service-support at 2022-2-10 12:04:41
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -45,7 +45,7 @@ public @interface Remark {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为提示类型
@@ -65,7 +65,7 @@ public @interface Remark {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -85,7 +85,7 @@ public @interface Remark {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -105,7 +105,7 @@ public @interface Remark {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -125,7 +125,7 @@ public @interface Remark {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * label
@@ -135,7 +135,7 @@ public @interface Remark {
      * @see 
      */
     @Schema(description = "label")
-    String label() default "";
+    String label() default "	";
 
     /**
      * icon
@@ -155,7 +155,7 @@ public @interface Remark {
      * @see 
      */
     @Schema(description = "tooltipClassName")
-    String tooltipClassName() default "";
+    String tooltipClassName() default "	";
 
     /**
      * 触发规则
@@ -175,7 +175,7 @@ public @interface Remark {
      * @see 
      */
     @Schema(description = "提示标题")
-    String title() default "";
+    String title() default "	";
 
     /**
      * 提示内容

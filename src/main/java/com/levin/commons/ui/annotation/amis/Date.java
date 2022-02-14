@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Date 展示渲染器。 文档：https://baidu.gitee.io/amis/docs/components/date
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -36,7 +36,7 @@ public @interface Date {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为日期展示类型
@@ -56,7 +56,7 @@ public @interface Date {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -76,7 +76,7 @@ public @interface Date {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -96,7 +96,7 @@ public @interface Date {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -116,7 +116,7 @@ public @interface Date {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 展示的时间格式，参考 moment 中的格式说明。
@@ -126,7 +126,7 @@ public @interface Date {
      * @see 
      */
     @Schema(description = "展示的时间格式，参考 moment 中的格式说明。")
-    String format() default "";
+    String format() default "	";
 
     /**
      * 占位符
@@ -136,7 +136,7 @@ public @interface Date {
      * @see 
      */
     @Schema(description = "占位符")
-    String placeholder() default "";
+    String placeholder() default "	";
 
     /**
      * 值的时间格式，参考 moment 中的格式说明。
@@ -146,7 +146,7 @@ public @interface Date {
      * @see 
      */
     @Schema(description = "值的时间格式，参考 moment 中的格式说明。")
-    String valueFormat() default "";
+    String valueFormat() default "	";
 
     /**
      * 显示成相对时间，比如1分钟前

@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -32,7 +32,7 @@ public @interface ListItem {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 容器 css 类名
@@ -42,7 +42,7 @@ public @interface ListItem {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -62,7 +62,7 @@ public @interface ListItem {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -82,7 +82,7 @@ public @interface ListItem {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -102,7 +102,7 @@ public @interface ListItem {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * actions
@@ -112,7 +112,7 @@ public @interface ListItem {
      * @see 
      */
     @Schema(description = "actions")
-    String[] actions() default "";
+    String[] actions() default "	";
 
     /**
      * 操作位置，默认在右侧，可以设置成左侧。
@@ -132,7 +132,7 @@ public @interface ListItem {
      * @see 
      */
     @Schema(description = "图片地址")
-    String avatar() default "";
+    String avatar() default "	";
 
     /**
      * 内容区域
@@ -142,7 +142,7 @@ public @interface ListItem {
      * @see 
      */
     @Schema(description = "内容区域")
-    String[] body() default "";
+    String[] body() default "	";
 
     /**
      * 描述

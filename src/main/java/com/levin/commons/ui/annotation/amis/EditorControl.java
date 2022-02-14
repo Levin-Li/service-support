@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Editor 代码编辑器 文档：https://baidu.gitee.io/amis/docs/components/form/editor
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:43
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -156,7 +156,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "描述标题")
-    String label() default "";
+    String label() default "	";
 
     /**
      * 配置 label className
@@ -166,7 +166,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "配置 label className")
-    String labelClassName() default "";
+    String labelClassName() default "	";
 
     /**
      * 字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c
@@ -176,7 +176,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 显示一个小图标, 鼠标放上去的时候显示提示内容
@@ -206,7 +206,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "输入提示，聚焦的时候显示")
-    String hint() default "";
+    String hint() default "	";
 
     /**
      * 当修改完的时候是否提交表单。
@@ -246,7 +246,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "描述内容，支持 Html 片段。")
-    String description() default "";
+    String description() default "	";
 
     /**
      * desc
@@ -256,7 +256,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "desc")
-    String desc() default "";
+    String desc() default "	";
 
     /**
      * 配置描述上的 className
@@ -266,7 +266,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "配置描述上的 className")
-    String descriptionClassName() default "";
+    String descriptionClassName() default "	";
 
     /**
      * 配置当前表单项展示模式
@@ -306,7 +306,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "配置 input className")
-    String inputClassName() default "";
+    String inputClassName() default "	";
 
     /**
      * 占位符
@@ -316,7 +316,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "占位符")
-    String placeholder() default "";
+    String placeholder() default "	";
 
     /**
      * 是否为必填
@@ -336,7 +336,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "验证失败的提示信息")
-    String validationErrors() default "";
+    String validationErrors() default "	";
 
     /**
      * validations
@@ -346,7 +346,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "validations")
-    String validations() default "";
+    String validations() default "	";
 
     /**
      * 默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。
@@ -356,7 +356,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。")
-    String value() default "";
+    String value() default "	";
 
     /**
      * 表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉
@@ -376,7 +376,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "远端校验表单项接口")
-    String validateApi() default "";
+    String validateApi() default "	";
 
     /**
      * 容器 css 类名
@@ -386,7 +386,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -406,7 +406,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -426,7 +426,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -446,7 +446,7 @@ public @interface EditorControl {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 语言类型

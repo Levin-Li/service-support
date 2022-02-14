@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class BizInteraction
     String title;
 
     @Schema(description = "提示内容")
-    @NotNull
+    @NotBlank
     String info;
 
     @Schema(description = "交互动作")

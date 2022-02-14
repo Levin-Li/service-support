@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 二维码展示控件。 文档：https://baidu.gitee.io/amis/docs/components/qrcode
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -44,7 +44,7 @@ public @interface QRCode {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * type
@@ -64,7 +64,7 @@ public @interface QRCode {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -84,7 +84,7 @@ public @interface QRCode {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -104,7 +104,7 @@ public @interface QRCode {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -124,7 +124,7 @@ public @interface QRCode {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 关联字段名。
@@ -134,7 +134,7 @@ public @interface QRCode {
      * @see 
      */
     @Schema(description = "关联字段名。")
-    String name() default "";
+    String name() default "	";
 
     /**
      * css 类名
@@ -144,7 +144,7 @@ public @interface QRCode {
      * @see 
      */
     @Schema(description = "css 类名")
-    String qrcodeClassName() default "";
+    String qrcodeClassName() default "	";
 
     /**
      * 二维码的宽高大小，默认 128
@@ -164,7 +164,7 @@ public @interface QRCode {
      * @see 
      */
     @Schema(description = "背景色")
-    String backgroundColor() default "";
+    String backgroundColor() default "	";
 
     /**
      * 前景色
@@ -174,7 +174,7 @@ public @interface QRCode {
      * @see 
      */
     @Schema(description = "前景色")
-    String foregroundColor() default "";
+    String foregroundColor() default "	";
 
     /**
      * 二维码复杂级别
@@ -194,6 +194,6 @@ public @interface QRCode {
      * @see 
      */
     @Schema(description = "占位符")
-    String placeholder() default "";
+    String placeholder() default "	";
 
 }

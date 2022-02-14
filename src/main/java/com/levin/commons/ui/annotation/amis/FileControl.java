@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * File 文件上传控件 文档：https://baidu.gitee.io/amis/docs/components/form/file
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:43
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -52,7 +52,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -72,7 +72,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -92,7 +92,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -112,7 +112,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 指定为文件上传
@@ -142,7 +142,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "描述标题")
-    String label() default "";
+    String label() default "	";
 
     /**
      * 配置 label className
@@ -152,7 +152,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "配置 label className")
-    String labelClassName() default "";
+    String labelClassName() default "	";
 
     /**
      * 字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c
@@ -162,7 +162,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 显示一个小图标, 鼠标放上去的时候显示提示内容
@@ -192,7 +192,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "输入提示，聚焦的时候显示")
-    String hint() default "";
+    String hint() default "	";
 
     /**
      * 当修改完的时候是否提交表单。
@@ -232,7 +232,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "描述内容，支持 Html 片段。")
-    String description() default "";
+    String description() default "	";
 
     /**
      * desc
@@ -242,7 +242,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "desc")
-    String desc() default "";
+    String desc() default "	";
 
     /**
      * 配置描述上的 className
@@ -252,7 +252,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "配置描述上的 className")
-    String descriptionClassName() default "";
+    String descriptionClassName() default "	";
 
     /**
      * 配置当前表单项展示模式
@@ -292,7 +292,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "配置 input className")
-    String inputClassName() default "";
+    String inputClassName() default "	";
 
     /**
      * 占位符
@@ -302,7 +302,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "占位符")
-    String placeholder() default "";
+    String placeholder() default "	";
 
     /**
      * 是否为必填
@@ -322,7 +322,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "验证失败的提示信息")
-    String validationErrors() default "";
+    String validationErrors() default "	";
 
     /**
      * validations
@@ -332,7 +332,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "validations")
-    String validations() default "";
+    String validations() default "	";
 
     /**
      * 默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。
@@ -342,7 +342,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。")
-    String value() default "";
+    String value() default "	";
 
     /**
      * 表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉
@@ -362,7 +362,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "远端校验表单项接口")
-    String validateApi() default "";
+    String validateApi() default "	";
 
     /**
      * 上传文件按钮说明
@@ -372,7 +372,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "上传文件按钮说明")
-    String btnLabel() default "";
+    String btnLabel() default "	";
 
     /**
      * 默认只支持纯文本，要支持其他类型，请配置此属性。建议直接填写文件后缀 如：.txt,.csv\n\n多个类型用逗号隔开。
@@ -382,7 +382,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "默认只支持纯文本，要支持其他类型，请配置此属性。建议直接填写文件后缀 如：.txt,.csv\n\n多个类型用逗号隔开。")
-    String accept() default "";
+    String accept() default "	";
 
     /**
      * 如果上传的文件比较小可以设置此选项来简单的把文件 base64 的值给 form 一起提交，目前不支持多选。
@@ -422,7 +422,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "默认 `/api/upload/chunk` 想自己存储时才需要关注。")
-    String chunkApi() default "";
+    String chunkApi() default "	";
 
     /**
      * 分块大小，默认为 5M.
@@ -442,7 +442,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "分割符")
-    String delimiter() default "";
+    String delimiter() default "	";
 
     /**
      * 默认显示文件路径的时候会支持直接下载， 可以支持加前缀如：`http://xx.dom/filename=` ， 如果不希望这样，可以把当前配置项设置为 `false`。\n\n1.1.6 版本开始将支持变量 ${xxx} 来自己拼凑个下载地址，并且支持配置成 post.
@@ -452,7 +452,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "默认显示文件路径的时候会支持直接下载， 可以支持加前缀如：`http://xx.dom/filename=` ， 如果不希望这样，可以把当前配置项设置为 `false`。\n\n1.1.6 版本开始将支持变量 ${xxx} 来自己拼凑个下载地址，并且支持配置成 post.")
-    String downloadUrl() default "";
+    String downloadUrl() default "	";
 
     /**
      * 模板下载地址
@@ -462,7 +462,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "模板下载地址")
-    String templateUrl() default "";
+    String templateUrl() default "	";
 
     /**
      * 默认 `file`, 如果你不想自己存储，则可以忽略此属性。
@@ -472,7 +472,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "默认 `file`, 如果你不想自己存储，则可以忽略此属性。")
-    String fileField() default "";
+    String fileField() default "	";
 
     /**
      * 默认 `/api/upload/finishChunkApi` 想自己存储时才需要关注。
@@ -482,7 +482,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "默认 `/api/upload/finishChunkApi` 想自己存储时才需要关注。")
-    String finishChunkApi() default "";
+    String finishChunkApi() default "	";
 
     /**
      * 是否隐藏上传按钮
@@ -522,7 +522,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "默认 `/api/upload/file` 如果想自己存储，请设置此选项。")
-    String receiver() default "";
+    String receiver() default "	";
 
     /**
      * 默认 `/api/upload/startChunk` 想自己存储时才需要关注。
@@ -532,7 +532,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "默认 `/api/upload/startChunk` 想自己存储时才需要关注。")
-    String startChunkApi() default "";
+    String startChunkApi() default "	";
 
     /**
      * 默认为 'auto' amis 所在服务器，限制了文件上传大小不得超出10M，所以 amis 在用户选择大文件的时候，自动会改成分块上传模式。
@@ -542,7 +542,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "默认为 'auto' amis 所在服务器，限制了文件上传大小不得超出10M，所以 amis 在用户选择大文件的时候，自动会改成分块上传模式。")
-    String useChunk() default "";
+    String useChunk() default "	";
 
     /**
      * 按钮 CSS 类名
@@ -552,7 +552,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "按钮 CSS 类名")
-    String btnClassName() default "";
+    String btnClassName() default "	";
 
     /**
      * 上传按钮 CSS 类名
@@ -562,7 +562,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "上传按钮 CSS 类名")
-    String btnUploadClassName() default "";
+    String btnUploadClassName() default "	";
 
     /**
      * 是否为多选
@@ -602,7 +602,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "清除时设置的值")
-    String resetValue() default "";
+    String resetValue() default "	";
 
     /**
      * 上传后把其他字段同步到表单内部。
@@ -612,7 +612,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "上传后把其他字段同步到表单内部。")
-    String autoFill() default "";
+    String autoFill() default "	";
 
     /**
      * 接口返回的数据中，哪个用来当做值
@@ -622,7 +622,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "接口返回的数据中，哪个用来当做值")
-    String valueField() default "";
+    String valueField() default "	";
 
     /**
      * 接口返回的数据中，哪个用来展示文件名
@@ -632,7 +632,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "接口返回的数据中，哪个用来展示文件名")
-    String nameField() default "";
+    String nameField() default "	";
 
     /**
      * 接口返回的数据中哪个用来作为下载地址。
@@ -642,7 +642,7 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "接口返回的数据中哪个用来作为下载地址。")
-    String urlField() default "";
+    String urlField() default "	";
 
     /**
      * 按钮状态文案配置。
@@ -652,6 +652,6 @@ public @interface FileControl {
      * @see 
      */
     @Schema(description = "按钮状态文案配置。")
-    String stateTextMap() default "";
+    String stateTextMap() default "	";
 
 }

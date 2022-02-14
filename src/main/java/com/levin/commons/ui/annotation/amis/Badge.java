@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Badge 角标。 文档：https://baidu.gitee.io/amis/docs/components/badge
  *
- * @author auto gen by service-support at 2022-2-7 23:06:28
+ * @author auto gen by service-support at 2022-2-10 12:04:41
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -45,7 +45,7 @@ public @interface Badge {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 容器 css 类名
@@ -55,7 +55,7 @@ public @interface Badge {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -75,7 +75,7 @@ public @interface Badge {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -95,7 +95,7 @@ public @interface Badge {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -115,7 +115,7 @@ public @interface Badge {
      * @see 
      */
     @Schema(description = "动态控制是否显示")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 文本内容
@@ -125,7 +125,7 @@ public @interface Badge {
      * @see 
      */
     @Schema(description = "文本内容")
-    String text() default "";
+    String text() default "	";
 
     /**
      * 大小
@@ -155,7 +155,7 @@ public @interface Badge {
      * @see 
      */
     @Schema(description = "角标位置，优先级大于position")
-    String[] offset() default "";
+    String[] offset() default "	";
 
     /**
      * 角标位置
@@ -195,7 +195,7 @@ public @interface Badge {
      * @see 
      */
     @Schema(description = "角标的自定义样式")
-    String style() default "";
+    String style() default "	";
 
     /**
      * 提示类型
@@ -205,6 +205,6 @@ public @interface Badge {
      * @see 
      */
     @Schema(description = "提示类型")
-    String level() default "";
+    String level() default "	";
 
 }

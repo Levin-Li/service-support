@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface NavItem {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 容器 css 类名
@@ -32,7 +32,7 @@ public @interface NavItem {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -52,7 +52,7 @@ public @interface NavItem {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -72,7 +72,7 @@ public @interface NavItem {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -92,7 +92,7 @@ public @interface NavItem {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 文字说明
@@ -102,7 +102,7 @@ public @interface NavItem {
      * @see 
      */
     @Schema(description = "文字说明")
-    String label() default "";
+    String label() default "	";
 
     /**
      * 图标类名，参考 fontawesome 4。
@@ -122,7 +122,7 @@ public @interface NavItem {
      * @see 
      */
     @Schema(description = "to")
-    String to() default "";
+    String to() default "	";
 
     /**
      * target
@@ -132,7 +132,7 @@ public @interface NavItem {
      * @see 
      */
     @Schema(description = "target")
-    String target() default "";
+    String target() default "	";
 
     /**
      * unfolded
@@ -172,7 +172,7 @@ public @interface NavItem {
      * @see 
      */
     @Schema(description = "deferApi")
-    String deferApi() default "";
+    String deferApi() default "	";
 
     /**
      * children
@@ -182,6 +182,6 @@ public @interface NavItem {
      * @see 
      */
     @Schema(description = "children")
-    String[] children() default "";
+    String[] children() default "	";
 
 }

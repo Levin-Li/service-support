@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 搜索框渲染器
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface SearchBox {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为搜索框。\n\n文档：https://baidu.gitee.io/amis/docs/components/search-box
@@ -42,7 +42,7 @@ public @interface SearchBox {
      * @see 
      */
     @Schema(description = "外层 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -62,7 +62,7 @@ public @interface SearchBox {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -82,7 +82,7 @@ public @interface SearchBox {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -102,7 +102,7 @@ public @interface SearchBox {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 关键字名字。
@@ -112,7 +112,7 @@ public @interface SearchBox {
      * @see 
      */
     @Schema(description = "关键字名字。")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 占位符
@@ -122,7 +122,7 @@ public @interface SearchBox {
      * @see 
      */
     @Schema(description = "占位符")
-    String placeholder() default "";
+    String placeholder() default "	";
 
     /**
      * 是否为 Mini 样式。

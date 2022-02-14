@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Mapping 映射展示控件。 文档：https://baidu.gitee.io/amis/docs/components/mapping
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -32,7 +32,7 @@ public @interface Mapping {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为映射展示控件
@@ -52,7 +52,7 @@ public @interface Mapping {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -72,7 +72,7 @@ public @interface Mapping {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -92,7 +92,7 @@ public @interface Mapping {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -112,7 +112,7 @@ public @interface Mapping {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 关联字段名。
@@ -122,7 +122,7 @@ public @interface Mapping {
      * @see 
      */
     @Schema(description = "关联字段名。")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 配置映射规则，值可以使用模板语法。当 key 为 * 时表示 else，也就是说值没有映射到任何规则时用 * 对应的值展示。
@@ -132,7 +132,7 @@ public @interface Mapping {
      * @see 
      */
     @Schema(description = "配置映射规则，值可以使用模板语法。当 key 为 * 时表示 else，也就是说值没有映射到任何规则时用 * 对应的值展示。")
-    String map() default "";
+    String map() default "	";
 
     /**
      * 如果想远程拉取字典，请配置 source 为接口。
@@ -142,7 +142,7 @@ public @interface Mapping {
      * @see 
      */
     @Schema(description = "如果想远程拉取字典，请配置 source 为接口。")
-    String source() default "";
+    String source() default "	";
 
     /**
      * 占位符
@@ -152,6 +152,6 @@ public @interface Mapping {
      * @see 
      */
     @Schema(description = "占位符")
-    String placeholder() default "";
+    String placeholder() default "	";
 
 }

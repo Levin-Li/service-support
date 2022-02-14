@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -28,7 +28,7 @@ public @interface Option {
      * @see 
      */
     @Schema(description = "用来显示的文字")
-    String label() default "";
+    String label() default "	";
 
     /**
      * 可以用来给 Option 标记个范围，让数据展示更清晰。\n\n这个只有在数值展示的时候显示。
@@ -38,7 +38,7 @@ public @interface Option {
      * @see 
      */
     @Schema(description = "可以用来给 Option 标记个范围，让数据展示更清晰。\n\n这个只有在数值展示的时候显示。")
-    String scopeLabel() default "";
+    String scopeLabel() default "	";
 
     /**
      * 请保证数值唯一，多个选项值一致会认为是同一个选项。
@@ -48,7 +48,7 @@ public @interface Option {
      * @see 
      */
     @Schema(description = "请保证数值唯一，多个选项值一致会认为是同一个选项。")
-    String value() default "";
+    String value() default "	";
 
     /**
      * 是否禁用
@@ -68,7 +68,7 @@ public @interface Option {
      * @see 
      */
     @Schema(description = "支持嵌套")
-    String[] children() default "";
+    String[] children() default "	";
 
     /**
      * 是否可见
@@ -98,7 +98,7 @@ public @interface Option {
      * @see 
      */
     @Schema(description = "描述，部分控件支持")
-    String description() default "";
+    String description() default "	";
 
     /**
      * 标记后数据延时加载
@@ -118,7 +118,7 @@ public @interface Option {
      * @see 
      */
     @Schema(description = "如果设置了，优先级更高，不设置走 source 接口加载。")
-    String deferApi() default "";
+    String deferApi() default "	";
 
     /**
      * 标记正在加载。只有 defer 为 true 时有意义。内部字段不可以外部设置

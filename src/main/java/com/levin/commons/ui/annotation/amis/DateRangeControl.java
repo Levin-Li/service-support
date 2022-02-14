@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * DateRange 日期范围控件 文档：https://baidu.gitee.io/amis/docs/components/form/date-range
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:43
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -74,7 +74,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -94,7 +94,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -114,7 +114,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -134,7 +134,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 指定为日期范围控件
@@ -164,7 +164,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "描述标题")
-    String label() default "";
+    String label() default "	";
 
     /**
      * 配置 label className
@@ -174,7 +174,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "配置 label className")
-    String labelClassName() default "";
+    String labelClassName() default "	";
 
     /**
      * 字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c
@@ -184,7 +184,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 显示一个小图标, 鼠标放上去的时候显示提示内容
@@ -214,7 +214,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "输入提示，聚焦的时候显示")
-    String hint() default "";
+    String hint() default "	";
 
     /**
      * 当修改完的时候是否提交表单。
@@ -254,7 +254,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "描述内容，支持 Html 片段。")
-    String description() default "";
+    String description() default "	";
 
     /**
      * desc
@@ -264,7 +264,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "desc")
-    String desc() default "";
+    String desc() default "	";
 
     /**
      * 配置描述上的 className
@@ -274,7 +274,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "配置描述上的 className")
-    String descriptionClassName() default "";
+    String descriptionClassName() default "	";
 
     /**
      * 配置当前表单项展示模式
@@ -314,7 +314,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "配置 input className")
-    String inputClassName() default "";
+    String inputClassName() default "	";
 
     /**
      * 占位符
@@ -324,7 +324,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "占位符")
-    String placeholder() default "";
+    String placeholder() default "	";
 
     /**
      * 是否为必填
@@ -344,7 +344,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "验证失败的提示信息")
-    String validationErrors() default "";
+    String validationErrors() default "	";
 
     /**
      * validations
@@ -354,7 +354,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "validations")
-    String validations() default "";
+    String validations() default "	";
 
     /**
      * 这里面 value 需要特殊说明一下，因为支持相对值。* `-2mins` 2分钟前n * `+2days` 2天后n* `-10week` 十周前n可用单位： `min`、`hour`、`day`、`week`、`month`、`year`。所有单位支持复数形式。
@@ -364,7 +364,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "这里面 value 需要特殊说明一下，因为支持相对值。* `-2mins` 2分钟前n * `+2days` 2天后n* `-10week` 十周前n可用单位： `min`、`hour`、`day`、`week`、`month`、`year`。所有单位支持复数形式。")
-    String value() default "";
+    String value() default "	";
 
     /**
      * 表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉
@@ -384,7 +384,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "远端校验表单项接口")
-    String validateApi() default "";
+    String validateApi() default "	";
 
     /**
      * 分割符, 因为有两个值，开始时间和结束时间，所以要有连接符。默认为英文逗号。
@@ -394,7 +394,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "分割符, 因为有两个值，开始时间和结束时间，所以要有连接符。默认为英文逗号。")
-    String delimiter() default "";
+    String delimiter() default "	";
 
     /**
      * 默认 `X` 即时间戳格式，用来提交的时间格式。更多格式类型请参考 moment.
@@ -404,7 +404,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "默认 `X` 即时间戳格式，用来提交的时间格式。更多格式类型请参考 moment.")
-    String format() default "";
+    String format() default "	";
 
     /**
      * 默认 `YYYY-MM-DD` 用来配置显示的时间格式。
@@ -414,7 +414,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "默认 `YYYY-MM-DD` 用来配置显示的时间格式。")
-    String inputFormat() default "";
+    String inputFormat() default "	";
 
     /**
      * 开启后将选中的选项 value 的值用连接符拼接起来，作为当前表单项的值。如： `value1,value2` 否则为 `[value1, value2]`
@@ -434,7 +434,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "最大日期限制，支持变量 $xxx 来取值，或者用相对值如：* `-2mins` 2分钟前n * `+2days` 2天后n* `-10week` 十周前n可用单位： `min`、`hour`、`day`、`week`、`month`、`year`。所有单位支持复数形式。")
-    String maxDate() default "";
+    String maxDate() default "	";
 
     /**
      * 最小日期限制，支持变量 $xxx 来取值，或者用相对值如：* `-2mins` 2分钟前n * `+2days` 2天后n* `-10week` 十周前n可用单位： `min`、`hour`、`day`、`week`、`month`、`year`。所有单位支持复数形式。
@@ -444,7 +444,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "最小日期限制，支持变量 $xxx 来取值，或者用相对值如：* `-2mins` 2分钟前n * `+2days` 2天后n* `-10week` 十周前n可用单位： `min`、`hour`、`day`、`week`、`month`、`year`。所有单位支持复数形式。")
-    String minDate() default "";
+    String minDate() default "	";
 
     /**
      * 最大跨度，比如 2days
@@ -454,7 +454,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "最大跨度，比如 2days")
-    String maxDuration() default "";
+    String maxDuration() default "	";
 
     /**
      * 最小跨度，比如 2days
@@ -464,7 +464,7 @@ public @interface DateRangeControl {
      * @see 
      */
     @Schema(description = "最小跨度，比如 2days")
-    String minDuration() default "";
+    String minDuration() default "	";
 
     /**
      * 边框模式，全边框，还是半边框，或者没边框。

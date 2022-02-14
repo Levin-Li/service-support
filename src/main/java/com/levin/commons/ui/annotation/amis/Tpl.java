@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * tpl 渲染器
  *
- * @author auto gen by service-support at 2022-2-7 23:06:28
+ * @author auto gen by service-support at 2022-2-10 12:04:41
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -32,7 +32,7 @@ public @interface Tpl {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为模板渲染器。\n\n文档：https://baidu.gitee.io/amis/docs/concepts/template
@@ -52,7 +52,7 @@ public @interface Tpl {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -72,7 +72,7 @@ public @interface Tpl {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -92,7 +92,7 @@ public @interface Tpl {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -112,7 +112,7 @@ public @interface Tpl {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * tpl
@@ -122,7 +122,7 @@ public @interface Tpl {
      * @see 
      */
     @Schema(description = "tpl")
-    String tpl() default "";
+    String tpl() default "	";
 
     /**
      * html
@@ -132,7 +132,7 @@ public @interface Tpl {
      * @see 
      */
     @Schema(description = "html")
-    String html() default "";
+    String html() default "	";
 
     /**
      * text
@@ -142,7 +142,7 @@ public @interface Tpl {
      * @see 
      */
     @Schema(description = "text")
-    String text() default "";
+    String text() default "	";
 
     /**
      * raw
@@ -152,7 +152,7 @@ public @interface Tpl {
      * @see 
      */
     @Schema(description = "raw")
-    String raw() default "";
+    String raw() default "	";
 
     /**
      * 是否内联显示？
@@ -172,7 +172,7 @@ public @interface Tpl {
      * @see 
      */
     @Schema(description = "自定义样式")
-    String style() default "";
+    String style() default "	";
 
     /**
      * 角标

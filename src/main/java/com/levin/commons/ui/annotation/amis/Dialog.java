@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Dialog 弹框渲染器。 文档：https://baidu.gitee.io/amis/docs/components/dialog
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -36,7 +36,7 @@ public @interface Dialog {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * type
@@ -56,7 +56,7 @@ public @interface Dialog {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -76,7 +76,7 @@ public @interface Dialog {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -96,7 +96,7 @@ public @interface Dialog {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -116,7 +116,7 @@ public @interface Dialog {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 默认不用填写，自动会创建确认和取消按钮。
@@ -126,7 +126,7 @@ public @interface Dialog {
      * @see 
      */
     @Schema(description = "默认不用填写，自动会创建确认和取消按钮。")
-    String[] actions() default "";
+    String[] actions() default "	";
 
     /**
      * 内容区域
@@ -136,7 +136,7 @@ public @interface Dialog {
      * @see 
      */
     @Schema(description = "内容区域")
-    String body() default "";
+    String body() default "	";
 
     /**
      * 配置 Body 容器 className
@@ -146,7 +146,7 @@ public @interface Dialog {
      * @see 
      */
     @Schema(description = "配置 Body 容器 className")
-    String bodyClassName() default "";
+    String bodyClassName() default "	";
 
     /**
      * 是否支持按 ESC 关闭 Dialog
@@ -176,7 +176,7 @@ public @interface Dialog {
      * @see 
      */
     @Schema(description = "name")
-    String name() default "";
+    String name() default "	";
 
     /**
      * Dialog 大小
@@ -196,7 +196,7 @@ public @interface Dialog {
      * @see 
      */
     @Schema(description = "请通过配置 title 设置标题")
-    String title() default "";
+    String title() default "	";
 
     /**
      * header
@@ -206,7 +206,7 @@ public @interface Dialog {
      * @see 
      */
     @Schema(description = "header")
-    String header() default "";
+    String header() default "	";
 
     /**
      * headerClassName
@@ -216,7 +216,7 @@ public @interface Dialog {
      * @see 
      */
     @Schema(description = "headerClassName")
-    String headerClassName() default "";
+    String headerClassName() default "	";
 
     /**
      * footer
@@ -226,7 +226,7 @@ public @interface Dialog {
      * @see 
      */
     @Schema(description = "footer")
-    String footer() default "";
+    String footer() default "	";
 
     /**
      * 影响自动生成的按钮，如果自己配置了按钮这个配置无效。

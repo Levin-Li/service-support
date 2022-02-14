@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Table 表格渲染器。 文档：https://baidu.gitee.io/amis/docs/components/table
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -32,7 +32,7 @@ public @interface Table {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为表格渲染器。
@@ -52,7 +52,7 @@ public @interface Table {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -72,7 +72,7 @@ public @interface Table {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -92,7 +92,7 @@ public @interface Table {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -112,7 +112,7 @@ public @interface Table {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 是否固定表头
@@ -132,7 +132,7 @@ public @interface Table {
      * @see 
      */
     @Schema(description = "表格的列信息")
-    String[] columns() default "";
+    String[] columns() default "	";
 
     /**
      * 展示列显示开关，自动即：列数量大于或等于5个时自动开启
@@ -162,7 +162,7 @@ public @interface Table {
      * @see 
      */
     @Schema(description = "底部外层 CSS 类名")
-    String footerClassName() default "";
+    String footerClassName() default "	";
 
     /**
      * 顶部外层 CSS 类名
@@ -172,7 +172,7 @@ public @interface Table {
      * @see 
      */
     @Schema(description = "顶部外层 CSS 类名")
-    String headerClassName() default "";
+    String headerClassName() default "	";
 
     /**
      * 占位符
@@ -182,7 +182,7 @@ public @interface Table {
      * @see 
      */
     @Schema(description = "占位符")
-    String placeholder() default "";
+    String placeholder() default "	";
 
     /**
      * 是否显示底部
@@ -212,7 +212,7 @@ public @interface Table {
      * @see 
      */
     @Schema(description = "数据源：绑定当前环境变量")
-    String source() default "";
+    String source() default "	";
 
     /**
      * 表格 CSS 类名
@@ -222,7 +222,7 @@ public @interface Table {
      * @see 
      */
     @Schema(description = "表格 CSS 类名")
-    String tableClassName() default "";
+    String tableClassName() default "	";
 
     /**
      * 标题
@@ -232,7 +232,7 @@ public @interface Table {
      * @see 
      */
     @Schema(description = "标题")
-    String title() default "";
+    String title() default "	";
 
     /**
      * 工具栏 CSS 类名
@@ -242,7 +242,7 @@ public @interface Table {
      * @see 
      */
     @Schema(description = "工具栏 CSS 类名")
-    String toolbarClassName() default "";
+    String toolbarClassName() default "	";
 
     /**
      * 合并单元格配置，配置数字表示从左到右的多少列自动合并单元格。
@@ -272,7 +272,7 @@ public @interface Table {
      * @see 
      */
     @Schema(description = "顶部总结行")
-    String[] prefixRow() default "";
+    String[] prefixRow() default "	";
 
     /**
      * 底部总结行
@@ -282,7 +282,7 @@ public @interface Table {
      * @see 
      */
     @Schema(description = "底部总结行")
-    String[] affixRow() default "";
+    String[] affixRow() default "	";
 
     /**
      * 是否可调整列宽
@@ -302,7 +302,7 @@ public @interface Table {
      * @see 
      */
     @Schema(description = "行样式表表达式")
-    String rowClassNameExpr() default "";
+    String rowClassNameExpr() default "	";
 
     /**
      * 行角标

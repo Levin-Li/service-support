@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Container 容器渲染器。 文档：https://baidu.gitee.io/amis/docs/components/container
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface Container {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为 container 类型
@@ -42,7 +42,7 @@ public @interface Container {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -62,7 +62,7 @@ public @interface Container {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -82,7 +82,7 @@ public @interface Container {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -102,7 +102,7 @@ public @interface Container {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 内容
@@ -112,7 +112,7 @@ public @interface Container {
      * @see 
      */
     @Schema(description = "内容")
-    String body() default "";
+    String body() default "	";
 
     /**
      * body 类名
@@ -122,7 +122,7 @@ public @interface Container {
      * @see 
      */
     @Schema(description = "body 类名")
-    String bodyClassName() default "";
+    String bodyClassName() default "	";
 
     /**
      * 自定义样式
@@ -132,7 +132,7 @@ public @interface Container {
      * @see 
      */
     @Schema(description = "自定义样式")
-    String style() default "";
+    String style() default "	";
 
     /**
      * 使用的标签
@@ -142,6 +142,6 @@ public @interface Container {
      * @see 
      */
     @Schema(description = "使用的标签")
-    String wrapperComponent() default "";
+    String wrapperComponent() default "	";
 
 }

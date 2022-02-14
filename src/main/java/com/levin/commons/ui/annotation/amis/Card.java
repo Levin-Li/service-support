@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Card 卡片渲染器。 文档：https://baidu.gitee.io/amis/docs/components/card
  *
- * @author auto gen by service-support at 2022-2-7 23:06:28
+ * @author auto gen by service-support at 2022-2-10 12:04:41
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface Card {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为 card 类型
@@ -42,7 +42,7 @@ public @interface Card {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -62,7 +62,7 @@ public @interface Card {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -82,7 +82,7 @@ public @interface Card {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -102,7 +102,7 @@ public @interface Card {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 头部配置
@@ -112,7 +112,7 @@ public @interface Card {
      * @see 
      */
     @Schema(description = "头部配置")
-    String header() default "";
+    String header() default "	";
 
     /**
      * 内容区域
@@ -122,7 +122,7 @@ public @interface Card {
      * @see 
      */
     @Schema(description = "内容区域")
-    String[] body() default "";
+    String[] body() default "	";
 
     /**
      * 多媒体区域
@@ -132,7 +132,7 @@ public @interface Card {
      * @see 
      */
     @Schema(description = "多媒体区域")
-    String media() default "";
+    String media() default "	";
 
     /**
      * 底部按钮集合。
@@ -142,7 +142,7 @@ public @interface Card {
      * @see 
      */
     @Schema(description = "底部按钮集合。")
-    String[] actions() default "";
+    String[] actions() default "	";
 
     /**
      * 工具栏按钮
@@ -152,7 +152,7 @@ public @interface Card {
      * @see 
      */
     @Schema(description = "工具栏按钮")
-    String[] toolbar() default "";
+    String[] toolbar() default "	";
 
     /**
      * 次要说明

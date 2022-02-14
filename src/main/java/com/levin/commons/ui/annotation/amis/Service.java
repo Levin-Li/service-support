@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * Service 服务类控件。 文档：https://baidu.gitee.io/amis/docs/components/service
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface Service {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为 Service 数据拉取控件。
@@ -42,7 +42,7 @@ public @interface Service {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -62,7 +62,7 @@ public @interface Service {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -82,7 +82,7 @@ public @interface Service {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -102,7 +102,7 @@ public @interface Service {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 页面初始化的时候，可以设置一个 API 让其取拉取，发送数据会携带当前 data 数据（包含地址栏参数），获取得数据会合并到 data 中，供组件内使用。
@@ -112,7 +112,7 @@ public @interface Service {
      * @see 
      */
     @Schema(description = "页面初始化的时候，可以设置一个 API 让其取拉取，发送数据会携带当前 data 数据（包含地址栏参数），获取得数据会合并到 data 中，供组件内使用。")
-    String api() default "";
+    String api() default "	";
 
     /**
      * WebScocket 地址，用于实时获取数据
@@ -122,7 +122,7 @@ public @interface Service {
      * @see 
      */
     @Schema(description = "WebScocket 地址，用于实时获取数据")
-    String ws() default "";
+    String ws() default "	";
 
     /**
      * 通过调用外部函数来获取数据
@@ -132,7 +132,7 @@ public @interface Service {
      * @see 
      */
     @Schema(description = "通过调用外部函数来获取数据")
-    String dataProvider() default "";
+    String dataProvider() default "	";
 
     /**
      * 内容区域
@@ -142,7 +142,7 @@ public @interface Service {
      * @see 
      */
     @Schema(description = "内容区域")
-    String body() default "";
+    String body() default "	";
 
     /**
      * fetchOn
@@ -152,7 +152,7 @@ public @interface Service {
      * @see 
      */
     @Schema(description = "fetchOn")
-    String fetchOn() default "";
+    String fetchOn() default "	";
 
     /**
      * 是否默认就拉取？
@@ -172,7 +172,7 @@ public @interface Service {
      * @see 
      */
     @Schema(description = "是否默认就拉取？通过表达式来决定.")
-    String initFetchOn() default "";
+    String initFetchOn() default "	";
 
     /**
      * 用来获取远程 Schema 的 api
@@ -182,7 +182,7 @@ public @interface Service {
      * @see 
      */
     @Schema(description = "用来获取远程 Schema 的 api")
-    String schemaApi() default "";
+    String schemaApi() default "	";
 
     /**
      * 是否轮询拉取
@@ -212,7 +212,7 @@ public @interface Service {
      * @see 
      */
     @Schema(description = "关闭轮询的条件。")
-    String stopAutoRefreshWhen() default "";
+    String stopAutoRefreshWhen() default "	";
 
     /**
      * messages
@@ -232,6 +232,6 @@ public @interface Service {
      * @see 
      */
     @Schema(description = "name")
-    String name() default "";
+    String name() default "	";
 
 }

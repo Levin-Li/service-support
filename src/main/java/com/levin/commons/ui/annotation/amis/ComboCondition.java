@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +22,7 @@ public @interface ComboCondition {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * test
@@ -32,7 +32,7 @@ public @interface ComboCondition {
      * @see 
      */
     @Schema(description = "test")
-    String test() default "";
+    String test() default "	";
 
     /**
      * items
@@ -42,7 +42,7 @@ public @interface ComboCondition {
      * @see 
      */
     @Schema(description = "items")
-    String[] items() default "";
+    String[] items() default "	";
 
     /**
      * label
@@ -52,7 +52,7 @@ public @interface ComboCondition {
      * @see 
      */
     @Schema(description = "label")
-    String label() default "";
+    String label() default "	";
 
     /**
      * scaffold
@@ -62,7 +62,7 @@ public @interface ComboCondition {
      * @see 
      */
     @Schema(description = "scaffold")
-    String scaffold() default "";
+    String scaffold() default "	";
 
     /**
      * mode
@@ -72,6 +72,6 @@ public @interface ComboCondition {
      * @see 
      */
     @Schema(description = "mode")
-    String mode() default "";
+    String mode() default "	";
 
 }

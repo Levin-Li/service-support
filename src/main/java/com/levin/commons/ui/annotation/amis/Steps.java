@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -48,7 +48,7 @@ public @interface Steps {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -68,7 +68,7 @@ public @interface Steps {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -88,7 +88,7 @@ public @interface Steps {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -108,7 +108,7 @@ public @interface Steps {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 步骤
@@ -128,7 +128,7 @@ public @interface Steps {
      * @see 
      */
     @Schema(description = "API 或 数据映射")
-    String source() default "";
+    String source() default "	";
 
     /**
      * 指定当前步骤
@@ -138,7 +138,7 @@ public @interface Steps {
      * @see 
      */
     @Schema(description = "指定当前步骤")
-    String value() default "";
+    String value() default "	";
 
     /**
      * 变量映射
@@ -148,7 +148,7 @@ public @interface Steps {
      * @see 
      */
     @Schema(description = "变量映射")
-    String name() default "";
+    String name() default "	";
 
     /**
      * status
@@ -158,7 +158,7 @@ public @interface Steps {
      * @see 
      */
     @Schema(description = "status")
-    String status() default "";
+    String status() default "	";
 
     /**
      * 展示模式

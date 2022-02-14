@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  *
  * 表单向导 文档：https://baidu.gitee.io/amis/docs/components/wizard
  *
- * @author auto gen by service-support at 2022-2-7 23:06:29
+ * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -32,7 +32,7 @@ public @interface Wizard {
    /**
     *
     */
-   String value() default "";
+   String value() default "	";
 
     /**
      * 指定为表单向导
@@ -52,7 +52,7 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "容器 css 类名")
-    String className() default "";
+    String className() default "	";
 
     /**
      * 是否禁用
@@ -72,7 +72,7 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "是否禁用表达式")
-    String disabledOn() default "";
+    String disabledOn() default "	";
 
     /**
      * 是否隐藏
@@ -92,7 +92,7 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "是否隐藏表达式")
-    String hiddenOn() default "";
+    String hiddenOn() default "	";
 
     /**
      * 是否显示
@@ -112,7 +112,7 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "是否显示表达式")
-    String visibleOn() default "";
+    String visibleOn() default "	";
 
     /**
      * 配置按钮 className
@@ -122,7 +122,7 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "配置按钮 className")
-    String actionClassName() default "";
+    String actionClassName() default "	";
 
     /**
      * 完成按钮的文字描述
@@ -132,7 +132,7 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "完成按钮的文字描述")
-    String actionFinishLabel() default "";
+    String actionFinishLabel() default "	";
 
     /**
      * 下一步按钮的文字描述
@@ -142,7 +142,7 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "下一步按钮的文字描述")
-    String actionNextLabel() default "";
+    String actionNextLabel() default "	";
 
     /**
      * 下一步并且保存按钮的文字描述
@@ -152,7 +152,7 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "下一步并且保存按钮的文字描述")
-    String actionNextSaveLabel() default "";
+    String actionNextSaveLabel() default "	";
 
     /**
      * 上一步按钮的文字描述
@@ -162,7 +162,7 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "上一步按钮的文字描述")
-    String actionPrevLabel() default "";
+    String actionPrevLabel() default "	";
 
     /**
      * Wizard 用来保存数据的 api。 [详情](https://baidu.github.io/amis/docs/api#wizard)
@@ -172,7 +172,7 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "Wizard 用来保存数据的 api。 [详情](https://baidu.github.io/amis/docs/api#wizard)")
-    String api() default "";
+    String api() default "	";
 
     /**
      * 是否合并后再提交
@@ -192,7 +192,7 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "Wizard 用来获取初始数据的 api。")
-    String initApi() default "";
+    String initApi() default "	";
 
     /**
      * 展示模式
@@ -212,7 +212,7 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "name")
-    String name() default "";
+    String name() default "	";
 
     /**
      * 是否为只读模式。
@@ -232,7 +232,7 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "保存完后，可以指定跳转地址，支持相对路径和组内绝对路径，同时可以通过 $xxx 使用变量")
-    String redirect() default "";
+    String redirect() default "	";
 
     /**
      * reload
@@ -242,7 +242,7 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "reload")
-    String reload() default "";
+    String reload() default "	";
 
     /**
      * 默认表单提交自己会通过发送 api 保存数据，但是也可以设定另外一个 form 的 name 值，或者另外一个 `CRUD` 模型的 name 值。 如果 target 目标是一个 `Form` ，则目标 `Form` 会重新触发 `initApi` 和 `schemaApi`，api 可以拿到当前 form 数据。如果目标是一个 `CRUD` 模型，则目标模型会重新触发搜索，参数为当前 Form 数据。
@@ -252,7 +252,7 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "默认表单提交自己会通过发送 api 保存数据，但是也可以设定另外一个 form 的 name 值，或者另外一个 `CRUD` 模型的 name 值。 如果 target 目标是一个 `Form` ，则目标 `Form` 会重新触发 `initApi` 和 `schemaApi`，api 可以拿到当前 form 数据。如果目标是一个 `CRUD` 模型，则目标模型会重新触发搜索，参数为当前 Form 数据。")
-    String target() default "";
+    String target() default "	";
 
     /**
      * 是否将底部按钮固定在底部。
@@ -282,6 +282,6 @@ public @interface Wizard {
      * @see 
      */
     @Schema(description = "startStep")
-    String startStep() default "";
+    String startStep() default "	";
 
 }
