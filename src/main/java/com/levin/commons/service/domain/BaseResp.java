@@ -77,6 +77,12 @@ public class BaseResp<T>
         return code == 0;
     }
 
+
+    @Schema(description = "服务响应码，不为0表示有异常，特别增加为了兼容百度amis API 服务")
+    public int getStatus() {
+        return code;
+    }
+
     public static <T> BaseResp<T> error(String msg) {
         return error(-1, msg);
     }
