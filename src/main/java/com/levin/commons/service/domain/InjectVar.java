@@ -71,6 +71,14 @@ public @interface InjectVar {
      */
     Class<?>[] expectGenericTypes() default {};
 
+
+    /**
+     * 预期的变量类型描述
+     *
+     * @return
+     */
+    String expectTypeDesc() default "";
+
     /**
      * 转化器
      *
