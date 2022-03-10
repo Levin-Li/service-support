@@ -140,13 +140,13 @@ public interface SimpleVariableInjector extends VariableInjector {
         }
 
         if (injectVar == null) {
-            return ValueHolder.notValue();
+            return null;
         }
 
         //如果有指定注入域，只处理指定的域
         if (StringUtils.hasText(getInjectDomain())
                 && !getInjectDomain().equals(injectVar.domain())) {
-            return ValueHolder.notValue();
+            return null;
         }
 
         if (resolvableTypeRoot == null) {
@@ -260,6 +260,7 @@ public interface SimpleVariableInjector extends VariableInjector {
         valueHolder.setName(StringUtils.hasText(injectVar.outputVarName()) ? injectVar.outputVarName() : field.getName());
 
         return valueHolder;
+
     }
 
     /**
