@@ -58,6 +58,13 @@ public @interface InjectVar {
     String value() default "";
 
     /**
+     * 输出的名字
+     *
+     * @return
+     */
+    String outputVarName() default "";
+
+    /**
      * 预期的变量值类型
      *
      * @return

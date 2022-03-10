@@ -36,9 +36,19 @@ public interface VariableInjector {
      * @return
      */
     default ValueHolder<Object> getInjectValue(Object targetBean, List<VariableResolver> variableResolvers, Field field) {
-        return ValueHolder.notValue();
+        throw new UnsupportedOperationException("not implement");
     }
 
+    /**
+     * 获取注入值列表
+     *
+     * @param targetBean
+     * @param variableResolvers
+     * @return
+     */
+    default List<ValueHolder<Object>> getInjectValues(Object targetBean, List<VariableResolver> variableResolvers) {
+        throw new UnsupportedOperationException("not implement");
+    }
 
     /**
      * 为目标对象注入变量

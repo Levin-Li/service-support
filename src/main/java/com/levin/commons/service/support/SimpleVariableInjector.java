@@ -100,6 +100,32 @@ public interface SimpleVariableInjector extends VariableInjector {
 
     /**
      * @param targetBean
+     * @param variableResolvers
+     * @return
+     */
+    @Override
+    default List<ValueHolder<Object>> getInjectValues(Object targetBean, List<VariableResolver> variableResolvers) {
+
+        List<ValueHolder<Object>> injectFields = new LinkedList<>();
+
+        ResolvableType resolvableTypeRoot = ResolvableType.forClass(targetBean.getClass());
+
+        if (variableResolvers.isEmpty()) {
+            //增加默认的脚本表达式支持
+            variableResolvers.add(VariableInjector.newSpelVariableResolver(() -> Arrays.asList(Collections.emptyMap())));
+            variableResolvers.add(VariableInjector.newGroovyVariableResolver(() -> Arrays.asList(Collections.emptyMap())));
+        }
+
+        for (Field field : ClassUtils.getFields(targetBean.getClass(), InjectVar.class)) {
+            injectFields.add(getInjectValue(targetBean, resolvableTypeRoot, variableResolvers, field, null, false));
+        }
+
+        return injectFields;
+    }
+
+
+    /**
+     * @param targetBean
      * @param resolvableTypeRoot
      * @param variableResolvers
      * @param field
@@ -229,6 +255,9 @@ public interface SimpleVariableInjector extends VariableInjector {
             throw new VariableNotFoundException(injectVar.remark() + " --> " + field.getDeclaringClass().getName()
                     + "." + field.getName() + " inject var [" + varName + "] is required , but can't resolve");
         }
+
+        //输出的名字
+        valueHolder.setName(StringUtils.hasText(injectVar.outputVarName()) ? injectVar.outputVarName() : field.getName());
 
         return valueHolder;
     }
