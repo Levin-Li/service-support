@@ -2,6 +2,7 @@ package com.levin.commons.service.support;
 
 import com.levin.commons.service.domain.InjectVar;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +26,19 @@ public interface VariableInjector {
     default String getInjectDomain() {
         return "default";
     }
+
+    /**
+     * 默认未实现
+     *
+     * @param targetBean
+     * @param variableResolvers
+     * @param field
+     * @return
+     */
+    default ValueHolder<Object> getInjectValue(Object targetBean, List<VariableResolver> variableResolvers, Field field) {
+        return ValueHolder.notValue();
+    }
+
 
     /**
      * 为目标对象注入变量
