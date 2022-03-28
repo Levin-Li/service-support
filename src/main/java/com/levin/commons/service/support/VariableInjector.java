@@ -3,11 +3,9 @@ package com.levin.commons.service.support;
 import com.levin.commons.service.domain.InjectVar;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * 变量注入器
@@ -214,7 +212,14 @@ public interface VariableInjector {
         }
 
         public VariableResolverListBuilder add(List<?>... beans) {
-            variableResolverList.add(newVariableResolver(Arrays.asList(beans)));
+
+            //展开集合
+            variableResolverList.add(newVariableResolver(Arrays.asList(beans)
+                    .stream()
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList()))
+            );
+
             return this;
         }
 
