@@ -1,5 +1,6 @@
 package com.levin.commons.rbac;
 
+import javax.validation.constraints.NotBlank;
 import java.util.Map;
 
 /**
@@ -10,13 +11,14 @@ public interface SimpleAuthService {
     /**
      * 认证，并返回token
      *
+     * @param tenantId  租户ID，可空
      * @param account
      * @param password
      * @param userAgent
      * @param params
      * @return 认证成功后的token
      */
-    default String auth(String account, String password, String userAgent, Map<String, Object>... params) {
+    default String auth(String tenantId, @NotBlank String account, @NotBlank String password, String userAgent, Map<String, Object>... params) {
         throw new UnsupportedOperationException("不支持用户密码进行认证");
     }
 
