@@ -10,7 +10,10 @@ import org.springframework.util.Assert;
 import org.springframework.util.TypeUtils;
 
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -104,8 +107,8 @@ public interface VariableResolver {
 
             for (Supplier<List<?>> supplier : suppliers) {
 
-                if (log.isDebugEnabled()) {
-                    log.debug("resolve variable [{}] in Map Supplier {}", name, supplier);
+                if (log.isTraceEnabled()) {
+                    log.trace("resolve variable [{}] in Map Supplier {}", name, supplier);
                 }
 
                 for (Object context : supplier.get()) {
@@ -117,6 +120,11 @@ public interface VariableResolver {
                             && (!isRequireNotNull || holder.isNotNull())
                             // 是否类型匹配
                             && isExpectType(holder.getType(), expectTypes)) {
+
+                        if (log.isDebugEnabled()) {
+                            log.debug("resolve variable [{}] in Map Supplier {} found.", name, supplier);
+                        }
+
                         return (ValueHolder<T>) holder;
                     }
 
@@ -143,6 +151,7 @@ public interface VariableResolver {
         public MapVariableResolver(List<Supplier<List<Map<String, ?>>>> suppliers) {
             super((List<Supplier<List<?>>>) Object.class.cast(suppliers));
         }
+
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -179,8 +188,8 @@ public interface VariableResolver {
         @Override
         public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, boolean isRequireNotNull, Type... expectTypes) throws RuntimeException {
 
-            if (log.isDebugEnabled()) {
-                log.debug("resolve variable [{}] in {}({}) ...", name, getClass().getSimpleName(), this.hashCode());
+            if (log.isTraceEnabled()) {
+                log.trace("resolve variable [{}] in {}({}) ...", name, getClass().getSimpleName(), this.hashCode());
             }
 
             if (name != null
@@ -205,6 +214,10 @@ public interface VariableResolver {
 
                 if ((!isRequireNotNull || value != null)
                         && isExpectType(value != null ? value.getClass() : null, expectTypes)) {
+
+                    if (log.isDebugEnabled()) {
+                        log.debug("resolve variable [{}] in {}({}) found.", name, getClass().getSimpleName(), this.hashCode());
+                    }
 
                     return new ValueHolder<T>()
                             .setValue((T) value)
