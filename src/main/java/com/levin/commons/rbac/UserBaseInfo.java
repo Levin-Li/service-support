@@ -1,8 +1,8 @@
 package com.levin.commons.rbac;
 
 
-import com.levin.commons.service.domain.Identifiable;
 import com.levin.commons.dao.domain.NamedObject;
+import com.levin.commons.service.domain.Identifiable;
 
 
 /**
@@ -18,4 +18,10 @@ public interface UserBaseInfo extends Identifiable, NamedObject {
 
     String getAvatar();
 
+    /**
+     * 是否超级用户
+     *
+     * @return
+     */
+    boolean isSuperAdmin();
 }
