@@ -23,5 +23,5 @@ public interface UserBaseInfo extends Identifiable, NamedObject {
      *
      * @return
      */
-    boolean isSuperAdmin();
+//    boolean isSuperAdmin();
 }
