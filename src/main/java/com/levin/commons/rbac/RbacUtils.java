@@ -230,10 +230,18 @@ public abstract class RbacUtils {
 
                 Class<?> type = AopProxyUtils.ultimateTargetClass(controller);
 
+
                 String defaultName = type.getSimpleName();
 
                 if (defaultName.endsWith("Controller")) {
                     defaultName = defaultName.toLowerCase().substring(0, defaultName.length() - "Controller".length());
+                }
+
+                MenuResTag menuResTag = AnnotatedElementUtils.getMergedAnnotation(type, MenuResTag.class);
+
+                if (menuResTag == null || !menuResTag.value()) {
+                    //忽略非菜单资源标记的控制器
+                    continue;
                 }
 
                 RequestMapping mapping = AnnotatedElementUtils.getMergedAnnotation(type, RequestMapping.class);
