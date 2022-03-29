@@ -7,7 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Type;
 
-public abstract class HttpRequestInfoResolver implements VariableResolver {
+
+public class HttpRequestInfoResolver implements VariableResolver {
 
     @Resource
     protected HttpServletRequest request;
