@@ -2,11 +2,12 @@ package com.levin.commons.rbac;
 
 
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * 角色对象
  */
-public interface RoleObject {
+public interface RoleObject<P> {
 
     String SA_ROLE = "SA";
 
@@ -15,9 +16,10 @@ public interface RoleObject {
     /**
      * 获取授权列表
      *
-     * @param <P>
      * @return
      */
-    <P extends Permission> Collection<P> getPermissionList();
+    default Collection<P> getPermissionList() {
+        return Collections.emptyList();
+    }
 
 }
