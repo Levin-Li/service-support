@@ -179,7 +179,7 @@ public class AsyncHandler<T> {
         if (task instanceof Runnable) {
             ((Runnable) task).run();
         } else {
-            throw new IllegalArgumentException("task " + task.getClass() + " not supported");
+            throw new IllegalArgumentException("task type " + task.getClass() + " not supported");
         }
     }
 
