@@ -13,9 +13,9 @@ import java.util.Collections;
  */
 public interface RbacRoleObject<P> extends MultiTenantObject, Identifiable, NamedObject {
 
-    String SA_ROLE = "SA";
+    String SA_ROLE = "R_SA";
 
-    String ADMIN_ROLE = "ADMIN";
+    String ADMIN_ROLE = "R_ADMIN";
 
     /**
      * 获取授权列表
