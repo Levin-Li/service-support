@@ -15,7 +15,7 @@ public interface RbacRoleObject<P> extends MultiTenantObject, Identifiable, Name
 
     String SA_ROLE = "SA";
 
-    String ADMIN_ROLE = "admin";
+    String ADMIN_ROLE = "ADMIN";
 
     /**
      * 获取授权列表
