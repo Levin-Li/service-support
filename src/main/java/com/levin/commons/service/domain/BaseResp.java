@@ -75,7 +75,7 @@ public class BaseResp<T>
 
     @Schema(description = "是否有业务异常")
     public boolean isBizError() {
-        return code > 400;
+        return code < 400;
     }
 
     @Schema(description = "请求是否成功，等同于code == 0")
