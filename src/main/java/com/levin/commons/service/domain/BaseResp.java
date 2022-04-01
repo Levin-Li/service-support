@@ -57,11 +57,9 @@ public class BaseResp<T>
     @Schema(description = "服务提示-用于互动")
     protected List<Interaction> interactions;
 
-
     public BaseResp(T data) {
         this.data = data;
     }
-
 
     public BaseResp(@NotNull int code, String msg) {
         this.code = code;
@@ -80,17 +78,7 @@ public class BaseResp<T>
         this.detailMsg = detailMsg;
     }
 
-    @Schema(description = "错误发生时，是否为业务异常")
-    public boolean isBizError() {
-        return code < 400;
-    }
-
-    @Schema(description = "请求是否成功，等同于code == 0")
-    public boolean isSuccessful() {
-        return code == 0;
-    }
-
-    @Schema(description = "服务响应码，等同于code，不为0表示有异常，特别增加为了兼容百度amis API 服务")
+    @Schema(description = "服务响应码，等同于code，不为0表示有异常，特别增加为了兼容部分平台或是框架的API规范，如百度amis API")
     public int getStatus() {
         return code;
     }
