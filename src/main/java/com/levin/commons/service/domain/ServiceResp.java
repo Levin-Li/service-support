@@ -83,6 +83,13 @@ public interface ServiceResp<T>
     @Schema(description = "错误类型")
     enum ErrorType implements EnumDesc {
 
+//    http 错误码参数
+//    1**	信息，服务器收到请求，需要请求者继续执行操作
+//    2**	成功，操作被成功接收并处理
+//    3**	重定向，需要进一步的操作以完成请求
+//    4**	客户端错误，请求包含语法错误或无法完成请求
+//    5**	服务器错误，服务器在处理请求的过程中发生了错误
+
         /**
          * 1-99
          */
@@ -98,8 +105,8 @@ public interface ServiceResp<T>
         /**
          * 200 - 299
          */
-        @Schema(description = "数据访问异常")
-        DataAccessError(200),
+        @Schema(description = "鉴权异常")
+        AuthenticationError(200),
 
         /**
          * 300 - 399
@@ -110,8 +117,8 @@ public interface ServiceResp<T>
         /**
          * 400 - 499
          */
-        @Schema(description = "网络异常")
-        NetworkError(400),
+        @Schema(description = "资源异常")
+        ResourceError(400),
 
         /**
          * 500 - n
@@ -146,14 +153,14 @@ public interface ServiceResp<T>
                 return null;
             } else if (errorCode < BizError.baseErrorCode) {
                 return BizWarning;
-            } else if (errorCode < DataAccessError.baseErrorCode) {
+            } else if (errorCode < AuthenticationError.baseErrorCode) {
                 return BizError;
             } else if (errorCode < SystemInnerError.baseErrorCode) {
-                return DataAccessError;
-            } else if (errorCode < NetworkError.baseErrorCode) {
+                return AuthenticationError;
+            } else if (errorCode < ResourceError.baseErrorCode) {
                 return SystemInnerError;
             } else if (errorCode < UnknownError.baseErrorCode) {
-                return NetworkError;
+                return ResourceError;
             } else {
                 return UnknownError;
             }
