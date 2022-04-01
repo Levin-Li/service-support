@@ -33,7 +33,14 @@ public class BaseResp<T>
 
     private static final long serialVersionUID = -944707546677849710L;
 
-    @Schema(description = "服务响应码，不为0表示有异常")
+//    http 错误码参数
+//    1**	信息，服务器收到请求，需要请求者继续执行操作
+//    2**	成功，操作被成功接收并处理
+//    3**	重定向，需要进一步的操作以完成请求
+//    4**	客户端错误，请求包含语法错误或无法完成请求
+//    5**	服务器错误，服务器在处理请求的过程中发生了错误
+
+    @Schema(description = "服务响应码，不为0表示有异常，一般情况数字越大表示错误等级越高")
     @NotNull
     protected int code = 0;
 
@@ -73,7 +80,7 @@ public class BaseResp<T>
         this.detailMsg = detailMsg;
     }
 
-    @Schema(description = "是否有业务异常")
+    @Schema(description = "错误发生时，是否为业务异常")
     public boolean isBizError() {
         return code < 400;
     }
