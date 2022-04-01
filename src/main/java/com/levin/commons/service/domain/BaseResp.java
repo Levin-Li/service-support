@@ -37,9 +37,6 @@ public class BaseResp<T>
     @NotNull
     protected int code = 0;
 
-    @Schema(description = "服务提示-用于互动")
-    protected List<Interaction> interactions;
-
     @Schema(description = "信息摘要，可用于界面展示")
     protected String msg;
 
@@ -49,6 +46,10 @@ public class BaseResp<T>
     //数据
     @Schema(description = "业务数据")
     protected T data;
+
+    @Schema(description = "服务提示-用于互动")
+    protected List<Interaction> interactions;
+
 
     public BaseResp(T data) {
         this.data = data;
@@ -72,13 +73,17 @@ public class BaseResp<T>
         this.detailMsg = detailMsg;
     }
 
+    @Schema(description = "是否有业务异常")
+    public boolean isBizError() {
+        return code > 400;
+    }
+
     @Schema(description = "请求是否成功，等同于code == 0")
     public boolean isSuccessful() {
         return code == 0;
     }
 
-
-    @Schema(description = "服务响应码，不为0表示有异常，特别增加为了兼容百度amis API 服务")
+    @Schema(description = "服务响应码，等同于code，不为0表示有异常，特别增加为了兼容百度amis API 服务")
     public int getStatus() {
         return code;
     }
