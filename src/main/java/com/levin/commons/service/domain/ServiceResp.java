@@ -48,7 +48,7 @@ public interface ServiceResp<T>
 
     @Schema(description = "错误发生时，是否为业务异常")
     default boolean isBizError() {
-        return !isSuccessful() && getCode() < ErrorType.BizError.baseErrorCode;
+        return !isSuccessful() && getCode() < ErrorType.SystemInnerError.baseErrorCode;
     }
 
     /**
@@ -83,7 +83,7 @@ public interface ServiceResp<T>
     @Schema(description = "错误类型")
     enum ErrorType implements EnumDesc {
 
-//    http 错误码参数
+//    http 错误码 参考
 //    1**	信息，服务器收到请求，需要请求者继续执行操作
 //    2**	成功，操作被成功接收并处理
 //    3**	重定向，需要进一步的操作以完成请求
@@ -123,7 +123,7 @@ public interface ServiceResp<T>
         /**
          * 500 - n
          */
-        @Schema(description = "未知异常")
+        @Schema(description = "未知系统异常")
         UnknownError(500);
 
         /**
@@ -134,10 +134,15 @@ public interface ServiceResp<T>
         /**
          * @param baseErrorCode
          */
-        private ErrorType(int baseErrorCode) {
+        ErrorType(int baseErrorCode) {
             this.baseErrorCode = baseErrorCode;
         }
 
+        /**
+         * 错误起始码
+         *
+         * @return
+         */
         public int getBaseErrorCode() {
             return baseErrorCode;
         }
