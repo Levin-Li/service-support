@@ -48,7 +48,7 @@ public interface ServiceResp<T>
 
     @Schema(description = "错误发生时，是否为业务异常")
     default boolean isBizError() {
-        return !isSuccessful() && getCode() < ErrorType.SystemInnerError.baseErrorCode;
+        return !isSuccessful() && getCode() < ErrorType.ResourceError.baseErrorCode;
     }
 
     /**
@@ -111,14 +111,14 @@ public interface ServiceResp<T>
         /**
          * 300 - 399
          */
-        @Schema(description = "系统内部异常")
-        SystemInnerError(300),
+        @Schema(description = "资源异常")
+        ResourceError(300),
 
         /**
          * 400 - 499
          */
-        @Schema(description = "资源异常")
-        ResourceError(400),
+        @Schema(description = "系统内部异常")
+        SystemInnerError(400),
 
         /**
          * 500 - n
@@ -160,12 +160,12 @@ public interface ServiceResp<T>
                 return BizWarning;
             } else if (errorCode < AuthenticationError.baseErrorCode) {
                 return BizError;
-            } else if (errorCode < SystemInnerError.baseErrorCode) {
-                return AuthenticationError;
             } else if (errorCode < ResourceError.baseErrorCode) {
-                return SystemInnerError;
-            } else if (errorCode < UnknownError.baseErrorCode) {
+                return AuthenticationError;
+            } else if (errorCode < SystemInnerError.baseErrorCode) {
                 return ResourceError;
+            } else if (errorCode < UnknownError.baseErrorCode) {
+                return SystemInnerError;
             } else {
                 return UnknownError;
             }
