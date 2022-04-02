@@ -66,7 +66,7 @@ public class ApiResp<T>
     }
 
     public static <T> ApiResp<T> error(String msg) {
-        return error(-1, msg);
+        return error(ErrorType.BizError.getBaseErrorCode(), msg);
     }
 
     public static <T> ApiResp<T> error(int code, String msg) {

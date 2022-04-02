@@ -84,7 +84,7 @@ public class BaseResp<T>
     }
 
     public static <T> BaseResp<T> error(String msg) {
-        return error(-1, msg);
+        return error(ErrorType.BizError.getBaseErrorCode(), msg);
     }
 
     public static <T> BaseResp<T> error(int code, String msg) {
