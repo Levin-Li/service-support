@@ -9,10 +9,9 @@ import org.springframework.util.StringUtils;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
- * 匹配控制
+ * 匹配配置
  */
 @Data
 @Accessors(chain = true)
@@ -20,47 +19,47 @@ import java.util.function.Consumer;
 public class MatchConfig
         implements Serializable {
 
-    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+    protected final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     /**
      * 配置名称
      */
-    private final String key;
+    protected final String key;
 
     /**
      * 配置名称
      */
-    private final String name;
+    protected final String name;
 
     /**
      * 描述
      */
-    private final String description;
+    protected final String description;
 
     /**
      * 是否启用
      */
-    private boolean enable = true;
+    protected boolean enable = true;
 
     /**
      * 排除的类包，startsWith 匹配
      */
-    private List<String> excludePackages = Collections.emptyList();
+    protected List<String> excludePackages = Collections.emptyList();
 
     /**
      * 排除的 URL ，Ant path 匹配
      */
-    private List<String> excludePathPatterns = Collections.emptyList();
+    protected List<String> excludePathPatterns = Collections.emptyList();
 
     /**
      * 包含的类包，startsWith 匹配
      */
-    private List<String> includePackages = Collections.emptyList();
+    protected List<String> includePackages = Collections.emptyList();
 
     /**
      * 包含的 URL ，Ant path 匹配
      */
-    private List<String> includePathPatterns = Collections.emptyList();
+    protected List<String> includePathPatterns = Collections.emptyList();
 
 
     protected MatchConfig(String key, String name, String description) {
