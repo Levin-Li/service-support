@@ -48,7 +48,7 @@ public interface ServiceResp<T>
 
     @Schema(description = "错误发生时，是否为业务异常")
     default boolean isBizError() {
-        return !isSuccessful() && getCode() < ErrorType.ResourceError.baseErrorCode;
+        return !isSuccessful() && getCode() < ErrorType.AuthenticationError.baseErrorCode;
     }
 
     /**

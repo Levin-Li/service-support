@@ -17,7 +17,6 @@ public interface ClientAccessRequest {
     @Schema(description = "签名串")
     String getSign();
 
-
     ClientAccessRequest setSign(String sign);
 
 }
