@@ -1,6 +1,7 @@
-package com.levin.commons.utils;
+package com.levin.commons.service.support;
 
 
+import com.levin.commons.utils.StatHelper;
 import lombok.Data;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -22,7 +23,6 @@ import java.util.function.Consumer;
 @Slf4j
 @Data
 @Accessors(chain = true)
-@Deprecated
 public class AsyncHandler<T> {
 
     @Setter
