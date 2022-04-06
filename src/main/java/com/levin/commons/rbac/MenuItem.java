@@ -1,6 +1,5 @@
 package com.levin.commons.rbac;
 
-import com.levin.commons.service.domain.Desc;
 import com.levin.commons.service.domain.EnumDesc;
 import com.levin.commons.service.domain.SimpleIdentifiable;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 /**
  * 菜单
  */
+@Schema(description = "抽象菜单项")
 public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
         extends TreeObject<PARENT, CHILD>, AuthorizedObject, SimpleIdentifiable {
 
@@ -58,7 +58,7 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
      *
      * @return
      */
-    @Desc(value = "target", detail = "href中的target")
+    @Schema(description = "target", title = "href中的target")
     default String getTarget() {
         return null;
     }
@@ -68,7 +68,7 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
      *
      * @return
      */
-    @Desc("资源路径")
+    @Schema(description = "资源路径")
     default String getPath() {
         return null;
     }
@@ -78,7 +78,7 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
      *
      * @return
      */
-    @Desc(value = "资源参数", detail = "可以是 json，vue 路由参数 或是 url参数")
+    @Schema(description = "资源参数", title = "可以是 json，vue 路由参数 或是 url参数")
     default String getParams() {
         return null;
     }
@@ -88,7 +88,7 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
      *
      * @return
      */
-    @Desc(value = "资源图标")
+    @Schema(description = "资源图标")
     default String getIcon() {
         return null;
     }
@@ -98,7 +98,7 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
      *
      * @return
      */
-    @Desc(value = "是否总是显示", detail = "当没有权限的时候，是否显示，true为显示，false不显示")
+    @Schema(description = "是否总是显示", title = "当没有权限的时候，是否显示，true为显示，false不显示")
     default boolean isAlwaysShow() {
         return false;
     }

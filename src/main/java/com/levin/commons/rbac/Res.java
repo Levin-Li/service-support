@@ -1,7 +1,7 @@
 package com.levin.commons.rbac;
 
-import com.levin.commons.service.domain.Desc;
 import com.levin.commons.service.domain.SimpleIdentifiable;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -23,7 +23,7 @@ public interface Res extends SimpleIdentifiable {
      *
      * @return
      */
-    @Desc("资源域")
+    @Schema(description = "资源域")
     <T extends Serializable> T getDomain();
 
     /**
@@ -31,7 +31,7 @@ public interface Res extends SimpleIdentifiable {
      *
      * @return
      */
-    @Desc("资源类型")
+    @Schema(description = "资源类型")
     <T extends Serializable> T getType();
 
     /**
@@ -39,7 +39,7 @@ public interface Res extends SimpleIdentifiable {
      *
      * @return
      */
-    @Desc(value = "资源图标")
+    @Schema(description = "资源图标")
     default String getIcon() {
         return null;
     }
@@ -49,7 +49,7 @@ public interface Res extends SimpleIdentifiable {
      *
      * @return
      */
-    @Desc(value = "是否总是显示", detail = "当没有权限的时候，是否显示，true为显示，false不显示")
+    @Schema(description = "是否总是显示", title = "当没有权限的时候，是否显示，true为显示，false不显示")
     default boolean isAlwaysShow() {
         return false;
     }
@@ -59,7 +59,7 @@ public interface Res extends SimpleIdentifiable {
      *
      * @return
      */
-    @Desc(value = "资源操作", detail = "资源的操作项，比如新建，添加，修改，删除")
+    @Schema(description = "资源操作", title = "资源的操作项，比如新建，添加，修改，删除")
     default <O extends Action> Collection<O> getActionList() {
         return Collections.EMPTY_LIST;
     }
