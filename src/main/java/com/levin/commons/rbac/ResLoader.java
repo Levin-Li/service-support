@@ -32,21 +32,21 @@ public interface ResLoader {
      * 正常需要和权限模块结合处理
      * 资源通常是树形结构
      *
-     * @param resType  资源类型
+     * @param resTypeId  资源类型ID
      * @param loadDeep 加载层级 , -1 表示不限制层级，0 表示只加载自己
      * @return
      */
-    <R extends Res> Collection<R> getResItems(String resType, int loadDeep);
+    <R extends Res> Collection<R> getResItems(String resTypeId, int loadDeep);
 
     /**
      * 获取下级资源列表
      *
-     * @param resType  资源类型
+     * @param resTypeId  资源类型ID
      * @param resId    资源ID
      * @param loadDeep 加载层级 , -1 表示不限制层级，0 表示只加载自己
      * @param <R>
      * @return
      */
-    <R extends Res> Collection<R> getSubItems(String resType, String resId, int loadDeep);
+    <R extends Res> Collection<R> getSubItems(String resTypeId, String resId, int loadDeep);
 
 }
