@@ -36,11 +36,8 @@ public class ApiResp<T>
 
     private static final long serialVersionUID = -944707546677849710L;
 
-    @Schema(description = "HTTP响应状态码，内部服务节点的http响应码，默认为0，表示忽略")
+    @Schema(description = "HTTP状态码，默认为0，表示忽略，以http请求为准")
     protected int httpStatusCode;
-
-    @Schema(description = "服务编码，由服务端返回，内部服务节点编码")
-    protected String serviceCode;
 
     @Schema(description = "响应消息的签名验证，防止响应消息被拦截篡改")
     protected String sign;
