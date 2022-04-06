@@ -159,7 +159,6 @@ public abstract class RbacUtils {
                 } else if (actionName.endsWith(tag.name())) {
                     //权限名称，去除实体名称，如：新建用户 变为 新建
                     actionName = actionName.substring(0, actionName.length() - tag.name().length());
-
                 }
 
                 ResAuthorize fieldResAuthorize = getAnnotation(MapUtils
@@ -185,7 +184,6 @@ public abstract class RbacUtils {
 
                 //加入操作列表
                 res.getActionList().add(SimpleResAction.newAction(fieldResAuthorize));
-
             }
 
             //资源加入缓存
@@ -229,7 +227,6 @@ public abstract class RbacUtils {
             for (Object controller : controllers) {
 
                 Class<?> type = AopProxyUtils.ultimateTargetClass(controller);
-
 
                 String defaultName = type.getSimpleName();
 
@@ -277,7 +274,6 @@ public abstract class RbacUtils {
             }
 
             menuCache.put(packageName, menuItems);
-
         }
 
         return (List<M>) menuItems;

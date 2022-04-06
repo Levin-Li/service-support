@@ -15,7 +15,7 @@ import java.util.List;
  * 对应注解类 ResAuthorize
  */
 public interface Res extends SimpleIdentifiable {
-
+    
     /**
      * 归属域
      * <p>
