@@ -100,7 +100,7 @@ public interface Res extends SimpleIdentifiable {
         }
 
         /**
-         * 权限验证表达式
+         * 操作权限验证表达式
          *
          * @return
          */
@@ -109,7 +109,7 @@ public interface Res extends SimpleIdentifiable {
         }
 
         /**
-         * 权限验证表达式
+         * 可操作的角色列表
          *
          * @return
          */
