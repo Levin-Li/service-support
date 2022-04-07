@@ -1,5 +1,7 @@
 package com.levin.commons.rbac;
 
+import com.levin.commons.annotation.GenNameConstant;
+
 import java.lang.annotation.*;
 
 /**
@@ -14,6 +16,9 @@ import java.lang.annotation.*;
  * <p>
  * 复杂的判断建议使用表达式
  *
+ *
+ * 注意，可以设置空格覆盖类定义
+ *
  * @author llw
  */
 
@@ -21,6 +26,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE, ElementType.METHOD,})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@GenNameConstant
 public @interface ResAuthorize {
 
     /**
@@ -54,6 +60,7 @@ public @interface ResAuthorize {
 
     /**
      * 资源域
+     * 可从父对象获取
      *
      * @return
      */
@@ -61,6 +68,7 @@ public @interface ResAuthorize {
 
     /**
      * 资源类型
+     * 可从父对象获取
      *
      * @return
      */
@@ -68,6 +76,7 @@ public @interface ResAuthorize {
 
     /**
      * 资源
+     * 可从父对象获取
      *
      * @return
      */

@@ -2,7 +2,6 @@ package com.levin.commons.rbac;
 
 import com.levin.commons.service.domain.SimpleIdentifiable;
 import com.levin.commons.service.support.SpringContextHolder;
-import com.levin.commons.utils.ClassUtils;
 import com.levin.commons.utils.JsonStrArrayUtils;
 import com.levin.commons.utils.MapUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
@@ -19,6 +19,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.constraints.NotNull;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,7 +32,6 @@ public abstract class RbacUtils {
     private static final LinkedMultiValueMap<String, Res> beanResCache = new LinkedMultiValueMap<>();
 
     private static final Map<String, List<MenuItem>> menuCache = new ConcurrentHashMap<>();
-
 
     /**
      * 获取资源类型
@@ -131,69 +131,94 @@ public abstract class RbacUtils {
                 return;
             }
 
-            SimpleRes res = new SimpleRes().setActionList(new ArrayList<>(10));
-
             //获取类注解
             final ResAuthorize classResAuthorize = AnnotatedElementUtils.getMergedAnnotation(beanType, ResAuthorize.class);
+
+            final RequestMapping classRequestMapping = AnnotatedElementUtils.getMergedAnnotation(beanType, RequestMapping.class);
+
+            final Map<String, Object> classResAuthorizeAttrs = classResAuthorize != null ? AnnotationUtils.getAnnotationAttributes(classResAuthorize) : Collections.emptyMap();
+
+            final Map<String, SimpleRes> cacheMap = new LinkedHashMap<>();
 
             //获取方法上的注解描述
             for (Method method : beanType.getMethods()) {
 
-                Operation operation = method.getAnnotation(Operation.class);
-
-                if (classResAuthorize == null && (operation == null || !StringUtils.hasText(operation.summary()))) {
-                    //log.warn("bean 方法 [ {} ] 无 Operation 注解或注解 summary 属性没有值，被被忽略.", method);
+                //如果没有请求注解，将忽略
+                if (AnnotatedElementUtils.getMergedAnnotation(method, RequestMapping.class) == null && classRequestMapping == null) {
                     continue;
                 }
+
+                Operation operation = method.getAnnotation(Operation.class);
 
                 String actionName = operation != null && StringUtils.hasText(operation.summary()) ? operation.summary() : null;
 
                 if (!StringUtils.hasText(actionName)) {
-                    RequestMapping mapping = AnnotatedElementUtils.getMergedAnnotation(method, RequestMapping.class);
-                    if (mapping == null) {
-                        continue;
-                    } else {
-                        log.warn("控制器方法 {} 没有 Operation注解或是Operation注解的summary属性没有定义.", method);
-                        actionName = method.getName();
-                    }
+                    log.warn("控制器方法 {} 没有 Operation注解或是Operation注解的summary属性没有定义.", method);
+                    actionName = method.getName();
                 } else if (actionName.endsWith(tag.name())) {
                     //权限名称，去除实体名称，如：新建用户 变为 新建
                     actionName = actionName.substring(0, actionName.length() - tag.name().length());
                 }
 
-                ResAuthorize fieldResAuthorize = getAnnotation(MapUtils
-                                .putFirst(ResPermission.Fields.domain, classResAuthorize != null ? classResAuthorize.domain() : "")
-                                .put(ResPermission.Fields.type, classResAuthorize != null ? classResAuthorize.type() : "")
-                                .put(ResPermission.Fields.res, tag.name())
-                                .put(ResPermission.Fields.action, actionName)
-                                .build()
-                        , method, classResAuthorize);
+                //获取方法注解
+                ResAuthorize fieldResAuthorize = AnnotatedElementUtils.getMergedAnnotation(method, ResAuthorize.class);
 
-                if (fieldResAuthorize == null
-                        || fieldResAuthorize.ignored()) {
+                if (classResAuthorize == null && fieldResAuthorize == null) {
+                    log.warn("控制器方法 {} 没有可用的[ResAuthorize]注解，将不进行鉴权", method);
                     continue;
                 }
 
-                //同一个类，以第一个为准
-                if (StringUtils.hasText(fieldResAuthorize.domain())
-                        && !StringUtils.hasText(res.getDomain())) {
-                    res.setDomain(fieldResAuthorize.domain())
-                            .setType(fieldResAuthorize.type())
-                            .setId(fieldResAuthorize.res());
+                //复制父类
+                final Map<String, Object> fieldResAuthorizeAttrs = new LinkedHashMap<>(classResAuthorizeAttrs);
+
+                //设置操作名称
+                fieldResAuthorizeAttrs.put(ResPermission.Fields.action, actionName);
+
+                if (fieldResAuthorize != null) {
+                    Map<String, Object> tempAttrs = AnnotationUtils.getAnnotationAttributes(classResAuthorize);
+                    tempAttrs.forEach((k, v) -> {
+                        //只有 domain  type   res  action
+                        if (v == null
+                                //空数组不覆盖
+                                || (v.getClass().isArray() && Array.getLength(v) == 0)
+                                //空字符串不覆盖，注意，字符串里面有空格不算
+                                || ((v instanceof CharSequence) && ((CharSequence) v).length() == 0)) {
+                            //nothing to do
+                        } else {
+                            //其它情况都覆盖
+                            fieldResAuthorizeAttrs.put(k, v);
+                        }
+                    });
                 }
+
+                //重新定义
+                fieldResAuthorize = AnnotationUtils.synthesizeAnnotation(fieldResAuthorizeAttrs, ResAuthorize.class, null);
+
+                if (fieldResAuthorize.ignored()) {
+                    continue;
+                }
+
+                final String key = fieldResAuthorize.domain() + fieldResAuthorize.type() + fieldResAuthorize.res();
+
+                final ResAuthorize tempResAuthorize = fieldResAuthorize;
+
+                final SimpleRes res = MapUtils.getAndAutoPut(cacheMap, key, null, () -> new SimpleRes()
+                        .setDomain(tempResAuthorize.domain())
+                        .setType(tempResAuthorize.type())
+                        .setId(tempResAuthorize.action())
+                        .setActionList(new ArrayList<>(10)));
 
                 //加入操作列表
                 res.getActionList().add(SimpleResAction.newAction(fieldResAuthorize));
             }
 
-            //资源加入缓存
-            if (StringUtils.hasText(res.getDomain())
-                    && res.getActionList().size() > 0) {
-                beanResCache.add(res.getDomain(), res);
-            } else {
-                log.warn("bean {} [ {} ] => {} ，被被忽略. ", beanName, beanType.getName(), res);
-                return;
-            }
+            //加入缓存
+            cacheMap.forEach((k, v) -> {
+                if (StringUtils.hasText(v.getDomain())
+                        && v.getActionList().size() > 0) {
+                    beanResCache.add(v.getDomain(), v);
+                }
+            });
 
         });
 
@@ -277,21 +302,6 @@ public abstract class RbacUtils {
         }
 
         return (List<M>) menuItems;
-    }
-
-
-    private static ResAuthorize getAnnotation(Map<String, Object> initProps, Method method, ResAuthorize parentResAuthorize) {
-
-        ResAuthorize resAuthorize = ClassUtils.merge(initProps
-                //默认条件为不空或是不是空字符串则覆盖
-                , (k, v) -> v != null && (!(v instanceof CharSequence) || StringUtils.hasText((CharSequence) v))
-
-                , ResAuthorize.class,
-                parentResAuthorize,
-                AnnotatedElementUtils.getMergedAnnotation(method, ResAuthorize.class)
-        );
-
-        return resAuthorize;
     }
 
 }
