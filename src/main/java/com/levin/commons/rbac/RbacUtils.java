@@ -223,15 +223,14 @@ public abstract class RbacUtils {
                 //加入操作列表
                 res.getActionList().add(SimpleResAction.newAction(fieldResAuthorize).setRemark(operation.description()));
             }
+        });
 
-            //加入缓存
-            cacheMap.forEach((k, v) -> {
-                if (StringUtils.hasText(v.getDomain())
-                        && v.getActionList().size() > 0) {
-                    beanResCache.add(v.getDomain(), v);
-                }
-            });
-
+        //加入缓存
+        cacheMap.forEach((k, v) -> {
+            if (StringUtils.hasText(v.getDomain())
+                    && v.getActionList().size() > 0) {
+                beanResCache.add(v.getDomain(), v);
+            }
         });
 
     }
