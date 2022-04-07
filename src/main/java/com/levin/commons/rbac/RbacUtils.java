@@ -117,6 +117,8 @@ public abstract class RbacUtils {
             return;
         }
 
+        final Map<String, SimpleRes> cacheMap = new LinkedHashMap<>();
+
         context.getBeansWithAnnotation(Controller.class)
                 .entrySet().stream().forEach((it) -> {
 
@@ -137,8 +139,6 @@ public abstract class RbacUtils {
             //final RequestMapping classRequestMapping = AnnotatedElementUtils.getMergedAnnotation(beanType, RequestMapping.class);
 
             final Map<String, Object> classResAuthorizeAttrs = classResAuthorize != null ? AnnotationUtils.getAnnotationAttributes(classResAuthorize) : Collections.emptyMap();
-
-            final Map<String, SimpleRes> cacheMap = new LinkedHashMap<>();
 
             //获取方法上的注解描述
             for (Method method : beanType.getMethods()) {
