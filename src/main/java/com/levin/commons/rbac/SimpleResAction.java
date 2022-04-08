@@ -78,6 +78,7 @@ public class SimpleResAction
                 .setVerifyExpression(resAuthorize.verifyExpression())
                 .setIgnored(resAuthorize.ignored())
                 .setOnlyRequireAuthenticated(resAuthorize.onlyRequireAuthenticated())
+                .setName(resAuthorize.action())
                 .setId(resAuthorize.action());
 
         return this;
