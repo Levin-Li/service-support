@@ -195,13 +195,10 @@ public abstract class MapUtils {
      * @return
      */
     public static <K, V> Map<K, V> newMap(boolean isConcurrent, boolean isStrongReference, boolean isWeakReference) {
-        if (isConcurrent) {
-            return isStrongReference ? new ConcurrentHashMap<>(16) : new ConcurrentReferenceHashMap<>(16
-                    , isWeakReference ? ConcurrentReferenceHashMap.ReferenceType.WEAK : ConcurrentReferenceHashMap.ReferenceType.SOFT);
-        } else {
-            return isStrongReference ? new LinkedHashMap<>() : new ConcurrentReferenceHashMap<>(16
-                    , isWeakReference ? ConcurrentReferenceHashMap.ReferenceType.WEAK : ConcurrentReferenceHashMap.ReferenceType.SOFT);
-        }
+
+        return isStrongReference ?
+                (isConcurrent ? new ConcurrentHashMap<>(8) : new LinkedHashMap<>())
+                : new ConcurrentReferenceHashMap<>(16, isWeakReference ? ConcurrentReferenceHashMap.ReferenceType.WEAK : ConcurrentReferenceHashMap.ReferenceType.SOFT);
 
     }
 
