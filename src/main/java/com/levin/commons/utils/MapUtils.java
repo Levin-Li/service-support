@@ -100,6 +100,15 @@ public abstract class MapUtils {
 
 
     /**
+     * @param <K>
+     * @param <V>
+     * @return
+     */
+    public static <K, V> Builder<K, V> newBuilder() {
+        return new Builder<K, V>();
+    }
+
+    /**
      * 合并
      *
      * @param <K>
@@ -177,6 +186,24 @@ public abstract class MapUtils {
         return value;
     }
 
+    /**
+     * @param isConcurrent      是否并发
+     * @param isStrongReference 强引用
+     * @param isWeakReference
+     * @param <K>
+     * @param <V>
+     * @return
+     */
+    public static <K, V> Map<K, V> newMap(boolean isConcurrent, boolean isStrongReference, boolean isWeakReference) {
+        if (isConcurrent) {
+            return isStrongReference ? new ConcurrentHashMap<>(16) : new ConcurrentReferenceHashMap<>(16
+                    , isWeakReference ? ConcurrentReferenceHashMap.ReferenceType.WEAK : ConcurrentReferenceHashMap.ReferenceType.SOFT);
+        } else {
+            return isStrongReference ? new LinkedHashMap<>() : new ConcurrentReferenceHashMap<>(16
+                    , isWeakReference ? ConcurrentReferenceHashMap.ReferenceType.WEAK : ConcurrentReferenceHashMap.ReferenceType.SOFT);
+        }
+
+    }
 
     /**
      * @param isStrongReference
@@ -186,10 +213,7 @@ public abstract class MapUtils {
      * @return
      */
     public static <K, V> Map<K, V> newMap(boolean isStrongReference, boolean isWeakReference) {
-
-        return isStrongReference ? new ConcurrentHashMap<>(16) : new ConcurrentReferenceHashMap<>(16
-                , isWeakReference ? ConcurrentReferenceHashMap.ReferenceType.WEAK : ConcurrentReferenceHashMap.ReferenceType.SOFT);
-
+        return newMap(true, isStrongReference, isWeakReference);
     }
 
     public static void main(String[] args) {

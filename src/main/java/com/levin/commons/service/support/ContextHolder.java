@@ -46,7 +46,7 @@ public abstract class ContextHolder<K, V> {
      */
     public static final <K, V> ContextHolder<K, V> buildContext(boolean isStrongReference, boolean isWeakReference) {
         return new ContextHolder<K, V>() {
-            private final Map<K, V> ctx = MapUtils.newMap(isStrongReference, isWeakReference);
+            private final Map<K, V> ctx = MapUtils.newMap(true, isStrongReference, isWeakReference);
 
             @Override
             protected Map<K, V> getContext() {
@@ -100,7 +100,7 @@ public abstract class ContextHolder<K, V> {
 
                 if (context == null) {
 
-                    context = MapUtils.newMap(isStrongReference, isWeakReference);
+                    context = MapUtils.newMap(false, isStrongReference, isWeakReference);
 
                     threadLocal.set(context);
                 }
@@ -178,7 +178,7 @@ public abstract class ContextHolder<K, V> {
     public <T extends V> T getOrDefault(K key, V defaultValue) {
         return (T) getContext().getOrDefault(convertKey(key), defaultValue);
     }
- 
+
     public boolean isEmpty() {
         return getContext().isEmpty();
     }
