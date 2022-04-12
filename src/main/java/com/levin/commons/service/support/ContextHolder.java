@@ -4,6 +4,7 @@ import com.levin.commons.utils.MapUtils;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -197,6 +198,12 @@ public abstract class ContextHolder<K, V> {
 
     public <T extends V> T putIfAbsent(K key, V object) {
         return (T) getContext().putIfAbsent(convertKey(key), object);
+    }
+
+    public void foreach(BiConsumer<K, V> consumer) {
+        if (consumer != null) {
+            getContext().forEach(consumer);
+        }
     }
 
     public Map<K, V> getAll(boolean readOnly) {
