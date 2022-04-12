@@ -7,6 +7,7 @@ import com.levin.commons.service.domain.Identifiable;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 
 /**
@@ -26,7 +27,7 @@ public interface RbacUserObject<ROLE> extends MultiTenantObject, Identifiable, N
      *
      * @return
      */
-    default Collection<ROLE> getRoleList() {
+    default List<ROLE> getRoleList() {
         return Collections.emptyList();
     }
 
