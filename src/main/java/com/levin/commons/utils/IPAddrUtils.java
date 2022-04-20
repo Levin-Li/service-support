@@ -10,13 +10,11 @@ import java.util.List;
  */
 public class IPAddrUtils {
 
-
-    private static List<String> ipHeadNameList = new ArrayList<>();
-
+    private static List<String> ipHeadNameList = new ArrayList<>(16);
 
     static {
 
-        String[] defaultHeadNames = {
+        ipHeadNameList.addAll(Arrays.asList(
                 "x-real-ip",
                 "X-Real-IP",
                 "x-forwarded-for",
@@ -27,10 +25,8 @@ public class IPAddrUtils {
                 "WL-Proxy-Client-IP",
                 "HTTP_CLIENT_IP",
                 "HTTP_X_FORWARDED_FOR"
+        ));
 
-        };
-
-        ipHeadNameList.addAll(Arrays.asList(defaultHeadNames));
     }
 
 
@@ -77,18 +73,19 @@ public class IPAddrUtils {
         //　　为了实现IPv4-IPv6互通，IPv4地址会嵌入IPv6地址中，此时地址常表示为：X:X:X:X:X:X:d.d.d.d，前96b采用冒分十六进制表示，而最后32b地址则使用IPv4的点分十进制表示，例如::192.168.0.1与::FFFF:192.168.0.1就是两个典型的例子，注意在前96b中，压缩0位的方法依旧适用
         //
 
-        if (ip == null || !ip.contains(":"))
+        if (ip == null || !ip.contains(":")) {
             return false;
+        }
 
 
         //0:0:0:0:0:0:0:0 → ::
-        if (ip.equals("::"))
+        if (ip.equals("::")) {
             return true;
+        }
 
 
         //0位压缩表示法
         if (ip.contains("::")) {
-
 
             String[] sections = ip.split(":");
 
@@ -147,27 +144,38 @@ public class IPAddrUtils {
 
     public static boolean isIPV4(String ip) {
 
-        if (ip == null || !ip.contains("."))
+        if (ip == null || !ip.contains(".")) {
             return false;
+        }
 
-        String[] sections = ip.split(".");
+        String[] sections = ip.split("\\.");
 
-        if (sections.length != 4)
+        if (sections.length != 4) {
             return false;
+        }
 
         for (String section : sections) {
             try {
-                if (Integer.parseInt(section) < 0)
+                if (Integer.parseInt(section) < 0) {
                     return false;
+                }
             } catch (Exception e) {
                 return false;
             }
         }
 
         return true;
+
+
     }
 
-    public static String try2GetUserRealIPAddr(HttpServletRequest request) {
+
+    /**
+     * @param request
+     * @param isVerify 是否校验IP地址
+     * @return
+     */
+    public static String try2GetUserRealIPAddr(HttpServletRequest request, boolean isVerify) {
 
         // 获取请求主机IP地址,如果通过代理进来，则透过防火墙获取真实IP地址
 
@@ -175,32 +183,28 @@ public class IPAddrUtils {
 
             String ip = request.getHeader(headName);
 
-            if (ip == null || ip.trim().length() == 0)
+            if (ip == null || ip.trim().length() == 0) {
                 continue;
+            }
 
             ip = ip.trim();
 
             String[] sections = ip.split(",");
 
             for (String section : sections) {
-
-                if (isValidIP(section))
+                if (!isVerify || isValidIP(section)) {
                     return section;
+                }
             }
 
         }
 
         return request.getRemoteAddr();
-
     }
 
     public static void main(String[] args) {
-
-
         System.out.println("IPV4:" + isValidIP("127.0.0.1"));
-
-        System.out.println("IPV6:" + isValidIP("127.0.0.1"));
-
+        System.out.println("IPV6:" + isValidIP("120.235.173.83"));
 
     }
 }
