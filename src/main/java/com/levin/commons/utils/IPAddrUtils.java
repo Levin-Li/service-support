@@ -170,6 +170,10 @@ public class IPAddrUtils {
     }
 
 
+    public static String try2GetUserRealIPAddr(HttpServletRequest request) {
+        return try2GetUserRealIPAddr(request, true);
+    }
+
     /**
      * @param request
      * @param isVerify 是否校验IP地址

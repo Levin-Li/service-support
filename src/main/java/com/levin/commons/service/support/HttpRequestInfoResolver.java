@@ -32,9 +32,7 @@ public class HttpRequestInfoResolver implements VariableResolver {
 //            request.getServletPath()/resources/request.jsp
 
         if (InjectConsts.IP_ADDR.equalsIgnoreCase(name)) {
-
             value = IPAddrUtils.try2GetUserRealIPAddr(request);
-
         } else if (InjectConsts.URL_SERVERNAME.equalsIgnoreCase(name)) {
 
             value = request.getServerName();
