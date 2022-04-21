@@ -1,4 +1,4 @@
-package com.levin.commons.rbac;
+package com.levin.commons.plugin;
 
 import com.levin.commons.service.domain.SimpleIdentifiable;
 

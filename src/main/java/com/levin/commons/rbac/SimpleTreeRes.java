@@ -1,5 +1,6 @@
 package com.levin.commons.rbac;
 
+import com.levin.commons.plugin.Res;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.experimental.Accessors;

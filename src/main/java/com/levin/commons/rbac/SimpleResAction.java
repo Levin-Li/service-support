@@ -1,5 +1,6 @@
 package com.levin.commons.rbac;
 
+import com.levin.commons.plugin.Res;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,7 +14,7 @@ import java.util.List;
 /**
  * 资源操作
  * @see com.levin.commons.rbac.ResAuthorize
- * @see com.levin.commons.rbac.Res.Action
+ * @see Res.Action
  */
 @Schema(description = "资源操作")
 @Data

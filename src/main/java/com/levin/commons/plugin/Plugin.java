@@ -2,7 +2,6 @@ package com.levin.commons.plugin;
 
 
 import com.levin.commons.rbac.MenuItem;
-import com.levin.commons.rbac.ResLoader;
 import com.levin.commons.service.domain.SimpleIdentifiable;
 
 import java.util.Collections;
@@ -16,6 +15,13 @@ import java.util.List;
  * @since 1.1.17
  */
 public interface Plugin extends SimpleIdentifiable {
+
+    /**
+     * 模块包名，必须全局唯一
+     *
+     * @return
+     */
+    String getPackageName();
 
     /**
      * 插件类型

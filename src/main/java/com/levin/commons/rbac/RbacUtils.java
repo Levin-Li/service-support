@@ -1,5 +1,6 @@
 package com.levin.commons.rbac;
 
+import com.levin.commons.plugin.Res;
 import com.levin.commons.service.domain.SimpleIdentifiable;
 import com.levin.commons.service.support.SpringContextHolder;
 import com.levin.commons.utils.JsonStrArrayUtils;
