@@ -13,8 +13,6 @@ import java.util.List;
 public interface PluginManager extends SimpleIdentifiable {
 
 
-
-
     /**
      * 发送事件给插件
      *
