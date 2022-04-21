@@ -6,6 +6,7 @@ import com.levin.commons.service.domain.SimpleIdentifiable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 插件接口规范
@@ -29,6 +30,13 @@ public interface Plugin extends SimpleIdentifiable {
      * @return
      */
     String getVersion();
+
+    /**
+     * 获取作者信息
+     *
+     * @return
+     */
+    Map<String, String> getAuthor();
 
     /**
      * 插件类型
