@@ -24,6 +24,13 @@ public interface Plugin extends SimpleIdentifiable {
     String getPackageName();
 
     /**
+     * 获取版本号
+     *
+     * @return
+     */
+    String getVersion();
+
+    /**
      * 插件类型
      * <p>
      * 如系统插件，应用插件
