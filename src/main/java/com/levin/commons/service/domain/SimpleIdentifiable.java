@@ -1,10 +1,12 @@
 package com.levin.commons.service.domain;
 
 
+import com.levin.commons.dao.domain.OrderableObject;
+
 /**
  * 可标识的对象
  */
-public interface SimpleIdentifiable extends Identifiable {
+public interface SimpleIdentifiable extends Identifiable, OrderableObject {
 
     /**
      * 名称
@@ -27,6 +29,7 @@ public interface SimpleIdentifiable extends Identifiable {
      *
      * @return
      */
+    @Override
     default Integer getOrderCode() {
         return 100;
     }
@@ -39,6 +42,5 @@ public interface SimpleIdentifiable extends Identifiable {
     default String getRemark() {
         return getName() + "[" + getId() + "]";
     }
-
 
 }

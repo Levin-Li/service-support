@@ -3,11 +3,10 @@ package com.levin.commons.dao.domain;
 
 /**
  * 可排序的对象
+ *
  * @author llw
  */
-public interface OrderableObject {
-
-
+public interface OrderableObject extends Comparable<OrderableObject> {
 
     /**
      * 排序代码
@@ -16,4 +15,23 @@ public interface OrderableObject {
      */
     <C extends Comparable> C getOrderCode();
 
+    @Override
+    default int compareTo(OrderableObject o) {
+
+        if (o == null) {
+            return 1;
+        }
+
+        Comparable thisOrderCode = getOrderCode();
+
+        if (o.getOrderCode() == null) {
+            return (thisOrderCode == null) ? 0 : 1;
+        }
+
+        if (thisOrderCode == null) {
+            return -1;
+        }
+
+        return thisOrderCode.compareTo(o.getOrderCode());
+    }
 }
