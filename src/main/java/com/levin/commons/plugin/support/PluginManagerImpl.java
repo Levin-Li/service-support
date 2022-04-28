@@ -9,7 +9,10 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
@@ -38,6 +41,7 @@ public class PluginManagerImpl implements PluginManager,
         BeanFactoryAware,
         ApplicationContextAware,
         SmartInitializingSingleton,
+        BeanDefinitionRegistryPostProcessor,
         ApplicationListener<ContextRefreshedEvent>,
         DisposableBean {
 
@@ -127,6 +131,16 @@ public class PluginManagerImpl implements PluginManager,
         if (event.getApplicationContext() == this.applicationContext) {
             this.finishRegistration();
         }
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
+       // finishRegistration();
+    }
+
+    @Override
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) throws BeansException {
+
     }
 
     @Override

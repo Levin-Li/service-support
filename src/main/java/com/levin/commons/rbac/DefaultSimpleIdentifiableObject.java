@@ -17,7 +17,7 @@ import lombok.experimental.FieldNameConstants;
 @FieldNameConstants
 @EqualsAndHashCode(of = "id")
 public class DefaultSimpleIdentifiableObject
-        implements SimpleIdentifiable {
+        implements SimpleIdentifiable, Comparable<SimpleIdentifiable> {
 
     @Schema(description = "ID", required = true)
     protected String id;
@@ -37,5 +37,19 @@ public class DefaultSimpleIdentifiableObject
     @Override
     public String toString() {
         return id;
+    }
+
+    @Override
+    public int compareTo(SimpleIdentifiable o) {
+
+        if (o == null || o.getOrderCode() == null) {
+            return 1;
+        }
+
+        if (orderCode == null) {
+            return -1;
+        }
+
+        return orderCode - o.getOrderCode();
     }
 }
