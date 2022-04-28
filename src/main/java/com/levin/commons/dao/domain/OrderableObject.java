@@ -13,7 +13,7 @@ public interface OrderableObject extends Comparable<OrderableObject> {
      *
      * @return
      */
-    <C extends Comparable> C getOrderCode();
+    <C extends Comparable<?>> C getOrderCode();
 
     @Override
     default int compareTo(OrderableObject o) {
@@ -22,7 +22,7 @@ public interface OrderableObject extends Comparable<OrderableObject> {
             return 1;
         }
 
-        Comparable thisOrderCode = getOrderCode();
+        Comparable<?> thisOrderCode = getOrderCode();
 
         if (o.getOrderCode() == null) {
             return (thisOrderCode == null) ? 0 : 1;

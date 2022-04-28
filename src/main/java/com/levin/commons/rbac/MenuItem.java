@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
         extends TreeObject<PARENT, CHILD>, AuthorizedObject, SimpleIdentifiable {
 
+    @Schema(description = "动作类型")
     enum ActionType implements EnumDesc {
 
         @Schema(description = "默认")
