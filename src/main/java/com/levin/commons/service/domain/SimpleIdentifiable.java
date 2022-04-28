@@ -1,18 +1,22 @@
 package com.levin.commons.service.domain;
 
 
+import com.levin.commons.dao.domain.EnableObject;
+import com.levin.commons.dao.domain.NamedObject;
 import com.levin.commons.dao.domain.OrderableObject;
 
 /**
  * 可标识的对象
+ * @author levin
  */
-public interface SimpleIdentifiable extends Identifiable, OrderableObject {
+public interface SimpleIdentifiable extends Identifiable, EnableObject, NamedObject, OrderableObject {
 
     /**
      * 名称
      *
      * @return
      */
+    @Override
     String getName();
 
     /**
@@ -20,6 +24,7 @@ public interface SimpleIdentifiable extends Identifiable, OrderableObject {
      *
      * @return
      */
+    @Override
     default boolean isEnable() {
         return true;
     }

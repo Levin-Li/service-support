@@ -8,7 +8,6 @@ package com.levin.commons.dao.domain;
  */
 public interface TagsObject {
 
-
     /**
      * 对象标签
      *

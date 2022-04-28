@@ -10,8 +10,6 @@ import java.io.Serializable;
  */
 public interface StatefulObject {
 
-
-
     /**
      * 获取对象状态
      *

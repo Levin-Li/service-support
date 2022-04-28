@@ -9,8 +9,6 @@ import java.io.Serializable;
  */
 public interface OrganizedObject {
 
-
-
     /**
      * 获取归属的组织ID
      * <p>

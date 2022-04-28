@@ -15,6 +15,11 @@ public interface OrderableObject extends Comparable<OrderableObject> {
      */
     <C extends Comparable<?>> C getOrderCode();
 
+    /**
+     * 比较大小
+     * @param o
+     * @return
+     */
     @Override
     default int compareTo(OrderableObject o) {
 
