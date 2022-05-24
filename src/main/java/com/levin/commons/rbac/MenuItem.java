@@ -17,23 +17,26 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
         @Schema(description = "默认")
         Default,
 
+        @Schema(description = "模态窗口")
+        ModalWindow,
+
         @Schema(description = "Tab栏")
         TabPanel,
 
         @Schema(description = "Tab栏Iframe")
         TabPanelIFrame,
 
-        @Schema(description = "新窗口")
+        @Schema(description = "新浏览器窗口")
         NewWindow,
 
         @Schema(description = "地址栏重定向")
         Redirect,
 
-        @Schema(description = "模态窗口")
-        ModalWindow,
+        @Schema(description = "路径重写")
+        Rewrite,
 
-        @Schema(description = "JS")
-        JavaScript,
+        @Schema(description = "jsonp回调")
+        Jsonp,
 
         @Schema(description = "服务端动作")
         ServerSideAction
