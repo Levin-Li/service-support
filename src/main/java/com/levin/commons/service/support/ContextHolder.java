@@ -1,6 +1,9 @@
 package com.levin.commons.service.support;
 
 import com.levin.commons.utils.MapUtils;
+import lombok.Data;
+import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
 import java.util.Map;
@@ -9,6 +12,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+@Slf4j
+@Data
+@Accessors(chain = true)
 public abstract class ContextHolder<K, V> {
 
     /**
@@ -47,11 +53,17 @@ public abstract class ContextHolder<K, V> {
      */
     public static final <K, V> ContextHolder<K, V> buildContext(boolean isStrongReference, boolean isWeakReference) {
         return new ContextHolder<K, V>() {
-            private final Map<K, V> ctx = MapUtils.newMap(true, isStrongReference, isWeakReference);
+
+            private final Map<K, V> ctx = MapUtils.newMap(isConcurrentMap(), isStrongReference, isWeakReference);
 
             @Override
             protected Map<K, V> getContext() {
                 return ctx;
+            }
+
+            @Override
+            public boolean isConcurrentMap() {
+                return true;
             }
         };
     }
@@ -101,17 +113,26 @@ public abstract class ContextHolder<K, V> {
 
                 if (context == null) {
 
-                    context = MapUtils.newMap(false, isStrongReference, isWeakReference);
+                    context = MapUtils.newMap(isConcurrentMap(), isStrongReference, isWeakReference);
 
                     threadLocal.set(context);
                 }
 
                 return context;
+            }
 
+            @Override
+            public boolean isConcurrentMap() {
+                return false;
+            }
+
+            @Override
+            public ContextHolder<K, V> clear() {
+                threadLocal.remove();
+                return this;
             }
         };
     }
-
 
     /**
      * Key 转化器
@@ -121,18 +142,19 @@ public abstract class ContextHolder<K, V> {
     private Function<K, K> keyConverter;
 
     /**
+     *
+     */
+
+    /**
      * 开放构造
      */
     public ContextHolder() {
     }
 
-    public ContextHolder<K, V> setKeyConverter(Function<K, K> keyConverter) {
-
-        this.keyConverter = keyConverter;
-
-        return this;
-    }
-
+    /**
+     * @param key
+     * @return
+     */
     protected K convertKey(K key) {
         return keyConverter == null ? key : keyConverter.apply(key);
     }
@@ -144,6 +166,12 @@ public abstract class ContextHolder<K, V> {
      */
     protected abstract Map<K, V> getContext();
 
+    /**
+     * 是否 ConcurrentMap
+     *
+     * @return
+     */
+    public abstract boolean isConcurrentMap();
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -160,7 +188,7 @@ public abstract class ContextHolder<K, V> {
      * @return
      */
     public <T extends V> T get(K key) {
-        return (T) getContext().get(convertKey(key));
+        return getOrDefault(key, null);
     }
 
     /**
@@ -200,14 +228,21 @@ public abstract class ContextHolder<K, V> {
         return (T) getContext().putIfAbsent(convertKey(key), object);
     }
 
-    public void foreach(BiConsumer<K, V> consumer) {
+    public Map<K, V> getAll(boolean readOnly) {
+        return readOnly ? Collections.unmodifiableMap(getContext()) : getContext();
+    }
+
+    /**
+     * @param consumer
+     * @return
+     */
+    public ContextHolder<K, V> forEach(BiConsumer<K, V> consumer) {
+
         if (consumer != null) {
             getContext().forEach(consumer);
         }
-    }
 
-    public Map<K, V> getAll(boolean readOnly) {
-        return readOnly ? Collections.unmodifiableMap(getContext()) : getContext();
+        return this;
     }
 
     public ContextHolder<K, V> putAll(Map<K, V> values) {

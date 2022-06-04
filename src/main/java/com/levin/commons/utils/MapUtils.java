@@ -155,7 +155,7 @@ public abstract class MapUtils {
      * @param <V>
      * @return
      */
-    public static <K, V> V getAndAutoPut(@NonNull Map kvMap, K key, Predicate<V> putCondition, @Nullable Supplier<V>... suppliers) {
+    public static <K, V> V getAndAutoPut(@NonNull Map kvMap, @NonNull K key, @Nullable Predicate<V> putCondition, @Nullable Supplier<V>... suppliers) {
 
         V value = (V) kvMap.get(key);
 
@@ -195,11 +195,9 @@ public abstract class MapUtils {
      * @return
      */
     public static <K, V> Map<K, V> newMap(boolean isConcurrent, boolean isStrongReference, boolean isWeakReference) {
-
         return isStrongReference ?
                 (isConcurrent ? new ConcurrentHashMap<>(8) : new LinkedHashMap<>())
                 : new ConcurrentReferenceHashMap<>(16, isWeakReference ? ConcurrentReferenceHashMap.ReferenceType.WEAK : ConcurrentReferenceHashMap.ReferenceType.SOFT);
-
     }
 
     /**
@@ -215,15 +213,15 @@ public abstract class MapUtils {
 
     public static void main(String[] args) {
 
-
         System.out.println(asMap("k1", 2, "k2", "adsfds"));
 
         System.out.println(asMap("k1", 2, "k2", "adsfds"));
 
         System.out.println(asMap("k1", 2, "k2", "adsfds", "dasfdsaf", 111));
 
+        put("sadfsad", (Object) 1232).put("adfds", "dsafadsf")
+                .build();
 
-        put("sadfsad", (Object) 1232).put("adfds", "dsafadsf").build();
     }
 
 }
