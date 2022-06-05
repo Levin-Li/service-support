@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 
@@ -19,6 +20,8 @@ import java.util.stream.Collectors;
 @FieldNameConstants
 @EqualsAndHashCode(of = "name")
 public class DataType {
+
+    public static final Map<String, DataType> dataTypeMap = new ConcurrentHashMap<>();
 
     public static final String TYPE_PREFIX = "#/definitions/Schema";
     public static final String TYPE_PREFIX_2 = "#/definitions/";
@@ -76,6 +79,19 @@ public class DataType {
         return builder.toString();
     }
 
+    public void finish() {
+
+        //总是覆盖
+        if(isProps() || isEnum()){
+            return;
+        }
+
+        DataType old = dataTypeMap.put(name, this);
+
+        if (old != null) {
+            System.out.println("*** Type Waring *** : " + name + " overwrite " + old);
+        }
+    }
 
     public static String replaceKeywords(String txt) {
 
@@ -99,7 +115,7 @@ public class DataType {
 
                     builder.append(HEAD_LINE1).append("//").append(descriptions.get(p.name));
 
-                    builder.append(HEAD_LINE1).append("enum ").append(capFirst(p.isArray() ? getSingular(p.name) : p.name)).append("{");
+                    builder.append(HEAD_LINE1).append("enum ").append(capFirst(p.isArray() ? toSingularize(p.name) : p.name)).append("{");
 
                     p.enums.stream()
                             .filter(StringUtils::hasText)
@@ -126,11 +142,15 @@ public class DataType {
         return Character.toUpperCase(name.charAt(0)) + name.substring(1);
     }
 
+    /**
+     * @return
+     */
     public String getTypeInfo() {
-        return isArray() ? (getSingular(_getTypeInfo()) + "[]") : _getTypeInfo();
+        return isArray() ? (guessType(_getTypeInfo()) + "[]") : _getTypeInfo();
     }
 
     public String _getTypeInfo() {
+
         if (isEnum()) {
             return capFirst(name);
         } else if (type.equalsIgnoreCase("String")) {
@@ -199,14 +219,26 @@ public class DataType {
         }
     }
 
+    protected static String toSingularize(String word) {
+        return Inflector.getInstance().singularize(word);
+    }
+
     /**
      * 获取单词的单数形式
      *
-     * @param words
+     * @param word
      * @return
      */
-    public static String getSingular(String words) {
-        return Inflector.getInstance().singularize(words);
+    public static String guessType(String word) {
+
+        String type = toSingularize(word);
+
+        if (dataTypeMap.containsKey(word)
+                && !dataTypeMap.containsKey(type)) {
+            return word;
+        }
+
+        return type;
     }
 
     final Map<String, DataType> properties = new LinkedHashMap<>();

@@ -262,11 +262,17 @@ public class SchemaCodeGen {
             }
 
             if (!StringUtils.hasText(type) && anyOf != null) {
-                //默认取第一个类型
-                JsonElement element = anyOf.getAsJsonArray().get(0).getAsJsonObject().get(DataType.Fields.type);
 
-                if (element != null) {
-                    type = element.getAsString();
+                JsonArray asJsonArray = anyOf.getAsJsonArray();
+
+                //如果支持多种类型，只能是字符串，在java里面只能是字符串
+                if (asJsonArray.size() > 1) {
+                    type = "String";
+                } else {
+                    JsonElement element = asJsonArray.get(0).getAsJsonObject().get(DataType.Fields.type);
+                    if (element != null) {
+                        type = element.getAsString();
+                    }
                 }
             }
 
@@ -338,6 +344,8 @@ public class SchemaCodeGen {
 
                 dataType.setName(name);
 
+                dataType.finish();
+
                 if (!isProps) {
                 }
             } else {
@@ -350,6 +358,7 @@ public class SchemaCodeGen {
         return isProps ? props : dataTypes;
 
     }
+
 
     private String getType(String schema, JsonElement ref) {
 
