@@ -7,7 +7,7 @@ import java.lang.annotation.*;
  * ${name}
  *
  * ${ui.description!''}
- *
+ * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at ${.now}
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
