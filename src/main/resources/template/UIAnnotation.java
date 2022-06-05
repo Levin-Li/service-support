@@ -19,6 +19,17 @@ public @interface ${name} {
 ///////////////////////////////////////////
 ${ui.getEnumDefines()}
 ////////////////////////////////////////////
+
+  /**
+   * Any Of
+   * ${ui.anyOf!}
+   */
+
+<#if ui.hasConsts() >
+    String[] consts = { ${ui.getConsts()} };
+</#if>
+
+//////////////////////////////////////////////
 <#if ui.isPrimitive() && !ui.hasValueKey() >
    /**
     *

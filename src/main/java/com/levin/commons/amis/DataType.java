@@ -7,9 +7,11 @@ import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Data
@@ -39,6 +41,18 @@ public class DataType {
 
     Object ref;
 
+    Object anyOf;
+
+    List<String> consts;
+
+    public boolean hasConsts() {
+        return consts != null && !consts.isEmpty();
+    }
+
+    public String getConsts() {
+        return consts.stream().collect(Collectors.joining("\", \"", "\"", "\""));
+    }
+
     boolean isProps;
 
     String description;
@@ -56,11 +70,20 @@ public class DataType {
         enums.stream()
                 .filter(StringUtils::hasText)
                 .filter(txt -> Character.isLetter(txt.charAt(0)))
-                .map(txt -> txt.equals("boolean") ? "boolean_" : txt)
+                .map(DataType::replaceKeywords)
                 .forEach(e -> builder.append(HEAD_LINE).append(e.replace('-', '_')).append(","));
 
         return builder.toString();
     }
+
+
+    public static String replaceKeywords(String txt) {
+
+        List<String> aa = Arrays.asList("char", "boolean", "double", "float", "int", "default");
+
+        return (aa.contains(txt)) ? "__" + txt : txt;
+    }
+
 
     public String getEnumDefines() {
 
@@ -81,6 +104,7 @@ public class DataType {
                     p.enums.stream()
                             .filter(StringUtils::hasText)
                             .filter(txt -> Character.isLetter(txt.charAt(0)))
+                            .map(DataType::replaceKeywords)
                             .forEach(e -> builder.append(HEAD_LINE).append(e.replace('-', '_')).append(","));
 
                     builder.append(HEAD_LINE).append(";\n")
@@ -116,8 +140,36 @@ public class DataType {
         } else if (type.equalsIgnoreCase("Boolean")) {
             return "boolean";
         } else {
-            return Character.toUpperCase(type.charAt(0)) + type.substring(1);
+
+            String type = replace(Character.toUpperCase(this.type.charAt(0)) + this.type.substring(1));
+
+            if (type.startsWith("Property_") || type.startsWith("Moment_")) {
+                return "String";
+            }
+
+            return type;
         }
+    }
+
+    public static String replace(String name) {
+
+        name = name.replace('.', '_');
+
+        int tmpIdx = name.indexOf('<');
+
+        //如果有泛型，要去除泛型
+        if (tmpIdx != -1) {
+            name = name.substring(0, tmpIdx);
+        }
+
+        tmpIdx = name.indexOf("%3C");
+
+        //如果有泛型，要去除泛型
+        if (tmpIdx != -1) {
+            name = name.substring(0, tmpIdx);
+        }
+
+        return replaceKeywords(name);
     }
 
 

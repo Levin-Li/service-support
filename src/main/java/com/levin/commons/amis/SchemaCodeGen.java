@@ -137,7 +137,7 @@ public class SchemaCodeGen {
                     .put("name", name)
                     .build();
 
-            Writer hWriter = new OutputStreamWriter(new FileOutputStream(new File(dir, name + ".java")), "utf-8");
+            Writer hWriter = new OutputStreamWriter(new FileOutputStream(new File(dir, name.replace('.', '_') + ".java")), "utf-8");
 
             System.out.println("开始生成 " + name);
 
@@ -183,9 +183,7 @@ public class SchemaCodeGen {
                 name = name.replace(schema, "");
             }
 
-            if (name.equals("char")) {
-                name = "_" + name;
-            }
+            name = DataType.replace(name);
 
             if (name.contains("-")) {
                 return;
@@ -214,6 +212,7 @@ public class SchemaCodeGen {
 
             JsonElement anyOf = value.get("anyOf");
 
+
             JsonElement description = value.get(DataType.Fields.description);
             JsonObject properties = value.getAsJsonObject(DataType.Fields.properties);
 
@@ -223,6 +222,7 @@ public class SchemaCodeGen {
 
             DataType dataType = new DataType()
                     .setArray(isArray)
+                    .setAnyOf(anyOf)
                     .setProps(isProps);
 
             if (typeDesc != null
@@ -241,6 +241,23 @@ public class SchemaCodeGen {
                     type = getType(schema, ref);
                 } else {
                     System.err.println(" " + ref);
+                }
+            }
+
+            if (anyOf != null) {
+
+                List<String> tmp = new ArrayList<>(5);
+
+                for (JsonElement ele : anyOf.getAsJsonArray()) {
+                    JsonElement aConst = ((JsonObject) ele).get("const");
+                    if (aConst != null) {
+                        tmp.add(aConst.getAsString());
+                    }
+                }
+
+                if (!tmp.isEmpty()) {
+                    dataType.consts = tmp;
+                    System.out.println(name + " 常量 consts：" + tmp);
                 }
             }
 
@@ -331,6 +348,7 @@ public class SchemaCodeGen {
         });
 
         return isProps ? props : dataTypes;
+
     }
 
     private String getType(String schema, JsonElement ref) {
