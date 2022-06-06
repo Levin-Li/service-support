@@ -45,6 +45,8 @@ public class SchemaCodeGen {
 
         Map<String, DataType> dataTypes = new LinkedHashMap<>();
 
+        DataType.dataTypeMap = dataTypes;
+
         Map<String, JsonObject> comTypes = new LinkedHashMap<>();
 
         // parse(definitions, dataTypes);
@@ -239,8 +241,11 @@ public class SchemaCodeGen {
             if (ref != null) {
                 if (ref.isJsonPrimitive()) {
                     type = getType(schema, ref);
+
+                    dataType.refType = type;
+
                 } else {
-                    System.err.println(" " + ref);
+                    System.err.println(" error ref: " + ref);
                 }
             }
 
@@ -336,15 +341,13 @@ public class SchemaCodeGen {
             if (StringUtils.hasText(type)
                     && !name.equalsIgnoreCase("$ref")) {
 
-                if (isProps) {
-                    props.put(name, dataType);
-                } else {
-                    dataTypes.put(name, dataType);
-                }
-
                 dataType.setName(name);
 
-                dataType.finish();
+                if (isProps) {
+                    props.put(dataType.name, dataType);
+                } else {
+                    dataTypes.put(dataType.name, dataType);
+                }
 
                 if (!isProps) {
                 }
@@ -375,6 +378,8 @@ public class SchemaCodeGen {
         }
 
         type = type.replace(schema, "");
+
+        type = DataType.replace(type);
 
         return type;
     }

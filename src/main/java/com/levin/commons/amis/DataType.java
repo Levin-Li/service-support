@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 
@@ -21,11 +20,14 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(of = "name")
 public class DataType {
 
-    public static final Map<String, DataType> dataTypeMap = new ConcurrentHashMap<>();
+    public static Map<String, DataType> dataTypeMap = null;
 
     public static final String TYPE_PREFIX = "#/definitions/Schema";
     public static final String TYPE_PREFIX_2 = "#/definitions/";
 
+    /**
+     * 名称
+     */
     String name;
 
     boolean isPrimitive;
@@ -34,6 +36,9 @@ public class DataType {
 
     boolean isArray;
 
+    /**
+     * 数据类型
+     */
     String type;
 
     String refType = "";
@@ -48,17 +53,59 @@ public class DataType {
 
     List<String> consts;
 
+    boolean isProps;
+
+    String description;
+
+    final Map<String, DataType> properties = new LinkedHashMap<>();
+
+    final Map<String, String> descriptions = new LinkedHashMap<>();
+
+    @Override
+    public String toString() {
+        if (!isProps) {
+            return name + " : " + type + ":" + properties.values();
+        } else {
+            return name + ":" + type + ":" + refType;
+        }
+    }
+
     public boolean hasConsts() {
         return consts != null && !consts.isEmpty();
     }
 
-    public String getConsts() {
-        return consts.stream().collect(Collectors.joining("\", \"", "\"", "\""));
+
+    public String getDefaultConsts() {
+        return getConsts("@Const({", "})");
     }
 
-    boolean isProps;
+    public String getConsts(String prefix, String suffix) {
 
-    String description;
+        String consts = null;
+
+        if (isProps()) {
+
+            DataType dataType = dataTypeMap.get(getRefType());
+            if (dataType != null) {
+                consts = dataType.getConsts();
+            } else {
+                //  System.out.println();
+            }
+        } else {
+            consts = getConsts();
+        }
+
+        if (StringUtils.hasText(consts)) {
+            return prefix + consts + suffix;
+        }
+
+        return "";
+    }
+
+    public String getConsts() {
+        return consts == null ? null : consts.stream().collect(Collectors.joining("\", \"", "\"", "\""));
+    }
+
 
     public boolean hasValueKey() {
         return properties.containsKey("value");
@@ -79,19 +126,6 @@ public class DataType {
         return builder.toString();
     }
 
-    public void finish() {
-
-        //总是覆盖
-        if(isProps() || isEnum()){
-            return;
-        }
-
-        DataType old = dataTypeMap.put(name, this);
-
-        if (old != null) {
-            System.out.println("*** Type Waring *** : " + name + " overwrite " + old);
-        }
-    }
 
     public static String replaceKeywords(String txt) {
 
@@ -136,6 +170,13 @@ public class DataType {
         }
 
         return builder.toString();
+    }
+
+    public Object getRefTypeAnyOf() {
+
+        DataType dataType = dataTypeMap.get(getRefType());
+
+        return dataType != null ? dataType.getAnyOf() : null;
     }
 
     public static String capFirst(String name) {
@@ -239,18 +280,5 @@ public class DataType {
         }
 
         return type;
-    }
-
-    final Map<String, DataType> properties = new LinkedHashMap<>();
-
-    final Map<String, String> descriptions = new LinkedHashMap<>();
-
-    @Override
-    public String toString() {
-        if (!isProps) {
-            return name + " : " + type + ":" + properties.values();
-        } else {
-            return name + ":" + type;
-        }
     }
 }

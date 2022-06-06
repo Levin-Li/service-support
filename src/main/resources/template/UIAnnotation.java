@@ -2,6 +2,7 @@ package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.lang.annotation.*;
+import com.levin.commons.ui.annotation.*;
 
 /**
  * ${name}
@@ -14,7 +15,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "${ui.description!name}")
+@Schema(description = "${ui.description!ref!name}")
 public @interface ${name} {
 ///////////////////////////////////////////
 ${ui.getEnumDefines()}
@@ -23,8 +24,9 @@ ${ui.getEnumDefines()}
   /**
    * Any Of
    * ${ui.anyOf!}
+   *
+   *
    */
-
 <#if ui.hasConsts() >
     String[] consts = { ${ui.getConsts()} };
 </#if>
@@ -44,9 +46,14 @@ ${ui.getEnumDefines()}
      *
      * 参考定义: ${props.ref!}
      *
+     * ${props.anyOf!}
+     *
+     * ${props.getRefTypeAnyOf()!}
+     *
      * @see ${props.refType?cap_first}
      */
-    @Schema(description = "${ui.descriptions[porpsName]!porpsName}")
+    ${props.getConsts('@Const({','})')}
+    @Schema(description = "${ui.descriptions[porpsName]!props.description!porpsName}")
     ${props.getTypeInfo()} ${porpsName}() ${props.defaultValue()};
 
 </#list>
