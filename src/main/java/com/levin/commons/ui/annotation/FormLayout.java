@@ -27,11 +27,16 @@ public @interface FormLayout {
         @Schema(description = "卡片布局")
         tabs,
 
+        //https://aisuda.bce.baidu.com/amis/examples/wizard
         @Schema(description = "向导式布局")
         wizard,
 
         @Schema(description = "格子布局")
         grid,
+
+        //参考：https://aisuda.bce.baidu.com/amis/examples/form/anchor-nav
+        @Schema(description = "左侧锚点布局")
+        anchor
     }
 
     /**
