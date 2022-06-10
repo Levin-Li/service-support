@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Import;
 import java.lang.annotation.*;
 
 /**
+ * @author llw
  * @see ProxyBeanScanAndRegistrar
  */
 @Target(ElementType.TYPE)

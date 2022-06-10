@@ -104,7 +104,6 @@ public abstract class SignUtils {
 
         StringBuilder sb = new StringBuilder();
 
-
         boolean isFirst = true;
 
         for (Map.Entry<String, String> entry : data.entrySet()) {
@@ -118,11 +117,7 @@ public abstract class SignUtils {
             if (needKey) {
                 sb.append(entry.getKey()).append(keyValueDelim);
             }
-
-
             sb.append(entry.getValue());
-
-
         }
 
         return sb.toString();

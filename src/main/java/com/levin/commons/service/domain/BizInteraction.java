@@ -8,8 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.Map;
+import java.util.List;
 
 /**
  * @author llw
@@ -33,10 +34,31 @@ public class BizInteraction
     String title;
 
     @Schema(description = "提示内容")
-    @NotNull
+    @NotBlank
     String info;
 
     @Schema(description = "交互动作")
-    Map<String /* action 显示名称 */, String /* 具体动作 */> actions;
+    List<Action> actions;
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @Data
+    @Accessors(chain = true)
+    @FieldNameConstants
+    public static class BizAction implements Interaction.Action {
+
+        @Schema(description = "名称")
+        String name;
+
+        @Schema(description = "图标")
+        String icon;
+
+        @Schema(description = "命令")
+        Interaction.Action.Cmd cmd;
+
+        @Schema(description = "命令参数")
+        String args;
+    }
 
 }

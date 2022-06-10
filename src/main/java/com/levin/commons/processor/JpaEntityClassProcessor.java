@@ -2,8 +2,13 @@ package com.levin.commons.processor;
 
 import com.levin.commons.annotation.GenNameConstant;
 import com.levin.commons.service.domain.Desc;
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.util.StringUtils;
 
-import javax.annotation.processing.*;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
@@ -14,7 +19,8 @@ import javax.lang.model.util.Elements;
 import javax.persistence.*;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
-import java.io.*;
+import java.io.IOException;
+import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -98,6 +104,10 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
         return className.substring(0, lastIndexOf + 1) + prefix + className.substring(lastIndexOf + 1);
     }
 
+    private String getFirstNotEmptyStr(String defaultValue, String... txts) {
+        return Arrays.stream(txts).filter(StringUtils::hasText).findFirst().orElse(defaultValue);
+    }
+
 
     private void process(RoundEnvironment roundEnv, Set<? extends Element> elementList) {
 
@@ -115,7 +125,6 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
             }
 
             TypeElement typeElement = (TypeElement) element;
-
 
             GenNameConstant genFieldNameConstant = typeElement.getAnnotation(GenNameConstant.class);
 
@@ -138,19 +147,24 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
 
             if (processedFiles.containsKey(newFullClassName)) {
-
-                this.processingEnv.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING, getClass().getSimpleName() + " <<<" + newFullClassName + ">>> already processed.");
-
+                this.processingEnv.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING,
+                        getClass().getSimpleName() + " <<<" + newFullClassName + ">>> already processed.");
                 continue;
             } else {
-
-                this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, getClass().getSimpleName() + " Processing class " + fullClassName + " --> " + newSimpleClassName);
-
+                this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,
+                        getClass().getSimpleName() + " Processing class " + fullClassName + " --> " + newSimpleClassName);
             }
 
-            boolean useExtends = genFieldNameConstant == null || genFieldNameConstant.extendsMode();
+            boolean useExtends = (genFieldNameConstant == null || genFieldNameConstant.extendsMode());
 
             TypeMirror superclass = typeElement.getSuperclass();
+
+            //父类是否是 JPA
+            boolean isSuperClassJpaEntity = superclass.getAnnotation(MappedSuperclass.class) != null || superclass.getAnnotation(Entity.class) != null;
+
+            //继承
+            useExtends = useExtends && isSuperClassJpaEntity;
+
 
             final String newSuperFullClassName = newClassName((superclass != null && !(superclass instanceof NoType)) ? superclass.toString() : "");
 
@@ -181,14 +195,38 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
                     .append(" {\n\n")
                     .append("    String PACKAGE_NAME = \"").append(packageName).append("\"; // 类包名 \n\n")
+
                     .append("    String CLASS_NAME = \"").append(fullClassName).append("\"; // 类全名 \n\n")
+
                     .append("    String SIMPLE_CLASS_NAME = \"").append(simpleClassName).append("\"; // 类短名称 \n\n")
+
+                    .append("    String CACHE_KEY_PREFIX  = \"\\\"CK_\" + CLASS_NAME + \"_\\\" + \"; // 缓存Key前缀 \n\n")
+
+            //    String CACHE_KEY_PREFIX = "\"PK_" + E_FXMember.CLASS_NAME + "_\" + ";
 
             ;
 
+            if (typeElement.getAnnotation(Schema.class) != null) {
+
+                Schema schema = typeElement.getAnnotation(Schema.class);
+                codeBlock.append("    String BIZ_NAME = \"")
+                        .append(getFirstNotEmptyStr(simpleClassName, schema.name(), schema.title(), schema.description()))
+                        .append("\"; // 业务名称 \n\n");
+
+            } else if (typeElement.getAnnotation(Desc.class) != null) {
+
+                Desc schema = typeElement.getAnnotation(Desc.class);
+                codeBlock.append("    String BIZ_NAME = \"")
+                        .append(getFirstNotEmptyStr(simpleClassName, schema.name(), schema.detail()))
+                        .append("\"; // 业务名称 \n\n");
+
+            }
+
             if (typeElement.getAnnotation(MappedSuperclass.class) != null
                     || typeElement.getAnnotation(Entity.class) != null) {
-                codeBlock.append("    String ALIAS = \"").append(getAlias(simpleClassName)).append("\"; // 别名 \n\n");
+                codeBlock.append("    String ALIAS   = \"").append(getAlias(simpleClassName)).append("\"; // 别名1 \n\n");
+                codeBlock.append("    String ALIAS_2 = \"").append(getAlias(simpleClassName) + "_2").append("\"; // 别名2 \n\n");
+                codeBlock.append("    String ALIAS_3 = \"").append(getAlias(simpleClassName) + "_3").append("\"; // 别名3 \n\n");
             }
 
             processAnnotation(typeElement, simpleClassName, codeBlock);
@@ -276,6 +314,8 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
         codeBlock.append("    String ENTITY_NAME = \"").append(entityName).append("\"; //  实体名字 \n\n");
 
+        codeBlock.append("    String E_ENTITY_NAME = \"E$:").append(typeElement.getQualifiedName().toString()).append("\"; // 可替换的全名 \n\n");
+
         final List<String> uniqueFields = new ArrayList<>();
 
 
@@ -302,7 +342,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
             }
 
 
-            String fieldName = subEle.getSimpleName().toString();
+            final String fieldName = subEle.getSimpleName().toString();
 
             // this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, getClass().getSimpleName() + " Processing field " + fieldName);
 
@@ -334,6 +374,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             String tableColName = fieldName;
 
+
             if (subEle.getAnnotation(Column.class) != null) {
 
                 if (hasText(subEle.getAnnotation(Column.class).name())) {
@@ -346,7 +387,9 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 }
             }
 
-            fieldMap.put(fieldTableColName, "\n    String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名 \n");
+            fieldMap.put(fieldTableColName, "\n    @Deprecated\n    String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名，建议使用 F_" + fieldName + " 替代\n");
+
+            fieldMap.put("F_" + fieldName, "\n    String F_" + fieldName + "  = \"F$:" + fieldName + "\"; //用于替换的名称，替换字段" + name + " 对应的数据库列名 \n");
 
             boolean isIdAttr = subEle.getAnnotation(Id.class) != null || subEle.getAnnotation(EmbeddedId.class) != null;
 
@@ -354,6 +397,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 //   codeBlock.append("\n    String ").append("PK_ID").append(" = \"").append(fieldName).append("\";\n");
 
                 fieldMap.put("PK_ID", "\n    String PK_ID = \"" + fieldName + "\"; //主键字段名 \n");
+                fieldMap.put("F_PK_ID", "\n    String F_PK_ID = \"F$:" + fieldName + "\"; //主键字段名 \n");
                 fieldMap.put("T_PK_ID", "\n    String T_PK_ID = \"" + tableColName + "\"; //主键字段对应的数据库列名 \n");
 
                 uniqueFields.add(fieldName);

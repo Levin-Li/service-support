@@ -1,17 +1,15 @@
 package com.levin.commons.service.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
-import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * 服务响应类
@@ -28,6 +26,7 @@ import java.util.List;
 @Builder
 @Data
 @Accessors(chain = true)
+@ToString(callSuper = true)
 @Schema(description = "服务响应对象")
 @FieldNameConstants
 //@Builder
@@ -37,11 +36,8 @@ public class ApiResp<T>
 
     private static final long serialVersionUID = -944707546677849710L;
 
-    @Schema(description = "HTTP响应状态码，辅助结果判读")
+    @Schema(description = "HTTP状态码，默认为0，表示忽略，以http请求为准")
     protected int httpStatusCode;
-
-    @Schema(description = "服务编码，由服务端返回，可能是服务节点编码")
-    protected String serviceCode;
 
     @Schema(description = "响应消息的签名验证，防止响应消息被拦截篡改")
     protected String sign;
@@ -51,18 +47,23 @@ public class ApiResp<T>
     }
 
     public ApiResp(int code, String msg) {
-        this.code = code;
-        this.msg = msg;
+        super(code, msg);
     }
 
     public ApiResp(int code, String msg, String detailMsg) {
-        this.code = code;
-        this.msg = msg;
-        this.detailMsg = detailMsg;
+        super(code, msg, detailMsg);
+    }
+
+    public ApiResp(@NotNull int code, String msg, T data) {
+        super(code, msg, data);
+    }
+
+    public static <T> ApiResp<T> newResp(int code, String msg, T data) {
+        return new ApiResp<>(code, msg, data);
     }
 
     public static <T> ApiResp<T> error(String msg) {
-        return error(-1, msg);
+        return error(ErrorType.BizError.getBaseErrorCode(), msg);
     }
 
     public static <T> ApiResp<T> error(int code, String msg) {

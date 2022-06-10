@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 /**
  * API 签名对象
@@ -33,32 +33,32 @@ public class SignatureReq
 
     @Schema(description = "应用标识")
     @Ignore
-    @NotNull
+    @NotBlank
     String appId;
 
     @Schema(description = "应用密钥")
     @Ignore
-    @NotNull
+    @NotBlank
     String appSecret;
 
     @Schema(description = "一次使用临时字符串")
     @Ignore
-    @NotNull
+    @NotBlank
     String nonceStr;
 
     @Schema(description = "时间串")
     @Ignore
-    @NotNull
+    @NotBlank
     String timeStamp;
 
     @Schema(description = "渠道编码")
     @Ignore
-    @NotNull
+    @NotBlank
     String channelCode;
 
     @Schema(description = "签名串")
     @Ignore
-    @NotNull
+    @NotBlank
     String sign;
 
     @Override

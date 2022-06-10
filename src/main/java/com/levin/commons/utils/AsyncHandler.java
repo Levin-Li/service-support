@@ -1,7 +1,6 @@
 package com.levin.commons.utils;
 
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -23,11 +22,15 @@ import java.util.function.Consumer;
 @Slf4j
 @Data
 @Accessors(chain = true)
+@Deprecated
 public class AsyncHandler<T> {
 
     @Setter
     protected volatile ScheduledExecutorService defaultScheduler;
 
+    /**
+     *
+     */
     protected String name;
 
     /**
@@ -177,7 +180,7 @@ public class AsyncHandler<T> {
         if (task instanceof Runnable) {
             ((Runnable) task).run();
         } else {
-            throw new IllegalArgumentException("task " + task.getClass() + " not supported");
+            throw new IllegalArgumentException("task type " + task.getClass() + " not supported");
         }
     }
 

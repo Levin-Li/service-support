@@ -3,25 +3,31 @@ package com.levin.commons.plugin.support;
 import com.levin.commons.plugin.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.*;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Executor;
 
 
 /**
@@ -29,13 +35,13 @@ import java.util.concurrent.Executor;
  */
 
 @Slf4j
-
 public class PluginManagerImpl implements PluginManager,
         DestructionAwareBeanPostProcessor,
         Ordered,
         BeanFactoryAware,
         ApplicationContextAware,
         SmartInitializingSingleton,
+        BeanDefinitionRegistryPostProcessor,
         ApplicationListener<ContextRefreshedEvent>,
         DisposableBean {
 
@@ -49,9 +55,9 @@ public class PluginManagerImpl implements PluginManager,
     @Nullable
     private ApplicationContext applicationContext;
 
-    //@Autowired
-    @Resource(name = "applicationTaskExecutor")
-    Executor executor;
+    @Autowired(required = false)
+    @Qualifier("pluginAsyncTaskExecutor")
+    AsyncTaskExecutor asyncTaskExecutor;
 
     @PostConstruct
     void init() {
@@ -108,7 +114,6 @@ public class PluginManagerImpl implements PluginManager,
     @Override
     public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
 
-
     }
 
     @Override
@@ -126,6 +131,16 @@ public class PluginManagerImpl implements PluginManager,
         if (event.getApplicationContext() == this.applicationContext) {
             this.finishRegistration();
         }
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
+       // finishRegistration();
+    }
+
+    @Override
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) throws BeansException {
+
     }
 
     @Override
@@ -175,7 +190,13 @@ public class PluginManagerImpl implements PluginManager,
     @Override
     public boolean sendEvent(String pluginId, Object... events) throws PluginException {
 
-        executor.execute(() -> syncSendEvent(pluginId, events));
+        if (asyncTaskExecutor == null) {
+            log.warn("plugin manager asyncTaskExecutor [pluginAsyncTaskExecutor] not set");
+            //使用 Spring boot 标准的名字
+            asyncTaskExecutor = beanFactory.getBean("applicationTaskExecutor", AsyncTaskExecutor.class);
+        }
+
+        asyncTaskExecutor.execute(() -> syncSendEvent(pluginId, events));
 
         return true;
     }
@@ -209,9 +230,12 @@ public class PluginManagerImpl implements PluginManager,
         return "default";
     }
 
+    /**
+     * 获取描述
+     *
+     * @return
+     */
     @Override
-    public String getDescription() {
-        return "default plugin manager";
-    }
+    public String getRemark() { return "default plugin manager";}
 
 }

@@ -25,6 +25,8 @@ public abstract class EnvContext {
 
     private static final Map<String, Object> globalContext = new ConcurrentHashMap<>();
 
+    static VariableInjector variableInjector = new SimpleVariableInjector() {
+    };
 
     private static Map<String, Object> _getThreadContext() {
 

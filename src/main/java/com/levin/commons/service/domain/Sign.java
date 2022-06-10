@@ -3,18 +3,15 @@ package com.levin.commons.service.domain;
 
 import java.lang.annotation.*;
 
-/*
+/**
+ *
+ * 签名标识，用于标识一个参数将参与签名
  *
  * @author Laishr
- * @version 1.0,2015/11/06
+ * @version 1.0, 2015/11/06
  * Copyright (c) 2015.
- *
- *
  */
 
-/**
- * 签名标识，用于标识一个参数将参与签名
- */
 @Target({ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
@@ -33,5 +30,5 @@ public @interface Sign {
      * @return
      */
     int order() default 1;
-    
+
 }

@@ -1,6 +1,9 @@
 package com.levin.commons.processor;
 
 import com.levin.commons.annotation.GenNameConstant;
+import com.levin.commons.service.domain.Desc;
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -88,6 +91,10 @@ public class GenNameConstantProcessor extends AbstractProcessor {
     }
 
 
+    private String getFirstNotEmptyStr(String defaultValue, String... txts) {
+        return Arrays.stream(txts).filter(StringUtils::hasText).findFirst().orElse(defaultValue);
+    }
+
     private void process(RoundEnvironment roundEnv, Set<? extends Element> elementList) {
 
 
@@ -133,11 +140,11 @@ public class GenNameConstantProcessor extends AbstractProcessor {
                 continue;
             } else {
 
-                this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, getClass().getSimpleName() + " Processing class " + fullClassName + " --> " + newSimpleClassName);
+                this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, getClass().getSimpleName() + " Processing class " + fullClassName + "(" + element.getKind() + " - " + element.getEnclosedElements().size() + "-" + elementUtils.getAllMembers(typeElement).size() + ") --> " + newSimpleClassName);
 
             }
 
-            boolean useExtends = genFieldNameConstant == null || genFieldNameConstant.extendsMode();
+            boolean useExtendsMode = genFieldNameConstant == null || genFieldNameConstant.extendsMode();
 
             TypeMirror superclass = typeElement.getSuperclass();
 
@@ -164,7 +171,7 @@ public class GenNameConstantProcessor extends AbstractProcessor {
                     .append("public interface ").append(newSimpleClassName)
                     .append(" extends Serializable ")
 
-                    .append((useExtends && !isRootParent && newSuperFullClassName.trim().length() > 0) ? (" , " + newSuperFullClassName) : "")
+                    .append((useExtendsMode && !isRootParent && newSuperFullClassName.trim().length() > 0) ? (" , " + newSuperFullClassName) : "")
 
                     .append(" {\n\n")
                     .append("    String PACKAGE_NAME = \"").append(packageName).append("\"; // 类包名 \n\n")
@@ -173,14 +180,30 @@ public class GenNameConstantProcessor extends AbstractProcessor {
 
             ;
 
+            if (typeElement.getAnnotation(Schema.class) != null) {
+
+                Schema schema = typeElement.getAnnotation(Schema.class);
+                codeBlock.append("    String BIZ_NAME = \"")
+                        .append(getFirstNotEmptyStr(simpleClassName, schema.name(), schema.title(), schema.description()))
+                        .append("\"; // 业务名称 \n\n");
+
+            } else if (typeElement.getAnnotation(Desc.class) != null) {
+
+                Desc schema = typeElement.getAnnotation(Desc.class);
+                codeBlock.append("    String BIZ_NAME = \"")
+                        .append(getFirstNotEmptyStr(simpleClassName, schema.name(), schema.detail()))
+                        .append("\"; // 业务名称 \n\n");
+            }
+
             //注解类也是接口
             ElementKind eKind = typeElement.getKind();
             boolean isInterface = eKind == ElementKind.ANNOTATION_TYPE || eKind == ElementKind.INTERFACE;
             boolean isClass = eKind == ElementKind.CLASS;
+            boolean isEnum = eKind == ElementKind.ENUM;
 
             GenNameConstant.Type genType = genFieldNameConstant.genType();
 
-            List<? extends Element> enclosedElements = (isRootParent || eKind == ElementKind.ANNOTATION_TYPE || useExtends) ? typeElement.getEnclosedElements() : elementUtils.getAllMembers(typeElement);
+            List<? extends Element> enclosedElements = (isRootParent || eKind == ElementKind.ANNOTATION_TYPE || useExtendsMode) ? typeElement.getEnclosedElements() : elementUtils.getAllMembers(typeElement);
 
             final Map<String, String> fieldMap = new LinkedHashMap<>();
 
@@ -196,24 +219,27 @@ public class GenNameConstantProcessor extends AbstractProcessor {
                             return false;
                         }
 
+
                         Set<Modifier> modifiers = e.getModifiers();
 
+                        //  this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, getClass().getSimpleName() + " Processing class " + fullClassName + " --> " + e.getSimpleName() + " " + modifiers);
+
                         //过滤静态字段
-                        if (modifiers.contains(Modifier.STATIC)
-                                || modifiers.contains(Modifier.TRANSIENT)
-                                || modifiers.contains(Modifier.NATIVE)) {
+                        if (modifiers.contains(Modifier.NATIVE)) {
                             return false;
                         }
-
 
                         if (genType == GenNameConstant.Type.BOTH) {
                             return true;
                         } else if (genType == GenNameConstant.Type.AUTO) {
-                            return (isInterface && kind == ElementKind.METHOD) || (isClass && kind == ElementKind.FIELD);
+                            return (isEnum && kind == ElementKind.ENUM_CONSTANT)
+                                    || (isInterface && kind == ElementKind.METHOD)
+                                    || (isClass && kind == ElementKind.FIELD);
                         } else if (genType == GenNameConstant.Type.METHOD) {
                             return kind == ElementKind.METHOD;
                         } else if (genType == GenNameConstant.Type.FIELD) {
-                            return kind == ElementKind.FIELD;
+                            //枚举常量也当成字段处理
+                            return kind == ElementKind.FIELD || kind == ElementKind.ENUM_CONSTANT;
                         } else {
                             return false;
                         }
