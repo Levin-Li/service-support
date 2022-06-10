@@ -3,9 +3,10 @@ package com.levin.commons.service.support;
 import com.levin.commons.service.domain.InjectVar;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * 变量注入器
@@ -104,7 +105,7 @@ public interface VariableInjector {
      * @return
      */
     default List<String> inject(Object targetBean, List<?> beans) throws VariableInjectException, VariableNotFoundException {
-        return injectByVariableResolvers(targetBean, newVariableResolver(beans));
+        return injectByVariableResolvers(targetBean, newDefaultResolver().addBeanContexts(() -> beans));
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,117 +133,65 @@ public interface VariableInjector {
      * @return
      */
     default List<String> injectByMap(Object targetBean, List<Map<String, ?>> contexts) throws VariableInjectException, VariableNotFoundException {
-        return injectByVariableResolvers(targetBean, newSupportSpelAndGroovyResolvers(() -> contexts));
+        return injectByVariableResolvers(targetBean, newDefaultResolver().addMapContexts(() -> contexts));
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//    static VariableResolver newVariableResolver(Supplier<List<?>>... suppliers) {
+//        return new VariableResolver.BeanVariableResolver(suppliers);
+//    }
+//
+//    static VariableResolver newVariableResolver(List<?> beans) {
+//        return newVariableResolver(() -> beans);
+//    }
+//
+//    static VariableResolver newMapVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
+//        //强转
+//        return newVariableResolver((Supplier<List<?>>[]) Object.class.cast(suppliers));
+//    }
+//
+//    static VariableResolver newMapVariableResolver(List<Map<String, ?>> contexts) {
+//        //强转
+//        return newVariableResolver((List<?>) Object.class.cast(contexts));
+//    }
+//
+//    static VariableResolver newMapVariableResolver(Map<String, ?>... contexts) {
+//        return newVariableResolver(Arrays.asList(contexts));
+//    }
+//
+//    /**
+//     * 获取 Spel 变量解析器
+//     *
+//     * @param suppliers 上下文列表
+//     * @return
+//     */
+//    static VariableResolver newSpelVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
+//        return new VariableResolver.SpelVariableResolver(suppliers);
+//    }
+//
+//    /**
+//     * groovy 变量解析器 上下文列表
+//     *
+//     * @param suppliers
+//     * @return
+//     */
+//    static VariableResolver newGroovyVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
+//        return new VariableResolver.GroovyVariableResolver(suppliers);
+//    }
+//
+//    /**
+//     * 创建支持 spel 和 groovy 的解析器
+//     *
+//     * @param suppliers
+//     * @return
+//     */
+//    static List<VariableResolver> newSupportSpelAndGroovyResolvers(Supplier<List<Map<String, ?>>>... suppliers) {
+//        return newResolverBuilder().addSupportSpelAndGroovy(suppliers).build();
+//    }
 
-    static VariableResolver newVariableResolver(Supplier<List<?>>... suppliers) {
-        return new VariableResolver.BeanVariableResolver(suppliers);
-    }
-
-    static VariableResolver newVariableResolver(List<?> beans) {
-        return newVariableResolver(() -> beans);
-    }
-
-    static VariableResolver newMapVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
-        //强转
-        return newVariableResolver((Supplier<List<?>>[]) Object.class.cast(suppliers));
-    }
-
-    static VariableResolver newMapVariableResolver(List<Map<String, ?>> contexts) {
-        //强转
-        return newVariableResolver((List<?>) Object.class.cast(contexts));
-    }
-
-    static VariableResolver newMapVariableResolver(Map<String, ?>... contexts) {
-        return newVariableResolver(Arrays.asList(contexts));
-    }
-
-    /**
-     * 获取 Spel 变量解析器
-     *
-     * @param suppliers 上下文列表
-     * @return
-     */
-    static VariableResolver newSpelVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
-        return new VariableResolver.SpelVariableResolver(suppliers);
-    }
-
-    /**
-     * groovy 变量解析器 上下文列表
-     *
-     * @param suppliers
-     * @return
-     */
-    static VariableResolver newGroovyVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
-        return new VariableResolver.GroovyVariableResolver(suppliers);
-    }
-
-    /**
-     * 创建支持 spel 和 groovy 的解析器
-     *
-     * @param suppliers
-     * @return
-     */
-    static List<VariableResolver> newSupportSpelAndGroovyResolvers(Supplier<List<Map<String, ?>>>... suppliers) {
-        return newResolverBuilder().addSupportSpelAndGroovy(suppliers).build();
-    }
-
-    static VariableResolverListBuilder newResolverBuilder() {
-        return VariableResolverListBuilder.newBuilder();
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    class VariableResolverListBuilder {
-
-        private VariableResolverListBuilder() {
-        }
-
-        public static VariableResolverListBuilder newBuilder() {
-            return new VariableResolverListBuilder();
-        }
-
-        List<VariableResolver> variableResolverList = new ArrayList<>(7);
-
-        public VariableResolverListBuilder add(VariableResolver... variableResolvers) {
-            variableResolverList.addAll(Arrays.asList(variableResolvers));
-            return this;
-        }
-
-        public VariableResolverListBuilder add(List<?>... beans) {
-
-            //展开集合
-            variableResolverList.add(newVariableResolver(Arrays.asList(beans)
-                    .stream()
-                    .flatMap(Collection::stream)
-                    .collect(Collectors.toList()))
-            );
-
-            return this;
-        }
-
-        public VariableResolverListBuilder add(Map<String, ?>... contexts) {
-            variableResolverList.add(newMapVariableResolver(contexts));
-            return this;
-        }
-
-        public VariableResolverListBuilder addSupportSpelAndGroovy(Map<String, ?>... contexts) {
-            return addSupportSpelAndGroovy(() -> Arrays.asList(contexts));
-        }
-
-        public VariableResolverListBuilder addSupportSpelAndGroovy(Supplier<List<Map<String, ?>>>... suppliers) {
-            variableResolverList.add(newMapVariableResolver(suppliers));
-            variableResolverList.add(newSpelVariableResolver(suppliers));
-            variableResolverList.add(newGroovyVariableResolver(suppliers));
-            return this;
-        }
-
-        public List<VariableResolver> build() {
-            return variableResolverList;
-        }
-
+    static VariableResolver.DefaultDelegateVariableResolver newDefaultResolver() {
+        return new VariableResolver.DefaultDelegateVariableResolver();
     }
 
 }

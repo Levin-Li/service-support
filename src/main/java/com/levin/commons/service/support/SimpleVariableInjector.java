@@ -73,8 +73,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         if (variableResolvers.isEmpty()) {
             //增加默认的脚本表达式支持
-            variableResolvers.add(VariableInjector.newSpelVariableResolver(() -> Arrays.asList(Collections.emptyMap())));
-            variableResolvers.add(VariableInjector.newGroovyVariableResolver(() -> Arrays.asList(Collections.emptyMap())));
+            variableResolvers.add(VariableInjector.newDefaultResolver().addMapContexts(Collections.emptyMap()));
         }
 
         for (Field field : ClassUtils.getFields(targetBean.getClass(), InjectVar.class)) {
@@ -112,8 +111,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         if (variableResolvers.isEmpty()) {
             //增加默认的脚本表达式支持
-            variableResolvers.add(VariableInjector.newSpelVariableResolver(() -> Arrays.asList(Collections.emptyMap())));
-            variableResolvers.add(VariableInjector.newGroovyVariableResolver(() -> Arrays.asList(Collections.emptyMap())));
+            variableResolvers.add(VariableInjector.newDefaultResolver().addMapContexts(Collections.emptyMap()));
         }
 
         for (Field field : ClassUtils.getFields(targetBean.getClass(), InjectVar.class)) {
@@ -125,6 +123,9 @@ public interface SimpleVariableInjector extends VariableInjector {
 
 
     /**
+     * 获取注入值
+     * 关键方法
+     *
      * @param targetBean
      * @param resolvableTypeRoot
      * @param variableResolvers
@@ -189,12 +190,15 @@ public interface SimpleVariableInjector extends VariableInjector {
                     + "." + field.getName() + " annotation  InjectVar.isRequired [" + injectVar.isRequired() + "] can't eval");
         }
 
+
         if (!isOverride.get()
                 && (originalValue != null || !isRequired.get())) {
             //如果不要求覆盖原值，并且 存在原值 或是 值不是必须的
             //跳过这个字段
             return ValueHolder.notValue();
         }
+
+        /////////////////////////////////////////////////////
 
         // 2、获取注入值
         String varName = injectVar.value();
@@ -213,6 +217,7 @@ public interface SimpleVariableInjector extends VariableInjector {
         Type expectType = (expectBaseType == null || expectBaseType == Void.class) ? null
                 : (hasSubTypes ? ResolvableType.forClassWithGenerics(expectBaseType, expectGenericTypes).getType() : ResolvableType.forClass(expectBaseType).getType());
 
+        //求值
         ValueHolder<Object> valueHolder = eval(varName, originalValue, expectType, isRequired.get(), variableResolvers);
 
         if (valueHolder.hasValue()) {
@@ -270,6 +275,7 @@ public interface SimpleVariableInjector extends VariableInjector {
      */
     default ValueHolder<Boolean> getBooleanValueHolder(List<VariableResolver> variableResolvers, String expr) {
 
+        //特别处理
         //如果是 true 或是 空值，都任务是 true
         boolean isTrue = !StringUtils.hasText(expr) || Boolean.TRUE.toString().equalsIgnoreCase(expr.trim());
 
@@ -309,6 +315,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         return (ValueHolder<T>) variableResolvers.stream()
                 .filter(Objects::nonNull)
+                .filter(vr -> vr.isSupported(expr))
                 .map(variableResolver -> variableResolver.resolve(expr, originalValue, false, isRequireNotNull, expectType))
                 .filter(Objects::nonNull)
                 .filter(ValueHolder::hasValue)
