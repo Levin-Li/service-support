@@ -173,13 +173,9 @@ public interface VariableResolver {
     @Slf4j
     class BeanVariableResolver implements VariableResolver {
 
-        final List<Supplier<List<?>>> suppliers;
+        final Supplier<List<?>>[] suppliers;
 
         public BeanVariableResolver(Supplier<List<?>>... suppliers) {
-            this(Arrays.asList(suppliers));
-        }
-
-        public BeanVariableResolver(List<Supplier<List<?>>> suppliers) {
             Assert.notNull(suppliers, "suppliers is null");
             this.suppliers = suppliers;
         }
@@ -227,32 +223,13 @@ public interface VariableResolver {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Map 变量解析器
-     */
-    @Slf4j
-    @Deprecated
-    class MapVariableResolver extends BeanVariableResolver {
-
-        public MapVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
-            this(Arrays.asList(suppliers));
-        }
-
-        public MapVariableResolver(List<Supplier<List<Map<String, ?>>>> suppliers) {
-            super((List<Supplier<List<?>>>) Object.class.cast(suppliers));
-        }
-
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     @Slf4j
     abstract class ScriptResolver implements VariableResolver {
 
         protected final Supplier<List<Map<String, ?>>>[] suppliers;
 
         public ScriptResolver(Supplier<List<Map<String, ?>>>... suppliers) {
-            Assert.notNull(suppliers, "var suppliers is null");
+            Assert.notNull(suppliers, "suppliers is null");
             this.suppliers = suppliers;
         }
 

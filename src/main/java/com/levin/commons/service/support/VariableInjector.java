@@ -26,12 +26,20 @@ public interface VariableInjector {
         return "default";
     }
 
+    /**
+     * 获取注入值
+     *
+     * @param targetBean
+     * @param field
+     * @param variableResolvers
+     * @return
+     */
     default ValueHolder<Object> getInjectValue(Object targetBean, Field field, VariableResolver... variableResolvers) {
         return getInjectValue(targetBean, Arrays.asList(variableResolvers), field);
     }
 
     /**
-     * 默认未实现
+     * 获取注入值
      *
      * @param targetBean
      * @param variableResolvers
@@ -141,6 +149,24 @@ public interface VariableInjector {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    static VariableResolver.DefaultDelegateVariableResolver newDefaultResolver() {
+        return new VariableResolver.DefaultDelegateVariableResolver();
+    }
+
+    static VariableResolver.DefaultDelegateVariableResolver newResolverByMap(Supplier<List<Map<String, ?>>>... suppliers) {
+        return newDefaultResolver().addMapContexts(suppliers);
+    }
+
+    static VariableResolver.DefaultDelegateVariableResolver newResolverByBean(Supplier<List<?>>... suppliers) {
+        return newDefaultResolver().addBeanContexts(suppliers);
+    }
+
+    static VariableResolver.DefaultDelegateVariableResolver newResolverByBean(List<?>... lists) {
+        return newDefaultResolver().addBeanContexts(lists);
+    }
+
 //
 //    static VariableResolver newVariableResolver(Supplier<List<?>>... suppliers) {
 //        return new VariableResolver.BeanVariableResolver(suppliers);
@@ -193,9 +219,5 @@ public interface VariableInjector {
 //    static List<VariableResolver> newSupportSpelAndGroovyResolvers(Supplier<List<Map<String, ?>>>... suppliers) {
 //        return newResolverBuilder().addSupportSpelAndGroovy(suppliers).build();
 //    }
-
-    static VariableResolver.DefaultDelegateVariableResolver newDefaultResolver() {
-        return new VariableResolver.DefaultDelegateVariableResolver();
-    }
 
 }
