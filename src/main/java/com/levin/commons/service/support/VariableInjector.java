@@ -26,6 +26,10 @@ public interface VariableInjector {
         return "default";
     }
 
+    default ValueHolder<Object> getInjectValue(Object targetBean, Field field, VariableResolver... variableResolvers) {
+        return getInjectValue(targetBean, Arrays.asList(variableResolvers), field);
+    }
+
     /**
      * 默认未实现
      *
