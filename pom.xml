@@ -31,6 +31,8 @@
 
         <maven-source-plugin.attach>true</maven-source-plugin.attach>
 
+        <spring-version>5.3.20</spring-version>
+
     </properties>
 
 
@@ -141,28 +143,28 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>RELEASE</version>
+            <version>${spring-version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aop</artifactId>
-            <version>RELEASE</version>
+            <version>${spring-version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
-            <version>RELEASE</version>
+            <version>2.0.1.Final</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-expression</artifactId>
-            <version>RELEASE</version>
+            <version>${spring-version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -191,14 +193,14 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>RELEASE</version>
+            <version>${spring-version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>RELEASE</version>
+            <version>${spring-version}</version>
             <scope>provided</scope>
         </dependency>
 
