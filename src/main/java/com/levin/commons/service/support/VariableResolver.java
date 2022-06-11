@@ -168,7 +168,6 @@ public interface VariableResolver {
 
     }
 
-
     /**
      * Bean 变量解析器
      */
