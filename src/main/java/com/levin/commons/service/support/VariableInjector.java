@@ -159,12 +159,16 @@ public interface VariableInjector {
         return newDefaultResolver().addMapContexts(suppliers);
     }
 
+    static VariableResolver.DefaultDelegateVariableResolver newResolverByMap(Map<String, ?>... contexts) {
+        return newDefaultResolver().addMapContexts(contexts);
+    }
+
     static VariableResolver.DefaultDelegateVariableResolver newResolverByBean(Supplier<List<?>>... suppliers) {
         return newDefaultResolver().addBeanContexts(suppliers);
     }
 
-    static VariableResolver.DefaultDelegateVariableResolver newResolverByBean(List<?>... lists) {
-        return newDefaultResolver().addBeanContexts(lists);
+    static <T extends Object> VariableResolver.DefaultDelegateVariableResolver newResolverByBean(T... benas) {
+        return newDefaultResolver().addBeanContexts(benas);
     }
 
 //

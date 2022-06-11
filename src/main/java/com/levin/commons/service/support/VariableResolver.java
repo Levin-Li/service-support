@@ -126,6 +126,7 @@ public interface VariableResolver {
         }
 
         public DefaultDelegateVariableResolver addMapContexts(Supplier<List<Map<String, ?>>>... suppliers) {
+
             //强制类型转换
             variableResolvers.add(new BeanVariableResolver((Supplier[]) suppliers));
             variableResolvers.add(new SpelVariableResolver(suppliers));
@@ -138,8 +139,8 @@ public interface VariableResolver {
             return addMapContexts(() -> Arrays.asList(contexts));
         }
 
-        public DefaultDelegateVariableResolver addBeanContexts(Object... contexts) {
-            variableResolvers.add(new BeanVariableResolver(() -> Arrays.asList(contexts)));
+        public <T extends Object> DefaultDelegateVariableResolver addBeanContexts(T... benas) {
+            variableResolvers.add(new BeanVariableResolver(() -> Arrays.asList(benas)));
             return this;
         }
 
@@ -164,6 +165,7 @@ public interface VariableResolver {
                     .orElse(ValueHolder.notValue(throwExWhenNotFound, name));
 
         }
+
     }
 
 
@@ -173,11 +175,11 @@ public interface VariableResolver {
     @Slf4j
     class BeanVariableResolver implements VariableResolver {
 
-        final Supplier<List<?>>[] suppliers;
+        final Supplier<List<?>>[] contextSuppliers;
 
-        public BeanVariableResolver(Supplier<List<?>>... suppliers) {
-            Assert.notNull(suppliers, "suppliers is null");
-            this.suppliers = suppliers;
+        public BeanVariableResolver(Supplier<List<?>>... contextSuppliers) {
+            Assert.notNull(contextSuppliers, "contextSuppliers is null");
+            this.contextSuppliers = contextSuppliers;
         }
 
         @Override
@@ -190,7 +192,7 @@ public interface VariableResolver {
 
             if (isSupported(name)) {
 
-                for (Supplier<List<?>> supplier : suppliers) {
+                for (Supplier<List<?>> supplier : contextSuppliers) {
 
                     if (log.isTraceEnabled()) {
                         log.trace("resolve variable [{}] in Map Supplier {}", name, supplier);
@@ -226,11 +228,11 @@ public interface VariableResolver {
     @Slf4j
     abstract class ScriptResolver implements VariableResolver {
 
-        protected final Supplier<List<Map<String, ?>>>[] suppliers;
+        protected final Supplier<List<Map<String, ?>>>[] contextSuppliers;
 
-        public ScriptResolver(Supplier<List<Map<String, ?>>>... suppliers) {
-            Assert.notNull(suppliers, "suppliers is null");
-            this.suppliers = suppliers;
+        public ScriptResolver(Supplier<List<Map<String, ?>>>... contextSuppliers) {
+            Assert.notNull(contextSuppliers, "contextSuppliers is null");
+            this.contextSuppliers = contextSuppliers;
         }
 
         @Override
@@ -248,7 +250,7 @@ public interface VariableResolver {
          * @param mapConsumer
          */
         protected void initContext(Consumer<Map> mapConsumer) {
-            Stream.of(suppliers)
+            Stream.of(contextSuppliers)
                     .filter(Objects::nonNull)
                     .map(Supplier::get)
                     .filter(Objects::nonNull)
