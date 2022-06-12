@@ -231,7 +231,45 @@ public interface VariableResolver {
 
         public ScriptResolver(Supplier<List<Map<String, ?>>>... contextSuppliers) {
             Assert.notNull(contextSuppliers, "contextSuppliers is null");
-            this.contextSuppliers = contextSuppliers;
+            //倒序排列
+            this.contextSuppliers = reverse(contextSuppliers);
+        }
+
+        /**
+         * 数组倒序
+         *
+         * @param array
+         * @param <T>
+         * @return
+         */
+        private <T> T[] reverse(T[] array) {
+
+            // 1,2,3,4,5
+            // 5/2 = 2
+
+            // 1,2,3,4,5,6
+            // 6/2 = 3
+
+            for (int i = 0; i < array.length / 2; i++) {
+                T temp = array[i];
+                array[i] = array[array.length - 1 - i];
+                array[array.length - 1 - i] = temp;
+            }
+
+            return array;
+        }
+
+        /**
+         * @param source
+         * @param <T>
+         * @return
+         */
+        <T> List<T> reverse(List<T> source) {
+            //复制
+            ArrayList<T> temp = new ArrayList<>(source);
+            //倒序
+            Collections.reverse(temp);
+            return temp;
         }
 
         @Override
@@ -245,6 +283,8 @@ public interface VariableResolver {
 
         /**
          * 初始化上下文
+         * <p>
+         * 需要倒序处理，因为参数是覆盖
          *
          * @param mapConsumer
          */
@@ -252,6 +292,7 @@ public interface VariableResolver {
             Stream.of(contextSuppliers)
                     .filter(Objects::nonNull)
                     .map(Supplier::get)
+                    .map(this::reverse)
                     .filter(Objects::nonNull)
                     .flatMap(List::stream)
                     .filter(Objects::nonNull)
