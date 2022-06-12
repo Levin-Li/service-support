@@ -3,10 +3,10 @@ package com.levin.commons.service.support;
 import com.levin.commons.service.domain.InjectVar;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 变量注入器
@@ -75,22 +75,30 @@ public interface VariableInjector {
     /**
      * 为目标对象注入变量
      *
-     * @param targetBean        被注入对象
-     * @param variableResolvers 变量解析器列表
-     * @return
-     */
-    default List<String> injectByVariableResolvers(Object targetBean, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
-        return injectByVariableResolvers(targetBean, () -> variableResolvers);
-    }
-
-    /**
-     * 为目标对象注入变量
-     *
      * @param targetBean 被注入对象
      * @param suppliers  变量解析器支持列表
      * @return
      */
-    List<String> injectByVariableResolvers(Object targetBean, Supplier<List<VariableResolver>>... suppliers) throws VariableInjectException, VariableNotFoundException;
+    default List<String> injectByVariableResolvers(Object targetBean, Supplier<List<VariableResolver>>... suppliers) throws VariableInjectException, VariableNotFoundException {
+        return injectByVariableResolvers(targetBean,
+                Stream.of(suppliers)
+                        .filter(Objects::nonNull)
+                        .map(Supplier::get)
+                        .flatMap(Collection::stream)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList())
+        );
+    }
+
+
+    /**
+     * 为目标对象注入变量
+     *
+     * @param targetBean        被注入对象
+     * @param variableResolvers 变量解析器列表
+     * @return
+     */
+    List<String> injectByVariableResolvers(Object targetBean, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -117,7 +125,7 @@ public interface VariableInjector {
      * @return
      */
     default List<String> inject(Object targetBean, List<?> beans) throws VariableInjectException, VariableNotFoundException {
-        return injectByVariableResolvers(targetBean, newDefaultResolver().addBeanContexts(() -> beans));
+        return injectByVariableResolvers(targetBean, newResolverByBean(() -> beans));
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -145,11 +153,10 @@ public interface VariableInjector {
      * @return
      */
     default List<String> injectByMap(Object targetBean, List<Map<String, ?>> contexts) throws VariableInjectException, VariableNotFoundException {
-        return injectByVariableResolvers(targetBean, newDefaultResolver().addMapContexts(() -> contexts));
+        return injectByVariableResolvers(targetBean, newResolverByMap(() -> contexts));
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
     static VariableResolver.DefaultDelegateVariableResolver newDefaultResolver() {
         return new VariableResolver.DefaultDelegateVariableResolver();

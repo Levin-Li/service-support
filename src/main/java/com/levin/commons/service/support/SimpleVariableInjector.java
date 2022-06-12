@@ -14,9 +14,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * 变量注入器
@@ -50,30 +47,21 @@ public interface SimpleVariableInjector extends VariableInjector {
      * 功能实现的核心方法
      *
      * @param targetBean
-     * @param suppliers  变量解析器列表
+     * @param variableResolvers 变量解析器列表
      * @return
      * @throws VariableInjectException
      * @throws VariableNotFoundException
      */
     @Override
-    default List<String> injectByVariableResolvers(Object targetBean, Supplier<List<VariableResolver>>... suppliers) throws VariableInjectException, VariableNotFoundException {
+    default List<String> injectByVariableResolvers(Object targetBean, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
 
         List<String> injectFields = new LinkedList<>();
 
         ResolvableType resolvableTypeRoot = ResolvableType.forClass(targetBean.getClass());
-
-        //提取所有的变量解析器
-        List<VariableResolver> variableResolvers = Stream.of(suppliers)
-                .filter(Objects::nonNull)
-                .map(Supplier::get)
-                .flatMap(Collection::stream)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
         //
-
         if (variableResolvers.isEmpty()) {
             //增加默认的脚本表达式支持
-            variableResolvers.add(VariableInjector.newDefaultResolver().addMapContexts(Collections.emptyMap()));
+            variableResolvers = Arrays.asList(VariableInjector.newResolverByMap(Collections.emptyMap()));
         }
 
         for (Field field : ClassUtils.getFields(targetBean.getClass(), InjectVar.class)) {
@@ -111,7 +99,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         if (variableResolvers.isEmpty()) {
             //增加默认的脚本表达式支持
-            variableResolvers.add(VariableInjector.newDefaultResolver().addMapContexts(Collections.emptyMap()));
+            variableResolvers.add(VariableInjector.newResolverByMap(Collections.emptyMap()));
         }
 
         for (Field field : ClassUtils.getFields(targetBean.getClass(), InjectVar.class)) {

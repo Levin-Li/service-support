@@ -1,5 +1,6 @@
 package com.levin.commons.utils;
 
+import com.levin.commons.service.support.Locker;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ConcurrentReferenceHashMap;
@@ -184,6 +185,23 @@ public abstract class MapUtils {
         }
 
         return value;
+    }
+
+    /**
+     * 取出缓存，如果没有，则先去用Supplier获取，然后放入缓存，在返回获取的值
+     *
+     * @param kvMap
+     * @param key
+     * @param putCondition
+     * @param suppliers
+     * @param <K>
+     * @param <V>
+     * @return
+     */
+    public static <K, V> V getAndAutoPut(Locker locker, @NonNull Map kvMap, @NonNull K key, @Nullable Predicate<V> putCondition, @Nullable Supplier<V>... suppliers) {
+        synchronized (locker.getLock(key)) {
+            return getAndAutoPut(kvMap, key, putCondition, suppliers);
+        }
     }
 
     /**
