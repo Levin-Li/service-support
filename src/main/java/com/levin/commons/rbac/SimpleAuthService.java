@@ -21,12 +21,11 @@ public interface SimpleAuthService {
     /**
      * 直接认证，并返回token
      *
-     * @param loginId   登录标识
-     * @param userAgent
-     * @param params
+     * @param loginId 登录标识
+     * @param extras  附加参数
      * @return 认证成功后的token
      */
-    String auth(String loginId, String userAgent, Map<String, Object>... params);
+    String auth(String loginId, Map<String, Object>... extras);
 
     /**
      * 获取登录ID
