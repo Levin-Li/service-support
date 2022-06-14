@@ -5,7 +5,7 @@ import java.util.Map;
 /**
  * 简单认证服务
  */
-public interface SimpleAuthService {
+public interface SimpleAuthService<TOKEN, UID> {
 
     /**
      * 认证，并返回token
@@ -14,8 +14,8 @@ public interface SimpleAuthService {
      * @param extras  附加参数
      * @return 认证成功后的token
      */
-    default String auth(AuthReq authReq, Map<String, Object>... extras) {
-        throw new UnsupportedOperationException("不支持用户进行认证");
+    default <REQ extends AuthReq> TOKEN auth(REQ authReq, Map<String, Object>... extras) {
+        throw new UnsupportedOperationException("未实现认证");
     }
 
     /**
@@ -25,7 +25,7 @@ public interface SimpleAuthService {
      * @param extras  附加参数
      * @return 认证成功后的token
      */
-    String auth(String loginId, Map<String, Object>... extras);
+    TOKEN auth(UID loginId, Map<String, Object>... extras);
 
     /**
      * 获取登录ID
@@ -33,13 +33,13 @@ public interface SimpleAuthService {
      * @param token
      * @return
      */
-    String getLoginIdByToken(String token);
+    UID getLoginIdByToken(TOKEN token);
 
     /**
      * 使 token 失效
      *
      * @param token
      */
-    void invalidate(String token);
+    void invalidate(TOKEN token);
 
 }
