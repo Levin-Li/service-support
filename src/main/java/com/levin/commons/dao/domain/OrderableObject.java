@@ -17,6 +17,7 @@ public interface OrderableObject extends Comparable<OrderableObject> {
 
     /**
      * 比较大小
+     *
      * @param o
      * @return
      */

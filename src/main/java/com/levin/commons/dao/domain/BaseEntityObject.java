@@ -7,7 +7,7 @@ import java.util.Date;
  */
 public interface BaseEntityObject
         extends
-        EntityObject ,
+        EntityObject,
         BaseObject {
 
     /**

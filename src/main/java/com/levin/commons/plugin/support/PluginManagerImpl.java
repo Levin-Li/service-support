@@ -135,7 +135,7 @@ public class PluginManagerImpl implements PluginManager,
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
-       // finishRegistration();
+        // finishRegistration();
     }
 
     @Override
@@ -236,6 +236,8 @@ public class PluginManagerImpl implements PluginManager,
      * @return
      */
     @Override
-    public String getRemark() { return "default plugin manager";}
+    public String getRemark() {
+        return "default plugin manager";
+    }
 
 }
