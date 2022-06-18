@@ -15,6 +15,6 @@ public interface MultiTenantObject {
      *
      * @return
      */
-    <ID extends Serializable> ID getTenantId();
+    <TID extends Serializable> TID getTenantId();
 
 }
