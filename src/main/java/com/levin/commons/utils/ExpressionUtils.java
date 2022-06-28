@@ -1,15 +1,22 @@
 package com.levin.commons.utils;
 
-import org.springframework.context.expression.BeanFactoryResolver;
+import groovy.lang.Binding;
+import groovy.lang.GroovyClassLoader;
+import groovy.lang.Script;
+import lombok.SneakyThrows;
+import org.codehaus.groovy.runtime.InvokerHelper;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.lang.Nullable;
 import org.springframework.scripting.groovy.GroovyScriptEvaluator;
 import org.springframework.scripting.support.StaticScriptSource;
 
+import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -19,6 +26,55 @@ public abstract class ExpressionUtils {
 
     //线程安全的解析器
     private static final ExpressionParser expressionParser = new SpelExpressionParser();
+
+
+    /**
+     * eval groovy
+     *
+     * @param cacheMap                  类缓存Map
+     * @param groovyClassLoaderSupplier 类加载器
+     * @param scriptText
+     * @param fileName
+     * @param contexts
+     * @param <T>
+     * @return
+     */
+    @SneakyThrows
+    public static <T> T evalGroovy(@NotNull Map<String, Class<?>> cacheMap, @Nullable Supplier<GroovyClassLoader> groovyClassLoaderSupplier,
+                                   @NotNull String scriptText, @NotNull String fileName, Map<String, ?>... contexts) {
+
+        Class<?> scriptClass = cacheMap.get(scriptText);
+
+        if (scriptClass == null) {
+
+            final GroovyClassLoader groovyClassLoader = groovyClassLoaderSupplier == null ? new GroovyClassLoader() : groovyClassLoaderSupplier.get();
+
+            //编译脚本，生成类定义
+            scriptClass = groovyClassLoader.parseClass(scriptText, fileName);
+
+            cacheMap.put(scriptText, scriptClass);
+        }
+
+        if (Script.class.isAssignableFrom(scriptClass)) {
+
+            LinkedHashMap tempCtx = new LinkedHashMap();
+
+            if (contexts != null) {
+                for (Map<String, ?> context : contexts) {
+                    if (context != null) {
+                        tempCtx.putAll(context);
+                    }
+                }
+            }
+
+            Binding context = new Binding(tempCtx);
+
+            return (T) InvokerHelper.newScript(scriptClass, context).run();
+
+        } else {
+            throw new UnsupportedOperationException("不支持的脚本");
+        }
+    }
 
     /**
      * groovy 脚本求值
