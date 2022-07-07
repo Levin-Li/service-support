@@ -32,7 +32,7 @@
 
         <maven-source-plugin.attach>true</maven-source-plugin.attach>
 
-        <spring-version>5.2.10.RELEASE</spring-version>
+        <spring-version>5.2.21.RELEASE</spring-version>
 
     </properties>
 
