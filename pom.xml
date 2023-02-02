@@ -9,7 +9,7 @@
 
     <artifactId>service-support</artifactId>
     <packaging>jar</packaging>
-    <version>1.2.25-SNAPSHOT</version>
+    <version>1.2.26-SNAPSHOT</version>
 <!--    <version>1.2.25.RELEASE</version>-->
 
     <properties>
@@ -186,7 +186,7 @@
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
-            <version>2.1.2</version>
+            <version>2.2.2</version>
             <scope>provided</scope>
         </dependency>
 

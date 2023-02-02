@@ -90,13 +90,13 @@ public abstract class AbstractAppDataInitializer implements ApplicationContextAw
 
         log.info("***** 服务根路径： http://" + rootUrl);
 
-        final String docketClsName = "springfox.documentation.spring.web.plugins.Docket";
+        final String openApiClsName = "org.springdoc.core.GroupedOpenApi";
 
-        boolean haveSwagger = org.springframework.util.ClassUtils.isPresent(docketClsName, getClass().getClassLoader());
+        boolean haveSwagger = org.springframework.util.ClassUtils.isPresent(openApiClsName, getClass().getClassLoader());
 
         if (haveSwagger) {
 
-            if (applicationContext.getBeanProvider(Class.forName(docketClsName)).stream().findAny().isPresent()) {
+            if (applicationContext.getBeanProvider(Class.forName(openApiClsName)).stream().findAny().isPresent()) {
 
                 log.info("***** Swagger API文档： http://" + rootUrl + "{}/swagger-ui/index.html", getSwaggerPath());
 
@@ -111,7 +111,7 @@ public abstract class AbstractAppDataInitializer implements ApplicationContextAw
                 getControllerUrls(rootUrl, true);
             }
         } else {
-            log.info("***** 当前项目没有引入 Swagger 组件，建议引入[io.springfox:springfox-boot-starter] 或 [com.github.xiaoymin:knife4j-spring-boot-starter] 组件.");
+            log.info("***** 当前项目没有引入 Swagger 组件，建议引入[springdoc] 或 [knife4j] 组件.");
             getControllerUrls(rootUrl, true);
         }
     }
