@@ -98,16 +98,17 @@ public abstract class AbstractAppDataInitializer implements ApplicationContextAw
 
             if (applicationContext.getBeanProvider(Class.forName(openApiClsName)).stream().findAny().isPresent()) {
 
-                log.info("***** Swagger API文档： http://" + rootUrl + "{}/swagger-ui/index.html", getSwaggerPath());
+                log.info("***** Swagger API文档： http://" + (rootUrl + getSwaggerPath() + "/swagger-ui/index.html").replaceAll("//", "/"));
 
-                boolean haveKnife4j = org.springframework.util.ClassUtils.isPresent("com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j", getClass().getClassLoader());
+                boolean haveKnife4j = org.springframework.util.ClassUtils.isPresent(
+                        "com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j", getClass().getClassLoader());
 
                 if (haveKnife4j) {
-                    log.info("***** Knife4j API文档： http://" + rootUrl + "/doc.html");
+                    log.info("***** Knife4j API文档： http://" + (rootUrl + "/doc.html").replaceAll("//", "/"));
                 }
 
             } else {
-                log.warn("***** 当前项目没有配置 Swagger docket.");
+                log.warn("***** 当前项目没有配置 Swagger springdoc.");
                 getControllerUrls(rootUrl, true);
             }
         } else {
