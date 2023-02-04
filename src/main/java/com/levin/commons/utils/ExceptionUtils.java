@@ -32,7 +32,9 @@ public abstract class ExceptionUtils {
         if (!StringUtils.hasText(tempDesc))
             return tempDesc;
 
-        tempDesc = tempDesc.replace("\n", " ").replace("\r", " ");
+        tempDesc = tempDesc.replace("\n", " ")
+                .replace("\r", " ")
+                .replace('"',' ');
 
         //尝试识别中文注释
         int idx = tempDesc.indexOf(':');
