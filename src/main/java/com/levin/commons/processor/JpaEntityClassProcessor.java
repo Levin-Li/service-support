@@ -25,6 +25,7 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SupportedAnnotationTypes({"javax.persistence.MappedSuperclass", "javax.persistence.Entity"})
 //@SupportedSourceVersion(SourceVersion.RELEASE_6)
@@ -348,11 +349,20 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
 
             Desc desc = subEle.getAnnotation(Desc.class);
+            Schema schema = subEle.getAnnotation(Schema.class);
 
             String name = "";
 
+            String finalDesc = null;
 
-            if (desc != null) {
+            if (schema != null) {
+
+                finalDesc = Stream.of(schema.description(),schema.title(),schema.name())
+                        .filter(StringUtils::hasText)
+                        .findFirst()
+                        .orElse(null);
+
+            } else if (desc != null) {
                 name = desc.name().trim();
 
                 if (name.length() < 1) {
@@ -362,12 +372,12 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 if (name.length() > 0) {
                     //public static final
                     name = replaceText(name);
-                    fieldMap.put(name, "\n    String " + name + " = \"" + fieldName + "\"; //类字段描述 \n");
+                    fieldMap.put(name, "\n\n    String " + name + " = \"" + fieldName + "\"; //类字段描述 \n");
                 }
             }
 
             if (!fieldName.equals(name)) {
-                fieldMap.put(fieldName, "\n    String " + fieldName + " = \"" + fieldName + "\"; //类字段名  \n");
+                fieldMap.put(fieldName, "\n\n    String " + fieldName + " = \"" + fieldName + "\"; //类字段名  \n");
             }
 
             String fieldTableColName = "T_" + fieldName;
@@ -390,6 +400,8 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
             fieldMap.put(fieldTableColName, "\n    @Deprecated\n    String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名，建议使用 F_" + fieldName + " 替代\n");
 
             fieldMap.put("F_" + fieldName, "\n    String F_" + fieldName + "  = \"F$:" + fieldName + "\"; //用于替换的名称，替换字段" + name + " 对应的数据库列名 \n");
+            fieldMap.put("L_" + fieldName, "\n    String L_" + fieldName + "  = " + ( StringUtils.hasText(finalDesc)? "\"" + finalDesc + "\"" : fieldName ) +"; //字段标签，用于字段的业务描述 \n");
+
 
             boolean isIdAttr = subEle.getAnnotation(Id.class) != null || subEle.getAnnotation(EmbeddedId.class) != null;
 
@@ -416,7 +428,6 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
         for (String line : fieldMap.values()) {
             codeBlock.append(line);
         }
-
 
         if (uniqueFields.size() > 0) {
 

@@ -1,7 +1,10 @@
 package com.levin.commons.utils;
 
+import org.springframework.util.StringUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.regex.Pattern;
 
 
 /**
@@ -11,6 +14,53 @@ import java.io.PrintStream;
  */
 
 public abstract class ExceptionUtils {
+
+    //识别中文
+    static final Pattern zhCn = Pattern.compile("[\u4e00-\u9fa5]");
+
+    /**
+     * 尝试获取描述中的中文部分，如果没有则放回原值
+     * <p>
+     * 描述的格式为：  XXX:YYY，其中XXX或是YYY都可以有中文，优先返回XXX
+     *
+     * @return
+     */
+    public static String getZhDesc(String desc) {
+
+        if (!StringUtils.hasText(desc))
+            return "";
+
+        String tempDesc = desc.replace("\n", " ")
+                .replace("\r", " ");
+
+        //尝试识别中文注释
+        int idx = tempDesc.indexOf(':');
+
+        if (idx < 0) {
+            idx = tempDesc.indexOf('：');
+        }
+
+        if (idx < 0) {
+            return tempDesc;
+        }
+
+        //分割出冒号前的内容
+        String result = tempDesc.substring(0, idx);
+
+        //如果不包含中文
+        if (!result.matches(zhCn.pattern())) {
+
+            //分割出冒号后的内容
+            tempDesc = tempDesc.substring(idx + 1);
+
+            //如果包含中文
+            if (tempDesc.matches(zhCn.pattern())) {
+                result = tempDesc;
+            }
+        }
+
+        return StringUtils.trimAllWhitespace(result);
+    }
 
     /**
      * 返回调用这个方法的堆栈追踪信息
