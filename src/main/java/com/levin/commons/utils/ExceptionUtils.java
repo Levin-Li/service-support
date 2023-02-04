@@ -25,13 +25,12 @@ public abstract class ExceptionUtils {
      *
      * @return
      */
-    public static String getZhDesc(String desc) {
+    public static String getZhDesc(String tempDesc) {
 
-        if (!StringUtils.hasText(desc))
-            return "";
+        if (!StringUtils.hasText(tempDesc))
+            return tempDesc;
 
-        String tempDesc = desc.replace("\n", " ")
-                .replace("\r", " ");
+        tempDesc = tempDesc.replace("\n", " ").replace("\r", " ");
 
         //尝试识别中文注释
         int idx = tempDesc.indexOf(':');

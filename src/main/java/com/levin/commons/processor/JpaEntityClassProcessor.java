@@ -27,6 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.levin.commons.utils.ExceptionUtils.getZhDesc;
+
 @SupportedAnnotationTypes({"javax.persistence.MappedSuperclass", "javax.persistence.Entity"})
 //@SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class JpaEntityClassProcessor extends AbstractProcessor {
@@ -361,6 +363,9 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                         .filter(StringUtils::hasText)
                         .findFirst()
                         .orElse(null);
+
+                //获取中文描述
+                finalDesc = getZhDesc(finalDesc);
 
             } else if (desc != null) {
                 name = desc.name().trim();
