@@ -34,7 +34,7 @@ public abstract class ExceptionUtils {
 
         tempDesc = tempDesc.replace("\n", " ")
                 .replace("\r", " ")
-                .replace('"',' ');
+                .replace('"','\'');
 
         //尝试识别中文注释
         int idx = tempDesc.indexOf(':');
