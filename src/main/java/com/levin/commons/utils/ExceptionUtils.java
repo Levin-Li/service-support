@@ -4,6 +4,8 @@ import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 
@@ -47,13 +49,12 @@ public abstract class ExceptionUtils {
         String result = tempDesc.substring(0, idx);
 
         //如果不包含中文
-        if (!result.matches(zhCn.pattern())) {
-
+        if (!zhCn.matcher(result).find()) {
             //分割出冒号后的内容
             tempDesc = tempDesc.substring(idx + 1);
 
             //如果包含中文
-            if (tempDesc.matches(zhCn.pattern())) {
+            if (zhCn.matcher(tempDesc).find()) {
                 result = tempDesc;
             }
         }
@@ -178,5 +179,12 @@ public abstract class ExceptionUtils {
         return getRootCause(e).getLocalizedMessage();
     }
 
+
+    public static void main(String[] args) {
+
+        System.out.println(getZhDesc("类型: 1 创建  2 完成支付变为审核中  3 审核中变为加热\n4 审核中变为审核不通过 5 修改自动关停配置 (关闭、启用、修改关停条件) 6 手动关停\n7 自动关停 8 加热中变为退款中 \r 9 状态变为 已完成或已结束"));
+
+
+    }
 
 }
