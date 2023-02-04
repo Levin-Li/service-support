@@ -45,12 +45,10 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
             , '，', '。', '：', '；', '！', '？', '（', '）', '“', '”'
     };
 
-
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
     }
-
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -359,7 +357,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             if (schema != null) {
 
-                finalDesc = Stream.of(schema.description(),schema.title(),schema.name())
+                finalDesc = Stream.of(schema.description(), schema.title(), schema.name())
                         .filter(StringUtils::hasText)
                         .findFirst()
                         .orElse(null);
@@ -405,7 +403,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
             fieldMap.put(fieldTableColName, "\n    @Deprecated\n    String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名，建议使用 F_" + fieldName + " 替代\n");
 
             fieldMap.put("F_" + fieldName, "\n    String F_" + fieldName + "  = \"F$:" + fieldName + "\"; //用于替换的名称，替换字段" + name + " 对应的数据库列名 \n");
-            fieldMap.put("L_" + fieldName, "\n    String L_" + fieldName + "  = " + ( StringUtils.hasText(finalDesc)? "\"" + finalDesc + "\"" : fieldName ) +"; //字段标签，用于字段的业务描述 \n");
+            fieldMap.put("L_" + fieldName, "\n    String L_" + fieldName + "  = " + (StringUtils.hasText(finalDesc) ? "\"" + finalDesc + "\"" : fieldName) + "; //字段标签，用于字段的业务描述 \n");
 
 
             boolean isIdAttr = subEle.getAnnotation(Id.class) != null || subEle.getAnnotation(EmbeddedId.class) != null;
@@ -490,11 +488,8 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
         return false;
     }
 
-
     public static void main(String[] args) {
-
         System.out.println(newClassName(String.class.getName()));
-
     }
 
 }

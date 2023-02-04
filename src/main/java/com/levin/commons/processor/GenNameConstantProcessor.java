@@ -31,12 +31,10 @@ public class GenNameConstantProcessor extends AbstractProcessor {
 
     public static final String CLASS_NAME_PREFIX = "E_";
 
-
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
     }
-
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
