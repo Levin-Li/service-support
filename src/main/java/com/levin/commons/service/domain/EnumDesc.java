@@ -89,6 +89,55 @@ public interface EnumDesc {
     }
 
     /**
+     * 解析出枚举值
+     *
+     * @param type
+     * @param code
+     * @return
+     */
+    static Enum<?> parse(Class<? extends Enum> type, Integer code) {
+
+        if (code == null) return null;
+
+        for (Enum<?> value : type.getEnumConstants()) {
+            if (code == ((value instanceof EnumDesc)
+                    ? ((EnumDesc) value).code() : value.ordinal())) {
+                return value;
+            }
+        }
+
+        throw new IllegalArgumentException(type.getName() + " can't found enum by code " + code);
+    }
+
+    /**
+     * 解析出枚举值
+     *
+     * @param type
+     * @param nameOrCode
+     * @return
+     */
+    static Enum<?> parse(Class<? extends Enum> type, String nameOrCode) {
+
+        if (nameOrCode == null || nameOrCode.trim().length() == 0) return null;
+
+        nameOrCode = nameOrCode.trim();
+
+        for (Enum<?> value : type.getEnumConstants()) {
+            if (nameOrCode.equals(value.name())) {
+                return value;
+            }
+        }
+
+        //如果没找着，转换成编码，查找
+        try {
+            return parse(type, Integer.parseInt(nameOrCode));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(type.getName() + " can't found enum by name " + nameOrCode);
+        }
+
+    }
+
+    /**
      * 获取描述
      * 该方法可以覆盖
      *
