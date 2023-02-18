@@ -32,9 +32,9 @@ public interface EnumDesc {
 
         Arrays.stream(type.getEnumConstants())
                 .forEachOrdered(anEnum -> {
-                    desc.put(anEnum.ordinal(), (anEnum instanceof EnumDesc) ? ((EnumDesc) anEnum).getDesc() : getDesc(anEnum));
-                }
-        );
+                            desc.put(anEnum.ordinal(), (anEnum instanceof EnumDesc) ? ((EnumDesc) anEnum).getDesc() : getDesc(anEnum));
+                        }
+                );
 
         return desc;
     }
@@ -55,11 +55,27 @@ public interface EnumDesc {
 
         Arrays.stream(type.getEnumConstants())
                 .forEachOrdered(anEnum -> {
-                    desc.put(anEnum.name(), (anEnum instanceof EnumDesc) ? ((EnumDesc) anEnum).getDesc() : getDesc(anEnum));
-                }
-        );
+                            desc.put(anEnum.name(), (anEnum instanceof EnumDesc) ? ((EnumDesc) anEnum).getDesc() : getDesc(anEnum));
+                        }
+                );
 
         return desc;
+    }
+
+    /**
+     * 放回名称
+     *
+     * @return
+     */
+    String name();
+
+    /**
+     * 放回编码
+     *
+     * @return
+     */
+    default int code() {
+        return ((Enum<?>) this).ordinal();
     }
 
     /**
