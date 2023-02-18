@@ -78,6 +78,14 @@ public interface EnumDesc {
         return ((Enum<?>) this).ordinal();
     }
 
+    /**
+     * 替代toString
+     *
+     * @return
+     */
+    default String enumToString() {
+        return code() + "-" + getDesc();
+    }
 
     /**
      * 获取描述
