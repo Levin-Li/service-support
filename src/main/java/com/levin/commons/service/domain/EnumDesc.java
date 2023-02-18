@@ -3,6 +3,8 @@ package com.levin.commons.service.domain;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.converter.ConverterFactory;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
@@ -197,4 +199,26 @@ public interface EnumDesc {
 
         return info;
     }
+
+    /**
+     * 转换到枚举
+     */
+    ConverterFactory<String, Enum> string2EnumFactory = new ConverterFactory<String, Enum>() {
+        @Override
+        public <T extends Enum> Converter<String, T> getConverter(Class<T> targetType) {
+            return name -> (T) EnumDesc.parse(targetType, name);
+        }
+    };
+
+    /**
+     * 转换到枚举
+     */
+    ConverterFactory<Number, Enum> number2EnumFactory = new ConverterFactory<Number, Enum>() {
+        @Override
+        public <T extends Enum> Converter<Number, T> getConverter(Class<T> targetType) {
+            return code -> (T) EnumDesc.parse(targetType, code.intValue());
+        }
+    };
+
+
 }
