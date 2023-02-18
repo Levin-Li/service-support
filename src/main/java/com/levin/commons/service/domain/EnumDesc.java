@@ -1,6 +1,7 @@
 package com.levin.commons.service.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.util.StringUtils;
 
@@ -95,6 +96,7 @@ public interface EnumDesc {
      * @param code
      * @return
      */
+    @JsonCreator
     static Enum<?> parse(Class<? extends Enum> type, Integer code) {
 
         if (code == null) return null;
@@ -116,6 +118,7 @@ public interface EnumDesc {
      * @param nameOrCode
      * @return
      */
+    @JsonCreator
     static Enum<?> parse(Class<? extends Enum> type, String nameOrCode) {
 
         if (nameOrCode == null || nameOrCode.trim().length() == 0) return null;
