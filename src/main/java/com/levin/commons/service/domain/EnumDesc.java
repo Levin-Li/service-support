@@ -2,6 +2,7 @@ package com.levin.commons.service.domain;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -117,24 +118,31 @@ public interface EnumDesc {
 
         synchronized (anEnum) {
 
-            Schema annotation = null;
+            Schema schema = null;
 
             try {
-                annotation = anEnum.getDeclaringClass().getField(anEnum.name()).getAnnotation(Schema.class);
+                schema = anEnum.getDeclaringClass().getField(anEnum.name()).getAnnotation(Schema.class);
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
 
-            info = annotation != null ? annotation.description() : anEnum.toString();
+            if (schema != null) {
+
+                info = schema.description();
+
+                if (info == null || info.trim().length() == 0) {
+                    info = schema.title();
+                }
+            }
 
             if (info == null || info.trim().length() == 0) {
                 info = anEnum.name();
             }
 
             cacheNames.put(anEnum, info);
+
         }
 
         return info;
     }
-
 }
