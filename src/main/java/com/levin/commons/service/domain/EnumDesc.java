@@ -78,6 +78,7 @@ public interface EnumDesc {
         return ((Enum<?>) this).ordinal();
     }
 
+
     /**
      * 获取描述
      * 该方法可以覆盖
