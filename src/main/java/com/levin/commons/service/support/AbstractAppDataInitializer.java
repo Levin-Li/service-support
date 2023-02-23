@@ -39,7 +39,7 @@ public abstract class AbstractAppDataInitializer implements ApplicationContextAw
     DataSourceProperties dataSourceProperties;
 
     //spring在启动时候将所有贴有请求映射标签：RequestMapper方法收集起来封装到该对象中
-    @Autowired
+//    @Autowired
     RequestMappingHandlerMapping handlerMapping;
 
     @Autowired
@@ -59,7 +59,10 @@ public abstract class AbstractAppDataInitializer implements ApplicationContextAw
         if (event.getApplicationContext() == applicationContext) {
             init();
         }
+    }
 
+    public void setHandlerMapping(RequestMappingHandlerMapping handlerMapping) {
+        this.handlerMapping = handlerMapping;
     }
 
     @SneakyThrows
@@ -68,7 +71,6 @@ public abstract class AbstractAppDataInitializer implements ApplicationContextAw
         printAppDoc();
 
         initData();
-
     }
 
     protected abstract void initData();
@@ -128,6 +130,10 @@ public abstract class AbstractAppDataInitializer implements ApplicationContextAw
      * @return
      */
     private List<Map<String, String>> getControllerUrls(String rootUrl, boolean isLog) {
+
+        if (this.handlerMapping == null) {
+            return Collections.emptyList();
+        }
 
         List<Map<String, String>> resList = new ArrayList<>();
 
