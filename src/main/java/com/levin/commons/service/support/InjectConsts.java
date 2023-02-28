@@ -17,6 +17,8 @@ public interface InjectConsts {
     String USER_LOGIN_NAME = "userLoginName";
     String USER_PHONE = "userPhone";
     String USER_EMAIL = "userEmail";
+    String IS_SUPER_ADMIN = "isSuperAdmin";
+    String IS_TENANT_ADMIN = "isTenantAdmin";
 
     //////////////////////////////////////////////////////////
 
