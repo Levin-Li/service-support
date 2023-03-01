@@ -10,7 +10,7 @@
     <artifactId>service-support</artifactId>
     <packaging>jar</packaging>
     <version>1.2.26-SNAPSHOT</version>
-<!--    <version>1.2.25.RELEASE</version>-->
+    <!--    <version>1.2.25.RELEASE</version>-->
 
     <properties>
 
@@ -190,6 +190,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.11</version>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
@@ -322,38 +328,38 @@
             </plugin>
 
 
-<!--            <plugin>
-                <groupId>org.jsonschema2pojo</groupId>
-                <artifactId>jsonschema2pojo-maven-plugin</artifactId>
-                <version>1.1.1</version>
+            <!--            <plugin>
+                            <groupId>org.jsonschema2pojo</groupId>
+                            <artifactId>jsonschema2pojo-maven-plugin</artifactId>
+                            <version>1.1.1</version>
 
-                &lt;!&ndash; amis 项目  npm run build-schemas&ndash;&gt;
+                            &lt;!&ndash; amis 项目  npm run build-schemas&ndash;&gt;
 
-                <executions>
+                            <executions>
 
-                    <execution>
-                        <configuration>
+                                <execution>
+                                    <configuration>
 
-                        </configuration>
-                    </execution>
-                </executions>
-                <configuration>
-                    <sourceType>json</sourceType>
-                    <sourceDirectory>${basedir}/src/main/resources/json/schema</sourceDirectory>
-                    <outputDirectory>${basedir}/src/main/java</outputDirectory>
-                    <targetPackage>${project.groupId}.ui.annotation.amis</targetPackage>
-                    <addCompileSourceRoot>true</addCompileSourceRoot>
-                    <annotationStyle>jackson2</annotationStyle>
-                    &lt;!&ndash;                    <useTitleAsClassname>true</useTitleAsClassname>&ndash;&gt;
-                    <includeTypeInfo>false</includeTypeInfo>
-                    <includeHashcodeAndEquals>false</includeHashcodeAndEquals>
-                    <includeToString>false</includeToString>
-                    <includeAdditionalProperties>false</includeAdditionalProperties>
-                    <includeGetters>false</includeGetters>
-                    <includeSetters>false</includeSetters>
-                    <includeAllPropertiesConstructor>false</includeAllPropertiesConstructor>
-                </configuration>
-            </plugin>-->
+                                    </configuration>
+                                </execution>
+                            </executions>
+                            <configuration>
+                                <sourceType>json</sourceType>
+                                <sourceDirectory>${basedir}/src/main/resources/json/schema</sourceDirectory>
+                                <outputDirectory>${basedir}/src/main/java</outputDirectory>
+                                <targetPackage>${project.groupId}.ui.annotation.amis</targetPackage>
+                                <addCompileSourceRoot>true</addCompileSourceRoot>
+                                <annotationStyle>jackson2</annotationStyle>
+                                &lt;!&ndash;                    <useTitleAsClassname>true</useTitleAsClassname>&ndash;&gt;
+                                <includeTypeInfo>false</includeTypeInfo>
+                                <includeHashcodeAndEquals>false</includeHashcodeAndEquals>
+                                <includeToString>false</includeToString>
+                                <includeAdditionalProperties>false</includeAdditionalProperties>
+                                <includeGetters>false</includeGetters>
+                                <includeSetters>false</includeSetters>
+                                <includeAllPropertiesConstructor>false</includeAllPropertiesConstructor>
+                            </configuration>
+                        </plugin>-->
 
         </plugins>
     </build>
