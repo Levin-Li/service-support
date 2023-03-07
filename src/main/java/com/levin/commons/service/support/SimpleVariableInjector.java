@@ -109,6 +109,21 @@ public interface SimpleVariableInjector extends VariableInjector {
         return injectFields;
     }
 
+    default ResolvableType getExpectResolvableType(InjectVar injectVar) {
+        //获取类型
+        Class<?> expectBaseType = injectVar.expectBaseType();
+
+        if (expectBaseType == null || expectBaseType == Void.class) {
+            return null;
+        }
+
+        Class<?>[] expectGenericTypes = injectVar.expectGenericTypes();
+
+        //目标预期类型
+        return (expectGenericTypes != null && expectGenericTypes.length > 0) ?
+                ResolvableType.forClassWithGenerics(expectBaseType, expectGenericTypes)
+                : ResolvableType.forClass(expectBaseType);
+    }
 
     /**
      * 获取注入值
@@ -119,7 +134,7 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @param variableResolvers
      * @param field
      * @param injectVar
-     * @param isInject
+     * @param isInject           是否是注入到字段中，否则是输出
      * @return
      */
     default ValueHolder<Object> getInjectValue(Object targetBean, ResolvableType resolvableTypeRoot, List<VariableResolver> variableResolvers, Field field, InjectVar injectVar, boolean isInject) {
@@ -142,10 +157,10 @@ public interface SimpleVariableInjector extends VariableInjector {
             resolvableTypeRoot = ResolvableType.forClass(targetBean.getClass());
         }
 
-        ResolvableType forField = ResolvableType.forField(field, resolvableTypeRoot);
+        final ResolvableType forField = ResolvableType.forField(field, resolvableTypeRoot);
 
         //1、获取字段类型
-        Class<?> fieldType = forField.resolve(field.getType());
+        final Class<?> fieldType = forField.resolve(field.getType());
 
         field.setAccessible(true);
 
@@ -178,7 +193,6 @@ public interface SimpleVariableInjector extends VariableInjector {
                     + "." + field.getName() + " annotation  InjectVar.isRequired [" + injectVar.isRequired() + "] can't eval");
         }
 
-
         if (!isOverride.get()
                 && (originalValue != null || !isRequired.get())) {
             //如果不要求覆盖原值，并且 存在原值 或是 值不是必须的
@@ -197,16 +211,24 @@ public interface SimpleVariableInjector extends VariableInjector {
         }
 
         //获取类型
-        Class<?> expectBaseType = injectVar.expectBaseType();
-        Class<?>[] expectGenericTypes = injectVar.expectGenericTypes();
 
-        boolean hasSubTypes = expectGenericTypes != null && expectGenericTypes.length > 0;
+        //目标预期类型
+        final ResolvableType expectResolvableType = getExpectResolvableType(injectVar);
+        //如果不是注入
+        if (!isInject && expectResolvableType == null) {
+            throw new VariableNotFoundException(injectVar.remark() + " --> " + field.getDeclaringClass().getName()
+                    + "." + field.getName() + " InjectVar annotation expectBaseType attribute is require");
+        }
 
-        Type expectType = (expectBaseType == null || expectBaseType == Void.class) ? null
-                : (hasSubTypes ? ResolvableType.forClassWithGenerics(expectBaseType, expectGenericTypes).getType() : ResolvableType.forClass(expectBaseType).getType());
+        final ResolvableType targetResolvableType = isInject ? forField : expectResolvableType;
 
-        //求值
-        ValueHolder<Object> valueHolder = eval(varName, originalValue, expectType, isRequired.get(), variableResolvers);
+        //目标预期类型
+        final Class<?> targetExpectType = isInject ? fieldType : expectResolvableType.resolve(injectVar.expectBaseType());
+
+        //求值，对于注入是求值
+        final ValueHolder<Object> valueHolder = isInject
+                ? eval(varName, originalValue, Optional.ofNullable(expectResolvableType).map(rt -> rt.getType()).orElse(null), isRequired.get(), variableResolvers)
+                : new ValueHolder<>(originalValue).setHasValue(true);
 
         if (valueHolder.hasValue()) {
             //4、如果变量获取成功
@@ -220,13 +242,13 @@ public interface SimpleVariableInjector extends VariableInjector {
                     //转换并且注入变量
                     ConversionService conversionService = getConversionService();
 
-                    newValue = conversionService == null ? newValue : conversionService.convert(newValue, fieldType);
+                    newValue = conversionService == null ? newValue : conversionService.convert(newValue, targetExpectType);
 
                 } else {
                     //临时创建转化器
                     newValue = injectVar.converter().newInstance().convert(newValue,
                             newValue == null ? null : new TypeDescriptor(ResolvableType.forClass(newValue.getClass()), newValue.getClass(), new Annotation[0]),
-                            new TypeDescriptor(forField, fieldType, field.getAnnotations()));
+                            new TypeDescriptor(targetResolvableType, targetExpectType, isInject ? field.getAnnotations() : new Annotation[0]));
                 }
 
                 if (isInject) {
@@ -308,7 +330,7 @@ public interface SimpleVariableInjector extends VariableInjector {
                 .filter(Objects::nonNull)
                 .filter(ValueHolder::hasValue)
                 .findFirst()
-                .orElse(ValueHolder.notValue());
+                .orElse(ValueHolder.notValue().setType(expectType));
     }
 
 }

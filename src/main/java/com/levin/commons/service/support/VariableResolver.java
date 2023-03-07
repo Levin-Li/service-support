@@ -96,7 +96,7 @@ public interface VariableResolver {
      * @param expectTypes
      * @return
      */
-    default boolean isExpectType(Type actualType, Type... expectTypes) {
+   static boolean isExpectType(Type actualType, Type... expectTypes) {
 
         if (expectTypes == null
                 || expectTypes.length == 0

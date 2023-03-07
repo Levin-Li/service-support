@@ -27,7 +27,6 @@ import java.lang.annotation.*;
  * @author lilw
  *
  */
-
 public @interface InjectVar {
 
     /**
@@ -77,7 +76,6 @@ public @interface InjectVar {
      * @return
      */
     Class<?>[] expectGenericTypes() default {};
-
 
     /**
      * 预期的变量类型描述
