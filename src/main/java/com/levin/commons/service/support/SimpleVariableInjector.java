@@ -230,6 +230,8 @@ public interface SimpleVariableInjector extends VariableInjector {
                 ? eval(varName, originalValue, Optional.ofNullable(expectResolvableType).map(rt -> rt.getType()).orElse(null), isRequired.get(), variableResolvers)
                 : new ValueHolder<>(originalValue).setHasValue(true);
 
+        valueHolder.setType(targetExpectType);
+
         if (valueHolder.hasValue()) {
             //4、如果变量获取成功
             try {
