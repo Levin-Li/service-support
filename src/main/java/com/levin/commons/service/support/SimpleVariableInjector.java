@@ -214,6 +214,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         //目标预期类型
         final ResolvableType expectResolvableType = getExpectResolvableType(injectVar);
+
         //如果不是注入
         if (!isInject && expectResolvableType == null) {
             throw new VariableNotFoundException(injectVar.remark() + " --> " + field.getDeclaringClass().getName()
@@ -332,7 +333,7 @@ public interface SimpleVariableInjector extends VariableInjector {
                 .filter(Objects::nonNull)
                 .filter(ValueHolder::hasValue)
                 .findFirst()
-                .orElse(ValueHolder.notValue().setType(expectType));
+                .orElse(ValueHolder.notValue());
     }
 
 }
