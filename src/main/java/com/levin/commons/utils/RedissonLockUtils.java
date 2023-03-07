@@ -14,6 +14,8 @@ public abstract class RedissonLockUtils {
 
     /**
      * 尝试锁定并执行任务
+     * <p>
+     * 如果没有得到锁则立刻返回，放弃执行任务
      *
      * @param lock
      * @param tasks

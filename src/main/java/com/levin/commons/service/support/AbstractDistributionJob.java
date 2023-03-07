@@ -137,11 +137,11 @@ public abstract class AbstractDistributionJob<T> {
     /**
      * 批量获取数据
      *
-     * @param pageIndex
-     * @param pageSize
+     * @param batchNo   批次号，从1开始
+     * @param batchSize 批大小
      * @return
      */
-    abstract protected List<T> getBatchData(int pageIndex, int pageSize);
+    abstract protected List<T> getBatchData(long startTime, int batchNo, int batchSize);
 
     /**
      * 处理单条数据
@@ -174,7 +174,9 @@ public abstract class AbstractDistributionJob<T> {
     }
 
     /**
-     * @param timeoutMs
+     * 按指定的批大小执行任务
+     *
+     * @param timeoutMs 处理超时时间
      * @param isRunOnce
      * @param batchSize
      */
@@ -186,11 +188,11 @@ public abstract class AbstractDistributionJob<T> {
 
         List<T> dataList = null; //Collections.emptyList();
 
-        int pageIndex = 0;
+        int batchNo = 0;
 
         do {
 
-            dataList = getBatchData(++pageIndex, batchSize);
+            dataList = getBatchData(startTime, ++batchNo, batchSize);
 
             if (dataList == null) {
                 break;
@@ -233,8 +235,9 @@ public abstract class AbstractDistributionJob<T> {
             }
 
             try {
+                Thread.yield();
                 //防止过快处理，占满CPU
-                Thread.sleep(100);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 //如果被中断，退出循环
                 break;
