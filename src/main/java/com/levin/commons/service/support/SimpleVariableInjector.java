@@ -3,11 +3,11 @@ package com.levin.commons.service.support;
 import com.levin.commons.service.domain.InjectVar;
 import com.levin.commons.utils.ClassUtils;
 import org.springframework.core.ResolvableType;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.core.convert.support.ConfigurableConversionService;
 import org.springframework.format.support.DefaultFormattingConversionService;
+import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
@@ -32,14 +32,16 @@ public interface SimpleVariableInjector extends VariableInjector {
     ConfigurableConversionService defaultConversionService = new DefaultFormattingConversionService();
 
     /**
-     * 获取转换服务
+     * 转换数据类型
      *
+     * @param source
+     * @param targetType
+     * @param <T>
      * @return
      */
-    default ConversionService getConversionService() {
-        return defaultConversionService;
+    default <T> T convert(@Nullable Object source, Class<T> targetType) {
+        return defaultConversionService.convert(source, targetType);
     }
-
 
     /**
      * 按字段注解注入变量
@@ -243,9 +245,8 @@ public interface SimpleVariableInjector extends VariableInjector {
                         || injectVar.converter() == GenericConverter.class) {
                     //默认的转换方式
                     //转换并且注入变量
-                    ConversionService conversionService = getConversionService();
-
-                    newValue = conversionService == null ? newValue : conversionService.convert(newValue, targetExpectType);
+                    //转换数据类型
+                    newValue = convert(newValue, targetExpectType);
 
                 } else {
                     //临时创建转化器
