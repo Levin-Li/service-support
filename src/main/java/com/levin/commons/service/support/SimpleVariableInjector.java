@@ -2,6 +2,7 @@ package com.levin.commons.service.support;
 
 import com.levin.commons.service.domain.InjectVar;
 import com.levin.commons.utils.ClassUtils;
+import lombok.SneakyThrows;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
@@ -41,6 +42,19 @@ public interface SimpleVariableInjector extends VariableInjector {
      */
     default <T> T convert(@Nullable Object source, Class<T> targetType) {
         return defaultConversionService.convert(source, targetType);
+    }
+
+    /**
+     * 获取转换器
+     * <p>
+     * 可以考虑缓存
+     *
+     * @param injectVar
+     * @return
+     */
+    @SneakyThrows
+    default GenericConverter getConverter(InjectVar injectVar) {
+        return injectVar.converter().newInstance();
     }
 
     /**
@@ -250,9 +264,10 @@ public interface SimpleVariableInjector extends VariableInjector {
 
                 } else {
                     //临时创建转化器
-                    newValue = injectVar.converter().newInstance().convert(newValue,
-                            newValue == null ? null : new TypeDescriptor(ResolvableType.forClass(newValue.getClass()), newValue.getClass(), new Annotation[0]),
-                            new TypeDescriptor(targetResolvableType, targetExpectType, isInject ? field.getAnnotations() : new Annotation[0]));
+                    Annotation[] emptyArray = new Annotation[0];
+                    newValue = getConverter(injectVar).convert(newValue,
+                            newValue == null ? null : new TypeDescriptor(ResolvableType.forClass(newValue.getClass()), newValue.getClass(), emptyArray),
+                            new TypeDescriptor(targetResolvableType, targetExpectType, isInject ? field.getAnnotations() : emptyArray));
                 }
 
                 if (isInject) {
