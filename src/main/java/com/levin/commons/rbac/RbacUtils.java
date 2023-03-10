@@ -134,7 +134,7 @@ public abstract class RbacUtils {
 //                return;
 //            }
 
-                    Tag clsTag = beanType.getAnnotation(Tag.class);
+                    Tag clsTag = AnnotatedElementUtils.getMergedAnnotation(beanType, Tag.class);
 
                     //获取类注解
                     final ResAuthorize classResAuthorize = AnnotatedElementUtils.getMergedAnnotation(beanType, ResAuthorize.class);
