@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 public class JsonStrLikeConverter implements GenericConverter {
 
-    private final static ConfigurableConversionService conversionService = new DefaultFormattingConversionService();
+    // private final static ConfigurableConversionService conversionService = new DefaultFormattingConversionService();
 
     /**
      * @return
@@ -45,13 +45,11 @@ public class JsonStrLikeConverter implements GenericConverter {
 
             return JsonStrArrayUtils.getLikeQueryStr(source);
 
-        } else if (sourceType.isCollection() && targetType.isCollection()) {
+        } else if (sourceType.isCollection() && (targetType.isCollection() || targetType.getType().isAssignableFrom(Collection.class))) {
 
             Stream stream = ((Collection) source).stream().map(JsonStrArrayUtils::getLikeQueryStr);
 
-            if (List.class.isAssignableFrom(targetType.getType())) {
-                return stream.collect(Collectors.toList());
-            } else if (Set.class.isAssignableFrom(targetType.getType())) {
+            if (Set.class.isAssignableFrom(targetType.getType())) {
                 return stream.collect(Collectors.toSet());
             } else {
                 return stream.collect(Collectors.toList());
