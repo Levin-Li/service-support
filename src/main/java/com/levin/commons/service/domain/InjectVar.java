@@ -65,10 +65,14 @@ public @interface InjectVar {
 
     /**
      * 预期的变量值类型
+     * <p>
+     * 如果 Void.class 则认为是 null
+     * <p>
+     * 默认为Object.class 接受所有类型
      *
      * @return
      */
-    Class<?> expectBaseType() default Void.class;
+    Class<?> expectBaseType() default Object.class;
 
     /**
      * 预期泛型的子类型
@@ -76,13 +80,6 @@ public @interface InjectVar {
      * @return
      */
     Class<?>[] expectGenericTypes() default {};
-
-    /**
-     * 预期的变量类型描述
-     *
-     * @return
-     */
-    String expectTypeDesc() default "";
 
     /**
      * 转化器

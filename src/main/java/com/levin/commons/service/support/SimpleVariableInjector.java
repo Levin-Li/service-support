@@ -9,6 +9,7 @@ import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.core.convert.support.ConfigurableConversionService;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
@@ -126,6 +127,7 @@ public interface SimpleVariableInjector extends VariableInjector {
     }
 
     default ResolvableType getExpectResolvableType(InjectVar injectVar) {
+
         //获取类型
         Class<?> expectBaseType = injectVar.expectBaseType();
 
@@ -229,24 +231,34 @@ public interface SimpleVariableInjector extends VariableInjector {
         //获取类型
 
         //目标预期类型
-        final ResolvableType expectResolvableType = getExpectResolvableType(injectVar);
+        ResolvableType expectResolvableType = getExpectResolvableType(injectVar);
 
-        //如果不是注入
+        //求值，对于注入是求值
+        final ValueHolder<Object> valueHolder = isInject
+                ? eval(varName, originalValue, Optional.ofNullable(expectResolvableType).map(ResolvableType::getType).orElse(null), isRequired.get(), variableResolvers)
+                : new ValueHolder<>(originalValue).setHasValue(true);
+
+        //如果没有指定类型
         if (!isInject && expectResolvableType == null) {
-            throw new VariableNotFoundException(injectVar.remark() + " --> " + field.getDeclaringClass().getName()
-                    + "." + field.getName() + " InjectVar annotation expectBaseType attribute is require");
+            if (valueHolder.getType() != null) {
+                expectResolvableType = ResolvableType.forType(valueHolder.getType());
+            } else if (valueHolder.getValue() != null) {
+                expectResolvableType = ResolvableType.forType(valueHolder.getValue().getClass());
+            }
+        }
+
+        if (expectResolvableType == null) {
+            throw new VariableInjectException(injectVar.remark() + "," + field.getDeclaringClass().getName()
+                    + "." + field.getName() + " inject annotation expectBaseType attribute is miss " + injectVar.expectBaseType());
         }
 
         final ResolvableType targetResolvableType = isInject ? forField : expectResolvableType;
 
         //目标预期类型
-        final Class<?> targetExpectType = isInject ? fieldType : expectResolvableType.resolve(injectVar.expectBaseType());
+        final Class<?> targetExpectType = isInject ? fieldType
+                : expectResolvableType.resolve(Void.class.equals(injectVar.expectBaseType()) ? null : injectVar.expectBaseType());
 
-        //求值，对于注入是求值
-        final ValueHolder<Object> valueHolder = isInject
-                ? eval(varName, originalValue, Optional.ofNullable(expectResolvableType).map(rt -> rt.getType()).orElse(null), isRequired.get(), variableResolvers)
-                : new ValueHolder<>(originalValue).setHasValue(true);
-
+        //变更类型
         valueHolder.setType(targetExpectType);
 
         if (valueHolder.hasValue()) {
