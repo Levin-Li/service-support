@@ -12,7 +12,7 @@ import java.lang.annotation.*;
  *
  * @author llw
  */
-@Target({ElementType.TYPE, ElementType.FIELD})
+@Target({ElementType.TYPE, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited

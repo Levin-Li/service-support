@@ -22,6 +22,14 @@ public @interface FormAction {
      */
     String name();
 
+
+    /**
+     * 执行表单动作前的校验规则
+     *
+     * @return
+     */
+    String[] verifyRules() default {};
+
     /**
      * 执行动作前的确认提示信息
      *
@@ -31,6 +39,8 @@ public @interface FormAction {
 
     /**
      * 提交后执行的动作
+     * <p>
+     * 提交API或是动作表达式的返回结果作为参数 actionResult
      *
      * @return
      */
@@ -47,6 +57,8 @@ public @interface FormAction {
 
     /**
      * 动作表达式
+     * <p>
+     * 默认的动作表达式为空，把表单提交到API
      *
      * @return
      */

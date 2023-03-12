@@ -40,6 +40,16 @@ public @interface FormItem {
      */
     Options[] options() default {};
 
+
+    /**
+     * 值类型
+     * <p>
+     * 默认自动根据字段类型，如整形，字符串，日期，时间等
+     *
+     * @return
+     */
+    String inputType() default "";
+
     /**
      * 参数名称
      * 对应查询对象的字段名称，或是API接口的URL参数名称
@@ -66,12 +76,22 @@ public @interface FormItem {
     /**
      * 求值过滤器
      * <p>
-     * 对填入的数据进行转换处理
+     * 提交时对填入的数据进行转换处理
      * 默认不处理
      *
      * @return
      */
-    String convertFilters() default "";
+    String dataToUiConvertors() default "";
+
+    /**
+     * 求值过滤器
+     * <p>
+     * 提交时对填入的数据进行转换处理
+     * 默认不处理
+     *
+     * @return
+     */
+    String uiToDataConvertors() default "";
 
     /**
      * 是否是可搜索的
@@ -83,7 +103,28 @@ public @interface FormItem {
     boolean searchable() default true;
 
     /**
-     * 占位符，通常用于搜索框
+     * 表单填写提示
+     *
+     * <p>
+     * 格式为：颜色:文字
+     * 比如必填显示红色 * 号    :*
+     * 默认颜色为红色
+     *
+     * @return
+     */
+    String inputPrompt() default "";
+
+    /**
+     * 表单描述
+     *
+     * @return
+     */
+    String desc() default "";
+
+
+    /**
+     * 占位符
+     * 同时也是Label
      *
      * @return
      */
@@ -91,6 +132,7 @@ public @interface FormItem {
 
     /**
      * 参数默认值
+     * 自动填入
      *
      * @return
      */

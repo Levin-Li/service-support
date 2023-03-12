@@ -5,7 +5,6 @@ import com.levin.commons.dao.domain.MultiTenantObject;
 import com.levin.commons.dao.domain.NamedObject;
 import com.levin.commons.service.domain.Identifiable;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,7 +19,18 @@ public interface RbacUserObject<ROLE> extends MultiTenantObject, Identifiable, N
      *
      * @return
      */
-    boolean isSuperAdmin();
+    default boolean isSuperAdmin() {
+        return getRoleList().contains(RbacRoleObject.SA_ROLE);
+    }
+
+    /**
+     * 是否是租户管理员
+     *
+     * @return
+     */
+    default boolean isTenantAdmin() {
+        return getRoleList().contains(RbacRoleObject.ADMIN_ROLE);
+    }
 
     /**
      * 获取角色列表
