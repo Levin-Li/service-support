@@ -23,8 +23,7 @@ public @interface Form {
      *
      * @return
      */
-    String initApi() default "${API}";
-
+    String initApi() default "";
 
     /**
      * 表单组合校验规则

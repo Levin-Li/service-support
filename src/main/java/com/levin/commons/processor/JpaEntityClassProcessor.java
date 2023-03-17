@@ -385,7 +385,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             String fieldTableColName = "T_" + fieldName;
 
-            String tableColName = fieldName;
+            String tableColName = "";
 
 
             if (subEle.getAnnotation(Column.class) != null) {
@@ -400,7 +400,9 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 }
             }
 
-            fieldMap.put(fieldTableColName, "\n    @Deprecated\n    String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名，建议使用 F_" + fieldName + " 替代\n");
+            if (StringUtils.hasText(tableColName)) {
+                fieldMap.put(fieldTableColName, "\n    String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名，建议使用 F_" + fieldName + " 替代\n");
+            }
 
             fieldMap.put("F_" + fieldName, "\n    String F_" + fieldName + "  = \"F$:" + fieldName + "\"; //用于替换的名称，替换字段" + name + " 对应的数据库列名 \n");
             fieldMap.put("L_" + fieldName, "\n    String L_" + fieldName + "  = " + (StringUtils.hasText(finalDesc) ? "\"" + finalDesc + "\"" : fieldName) + "; //字段标签，用于字段的业务描述 \n");
