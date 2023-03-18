@@ -385,23 +385,23 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             String fieldTableColName = "T_" + fieldName;
 
-            String tableColName = "";
+            String colName = "";
 
 
             if (subEle.getAnnotation(Column.class) != null) {
 
                 if (hasText(subEle.getAnnotation(Column.class).name())) {
-                    tableColName = subEle.getAnnotation(Column.class).name();
+                    colName = subEle.getAnnotation(Column.class).name();
                 }
 
             } else if (subEle.getAnnotation(JoinColumn.class) != null) {
                 if (hasText(subEle.getAnnotation(JoinColumn.class).name())) {
-                    tableColName = subEle.getAnnotation(JoinColumn.class).name();
+                    colName = subEle.getAnnotation(JoinColumn.class).name();
                 }
             }
 
-            if (StringUtils.hasText(tableColName)) {
-                fieldMap.put(fieldTableColName, "\n    String " + fieldTableColName + "  = \"" + tableColName + "\"; //字段" + name + " 对应的数据库列名，建议使用 F_" + fieldName + " 替代\n");
+            if (StringUtils.hasText(colName)) {
+                fieldMap.put(fieldTableColName, "\n    String " + fieldTableColName + "  = \"" + colName + "\"; //字段" + name + " 对应的数据库列名，建议使用 F_" + fieldName + " 替代\n");
             }
 
             fieldMap.put("F_" + fieldName, "\n    String F_" + fieldName + "  = \"F$:" + fieldName + "\"; //用于替换的名称，替换字段" + name + " 对应的数据库列名 \n");
@@ -415,7 +415,10 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
                 fieldMap.put("PK_ID", "\n    String PK_ID = \"" + fieldName + "\"; //主键字段名 \n");
                 fieldMap.put("F_PK_ID", "\n    String F_PK_ID = \"F$:" + fieldName + "\"; //主键字段名 \n");
-                fieldMap.put("T_PK_ID", "\n    String T_PK_ID = \"" + tableColName + "\"; //主键字段对应的数据库列名 \n");
+
+                if (StringUtils.hasText(colName)) {
+                    fieldMap.put("T_PK_ID", "\n    String T_PK_ID = \"" + colName + "\"; //主键字段对应的数据库列名 \n");
+                }
 
                 uniqueFields.add(fieldName);
             }
