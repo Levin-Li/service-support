@@ -235,7 +235,7 @@ public abstract class AbstractDistributionJob<T> {
             }
 
             try {
-                Thread.yield();
+                //Thread.yield();
                 //防止过快处理，占满CPU
                 Thread.sleep(1);
             } catch (InterruptedException e) {
