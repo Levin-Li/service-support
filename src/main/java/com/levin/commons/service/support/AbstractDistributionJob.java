@@ -104,6 +104,10 @@ public abstract class AbstractDistributionJob<T> {
         }
     }
 
+    protected String getName() {
+        return getClass().getName() + ":" + getJobLockKey();
+    }
+
     /**
      * 获取执行器
      * <p>
@@ -182,7 +186,7 @@ public abstract class AbstractDistributionJob<T> {
      */
     protected void batchProcess(long timeoutMs, boolean isRunOnce, int batchSize) {
 
-        log.info("[ {} ] 开始第[ {} ]次执行批任务...", getJobLockKey(), counter.incrementAndGet());
+        log.info("[ {} ] 开始第[ {} ]次执行批任务...", getName(), counter.incrementAndGet());
 
         final long startTime = System.currentTimeMillis();
 
@@ -202,7 +206,7 @@ public abstract class AbstractDistributionJob<T> {
 
                 if (isStatRatio()) {
                     statHelper.onAlarm(30, 5, 0.5, (growthRatio, ratio) -> {
-                        log.info("[ {} ] 第[ {} ]次批任务执行 速率: {}, 同比上一个采样周期变化率: {}", getJobLockKey(), counter.get(), ratio, growthRatio);
+                        log.info("[ {} ] 第[ {} ]次批任务执行 速率: {}, 同比上一个采样周期变化率: {}", getName(), counter.get(), ratio, growthRatio);
                     });
                 }
 
@@ -229,7 +233,7 @@ public abstract class AbstractDistributionJob<T> {
 
                 //如果已经超时，退出循环
                 if ((System.currentTimeMillis() - startTime) > timeoutMs) {
-                    log.warn("*** [ {} ] 第[ {} ]次批任务执行超时，退出执行", getJobLockKey(), counter.get());
+                    log.warn("*** [ {} ] 第[ {} ]次批任务执行超时，退出执行", getName(), counter.get());
                     return;
                 }
             }
@@ -245,7 +249,7 @@ public abstract class AbstractDistributionJob<T> {
 
         } while (!isRunOnce && dataList.size() >= 1);
 
-        log.info("[ {} ] 第[ {} ]次批任务执行完成", getJobLockKey(), counter.get());
+        log.info("[ {} ] 第[ {} ]次批任务执行完成", getName(), counter.get());
     }
 
 }
