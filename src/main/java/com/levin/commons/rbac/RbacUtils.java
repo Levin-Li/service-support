@@ -218,9 +218,9 @@ public abstract class RbacUtils {
                             continue;
                         }
 
-                        Assert.isTrue(StringUtils.hasText(fieldResAuthorize.domain()), "需要鉴权的控制器方法[ResAuthorize]注解" + SimpleRes.Fields.domain + "属性未设置，方法：" + method);
-                        Assert.isTrue(StringUtils.hasText(fieldResAuthorize.type()), "需要鉴权的控制器方法[ResAuthorize]注解" + SimpleRes.Fields.type + "属性未设置，方法：" + method);
-                        Assert.isTrue(StringUtils.hasText(fieldResAuthorize.res()), "需要鉴权的控制器方法[ResAuthorize]注解res属性未设置，方法：" + method);
+                        Assert.hasText(fieldResAuthorize.domain(), "需要鉴权的控制器方法[ResAuthorize]注解" + SimpleRes.Fields.domain + "属性未设置，方法：" + method);
+                        Assert.hasText(fieldResAuthorize.type(), "需要鉴权的控制器方法[ResAuthorize]注解" + SimpleRes.Fields.type + "属性未设置，方法：" + method);
+                        Assert.hasText(fieldResAuthorize.res(), "需要鉴权的控制器方法[ResAuthorize]注解res属性未设置，方法：" + method);
 
                         final String key = fieldResAuthorize.domain() + fieldResAuthorize.type() + fieldResAuthorize.res();
 
