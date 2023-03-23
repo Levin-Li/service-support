@@ -47,7 +47,7 @@ public class DefaultJsonConverter implements GenericConverter {
             return gson.toJson(source);
 
         } else if ((source instanceof CharSequence)) {
-            return StringUtils.hasText((CharSequence) source) ? gson.fromJson(source.toString(), targetType.getResolvableType().getType()) : null;
+            return StringUtils.hasText((CharSequence) source) ? gson.fromJson(source.toString(), targetType.getType()) : null;
         }
 
         return source;
