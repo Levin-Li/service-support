@@ -20,7 +20,7 @@ public interface RbacUserObject<ROLE> extends MultiTenantObject, Identifiable, N
      * @return
      */
     default boolean isSuperAdmin() {
-        return getRoleList().contains(RbacRoleObject.SA_ROLE);
+        return getRoleList() != null && getRoleList().contains(RbacRoleObject.SA_ROLE);
     }
 
     /**
@@ -29,7 +29,7 @@ public interface RbacUserObject<ROLE> extends MultiTenantObject, Identifiable, N
      * @return
      */
     default boolean isTenantAdmin() {
-        return getRoleList().contains(RbacRoleObject.ADMIN_ROLE);
+        return getRoleList() != null && getRoleList().contains(RbacRoleObject.ADMIN_ROLE);
     }
 
     /**
