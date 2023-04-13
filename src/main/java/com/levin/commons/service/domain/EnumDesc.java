@@ -92,6 +92,15 @@ public interface EnumDesc {
     }
 
     /**
+     * 替代toString
+     *
+     * @return
+     */
+    default String nameAndDesc() {
+        return name() + "-" + getDesc();
+    }
+
+    /**
      * 解析出枚举值
      *
      * @param type
