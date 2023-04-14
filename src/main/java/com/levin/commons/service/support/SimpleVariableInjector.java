@@ -1,5 +1,6 @@
 package com.levin.commons.service.support;
 
+import com.levin.commons.service.domain.EnumDesc;
 import com.levin.commons.service.domain.InjectVar;
 import com.levin.commons.utils.ClassUtils;
 import lombok.SneakyThrows;
@@ -47,6 +48,24 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @return
      */
     default <T> T convert(@Nullable Object source, TypeDescriptor sourceTypeDescriptor, TypeDescriptor targetTypeDescriptor) {
+
+        Class<?> targetType = targetTypeDescriptor.getType();
+
+        //对枚举类型进行转换
+        if (source instanceof EnumDesc) {
+            //如果是数值，并且源是枚举
+            if (Number.class.isAssignableFrom(targetType))
+                source = ((EnumDesc) source).code();
+            else if (CharSequence.class.isAssignableFrom(targetType))
+                source = ((EnumDesc) source).name();
+
+        } else if (targetType.isEnum() && EnumDesc.class.isAssignableFrom(targetType)) {
+            if (source instanceof Number)
+                return (T) EnumDesc.parse((Class<? extends Enum>) targetType, ((Number) source).intValue());
+            else if (source instanceof String)
+                return (T) EnumDesc.parse((Class<? extends Enum>) targetType, (String) source);
+        }
+
         return (T) defaultConversionService.convert(source, sourceTypeDescriptor, targetTypeDescriptor);
     }
 
