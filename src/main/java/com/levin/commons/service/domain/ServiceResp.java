@@ -79,7 +79,6 @@ public interface ServiceResp<T>
      */
     T getData();
 
-
     @Schema(description = "错误类型")
     enum ErrorType implements EnumDesc {
 
@@ -169,6 +168,16 @@ public interface ServiceResp<T>
             } else {
                 return UnknownError;
             }
+        }
+
+        @Override
+        public int code() {
+            return baseErrorCode;
+        }
+
+        @Override
+        public String toString() {
+            return codeAndNameAndDesc();
         }
     }
 

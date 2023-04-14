@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.converter.ConverterFactory;
-import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -98,6 +97,15 @@ public interface EnumDesc {
      */
     default String nameAndDesc() {
         return name() + "-" + getDesc();
+    }
+
+    /**
+     * 替代toString
+     *
+     * @return
+     */
+    default String codeAndNameAndDesc() {
+        return code() + "-" + name() + "-" + getDesc();
     }
 
     /**
@@ -228,6 +236,5 @@ public interface EnumDesc {
             return code -> (T) EnumDesc.parse(targetType, code.intValue());
         }
     };
-
 
 }

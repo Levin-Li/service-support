@@ -9,7 +9,7 @@
 
     <artifactId>service-support</artifactId>
     <packaging>jar</packaging>
-    <version>1.2.26-SNAPSHOT</version>
+    <version>1.2.27-SNAPSHOT</version>
     <!--    <version>1.2.25.RELEASE</version>-->
 
     <properties>

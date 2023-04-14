@@ -51,7 +51,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         Class<?> targetType = targetTypeDescriptor.getType();
 
-        //对枚举类型进行转换
+        //对特别的枚举类型进行转换
         if (source instanceof EnumDesc) {
             //如果是数值，并且源是枚举
             if (Number.class.isAssignableFrom(targetType))
@@ -62,8 +62,8 @@ public interface SimpleVariableInjector extends VariableInjector {
         } else if (targetType.isEnum() && EnumDesc.class.isAssignableFrom(targetType)) {
             if (source instanceof Number)
                 return (T) EnumDesc.parse((Class<? extends Enum>) targetType, ((Number) source).intValue());
-            else if (source instanceof String)
-                return (T) EnumDesc.parse((Class<? extends Enum>) targetType, (String) source);
+            else if (source instanceof CharSequence)
+                return (T) EnumDesc.parse((Class<? extends Enum>) targetType, source.toString());
         }
 
         return (T) defaultConversionService.convert(source, sourceTypeDescriptor, targetTypeDescriptor);
