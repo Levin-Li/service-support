@@ -10,6 +10,7 @@ import org.springframework.core.convert.support.ConfigurableConversionService;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
@@ -34,15 +35,19 @@ public interface SimpleVariableInjector extends VariableInjector {
     ConfigurableConversionService defaultConversionService = new DefaultFormattingConversionService();
 
     /**
+     * 缓存
+     */
+    Map<Class<? extends GenericConverter>, GenericConverter> genericConverterInstanceCache = new ConcurrentReferenceHashMap<>();
+
+    /**
      * 转换数据类型
      *
      * @param source
-     * @param targetType
      * @param <T>
      * @return
      */
-    default <T> T convert(@Nullable Object source, Class<T> targetType) {
-        return defaultConversionService.convert(source, targetType);
+    default <T> T convert(@Nullable Object source, TypeDescriptor sourceTypeDescriptor, TypeDescriptor targetTypeDescriptor) {
+        return (T) defaultConversionService.convert(source, sourceTypeDescriptor, targetTypeDescriptor);
     }
 
     /**
@@ -55,7 +60,18 @@ public interface SimpleVariableInjector extends VariableInjector {
      */
     @SneakyThrows
     default GenericConverter getConverter(InjectVar injectVar) {
-        return injectVar.converter().newInstance();
+
+        Class<? extends GenericConverter> type = injectVar.converter();
+
+        Assert.notNull(type, "InjectVar.converter is require");
+
+        GenericConverter converter = genericConverterInstanceCache.get(type);
+
+        if (converter == null) {
+            genericConverterInstanceCache.put(type, converter = type.newInstance());
+        }
+
+        return converter;
     }
 
     /**
@@ -126,6 +142,12 @@ public interface SimpleVariableInjector extends VariableInjector {
         return injectFields;
     }
 
+    /**
+     * 获取注解上声明的类型
+     *
+     * @param injectVar
+     * @return
+     */
     default ResolvableType getExpectResolvableType(InjectVar injectVar) {
 
         //获取类型
@@ -171,14 +193,9 @@ public interface SimpleVariableInjector extends VariableInjector {
             return null;
         }
 
-        if (resolvableTypeRoot == null) {
-            resolvableTypeRoot = ResolvableType.forClass(targetBean.getClass());
-        }
-
-        final ResolvableType forField = ResolvableType.forField(field, resolvableTypeRoot);
 
         //1、获取字段类型
-        final Class<?> fieldType = forField.resolve(field.getType());
+        //  final Class<?> fieldType = forField.resolve(field.getType());
 
         field.setAccessible(true);
 
@@ -252,14 +269,19 @@ public interface SimpleVariableInjector extends VariableInjector {
                     + "." + field.getName() + " inject annotation expectBaseType attribute is miss " + injectVar.expectBaseType());
         }
 
+        if (resolvableTypeRoot == null) {
+            resolvableTypeRoot = ResolvableType.forClass(targetBean.getClass());
+        }
+
+        final ResolvableType forField = ResolvableType.forField(field, resolvableTypeRoot);
+
         final ResolvableType targetResolvableType = isInject ? forField : expectResolvableType;
 
-        //目标预期类型
-        final Class<?> targetExpectType = isInject ? fieldType
-                : expectResolvableType.resolve(Void.class.equals(injectVar.expectBaseType()) ? null : injectVar.expectBaseType());
+        //源目标类型
+        Type sourceType = valueHolder.getType();
 
-        //变更类型
-        valueHolder.setType(targetExpectType);
+        //变更为目标类型
+        valueHolder.setType(targetResolvableType.getType());
 
         if (valueHolder.hasValue()) {
             //4、如果变量获取成功
@@ -267,19 +289,28 @@ public interface SimpleVariableInjector extends VariableInjector {
 
                 Object newValue = valueHolder.get();
 
+                Annotation[] emptyArray = new Annotation[0];
+
+                if (sourceType == null && newValue != null) {
+                    sourceType = newValue.getClass();
+                }
+
+                //创建描述
+                //@todo 优化性能，考虑缓存
+                TypeDescriptor sourceTypeDescriptor = sourceType == null ? null
+                        : new TypeDescriptor(ResolvableType.forType(sourceType), null, emptyArray);
+
+                TypeDescriptor targetTypeDescriptor = new TypeDescriptor(targetResolvableType, null, isInject ? field.getAnnotations() : emptyArray);
+
                 if (injectVar.converter() == null
                         || injectVar.converter() == GenericConverter.class) {
                     //默认的转换方式
                     //转换并且注入变量
                     //转换数据类型
-                    newValue = convert(newValue, targetExpectType);
-
+                    newValue = convert(newValue, sourceTypeDescriptor, targetTypeDescriptor);
                 } else {
                     //临时创建转化器
-                    Annotation[] emptyArray = new Annotation[0];
-                    newValue = getConverter(injectVar).convert(newValue,
-                            newValue == null ? null : new TypeDescriptor(ResolvableType.forClass(newValue.getClass()), newValue.getClass(), emptyArray),
-                            new TypeDescriptor(targetResolvableType, targetExpectType, isInject ? field.getAnnotations() : emptyArray));
+                    newValue = getConverter(injectVar).convert(newValue, sourceTypeDescriptor, targetTypeDescriptor);
                 }
 
                 if (isInject) {
@@ -295,6 +326,7 @@ public interface SimpleVariableInjector extends VariableInjector {
             }
         }
 
+
         //如果不允许为 null 值，则抛出异常
         if (isRequired.get() && !valueHolder.hasValue()) {
             //如果变量是必须的，则抛出异常
@@ -308,6 +340,7 @@ public interface SimpleVariableInjector extends VariableInjector {
         return valueHolder;
 
     }
+
 
     /**
      * @param variableResolvers

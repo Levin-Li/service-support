@@ -10,11 +10,9 @@ import org.springframework.util.StringUtils;
 import java.util.Set;
 
 /**
- *
  * Json 和  对象 转换器
- *
+ * <p>
  * 基于Spring 转化器
- *
  */
 public class DefaultJsonConverter implements GenericConverter {
 
@@ -47,11 +45,10 @@ public class DefaultJsonConverter implements GenericConverter {
             return gson.toJson(source);
 
         } else if ((source instanceof CharSequence)) {
-            return StringUtils.hasText((CharSequence) source) ? gson.fromJson(source.toString(), targetType.getType()) : null;
+            return StringUtils.hasText((CharSequence) source) ? gson.fromJson(source.toString(), targetType.getResolvableType().getType()) : null;
         }
 
         return source;
-
     }
 
 }

@@ -27,7 +27,6 @@ public class ServiceException
         this(code, message, null);
     }
 
-
     public ServiceException(String message, Throwable cause, String code, String friendlyTips) {
         super(message, cause);
         this.code = code;
