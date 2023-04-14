@@ -51,4 +51,9 @@ public class DefaultJsonConverter implements GenericConverter {
         return source;
     }
 
+
+    public static void main(String[] args) {
+
+    }
+
 }
