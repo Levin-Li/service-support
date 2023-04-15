@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 public abstract class JsonStrArrayUtils {
 
     private static Gson gson = new Gson();
-    public static final Type listStrType = new TypeToken<List<String>>() {}.getType();
+   // public static final Type listStrType = new TypeToken<List<String>>() {}.getType();
 
 
     private JsonStrArrayUtils() {

@@ -1,6 +1,7 @@
 package com.levin.commons.service.support;
 
 import com.google.gson.Gson;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.lang.NonNull;
@@ -45,7 +46,8 @@ public class DefaultJsonConverter implements GenericConverter {
             return gson.toJson(source);
 
         } else if ((source instanceof CharSequence)) {
-            return StringUtils.hasText((CharSequence) source) ? gson.fromJson(source.toString(), targetType.getResolvableType().getType()) : null;
+            ResolvableType rt = targetType.getResolvableType();
+            return StringUtils.hasText((CharSequence) source) ? gson.fromJson(source.toString(), rt.hasGenerics() ? rt.getType() : rt.getRawClass()) : null;
         }
 
         return source;
