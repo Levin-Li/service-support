@@ -1,5 +1,6 @@
 package com.levin.commons.service.support;
 
+import cn.hutool.core.lang.Assert;
 import com.google.gson.Gson;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.TypeDescriptor;
@@ -46,8 +47,15 @@ public class DefaultJsonConverter implements GenericConverter {
             return gson.toJson(source);
 
         } else if ((source instanceof CharSequence)) {
+
+            if (!StringUtils.hasText((CharSequence) source)) {
+                return null;
+            }
+
             ResolvableType rt = targetType.getResolvableType();
-            return StringUtils.hasText((CharSequence) source) ? gson.fromJson(source.toString(), rt.hasGenerics() ? rt.getType() : rt.resolve()) : null;
+            Assert.isTrue(!rt.hasUnresolvableGenerics(), "目标类型中有未识别的泛型：" + rt);
+
+            return gson.fromJson(source.toString(), rt.hasGenerics() ? rt.getType() : rt.resolve());
         }
 
         return source;
