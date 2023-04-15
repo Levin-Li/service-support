@@ -64,11 +64,20 @@ public @interface Options {
     boolean multiValue() default false;
 
     /**
+     * 未选择是的默认值
+     *
+     * @return
+     */
+    String defaultValue() default "";
+
+
+    /**
      * 固定选项列表
      *
      * @return
      */
     Item[] items() default {};
+
 
     /**
      * 是否可以搜索
@@ -86,6 +95,15 @@ public @interface Options {
     String api() default "";
 
     /**
+     * 系统的字典编码
+     * <p>
+     * 一个字典编码-有一到多个选项
+     *
+     * @return
+     */
+    String[] dictCodes() default {};
+
+    /**
      * 查询类或是枚举类
      *
      * @return
@@ -95,7 +113,7 @@ public @interface Options {
     /**
      * 自动补全搜索参数名称，主要搜索服务端
      * <p>
-     * 目前建议只针对查询对象
+     * 目前建议只针对查询对象和API接口
      * <p>
      * 默认不搜索
      *
@@ -103,10 +121,4 @@ public @interface Options {
      */
     String autoCompleteSearchParamName() default "";
 
-    /**
-     * 字典编码
-     *
-     * @return
-     */
-    String[] dictCodes() default {};
 }
