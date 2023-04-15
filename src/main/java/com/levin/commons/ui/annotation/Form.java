@@ -19,6 +19,27 @@ import java.lang.annotation.*;
 public @interface Form {
 
     /**
+     * 标题
+     *
+     * @return
+     */
+    String title() default "";
+
+    /**
+     * 描述
+     *
+     * @return
+     */
+    String desc() default "";
+
+    /**
+     * 布局样式
+     *
+     * @return
+     */
+    String style() default "";
+
+    /**
      * 数据初始化API
      *
      * @return
@@ -35,7 +56,7 @@ public @interface Form {
     /**
      * 表单布局
      * <p>
-     * 注意：表单最外层为单列布局
+     * 可以通过布局分组实现布局嵌套
      *
      * @return
      */

@@ -10,7 +10,7 @@ import java.lang.annotation.*;
  *
  * @author llw
  */
-@Target({ElementType.TYPE})
+@Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
@@ -40,6 +40,16 @@ public @interface FormLayout {
     }
 
     /**
+     * 要布局的分组
+     * 默认为空分组，即无分组的表单项
+     * <p>
+     * 通过组标识实现布局嵌套，通过（dot）分割
+     *
+     * @return
+     */
+    String group() default "";
+
+    /**
      * 默认行布局
      *
      * @return
@@ -47,11 +57,23 @@ public @interface FormLayout {
     Type type() default Type.hbox;
 
     /**
-     * 要布局的分组
-     * 默认为空分组，即无分组的表单项
+     * 布局样式
      *
      * @return
      */
-    String[] groups() default {""};
+    String style() default "";
 
+    /**
+     * 标题
+     *
+     * @return
+     */
+    String title() default "";
+
+    /**
+     * 描述
+     *
+     * @return
+     */
+    String desc() default "";
 }

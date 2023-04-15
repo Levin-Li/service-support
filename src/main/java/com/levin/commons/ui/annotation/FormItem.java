@@ -16,6 +16,49 @@ import java.lang.annotation.*;
 @Inherited
 public @interface FormItem {
 
+
+    enum Type {
+
+        DEFAULT,
+
+        DATE_TIME,
+        DATE,
+        TIME,
+
+        INPUT_TEXT,
+        INPUT_URL,
+        INPUT_EMAIL,
+        INPUT_PHONE,
+        INPUT_INTEGER,
+        INPUT_FLOAT,
+
+        UPLOAD_IMG,
+        UPLOAD_FILE,
+
+        //开关
+        SWITCH,
+
+        //默认是下拉展示
+        OPTIONS_DROP_DOWN,
+
+        //横向展示
+        OPTIONS_H,
+
+        //纵向展示
+        OPTIONS_V,
+
+        COLOR,
+
+        JSON,
+
+        HTML,
+
+        //开发语言前缀
+        LANG_
+
+    }
+
+
     /**
      * 分组
      * 名称相同会放在一起
@@ -25,11 +68,6 @@ public @interface FormItem {
      * 一个表单项可以属于多个分组
      */
     String[] groups() default "";
-
-    /**
-     * 是否 多选/多值
-     */
-    boolean multiValue() default false;
 
     /**
      * 值选项
@@ -44,10 +82,19 @@ public @interface FormItem {
      * 值类型
      * <p>
      * 默认自动根据字段类型，如整形，字符串，日期，时间等
+     * 对应 Type
      *
      * @return
      */
-    String inputType() default "";
+    Type inputType() default Type.DEFAULT;
+
+    /**
+     * 参数默认值
+     * 自动填入
+     *
+     * @return
+     */
+    String defaultValue() default "";
 
     /**
      * 参数名称
@@ -93,16 +140,9 @@ public @interface FormItem {
     String uiToDataConvertors() default "";
 
     /**
-     * 是否是可搜索的
+     * 表单尾部提示
      * <p>
-     * 只支持文本搜索
-     *
-     * @return
-     */
-    boolean searchable() default true;
-
-    /**
-     * 表单填写提示
+     * 比如单位：元，秒等
      *
      * <p>
      * 格式为：颜色:文字
@@ -114,14 +154,6 @@ public @interface FormItem {
     String inputPrompt() default "";
 
     /**
-     * 表单描述
-     *
-     * @return
-     */
-    String desc() default "";
-
-
-    /**
      * 占位符
      * 同时也是Label
      *
@@ -130,10 +162,17 @@ public @interface FormItem {
     String placeholder() default "";
 
     /**
-     * 参数默认值
-     * 自动填入
+     * 样式
      *
      * @return
      */
-    String defaultValue() default "";
+    String style() default "";
+
+    /**
+     * 表单填写描述
+     *
+     * @return
+     */
+    String desc() default "";
+
 }

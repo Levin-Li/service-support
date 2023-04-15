@@ -70,14 +70,12 @@ public @interface Options {
      */
     String defaultValue() default "";
 
-
     /**
      * 固定选项列表
      *
      * @return
      */
     Item[] items() default {};
-
 
     /**
      * 是否可以搜索

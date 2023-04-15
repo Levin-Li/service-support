@@ -22,7 +22,6 @@ public @interface FormAction {
      */
     String name();
 
-
     /**
      * 执行表单动作前的校验规则
      *
