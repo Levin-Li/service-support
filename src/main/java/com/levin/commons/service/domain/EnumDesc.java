@@ -2,10 +2,13 @@ package com.levin.commons.service.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.levin.commons.service.support.ValueHolder;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.converter.ConverterFactory;
+import org.springframework.util.TypeUtils;
 
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -16,6 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public interface EnumDesc {
 
+    /**
+     *
+     */
     Map<Enum, String> cacheNames = new ConcurrentHashMap<>();
 
     /**

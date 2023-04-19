@@ -29,6 +29,14 @@ public class ValueHolder<T> implements Supplier<T> {
     };
 
 
+    /**
+     * notValue
+     *
+     * @param throwEx
+     * @param name
+     * @param <T>
+     * @return
+     */
     public static <T> ValueHolder<T> notValue(boolean throwEx, String name) {
 
         if (throwEx) {
@@ -75,6 +83,9 @@ public class ValueHolder<T> implements Supplier<T> {
         return type != null ? type : (hasValue() && value != null ? value.getClass() : null);
     }
 
+    /**
+     * @return
+     */
     public T getValue() {
 
         if (!hasValue()) {
@@ -84,8 +95,23 @@ public class ValueHolder<T> implements Supplier<T> {
         return value;
     }
 
+    /**
+     * @return
+     */
     public final boolean isHasValue() {
         return hasValue();
+    }
+
+    /**
+     * 有值
+     *
+     * @param value
+     * @return
+     */
+    public ValueHolder<T> have(T value) {
+        this.value = value;
+        this.hasValue = true;
+        return this;
     }
 
     /**
@@ -106,11 +132,18 @@ public class ValueHolder<T> implements Supplier<T> {
         return hasValue() && value != null;
     }
 
+    /**
+     * @return
+     */
     @Override
     public T get() {
         return getValue();
     }
 
+    /**
+     * @param defaultValue
+     * @return
+     */
     public T get(T defaultValue) {
         return hasValue() ? get() : defaultValue;
     }
