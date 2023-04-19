@@ -49,22 +49,30 @@ public interface SimpleVariableInjector extends VariableInjector {
      */
     default <T> T convert(@Nullable Object source, TypeDescriptor sourceTypeDescriptor, TypeDescriptor targetTypeDescriptor) {
 
-        Class<?> targetType = targetTypeDescriptor.getType();
+        ResolvableType rt = targetTypeDescriptor.getResolvableType();
+
+        cn.hutool.core.lang.Assert.isTrue(!rt.hasUnresolvableGenerics(), "目标类型中有未识别的泛型：" + rt);
+
+        ValueHolder<T> holder = EnumDesc.convert(source, rt.hasGenerics() ? rt.getType() : rt.resolve());
+
+        if (holder.hasValue()) {
+            return holder.get();
+        }
 
         //对特别的枚举类型进行转换
-        if (source instanceof EnumDesc) {
-            //如果是数值，并且源是枚举
-            if (Number.class.isAssignableFrom(targetType))
-                source = ((EnumDesc) source).code();
-            else if (CharSequence.class.isAssignableFrom(targetType))
-                source = ((EnumDesc) source).name();
-
-        } else if (targetType.isEnum() && EnumDesc.class.isAssignableFrom(targetType)) {
-            if (source instanceof Number)
-                return (T) EnumDesc.parse((Class<? extends Enum>) targetType, ((Number) source).intValue());
-            else if (source instanceof CharSequence)
-                return (T) EnumDesc.parse((Class<? extends Enum>) targetType, source.toString());
-        }
+//        if (source instanceof EnumDesc) {
+//            //如果是数值，并且源是枚举
+//            if (Number.class.isAssignableFrom(targetType))
+//                source = ((EnumDesc) source).code();
+//            else if (CharSequence.class.isAssignableFrom(targetType))
+//                source = ((EnumDesc) source).name();
+//
+//        } else if (targetType.isEnum() && EnumDesc.class.isAssignableFrom(targetType)) {
+//            if (source instanceof Number)
+//                return (T) EnumDesc.parse((Class<? extends Enum>) targetType, ((Number) source).intValue());
+//            else if (source instanceof CharSequence)
+//                return (T) EnumDesc.parse((Class<? extends Enum>) targetType, source.toString());
+//        }
 
         return (T) defaultConversionService.convert(source, sourceTypeDescriptor, targetTypeDescriptor);
     }

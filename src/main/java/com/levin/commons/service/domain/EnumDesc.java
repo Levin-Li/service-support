@@ -223,6 +223,60 @@ public interface EnumDesc {
         return info;
     }
 
+
+    /**
+     * 值转换
+     *
+     * @param source
+     * @param targetType
+     * @param <T>
+     * @return
+     */
+    static <T> ValueHolder<T> convert(Object source, Type targetType) {
+
+        ValueHolder<T> valueHolder = new ValueHolder<>();
+
+        if (targetType == null
+                || Object.class.equals(targetType)) {
+
+            valueHolder.have((T) source).setType(targetType);
+
+        } else if (source instanceof EnumDesc) {
+
+            //如果是数值，并且源是枚举
+            if (TypeUtils.isAssignable(Number.class, targetType)) {
+
+                source = ((EnumDesc) source).code();
+
+                valueHolder.have((T) source).setType(targetType);
+
+            } else if (TypeUtils.isAssignable(CharSequence.class, targetType)) {
+
+                source = ((EnumDesc) source).name();
+
+                valueHolder.have((T) source).setType(targetType);
+
+            }
+        } else if (TypeUtils.isAssignable(EnumDesc.class, targetType)) {
+
+            if (source instanceof Number) {
+
+                source = EnumDesc.parse((Class<? extends Enum>) targetType, ((Number) source).intValue());
+
+                valueHolder.have((T) source).setType(targetType);
+
+            } else if (source instanceof CharSequence) {
+
+                source = EnumDesc.parse((Class<? extends Enum>) targetType, source.toString());
+
+                valueHolder.have((T) source).setType(targetType);
+            }
+
+        }
+
+        return valueHolder;
+    }
+
     /**
      * 转换到枚举
      */
