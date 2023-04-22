@@ -11,8 +11,13 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.levin.commons.service.support.ValueHolder;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.core.ResolvableType;
+import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.converter.ConverterFactory;
+import org.springframework.core.convert.converter.GenericConverter;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.TypeUtils;
 
 import java.io.IOException;
@@ -20,6 +25,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -341,32 +347,64 @@ public interface EnumDesc {
     };
 
     /**
-     *
+     * 转换器
      */
-    class EnumJsonDeserializer extends JsonDeserializer<Enum<?>> {
+    class EnumConverter implements GenericConverter {
+
+        /**
+         * @return
+         */
+        @Override
+        @Nullable
+        public Set<ConvertiblePair> getConvertibleTypes() {
+            return null;
+        }
 
         @Override
-        public Enum<?> deserialize(JsonParser p, DeserializationContext ctx) throws IOException, JsonProcessingException {
+        public Object convert(@Nullable Object source, @Nullable TypeDescriptor sourceType, @NonNull TypeDescriptor targetType) {
 
-            JavaType javaType = ctx.getContextualType();
-
-            Assert.isTrue(javaType.isEnumType(), "not a enum type");
-
-            if (p == null || p.hasToken(JsonToken.VALUE_NULL)) {
+            if (source == null) {
                 return null;
             }
 
-            Object value = null;
+            ResolvableType rt = targetType.getResolvableType();
 
-            if (p.hasToken(JsonToken.VALUE_STRING)) {
-                value = p.getText();
-            } else if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
-                value = p.getIntValue();
+            cn.hutool.core.lang.Assert.isTrue(!rt.hasUnresolvableGenerics(), "目标类型中有未识别的泛型：" + rt);
+
+            ValueHolder<Object> holder = EnumDesc.convert(source, rt.hasGenerics() ? rt.getType() : rt.resolve());
+
+            Assert.isTrue(holder.hasValue(), "无法转换的类型:" + targetType);
+
+            return holder.get();
+        }
+
+        /**
+         *
+         */
+        class EnumJsonDeserializer extends JsonDeserializer<Enum<?>> {
+
+            @Override
+            public Enum<?> deserialize(JsonParser p, DeserializationContext ctx) throws IOException, JsonProcessingException {
+
+                JavaType javaType = ctx.getContextualType();
+
+                Assert.isTrue(javaType.isEnumType(), "not a enum type");
+
+                if (p == null || p.hasToken(JsonToken.VALUE_NULL)) {
+                    return null;
+                }
+
+                Object value = null;
+
+                if (p.hasToken(JsonToken.VALUE_STRING)) {
+                    value = p.getText();
+                } else if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+                    value = p.getIntValue();
+                }
+
+                return parse((Class<? extends Enum>) javaType.getRawClass(), value);
             }
 
-            return parse((Class<? extends Enum>) javaType.getRawClass(), value);
         }
 
     }
-
-}
