@@ -1,13 +1,21 @@
 package com.levin.commons.service.domain;
 
 
-import com.fasterxml.jackson.annotation.JsonCreator;
+import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.levin.commons.service.support.ValueHolder;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.converter.ConverterFactory;
 import org.springframework.util.TypeUtils;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -72,13 +80,6 @@ public interface EnumDesc {
     }
 
     /**
-     * 放回名称
-     *
-     * @return
-     */
-    String name();
-
-    /**
      * 放回编码
      *
      * @return
@@ -86,6 +87,24 @@ public interface EnumDesc {
     default int code() {
         return ((Enum<?>) this).ordinal();
     }
+
+
+    /**
+     * 放回名称
+     *
+     * @return
+     */
+    String name();
+
+    /**
+     * 描述信息
+     *
+     * @return
+     */
+    default String desc() {
+        return getDesc();
+    }
+
 
     /**
      * 替代toString
@@ -114,6 +133,28 @@ public interface EnumDesc {
         return code() + "-" + name() + "-" + getDesc();
     }
 
+
+    /**
+     * @param type
+     * @param nameOrCode
+     * @return
+     */
+    static Enum<?> parse(Class<? extends Enum> type, Object nameOrCode) {
+
+        if (nameOrCode == null || nameOrCode instanceof Enum) {
+            return (Enum<?>) nameOrCode;
+        }
+
+        if (nameOrCode instanceof Number) {
+            return parse(type, ((Number) nameOrCode).intValue());
+        } else if (nameOrCode instanceof CharSequence) {
+            return parse(type, nameOrCode.toString());
+        } else {
+            throw new IllegalArgumentException(type + " can't find value " + nameOrCode + "[" + nameOrCode.getClass() + "]");
+        }
+
+    }
+
     /**
      * 解析出枚举值
      *
@@ -124,7 +165,8 @@ public interface EnumDesc {
 
     static Enum<?> parse(Class<? extends Enum> type, Integer code) {
 
-        if (code == null) return null;
+        if (code == null)
+            return null;
 
         for (Enum<?> value : type.getEnumConstants()) {
             if (code == ((value instanceof EnumDesc)
@@ -133,7 +175,7 @@ public interface EnumDesc {
             }
         }
 
-        throw new IllegalArgumentException(type.getName() + " can't found enum by code " + code);
+        throw new IllegalArgumentException(type.getName() + " can't found enum value " + code);
     }
 
     /**
@@ -146,7 +188,8 @@ public interface EnumDesc {
 
     static Enum<?> parse(Class<? extends Enum> type, String nameOrCode) {
 
-        if (nameOrCode == null || nameOrCode.trim().length() == 0) return null;
+        if (StrUtil.isBlank(nameOrCode))
+            return null;
 
         nameOrCode = nameOrCode.trim();
 
@@ -160,7 +203,7 @@ public interface EnumDesc {
         try {
             return parse(type, Integer.parseInt(nameOrCode));
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(type.getName() + " can't found enum by name " + nameOrCode);
+            throw new IllegalArgumentException(type.getName() + " can't found enum value " + nameOrCode);
         }
 
     }
@@ -296,5 +339,34 @@ public interface EnumDesc {
             return code -> (T) EnumDesc.parse(targetType, code.intValue());
         }
     };
+
+    /**
+     *
+     */
+    class EnumJsonDeserializer extends JsonDeserializer<Enum<?>> {
+
+        @Override
+        public Enum<?> deserialize(JsonParser p, DeserializationContext ctx) throws IOException, JsonProcessingException {
+
+            JavaType javaType = ctx.getContextualType();
+
+            Assert.isTrue(javaType.isEnumType(), "not a enum type");
+
+            if (p == null || p.hasToken(JsonToken.VALUE_NULL)) {
+                return null;
+            }
+
+            Object value = null;
+
+            if (p.hasToken(JsonToken.VALUE_STRING)) {
+                value = p.getText();
+            } else if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+                value = p.getIntValue();
+            }
+
+            return parse((Class<? extends Enum>) javaType.getRawClass(), value);
+        }
+
+    }
 
 }
