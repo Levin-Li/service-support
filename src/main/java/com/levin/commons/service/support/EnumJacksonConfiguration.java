@@ -100,7 +100,7 @@ public class EnumJacksonConfiguration implements WebMvcConfigurer {
 
         @Override
         public String getModuleName() {
-            return "BaseEnumModule";
+            return "EnumModule";
         }
 
         @Override
