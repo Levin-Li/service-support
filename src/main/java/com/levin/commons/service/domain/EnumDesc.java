@@ -121,7 +121,7 @@ public interface EnumDesc {
      * @param code
      * @return
      */
-    @JsonCreator
+
     static Enum<?> parse(Class<? extends Enum> type, Integer code) {
 
         if (code == null) return null;
@@ -143,7 +143,7 @@ public interface EnumDesc {
      * @param nameOrCode
      * @return
      */
-    @JsonCreator
+
     static Enum<?> parse(Class<? extends Enum> type, String nameOrCode) {
 
         if (nameOrCode == null || nameOrCode.trim().length() == 0) return null;
@@ -288,7 +288,7 @@ public interface EnumDesc {
     };
 
     /**
-     * 转换到枚举
+     * 转换到枚举`
      */
     ConverterFactory<Number, Enum> number2EnumFactory = new ConverterFactory<Number, Enum>() {
         @Override
