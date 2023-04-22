@@ -3,12 +3,6 @@ package com.levin.commons.service.domain;
 
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.levin.commons.service.support.ValueHolder;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.core.ResolvableType;
@@ -20,7 +14,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.TypeUtils;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -378,34 +371,6 @@ public interface EnumDesc {
             return holder.get();
         }
 
-        /**
-         *
-         */
-        class EnumJsonDeserializer extends JsonDeserializer<Enum<?>> {
-
-            @Override
-            public Enum<?> deserialize(JsonParser p, DeserializationContext ctx) throws IOException, JsonProcessingException {
-
-                JavaType javaType = ctx.getContextualType();
-
-                Assert.isTrue(javaType.isEnumType(), "not a enum type");
-
-                if (p == null || p.hasToken(JsonToken.VALUE_NULL)) {
-                    return null;
-                }
-
-                Object value = null;
-
-                if (p.hasToken(JsonToken.VALUE_STRING)) {
-                    value = p.getText();
-                } else if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
-                    value = p.getIntValue();
-                }
-
-                return parse((Class<? extends Enum>) javaType.getRawClass(), value);
-            }
-
-        }
-
     }
+
 }
