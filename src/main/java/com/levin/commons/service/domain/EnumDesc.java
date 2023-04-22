@@ -408,3 +408,4 @@ public interface EnumDesc {
         }
 
     }
+}
