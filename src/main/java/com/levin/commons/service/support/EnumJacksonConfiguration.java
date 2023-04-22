@@ -12,6 +12,7 @@ import com.levin.commons.service.domain.EnumDesc;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -27,6 +28,20 @@ public class EnumJacksonConfiguration implements WebMvcConfigurer {
 
     @PostConstruct
     public void init() {
+    }
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+
+        //移除默认的转换器
+        registry.removeConvertible(String.class, Enum.class);
+        registry.removeConvertible(Number.class, Enum.class);
+        registry.removeConvertible(int.class, Enum.class);
+        registry.removeConvertible(Integer.class, Enum.class);
+
+        registry.addConverterFactory(EnumDesc.string2EnumFactory);
+        registry.addConverterFactory(EnumDesc.number2EnumFactory);
+
     }
 
     @Override
