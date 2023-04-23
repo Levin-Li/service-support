@@ -1,6 +1,7 @@
 package com.levin.commons.service.support;
 
 import com.levin.commons.conditional.ConditionalOn;
+import com.levin.commons.conditional.ConditionalOnList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -13,11 +14,14 @@ import static org.springframework.beans.factory.config.BeanDefinition.ROLE_SUPPO
 
 @Configuration
 @Slf4j
-@ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = VariableResolverConfiguration.class)
+@ConditionalOnList({
+        @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = VariableResolverConfiguration.class),
+})
 public class VariableResolverConfiguration {
 
     @PostConstruct
     public void init() {
+
     }
 
     @Bean("defaultSimpleVariableInjector")
@@ -28,6 +32,7 @@ public class VariableResolverConfiguration {
         log.debug("*** init default variable injector ...");
 
         return SimpleVariableInjector.defaultSimpleVariableInjector;
+
     }
 
     @Bean
@@ -38,6 +43,7 @@ public class VariableResolverConfiguration {
         log.debug("*** init default variable resolver manager ...");
 
         return new DefaultVariableResolverManager(variableInjector);
+
     }
 
 }

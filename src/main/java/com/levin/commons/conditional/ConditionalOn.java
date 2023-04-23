@@ -18,6 +18,7 @@ public @interface ConditionalOn {
         OnClass,
         OnMissingClass,
         OnProperty,
+        OnMissingProperty,
         //  OnExpr,
     }
 
@@ -43,8 +44,11 @@ public @interface ConditionalOn {
      */
     Class<?>[] types() default {};
 
+
     /**
      * 类名，或是属性名，或是表达式脚本
+     *
+     * OnProperty/OnMissingProperty 支持用等于和不等于匹配值，如： com.levin.dao.enable==true 或 com.levin.dao.mode!=safe
      *
      * @return
      */

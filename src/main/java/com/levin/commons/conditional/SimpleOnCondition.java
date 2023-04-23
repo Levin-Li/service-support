@@ -111,15 +111,43 @@ public class SimpleOnCondition
             result = isMatched(requireAllMatch, list,
                     p -> loadClass(classLoader, p) == null);
 
-
         } else if (ConditionalOn.Action.OnProperty.equals(action)) {
-            result = isMatched(requireAllMatch, list,
-                    p -> StringUtils.hasText(env.resolvePlaceholders(env.getProperty(p))));
-
+            result = isMatched(requireAllMatch, list, p -> propertyMatch(env, p));
+        } else if (ConditionalOn.Action.OnMissingProperty.equals(action)) {
+            result = !isMatched(requireAllMatch, list, p -> propertyMatch(env, p));
         }
 
-
         return result;
+    }
+
+    private static boolean propertyMatch(Environment env, String value) {
+
+        int indexOf = value.indexOf("==");
+
+        boolean eqOp = true;
+
+        if (indexOf < 0) {
+            indexOf = value.indexOf("!=");
+            eqOp = false;
+        }
+
+        if (indexOf > 0) {
+
+            final String key = value.substring(0, indexOf).trim();
+
+            final String envValue = env.resolvePlaceholders(env.getProperty(key, ""));
+
+            value = value.substring(indexOf + 2).trim();
+
+            //true  == true
+            //true  == false
+            //false == true
+            //false == false
+
+            return value.contentEquals(envValue) == eqOp;
+        }
+
+        return env.containsProperty(value);
     }
 
     /**

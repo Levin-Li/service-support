@@ -29,7 +29,7 @@ public interface EnumDesc {
     /**
      *
      */
-    Map<Enum, String> cacheNames = new ConcurrentHashMap<>();
+    Map<Enum<?>, String> cacheNames = new ConcurrentHashMap<>();
 
     /**
      * 已枚举索引为key 获取枚举描述
@@ -138,10 +138,10 @@ public interface EnumDesc {
      * @param nameOrCode
      * @return
      */
-    static Enum<?> parse(Class<? extends Enum> type, Object nameOrCode) {
+    static <E extends Enum<?>> E parse(Class<E> type, Object nameOrCode) {
 
-        if (nameOrCode == null || nameOrCode instanceof Enum) {
-            return (Enum<?>) nameOrCode;
+        if (nameOrCode == null || type.isInstance(nameOrCode)) {
+            return (E) nameOrCode;
         }
 
         if (nameOrCode instanceof Number) {
@@ -162,7 +162,7 @@ public interface EnumDesc {
      * @return
      */
 
-    static Enum<?> parse(Class<? extends Enum> type, Integer code) {
+    static <E extends Enum<?>> E parse(Class<E> type, Integer code) {
 
         if (code == null)
             return null;
@@ -170,7 +170,7 @@ public interface EnumDesc {
         for (Enum<?> value : type.getEnumConstants()) {
             if (code == ((value instanceof EnumDesc)
                     ? ((EnumDesc) value).code() : value.ordinal())) {
-                return value;
+                return (E) value;
             }
         }
 
@@ -185,7 +185,7 @@ public interface EnumDesc {
      * @return
      */
 
-    static Enum<?> parse(Class<? extends Enum> type, String nameOrCode) {
+    static <E extends Enum<?>> E parse(Class<E> type, String nameOrCode) {
 
         if (StrUtil.isBlank(nameOrCode))
             return null;
@@ -194,7 +194,7 @@ public interface EnumDesc {
 
         for (Enum<?> value : type.getEnumConstants()) {
             if (nameOrCode.equals(value.name())) {
-                return value;
+                return (E) value;
             }
         }
 
@@ -322,9 +322,9 @@ public interface EnumDesc {
     /**
      * 转换到枚举
      */
-    ConverterFactory<String, Enum> string2EnumFactory = new ConverterFactory<String, Enum>() {
+    ConverterFactory<String, Enum<?>> string2EnumFactory = new ConverterFactory<String, Enum<?>>() {
         @Override
-        public <T extends Enum> Converter<String, T> getConverter(Class<T> targetType) {
+        public <T extends Enum<?>> Converter<String, T> getConverter(Class<T> targetType) {
             return name -> (T) EnumDesc.parse(targetType, name);
         }
     };
@@ -332,9 +332,9 @@ public interface EnumDesc {
     /**
      * 转换到枚举`
      */
-    ConverterFactory<Number, Enum> number2EnumFactory = new ConverterFactory<Number, Enum>() {
+    ConverterFactory<Number, Enum<?>> number2EnumFactory = new ConverterFactory<Number, Enum<?>>() {
         @Override
-        public <T extends Enum> Converter<Number, T> getConverter(Class<T> targetType) {
+        public <T extends Enum<?>> Converter<Number, T> getConverter(Class<T> targetType) {
             return code -> (T) EnumDesc.parse(targetType, code.intValue());
         }
     };

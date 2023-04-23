@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.levin.commons.conditional.ConditionalOn;
+import com.levin.commons.conditional.ConditionalOnList;
 import com.levin.commons.service.domain.EnumDesc;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,11 +24,16 @@ import java.util.List;
 
 @Configuration
 @Slf4j
-@ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = EnumJacksonConfiguration.class)
+
+@ConditionalOnList({
+        @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = EnumJacksonConfiguration.class),
+        @ConditionalOn(action = ConditionalOn.Action.OnProperty, value = "com.levin.commons.service.support.EnumJacksonConfiguration!=disable")
+})
 public class EnumJacksonConfiguration implements WebMvcConfigurer {
 
     @PostConstruct
     public void init() {
+        log.info("*** Spring mvc 枚举值转换配置已经启用，可以使用 " + EnumJacksonConfiguration.class.getName() + "=disable 禁用");
     }
 
     @Override
@@ -46,14 +52,12 @@ public class EnumJacksonConfiguration implements WebMvcConfigurer {
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-
         for (HttpMessageConverter<?> converter : converters) {
             if (converter instanceof MappingJackson2HttpMessageConverter) {
                 ObjectMapper o = ((MappingJackson2HttpMessageConverter) converter).getObjectMapper();
                 o.registerModule(new EnumModule());
             }
         }
-
     }
 
     /**
@@ -98,7 +102,7 @@ public class EnumJacksonConfiguration implements WebMvcConfigurer {
      */
     static class EnumDeserializers extends Deserializers.Base {
         @Override
-        public JsonDeserializer<?> findEnumDeserializer(Class<?> type, DeserializationConfig config, BeanDescription beanDesc) throws JsonMappingException {
+        public JsonDeserializer<?> findEnumDeserializer(Class<?> type, DeserializationConfig config, BeanDescription beanDesc) {
 
             if (!type.isEnum() || !EnumDesc.class.isAssignableFrom(type)) {
                 return null;
