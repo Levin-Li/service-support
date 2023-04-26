@@ -357,7 +357,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             if (schema != null) {
 
-                finalDesc = Stream.of(schema.description(), schema.title(), schema.name())
+                finalDesc = Stream.of(schema.title(), schema.description(), schema.name())
                         .filter(StringUtils::hasText)
                         .findFirst()
                         .orElse(null);
