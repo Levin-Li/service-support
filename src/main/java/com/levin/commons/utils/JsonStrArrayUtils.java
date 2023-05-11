@@ -2,14 +2,9 @@ package com.levin.commons.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.reflect.TypeToken;
 import org.springframework.util.StringUtils;
 
-import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -21,12 +16,18 @@ import java.util.stream.Stream;
 public abstract class JsonStrArrayUtils {
 
     private static Gson gson = new Gson();
-   // public static final Type listStrType = new TypeToken<List<String>>() {}.getType();
+    // public static final Type listStrType = new TypeToken<List<String>>() {}.getType();
 
 
     private JsonStrArrayUtils() {
     }
 
+    /**
+     * 获取 一个元素的 Like 比较字符串
+     *
+     * @param element
+     * @return
+     */
     public static String getLikeQueryStr(Object element) {
 
         //只有一个元素，去除前后空格
@@ -37,12 +38,29 @@ public abstract class JsonStrArrayUtils {
 
     }
 
+    /**
+     * 获取 like 查询条件
+     *
+     * @param elements
+     * @return
+     */
+    public static List<String> getLikeQueryStrList(Collection<?> elements) {
+        return elements.stream().map(e -> getLikeQueryStr(e)).collect(Collectors.toList());
+    }
+
+
+    /**
+     * 转换成数组，数组内容是字符串
+     *
+     * @param elements
+     * @return
+     */
     public static String toStrArrayJson(Object... elements) {
         return iterableToStrArrayJson(Arrays.asList(elements));
     }
 
     /**
-     * 转换为字符串对象数组对象
+     * 集合元素转换为Json 字符串数组
      *
      * @param elements
      * @param ignoreElementPredicates
@@ -64,9 +82,14 @@ public abstract class JsonStrArrayUtils {
                     continue;
                 }
 
-                jsonArray.add(element != null ? element.toString() : null);
+                if (element == null) {
+                    jsonArray.add((String) null);
+                } else if (element.getClass().isEnum()) {
+                    jsonArray.add(((Enum) element).name());
+                } else {
+                    jsonArray.add(element.toString());
+                }
             }
-
         }
 
         return gson.toJson(jsonArray);
@@ -74,7 +97,9 @@ public abstract class JsonStrArrayUtils {
 
 
     /**
-     * 转换成对象
+     * Json数组字符串，转换成集合对象
+     * <p>
+     * 解析
      *
      * @param jsonArray
      * @param filter

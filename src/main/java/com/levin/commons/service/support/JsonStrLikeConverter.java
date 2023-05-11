@@ -13,13 +13,11 @@ import org.springframework.util.TypeUtils;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * 字符串 like 处理
  * <p>
- * 用于
+ * 用于查询条件
  */
 public class JsonStrLikeConverter implements GenericConverter {
 
@@ -42,28 +40,38 @@ public class JsonStrLikeConverter implements GenericConverter {
         ResolvableType rt = targetType.getResolvableType();
         Assert.isTrue(!rt.hasUnresolvableGenerics(), "目标类型中有未识别的泛型：" + rt);
 
+        //目标类型
+
+        // Json 对象  -->  String
         Type requireType = rt.hasGenerics() ? rt.getType() : rt.resolve();
 
-        if (TypeUtils.isAssignable(CharSequence.class, requireType) && (source instanceof CharSequence)) {
+        if (TypeUtils.isAssignable(CharSequence.class, requireType)) {
 
+            //如何目标类型是字符，那就是要转换成Json字符串(数组格式)，用于保存到数据库
             if (!StringUtils.hasText((CharSequence) source)) {
                 return null;
             }
 
-            return JsonStrArrayUtils.getLikeQueryStr(source);
-
-        } else if (sourceType.isCollection() && TypeUtils.isAssignable(Collection.class, requireType)) {
-
-            Stream stream = ((Collection) source).stream().map(JsonStrArrayUtils::getLikeQueryStr);
-
-            if (TypeUtils.isAssignable(Set.class, requireType)) {
-                return stream.collect(Collectors.toSet());
+            if (source instanceof Iterable) {
+                return JsonStrArrayUtils.iterableToStrArrayJson((Iterable) source);
             } else {
-                return stream.collect(Collectors.toList());
+                return JsonStrArrayUtils.toStrArrayJson(source);
+            }
+
+        } else if (TypeUtils.isAssignable(Collection.class, requireType)) {
+            //如果目标是集合
+
+            //String  -->  Json 放序列 对象
+            //如果是集合
+            if (TypeUtils.isAssignable(Collection.class, source.getClass())) {
+                //用于查询
+                return JsonStrArrayUtils.getLikeQueryStrList((Collection<?>) source);
+            } else {
+                return JsonStrArrayUtils.getLikeQueryStr(source);
             }
 
         } else {
-            throw new IllegalArgumentException("source[" + source.getClass() + "] is not a Iterable or String");
+            throw new IllegalArgumentException("target[" + requireType + "] is not a Iterable or String");
         }
 
     }
