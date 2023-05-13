@@ -89,41 +89,25 @@ public interface ServiceResp<T>
 //    4**	客户端错误，请求包含语法错误或无法完成请求
 //    5**	服务器错误，服务器在处理请求的过程中发生了错误
 
-        /**
-         * 1-99
-         */
+
         @Schema(description = "业务警告")
         BizWarning(1),
 
-        /**
-         * 100 -199
-         */
         @Schema(description = "业务异常")
-        BizError(100),
+        BizError(10000),
 
-        /**
-         * 200 - 299
-         */
         @Schema(description = "鉴权异常")
-        AuthenticationError(200),
+        AuthenticationError(20000),
 
-        /**
-         * 300 - 399
-         */
         @Schema(description = "资源异常")
-        ResourceError(300),
+        ResourceError(30000),
 
-        /**
-         * 400 - 499
-         */
+
         @Schema(description = "系统内部异常")
-        SystemInnerError(400),
+        SystemInnerError(40000),
 
-        /**
-         * 500 - n
-         */
         @Schema(description = "未知系统异常")
-        UnknownError(500);
+        UnknownError(50000);
 
         /**
          * 基本错误码
