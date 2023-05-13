@@ -4,22 +4,17 @@ package com.levin.commons.service.exception;
  * 拒绝访问异常
  */
 public class AccessDeniedException
-        extends RuntimeException {
+        extends BaseException {
 
-    public AccessDeniedException(String message) {
-        super(message);
+    public AccessDeniedException(int code, String friendlyTips) {
+        super(code, friendlyTips);
     }
 
-    public AccessDeniedException(String message, Throwable cause) {
-        super(message, cause);
+    public AccessDeniedException(int code, String message, String friendlyTips) {
+        super(code, message, friendlyTips);
     }
 
-    public AccessDeniedException(Throwable cause) {
-        super(cause);
+    public AccessDeniedException(int code, String friendlyTips, String message, Throwable cause) {
+        super(code, friendlyTips, message, cause);
     }
-
-    protected AccessDeniedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
-
 }

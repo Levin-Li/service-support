@@ -4,22 +4,18 @@ package com.levin.commons.service.exception;
  * 未认证异常
  */
 public class UnauthorizedException
-        extends RuntimeException {
+        extends BaseException {
 
-    public UnauthorizedException(String message) {
-        super(message);
+    public UnauthorizedException(int code, String friendlyTips) {
+        super(code, friendlyTips);
     }
 
-    public UnauthorizedException(String message, Throwable cause) {
-        super(message, cause);
+    public UnauthorizedException(int code, String message, String friendlyTips) {
+        super(code, message, friendlyTips);
     }
 
-    public UnauthorizedException(Throwable cause) {
-        super(cause);
-    }
-
-    protected UnauthorizedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    public UnauthorizedException(int code, String friendlyTips, String message, Throwable cause) {
+        super(code, friendlyTips, message, cause);
     }
 
 }
