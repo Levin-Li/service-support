@@ -102,7 +102,6 @@ public interface ServiceResp<T>
         @Schema(description = "资源异常")
         ResourceError(30000),
 
-
         @Schema(description = "系统内部异常")
         SystemInnerError(40000),
 
