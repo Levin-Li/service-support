@@ -28,7 +28,7 @@ public abstract class BaseException
 
     public BaseException(int code, String friendlyTips, String message, Throwable cause) {
         super(message != null ? message : friendlyTips, cause);
-        this.code = code;
+        this.code = code != 0 ? code : -1;
         this.friendlyTips = friendlyTips;
     }
 
