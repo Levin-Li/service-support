@@ -260,12 +260,25 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
         }
     }
 
-    private static String getAlias(String className) {
-        return className.chars()
+    /**
+     * 获取别名
+     *
+     * @param simpleName
+     * @return
+     */
+    private static String getAlias(String simpleName) {
+
+        String alias = simpleName.chars()
                 .filter(c -> Character.isUpperCase((char) c))
                 .mapToObj(c -> "" + (char) c)
-                .collect(Collectors.joining())
+                .collect(Collectors.joining("_"))
                 .toLowerCase();
+
+        if (alias.length() < 2) {
+            alias = "_" + simpleName.toLowerCase();
+        }
+
+        return alias;
     }
 
     /**

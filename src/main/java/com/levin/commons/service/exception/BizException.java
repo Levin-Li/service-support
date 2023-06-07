@@ -1,5 +1,7 @@
 package com.levin.commons.service.exception;
 
+import com.levin.commons.service.domain.ApiResp;
+import com.levin.commons.service.domain.ServiceResp;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 
@@ -17,15 +19,25 @@ public class BizException
 
     private static final long serialVersionUID = -677894470754649710L;
 
+
+    public BizException(String friendlyTips) {
+        super(friendlyTips);
+    }
+
     public BizException(int code, String friendlyTips) {
         super(code, friendlyTips);
     }
 
-    public BizException(int code, String message, String friendlyTips) {
-        super(code, message, friendlyTips);
+    public BizException(int code, String friendlyTips, String message) {
+        super(code, friendlyTips, message);
     }
 
     public BizException(int code, String friendlyTips, String message, Throwable cause) {
         super(code, friendlyTips, message, cause);
+    }
+
+    @Override
+    protected int getBaseCode() {
+        return ServiceResp.ErrorType.BizError.code();
     }
 }

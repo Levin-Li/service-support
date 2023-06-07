@@ -18,25 +18,62 @@ public abstract class BaseException
     @Schema(description = "友好提示信息，可用于界面展示")
     protected String friendlyTips;
 
+    public BaseException(String friendlyTips) {
+        this(0, friendlyTips);
+    }
+
     public BaseException(int code, String friendlyTips) {
         this(code, friendlyTips, friendlyTips);
     }
 
-    public BaseException(int code, String message, String friendlyTips) {
+    public BaseException(int code, String friendlyTips, String message) {
         this(code, friendlyTips, message, null);
     }
 
     public BaseException(int code, String friendlyTips, String message, Throwable cause) {
+
         super(message != null ? message : friendlyTips, cause);
+
+        //重新计算错误码
+        code = calculateCode(code);
+
+        //不允许 code 等于 0
         this.code = code != 0 ? code : -1;
         this.friendlyTips = friendlyTips;
+
     }
 
+    /**
+     * 基础错误码
+     *
+     * @return
+     */
+    protected abstract int getBaseCode();
+
+    /**
+     * 获取错误码
+     *
+     * @param subCode
+     * @return
+     */
+    protected int calculateCode(int subCode) {
+        return subCode >= getBaseCode() ? subCode : (getBaseCode() + subCode);
+    }
+
+    /**
+     * 异常错误码
+     *
+     * @return
+     */
     public int getCode() {
         return code;
     }
 
-
+    /**
+     * 友好提示
+     *
+     * @return
+     */
     public String getFriendlyTips() {
         return friendlyTips;
     }

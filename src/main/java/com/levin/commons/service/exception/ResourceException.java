@@ -5,27 +5,27 @@ import com.levin.commons.service.domain.ServiceResp;
 /**
  * 拒绝访问异常
  */
-public class AccessDeniedException
+public class ResourceException
         extends BaseException {
 
-    public AccessDeniedException(String friendlyTips) {
+    public ResourceException(String friendlyTips) {
         super(friendlyTips);
     }
 
-    public AccessDeniedException(int code, String friendlyTips) {
+    public ResourceException(int code, String friendlyTips) {
         super(code, friendlyTips);
     }
 
-    public AccessDeniedException(int code, String friendlyTips, String message) {
+    public ResourceException(int code, String friendlyTips, String message) {
         super(code, friendlyTips, message);
     }
 
-    public AccessDeniedException(int code, String friendlyTips, String message, Throwable cause) {
+    public ResourceException(int code, String friendlyTips, String message, Throwable cause) {
         super(code, friendlyTips, message, cause);
     }
 
     @Override
     protected int getBaseCode() {
-        return ServiceResp.ErrorType.AuthenticationError.code();
+        return ServiceResp.ErrorType.ResourceError.code();
     }
 }

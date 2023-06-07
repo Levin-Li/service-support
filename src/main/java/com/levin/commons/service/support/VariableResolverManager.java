@@ -15,6 +15,7 @@ public interface VariableResolverManager extends VariableResolver {
      */
     VariableInjector getVariableInjector();
 
+
     /**
      * 获取变量解析器
      *
