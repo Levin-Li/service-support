@@ -22,8 +22,9 @@ public abstract class LangUtils {
     /**
      * 分割标题和描述
      *
+     *
      * @param desc
-     * @return
+     * @return [0] 是标题，不为空 ，[1] 是描述，可为空
      */
     public static String[] splitDesc(String desc) {
 
