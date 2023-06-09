@@ -54,15 +54,4 @@ public abstract class LangUtils {
 
         return result;
     }
-
-
-    public static void main(String[] args) {
-
-        String[] desc = splitDesc("标q题1 买书刚刚");
-        desc = splitDesc("a标题1: 买书\n刚刚");
-        desc = splitDesc("标题1 ");
-        desc = splitDesc("标题1\n 回车");
-        desc = splitDesc("a标题1，买书刚刚");
-
-    }
 }
