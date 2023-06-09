@@ -2,6 +2,7 @@ package com.levin.commons.processor;
 
 import com.levin.commons.annotation.GenNameConstant;
 import com.levin.commons.service.domain.Desc;
+import com.levin.commons.utils.LangUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.util.StringUtils;
 
@@ -26,8 +27,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.levin.commons.utils.ExceptionUtils.getZhDesc;
 
 @SupportedAnnotationTypes({"javax.persistence.MappedSuperclass", "javax.persistence.Entity"})
 //@SupportedSourceVersion(SourceVersion.RELEASE_6)
@@ -369,19 +368,17 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             String name = "";
 
-            String finalDesc = null;
+            String[] fieldDesc = new String[]{"", ""};
 
             if (schema != null) {
 
-                finalDesc = Stream.of(schema.title(), schema.description(), schema.name())
+                fieldDesc = LangUtils.splitDesc(Stream.of(schema.title(), schema.description(), schema.name())
                         .filter(StringUtils::hasText)
                         .findFirst()
-                        .orElse(null);
-
-                //获取中文描述
-                finalDesc = getZhDesc(finalDesc);
+                        .orElse(null));
 
             } else if (desc != null) {
+
                 name = desc.name().trim();
 
                 if (name.length() < 1) {
@@ -421,8 +418,12 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
             }
 
             fieldMap.put("F_" + fieldName, "\n    String F_" + fieldName + "  = \"F$:" + fieldName + "\"; //用于替换的名称，替换字段" + name + " 对应的数据库列名 \n");
-            fieldMap.put("L_" + fieldName, "\n    String L_" + fieldName + "  = " + (StringUtils.hasText(finalDesc) ? "\"" + finalDesc + "\"" : fieldName) + "; //字段标签，用于字段的业务描述 \n");
 
+            fieldMap.put("L_" + fieldName, "\n    String L_" + fieldName + "  = " + (StringUtils.hasText(fieldDesc[0]) ? "\"" + fieldDesc[0] + "\"" : fieldName) + "; //字段标签，用于字段的业务描述 \n");
+
+            if (StringUtils.hasText(fieldDesc[1])) {
+                fieldMap.put("D_" + fieldName, "\n    String D_" + fieldName + "  = " + ("\"" + fieldDesc[1] + "\"") + "; //字段描述，用于字段的业务描述 \n");
+            }
 
             boolean isIdAttr = subEle.getAnnotation(Id.class) != null || subEle.getAnnotation(EmbeddedId.class) != null;
 

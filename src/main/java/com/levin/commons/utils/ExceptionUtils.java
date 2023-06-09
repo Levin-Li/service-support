@@ -4,8 +4,6 @@ import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 
@@ -27,6 +25,7 @@ public abstract class ExceptionUtils {
      *
      * @return
      */
+    @Deprecated
     public static String getZhDesc(String tempDesc) {
 
         if (!StringUtils.hasText(tempDesc))
@@ -34,7 +33,7 @@ public abstract class ExceptionUtils {
 
         tempDesc = tempDesc.replace("\n", " ")
                 .replace("\r", " ")
-                .replace('"','\'');
+                .replace('"', '\'');
 
         //尝试识别中文注释
         int idx = tempDesc.indexOf(':');
@@ -181,12 +180,5 @@ public abstract class ExceptionUtils {
         return getRootCause(e).getLocalizedMessage();
     }
 
-
-    public static void main(String[] args) {
-
-        System.out.println(getZhDesc("类型: 1 创建  2 完成支付变为审核中  3 审核中变为加热\n4 审核中变为审核不通过 5 修改自动关停配置 (关闭、启用、修改关停条件) 6 手动关停\n7 自动关停 8 加热中变为退款中 \r 9 状态变为 已完成或已结束"));
-
-
-    }
 
 }

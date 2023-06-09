@@ -10,8 +10,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
-import static com.levin.commons.utils.ExceptionUtils.getZhDesc;
-
 /**
  * 类型解释器
  * <p/>
@@ -896,8 +894,6 @@ public class SimpleTypeParser {
 
 
     public static void main(String[] args) {
-
-        System.out.println(getZhDesc("类型: 1 创建  2 完成支付变为审核中  3 审核中变为加热\n4 审核中变为审核不通过 5 修改自动关停配置 (关闭、启用、修改关停条件) 6 手动关停\n7 自动关停 8 加热中变为退款中 \r 9 状态变为 已完成或已结束"));
 
         System.out.println(isIterable(List.class));
         System.out.println(isIterable(Map.class));
