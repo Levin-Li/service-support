@@ -21,19 +21,23 @@ public abstract class LangUtils {
 
     /**
      * 分割标题和描述
+     * <p>
+     * 方法不放回 null值，只放回 空字符串
      *
      * @param desc
      * @return 分割结果数组， [0] 是标题，不为空 ，[1] 是描述，可为空
      */
     public static String[] splitDesc(String desc) {
 
-        desc = StringUtils.trimAllWhitespace(desc);
+        String[] result = new String[]{"", ""};
 
-        String[] result = new String[]{desc, ""};
-
-        if (desc == null || desc.length() == 0) {
+        if (!StringUtils.hasText(desc)) {
             return result;
         }
+
+        desc = StringUtils.trimAllWhitespace(desc);
+
+        result[0] = desc;
 
         int i = 0;
         for (; i < desc.length(); i++) {
@@ -51,7 +55,7 @@ public abstract class LangUtils {
         //1 2 3 中
         result[0] = desc.substring(0, i).trim();
 
-        result[1] = StringUtils.trimAllWhitespace(desc.substring(i + 1))
+        result[1] = StringUtils.trimAllWhitespace(desc.substring(i))
                 .replace("\n", " ")
                 .replace("\r", " ")
                 .replace('"', '\'');
