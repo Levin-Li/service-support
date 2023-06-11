@@ -37,25 +37,35 @@ public abstract class LangUtils {
 
         desc = StringUtils.trimAllWhitespace(desc);
 
+        int start = 0;
+
+        while (!(Character.isLetterOrDigit(desc.charAt(start)) || isZh(desc.charAt(start)))) {
+            start++;
+        }
+
+        //去除前面非文字字符
+        if (start > 0) {
+            desc = desc.substring(start);
+        }
+
         result[0] = desc;
 
-        int i = 0;
-        for (; i < desc.length(); i++) {
-            char c = desc.charAt(i);
+        for (start = 0; start < desc.length(); start++) {
+            char c = desc.charAt(start);
             if (Character.isLetterOrDigit(c) || isZh(c)) {
             } else {
                 break;
             }
         }
 
-        if (i >= (desc.length() - 1)) {
+        if (start <= 0 || start >= (desc.length() - 1)) {
             return result;
         }
 
         //1 2 3 中
-        result[0] = desc.substring(0, i).trim();
+        result[0] = desc.substring(0, start).trim();
 
-        result[1] = StringUtils.trimAllWhitespace(desc.substring(i))
+        result[1] = StringUtils.trimAllWhitespace(desc.substring(start))
                 .replace("\n", " ")
                 .replace("\r", " ")
                 .replace('"', '\'');
