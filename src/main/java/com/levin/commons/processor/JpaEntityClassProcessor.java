@@ -375,7 +375,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 fieldDesc = LangUtils.splitDesc(Stream.of(schema.title(), schema.description(), schema.name())
                         .filter(StringUtils::hasText)
                         .findFirst()
-                        .orElse(null));
+                        .orElse(""));
 
             } else if (desc != null) {
 
@@ -419,9 +419,9 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             fieldMap.put("F_" + fieldName, "\n    String F_" + fieldName + "  = \"F$:" + fieldName + "\"; //用于替换的名称，替换字段" + name + " 对应的数据库列名 \n");
 
-            fieldMap.put("L_" + fieldName, "\n    String L_" + fieldName + "  = " + (StringUtils.hasText(fieldDesc[0]) ? "\"" + fieldDesc[0] + "\"" : fieldName) + "; //字段标签，用于字段的业务描述 \n");
+            fieldMap.put("L_" + fieldName, "\n    String L_" + fieldName + "  = " + (fieldDesc.length > 0 && StringUtils.hasText(fieldDesc[0]) ? ("\"" + fieldDesc[0] + "\"") : fieldName) + "; //字段标签，用于字段的业务描述 \n");
 
-            if (StringUtils.hasText(fieldDesc[1])) {
+            if (fieldDesc.length > 1 && StringUtils.hasText(fieldDesc[1])) {
                 fieldMap.put("D_" + fieldName, "\n    String D_" + fieldName + "  = " + ("\"" + fieldDesc[1] + "\"") + "; //字段描述，用于字段的业务描述 \n");
             }
 

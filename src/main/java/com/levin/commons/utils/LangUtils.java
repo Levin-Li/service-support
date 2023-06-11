@@ -31,6 +31,10 @@ public abstract class LangUtils {
 
         String[] result = new String[]{desc, ""};
 
+        if (desc == null || desc.length() == 0) {
+            return result;
+        }
+
         int i = 0;
         for (; i < desc.length(); i++) {
             char c = desc.charAt(i);
