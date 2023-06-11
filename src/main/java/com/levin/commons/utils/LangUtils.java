@@ -65,7 +65,7 @@ public abstract class LangUtils {
         //1 2 3 中
         result[0] = desc.substring(0, start).trim();
 
-        result[1] = StringUtils.trimAllWhitespace(desc.substring(start))
+        result[1] = StringUtils.trimAllWhitespace(desc.substring(start + 1))
                 .replace("\n", " ")
                 .replace("\r", " ")
                 .replace('"', '\'');
