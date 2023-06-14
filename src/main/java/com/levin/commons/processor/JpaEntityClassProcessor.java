@@ -26,7 +26,6 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SupportedAnnotationTypes({"javax.persistence.MappedSuperclass", "javax.persistence.Entity"})
 //@SupportedSourceVersion(SourceVersion.RELEASE_6)
@@ -371,12 +370,13 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
             String[] fieldDesc = new String[]{"", ""};
 
             if (schema != null) {
-
-                fieldDesc = LangUtils.splitDesc(Stream.of(schema.title(), schema.description(), schema.name())
-                        .filter(StringUtils::hasText)
-                        .findFirst()
-                        .orElse(""));
-
+                if (StringUtils.hasText(schema.title())) {
+                    fieldDesc[0] = schema.title().trim();
+                    fieldDesc[1] = schema.description();
+                } else if (StringUtils.hasText(schema.description())) {
+                    //
+                    fieldDesc = LangUtils.splitDesc(schema.description());
+                }
             } else if (desc != null) {
 
                 name = desc.name().trim();

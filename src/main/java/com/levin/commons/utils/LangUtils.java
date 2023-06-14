@@ -19,8 +19,18 @@ public abstract class LangUtils {
         return c >= '\u4e00' && c <= '\u9fa5';
     }
 
+    private static boolean isValid(char c) {
+        return Character.isLetterOrDigit(c)
+                || isZh(c)
+                || c == '/'
+                || c == '&'
+                ;
+    }
+
     /**
      * 分割标题和描述
+     *
+     *
      * <p>
      * 方法不放回 null值，只放回 空字符串
      *
@@ -39,9 +49,9 @@ public abstract class LangUtils {
 
         int start = 0;
 
-        while (!(Character.isLetterOrDigit(desc.charAt(start)) || isZh(desc.charAt(start)))) {
-            start++;
-        }
+//        while (!isValid(desc.charAt(start))) {
+//            start++;
+//        }
 
         //去除前面非文字字符
         if (start > 0) {
@@ -51,9 +61,7 @@ public abstract class LangUtils {
         result[0] = desc;
 
         for (start = 0; start < desc.length(); start++) {
-            char c = desc.charAt(start);
-            if (Character.isLetterOrDigit(c) || isZh(c)) {
-            } else {
+            if (!isValid(desc.charAt(start))) {
                 break;
             }
         }
@@ -65,10 +73,14 @@ public abstract class LangUtils {
         //1 2 3 中
         result[0] = desc.substring(0, start).trim();
 
-        result[1] = StringUtils.trimAllWhitespace(desc.substring(start + 1))
-                .replace("\n", " ")
-                .replace("\r", " ")
-                .replace('"', '\'');
+        start = start + 1;
+
+        result[1] = StringUtils.trimAllWhitespace(desc.substring(start))
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\"", "\\\"")
+
+        ;
 
         return result;
     }
