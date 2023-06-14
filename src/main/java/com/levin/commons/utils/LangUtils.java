@@ -24,6 +24,7 @@ public abstract class LangUtils {
                 || isZh(c)
                 || c == '/'
                 || c == '&'
+                || c == '_'
                 ;
     }
 
