@@ -17,6 +17,9 @@ import java.util.Set;
 /**
  * 字符串 like 处理
  * <p>
+ * 总数生成字符串
+ *
+ * <p>
  * 用于查询条件
  */
 public class JsonStrLikeConverter implements GenericConverter {
@@ -37,41 +40,24 @@ public class JsonStrLikeConverter implements GenericConverter {
             return null;
         }
 
-        ResolvableType rt = targetType.getResolvableType();
-        Assert.isTrue(!rt.hasUnresolvableGenerics(), "目标类型中有未识别的泛型：" + rt);
+//        ResolvableType rt = targetType.getResolvableType();
+//        Assert.isTrue(!rt.hasUnresolvableGenerics(), "目标类型中有未识别的泛型：" + rt);
 
+        //总是转换成字符串或是字符串集合
         //目标类型
+//        Type requireType = rt.hasGenerics() ? rt.getType() : rt.resolve();
 
-        // Json 对象  -->  String
-        Type requireType = rt.hasGenerics() ? rt.getType() : rt.resolve();
-
-        if (TypeUtils.isAssignable(CharSequence.class, requireType)) {
-
-            //如何目标类型是字符，那就是要转换成Json字符串(数组格式)，用于保存到数据库
-            if (!StringUtils.hasText((CharSequence) source)) {
-                return null;
-            }
-
-            if (source instanceof Iterable) {
-                return JsonStrArrayUtils.iterableToStrArrayJson((Iterable) source);
-            } else {
-                return JsonStrArrayUtils.toStrArrayJson(source);
-            }
-
-        } else if (TypeUtils.isAssignable(Collection.class, requireType)) {
-            //如果目标是集合
-
-            //String  -->  Json 放序列 对象
-            //如果是集合
-            if (TypeUtils.isAssignable(Collection.class, source.getClass())) {
-                //用于查询
-                return JsonStrArrayUtils.getLikeQueryStrList((Collection<?>) source);
-            } else {
-                return JsonStrArrayUtils.getLikeQueryStr(source);
-            }
-
+        //如果目标是集合
+        //String  -->  Json 放序列 对象
+        //如果是集合
+        if (TypeUtils.isAssignable(Collection.class, source.getClass())) {
+            //用于查询
+            return JsonStrArrayUtils.getLikeQueryStrList((Collection<?>) source);
+        } else if (source.getClass().isArray()) {
+            //用于查询
+            return JsonStrArrayUtils.getLikeQueryStrList((Object[]) source);
         } else {
-            throw new IllegalArgumentException("target[" + requireType + "] is not a Iterable or String");
+            return JsonStrArrayUtils.getLikeQueryStr(source);
         }
 
     }

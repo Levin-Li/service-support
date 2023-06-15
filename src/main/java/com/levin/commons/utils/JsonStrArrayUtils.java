@@ -38,14 +38,38 @@ public abstract class JsonStrArrayUtils {
 
     }
 
+    public static List<String> getLikeQueryStrList(Object... elements) {
+
+        if (elements == null || elements.length == 0) {
+            return Collections.emptyList();
+        }
+
+        List<String> result = new ArrayList<>(elements.length);
+
+        for (Object element : elements) {
+            result.add(getLikeQueryStr(element));
+        }
+
+        return result;
+    }
+
     /**
      * 获取 like 查询条件
      *
      * @param elements
      * @return
      */
-    public static List<String> getLikeQueryStrList(Collection<?> elements) {
-        return elements.stream().map(e -> getLikeQueryStr(e)).collect(Collectors.toList());
+    public static List<String> getLikeQueryStrList(Iterable<?> elements) {
+
+        if (elements == null) {
+            return Collections.emptyList();
+        }
+
+        List<String> result = new ArrayList<>(5);
+
+        elements.forEach(v -> result.add(getLikeQueryStr(v)));
+
+        return result;
     }
 
 
