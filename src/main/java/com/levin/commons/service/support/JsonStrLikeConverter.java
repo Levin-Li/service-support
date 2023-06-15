@@ -50,9 +50,9 @@ public class JsonStrLikeConverter implements GenericConverter {
         //如果目标是集合
         //String  -->  Json 放序列 对象
         //如果是集合
-        if (TypeUtils.isAssignable(Collection.class, source.getClass())) {
+        if (TypeUtils.isAssignable(Iterable.class, source.getClass())) {
             //用于查询
-            return JsonStrArrayUtils.getLikeQueryStrList((Collection<?>) source);
+            return JsonStrArrayUtils.getLikeQueryStrList((Iterable<?>) source);
         } else if (source.getClass().isArray()) {
             //用于查询
             return JsonStrArrayUtils.getLikeQueryStrList((Object[]) source);
