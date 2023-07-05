@@ -11,6 +11,7 @@ import org.springframework.util.TypeUtils;
 
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -96,7 +97,7 @@ public interface VariableResolver {
      * @param expectTypes
      * @return
      */
-   static boolean isExpectType(Type actualType, Type... expectTypes) {
+    static boolean isExpectType(Type actualType, Type... expectTypes) {
 
         if (expectTypes == null
                 || expectTypes.length == 0
@@ -157,12 +158,21 @@ public interface VariableResolver {
         @Override
         public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, boolean isRequireNotNull, Type... expectTypes) throws VariableNotFoundException {
 
+            //保留最后一个异常，做为异常
+            AtomicReference<Throwable> exRef = new AtomicReference();
+
             return variableResolvers.stream()
                     .filter(vr -> vr.isSupported(name))
                     .map(vr -> vr.resolve(name, originalValue, false, isRequireNotNull, expectTypes))
+                    .map(vh -> {
+                        if (vh.getValueNotFoundCause() != null) {
+                            exRef.set(vh.getValueNotFoundCause());
+                        }
+                        return vh;
+                    })
                     .filter(ValueHolder::hasValue)
                     .findFirst()
-                    .orElse(ValueHolder.notValue(throwExWhenNotFound, name));
+                    .orElse(ValueHolder.notValue(throwExWhenNotFound, name, exRef.get()));
 
         }
 
@@ -319,24 +329,23 @@ public interface VariableResolver {
                     try {
                         value = eval(name, originalValue);
                     } catch (Exception e) {
-
                         //脚本执行异常
-                        if (log.isDebugEnabled()) {
-                            log.debug("eval [" + name + "] error", e);
+                        if (log.isTraceEnabled()) {
+                            log.trace("eval [" + name + "] error", e);
                         }
-
-                        return ValueHolder.notValue(throwExWhenNotFound, name);
+                        return ValueHolder.notValue(throwExWhenNotFound, name, e);
                     }
 
                     if ((!isRequireNotNull || value != null)
                             && isExpectType(value != null ? value.getClass() : null, expectTypes)) {
 
-                        if (log.isDebugEnabled()) {
-                            log.debug("resolve variable [{}] in {}({}) found.", name, getClass().getSimpleName(), this.hashCode());
+                        if (log.isTraceEnabled()) {
+                            log.trace("resolve variable [{}] in {}({}) found.", name, getClass().getSimpleName(), this.hashCode());
                         }
 
                         return new ValueHolder<T>()
                                 .setValue((T) value)
+                                .setName(name)
                                 .setHasValue(true);
                     }
                 }

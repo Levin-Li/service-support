@@ -15,11 +15,15 @@ import org.springframework.core.Ordered;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
+import java.lang.ref.PhantomReference;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 public class DefaultVariableResolverManager
@@ -60,12 +64,20 @@ public class DefaultVariableResolverManager
     @Override
     public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, boolean isRequireNotNull, Type... expectTypes) throws VariableNotFoundException {
 
+        //保留最后一个异常，做为异常
+        AtomicReference<Throwable> exRef = new AtomicReference();
+
         return defaultVariableResolvers.stream()
                 .map(resolver -> resolver.resolve(name, originalValue, false, isRequireNotNull, expectTypes))
+                .map(vh -> {
+                    if (vh.getValueNotFoundCause() != null) {
+                        exRef.set(vh.getValueNotFoundCause());
+                    }
+                    return vh;
+                })
                 .filter(ValueHolder::hasValue)
                 .findFirst()
-                .orElse(ValueHolder.notValue(throwExWhenNotFound, name));
-
+                .orElse(ValueHolder.notValue(throwExWhenNotFound, name, exRef.get()));
     }
 
     /**

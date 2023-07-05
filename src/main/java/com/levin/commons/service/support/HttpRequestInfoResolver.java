@@ -52,7 +52,7 @@ public class HttpRequestInfoResolver implements VariableResolver {
             value = request.getScheme();
 
         } else {
-            return ValueHolder.notValue();
+            return ValueHolder.notValue(name);
         }
 
         return new ValueHolder()

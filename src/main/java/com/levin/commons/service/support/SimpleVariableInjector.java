@@ -18,6 +18,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 变量注入器
@@ -244,7 +245,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         if (!isOverride.hasValue()) {
             throw new VariableInjectException(field.getDeclaringClass().getName()
-                    + "." + field.getName() + " annotation  InjectVar.isOverride [" + injectVar.isOverride() + "] can't eval");
+                    + "." + field.getName() + " annotation  InjectVar.isOverride [" + injectVar.isOverride() + "] can't eval", isOverride.getValueNotFoundCause());
         }
 
         //如果没有值或是 true，都认为是 true
@@ -252,14 +253,14 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         if (!isRequired.hasValue()) {
             throw new VariableInjectException(field.getDeclaringClass().getName()
-                    + "." + field.getName() + " annotation  InjectVar.isRequired [" + injectVar.isRequired() + "] can't eval");
+                    + "." + field.getName() + " annotation  InjectVar.isRequired [" + injectVar.isRequired() + "] can't eval", isRequired.getValueNotFoundCause());
         }
 
         if (!isOverride.get()
                 && (originalValue != null || !isRequired.get())) {
             //如果不要求覆盖原值，并且 存在原值 或是 值不是必须的
             //跳过这个字段
-            return ValueHolder.notValue();
+            return ValueHolder.notValue(field.getName());
         }
 
         /////////////////////////////////////////////////////
@@ -358,7 +359,7 @@ public interface SimpleVariableInjector extends VariableInjector {
         if (isRequired.get() && !valueHolder.hasValue()) {
             //如果变量是必须的，则抛出异常
             throw new VariableNotFoundException(injectVar.remark() + " --> " + field.getDeclaringClass().getName()
-                    + "." + field.getName() + " inject var [" + varName + "] is required , but can't resolve");
+                    + "." + field.getName() + " inject var [" + varName + "] is required , but can't resolve", valueHolder.getValueNotFoundCause());
         }
 
         //输出的名字
@@ -414,14 +415,23 @@ public interface SimpleVariableInjector extends VariableInjector {
      */
     static <T> ValueHolder<T> eval(String expr, Object originalValue, Type expectType, boolean isRequireNotNull, List<VariableResolver> variableResolvers) {
 
+        //保留最后一个异常，做为异常
+        AtomicReference<Throwable> exRef = new AtomicReference();
+
         return (ValueHolder<T>) variableResolvers.stream()
                 .filter(Objects::nonNull)
                 .filter(vr -> vr.isSupported(expr))
                 .map(variableResolver -> variableResolver.resolve(expr, originalValue, false, isRequireNotNull, expectType))
                 .filter(Objects::nonNull)
+                .map(vh -> {
+                    if (vh.getValueNotFoundCause() != null) {
+                        exRef.set(vh.getValueNotFoundCause());
+                    }
+                    return vh;
+                })
                 .filter(ValueHolder::hasValue)
                 .findFirst()
-                .orElse(ValueHolder.notValue());
+                .orElse(ValueHolder.notValue(false, expr, exRef.get()));
     }
 
 }

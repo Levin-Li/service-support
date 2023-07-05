@@ -14,20 +14,23 @@ import java.util.function.Supplier;
 @AllArgsConstructor
 @Accessors(chain = true)
 public class ValueHolder<T> implements Supplier<T> {
+//
+//    private static final ValueHolder NOT_VALUE = new ValueHolder() {
+//        @Override
+//        public final boolean hasValue() {
+//            return false;
+//        }
+//
+//        @Override
+//        public final Object getValue() {
+//            throw new IllegalStateException("not value");
+//        }
+//    };
 
-    public static final ValueHolder NOT_VALUE = new ValueHolder() {
 
-        @Override
-        public final boolean hasValue() {
-            return false;
-        }
-
-        @Override
-        public final Object getValue() {
-            throw new IllegalStateException("not value");
-        }
-    };
-
+    public static <T> ValueHolder<T> notValue(boolean throwEx, String name) {
+        return notValue(throwEx, name, null);
+    }
 
     /**
      * notValue
@@ -37,13 +40,18 @@ public class ValueHolder<T> implements Supplier<T> {
      * @param <T>
      * @return
      */
-    public static <T> ValueHolder<T> notValue(boolean throwEx, String name) {
+    public static <T> ValueHolder<T> notValue(boolean throwEx, String name, Throwable valueNotFoundCause) {
 
         if (throwEx) {
-            throw new VariableNotFoundException("variable " + name + " not found");
+            if (valueNotFoundCause != null)
+                throw new VariableNotFoundException(name + " value not found", valueNotFoundCause);
+            else
+                throw new VariableNotFoundException(name + " value not found");
         }
 
-        return NOT_VALUE;
+        return (ValueHolder<T>) new ValueHolder<>()
+                .setName(name)
+                .setValueNotFoundCause(valueNotFoundCause);
     }
 
 
@@ -51,8 +59,8 @@ public class ValueHolder<T> implements Supplier<T> {
      * @param <T>
      * @return
      */
-    public static <T> ValueHolder<T> notValue() {
-        return NOT_VALUE;
+    public static <T> ValueHolder<T> notValue(String name) {
+        return (ValueHolder<T>) new ValueHolder<>().setName(name);
     }
 
     private Object root;
@@ -66,6 +74,8 @@ public class ValueHolder<T> implements Supplier<T> {
 
     @Setter
     private boolean hasValue = false;
+
+    private Throwable valueNotFoundCause;
 
     public ValueHolder(T value) {
         this.value = value;
@@ -89,7 +99,10 @@ public class ValueHolder<T> implements Supplier<T> {
     public T getValue() {
 
         if (!hasValue()) {
-            throw new IllegalStateException(name + " not value");
+            if (valueNotFoundCause != null)
+                throw new VariableNotFoundException(name + " value not found", valueNotFoundCause);
+            else
+                throw new VariableNotFoundException(name + " value not found");
         }
 
         return value;
