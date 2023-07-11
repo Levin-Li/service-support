@@ -68,6 +68,11 @@ public interface InjectConsts {
     String ORG_ID = "orgId";
 
     /**
+     * 组织ID列表
+     */
+    String ORG_ID_LIST = "orgIdList";
+
+    /**
      * 组织路径
      */
     String ORG_PATH = "orgPath";
