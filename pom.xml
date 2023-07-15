@@ -291,9 +291,14 @@
 
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
-                <configuration>
-                    <attach>${maven-source-plugin.attach}</attach>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-source</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
