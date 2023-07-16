@@ -17,43 +17,10 @@ public interface InjectConsts {
     String USER_LOGIN_NAME = "userLoginName";
     String USER_PHONE = "userPhone";
     String USER_EMAIL = "userEmail";
+
+
     String IS_SUPER_ADMIN = "isSuperAdmin";
     String IS_TENANT_ADMIN = "isTenantAdmin";
-
-    //////////////////////////////////////////////////////////
-
-    /**
-     * 第三方
-     */
-    String WX_OPEN_ID = "openId";
-
-    /**
-     * 第三方
-     */
-    String WX_UNION_ID = "unionId";
-
-    /**
-     * 第三方
-     */
-    String ALI_USER_ID = "aliUserId";
-
-    /**
-     * 抖音
-     */
-    String DY_OPEN_ID = "dyOpenId";
-
-    ///////////////////////////////////////////////////////
-    /**
-     * 租户
-     */
-    String TENANT = "tenant";
-
-    /**
-     * 租户ID
-     */
-    String TENANT_ID = "tenantId";
-
-    String TENANT_NAME = "tenantName";
 
     ////////////////////////////////////////////////////////
 
@@ -82,7 +49,55 @@ public interface InjectConsts {
      */
     String ORG_NAME = "orgName";
 
+    /**
+     * 用户的角色列表
+     */
+    String ROLE_LIST = "roleList";
+
+    /**
+     * 权限列表
+     */
+    String PERMISSION_LIST = "permissionList";
+
     //////////////////////////////////////////////////////////////
+
+    /**
+     * 第三方
+     */
+    String WX_OPEN_ID = "openId";
+
+    /**
+     * 第三方
+     */
+    String WX_UNION_ID = "unionId";
+
+    /**
+     * 第三方
+     */
+    String ALI_USER_ID = "aliUserId";
+
+    /**
+     * 抖音
+     */
+    String DY_OPEN_ID = "dyOpenId";
+
+    ///////////////////////////////////////////////////////
+
+    /**
+     * 租户
+     */
+    String TENANT = "tenant";
+
+    /**
+     * 租户ID
+     */
+    String TENANT_ID = "tenantId";
+
+    /**
+     * 租户名称
+     */
+    String TENANT_NAME = "tenantName";
+
 
     /**
      * 行政区域编码
