@@ -7,8 +7,11 @@ import cn.hutool.core.util.StrUtil;
 
 import java.text.DateFormat;
 import java.text.FieldPosition;
+import java.text.NumberFormat;
 import java.text.ParsePosition;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * 日期格式化类
@@ -23,17 +26,43 @@ public class DefaultDateFormat extends DateFormat {
 
     final String format;
 
+    private Locale locale;
+
     public DefaultDateFormat() {
         this(null);
     }
 
-    public DefaultDateFormat(String format) {
+    public DefaultDateFormat(Locale locale) {
+        this(null, locale);
+    }
+
+    public DefaultDateFormat(String format, Locale locale) {
 
         if (StrUtil.isBlank(format)) {
             format = DatePattern.NORM_DATETIME_PATTERN;
         }
 
+        this.locale = locale;
+
         this.format = format;
+
+        initialize();
+    }
+
+    private void initialize() {
+
+        if (this.locale == null) {
+            this.locale = Locale.getDefault(Locale.Category.FORMAT);
+        }
+
+        if (calendar == null) {
+            calendar = Calendar.getInstance(this.locale);
+        }
+
+        if (numberFormat == null) {
+            numberFormat = NumberFormat.getIntegerInstance(this.locale);
+        }
+
     }
 
     @Override
