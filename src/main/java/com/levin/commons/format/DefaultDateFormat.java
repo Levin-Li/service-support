@@ -62,7 +62,6 @@ public class DefaultDateFormat extends DateFormat {
         if (numberFormat == null) {
             numberFormat = NumberFormat.getIntegerInstance(this.locale);
         }
-
     }
 
     @Override
