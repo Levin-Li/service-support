@@ -4,6 +4,7 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 import java.text.DateFormat;
 import java.text.FieldPosition;
@@ -22,7 +23,7 @@ import java.util.Locale;
  * 调用hutool解析类，方便 json参数上传转换
  */
 
-public class DefaultDateFormat extends DateFormat {
+public class DefaultDateFormat extends StdDateFormat {
 
     final String format;
 
@@ -46,7 +47,7 @@ public class DefaultDateFormat extends DateFormat {
 
         this.format = format;
 
-        initialize();
+        // initialize();
     }
 
     private void initialize() {
@@ -62,6 +63,11 @@ public class DefaultDateFormat extends DateFormat {
         if (numberFormat == null) {
             numberFormat = NumberFormat.getIntegerInstance(this.locale);
         }
+    }
+
+    @Override
+    public DefaultDateFormat clone() {
+        return new DefaultDateFormat(this.format, this.locale);
     }
 
     @Override
