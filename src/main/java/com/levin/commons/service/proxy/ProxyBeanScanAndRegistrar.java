@@ -40,13 +40,13 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import static com.levin.commons.utils.ClassUtils.formatPackages;
@@ -81,7 +81,7 @@ public class ProxyBeanScanAndRegistrar
     /**
      * 已经注册的 bean名字
      */
-    private static final Map<String, Object> registerBeans = new ConcurrentReferenceHashMap<>();
+    private static final Map<String, Boolean> registerBeans = new ConcurrentHashMap<>();
 
     /**
      * 已经扫描，但未注册的
@@ -285,7 +285,7 @@ public class ProxyBeanScanAndRegistrar
 //                                        builder.addConstructorArgValue(type);
 //                                    }
 //                                }
-                            log.info("registerBeanDefinition beanClass: " + type.getName()  + "(@" + scanPair.scanType.getName() + ") factoryBeanClass:" + factoryBeanClass);
+                            log.info("registerBeanDefinition beanClass: " + type.getName() + "(@" + scanPair.scanType.getName() + ") factoryBeanClass:" + factoryBeanClass);
 
                             final String key = scanPair.scanType.getName() + "_" + type.getName();
 

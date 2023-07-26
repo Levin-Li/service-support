@@ -19,7 +19,7 @@ public abstract class Locker {
 
         return new Locker() {
 
-            final Map locks = new ConcurrentHashMap();
+            private final Map<Object, Object> locks = new ConcurrentHashMap();
 
             @Override
             public Object clearLock(Object key) {
@@ -28,22 +28,10 @@ public abstract class Locker {
 
             @Override
             public Object getLock(Object key) {
-
-                synchronized (locks) {
-
-                    Object lock = locks.get(key);
-
-                    if (lock == null) {
-                        locks.put(key, lock = new Object());
-                    }
-
-                    return lock;
-                }
-
+                return locks.computeIfAbsent(key, k -> new Object());
             }
         };
     }
-
 
     /**
      * 确保私有构造

@@ -35,6 +35,7 @@ public final class ClassUtils {
 
     private static final Map<String, Map<String, Method>> setMethodCaches = new ConcurrentReferenceHashMap<>();
 
+    //允许中途释放
     private static final Map<String, Map<String, Method>> getMethodCaches = new ConcurrentReferenceHashMap<>();
 
     private static final Map<String, Map<String, Field>> classFieldCaches = new ConcurrentReferenceHashMap<>();

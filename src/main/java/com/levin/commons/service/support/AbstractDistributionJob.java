@@ -52,7 +52,7 @@ public abstract class AbstractDistributionJob<T> {
 
     @PostConstruct
     public void init() {
-        log.info("分布式定时任务[ {} ]初始化完成.", getClass().getName());
+        log.info("分布式定时任务[ {} ]初始化完成.", getName());
     }
 
     /**
@@ -104,6 +104,9 @@ public abstract class AbstractDistributionJob<T> {
         }
     }
 
+    /**
+     * @return
+     */
     protected String getName() {
         return getClass().getName() + ":" + getJobLockKey();
     }
@@ -178,6 +181,17 @@ public abstract class AbstractDistributionJob<T> {
     }
 
     /**
+     * 没批次处理完成后的睡眠时间
+     * <p>
+     * 防止资源过度使用
+     *
+     * @return
+     */
+    protected long getSleepByPerBatch() {
+        return 1;
+    }
+
+    /**
      * 按指定的批大小执行任务
      *
      * @param timeoutMs 处理超时时间
@@ -220,12 +234,11 @@ public abstract class AbstractDistributionJob<T> {
 
                 try {
                     //防止过快处理，占满CPU
-                    long sleepByPerRecord = getSleepByPerRecord();
+                    long sleep = getSleepByPerRecord();
 
-                    if (sleepByPerRecord > 0) {
-                        Thread.sleep(sleepByPerRecord);
+                    if (sleep > 0) {
+                        Thread.sleep(sleep);
                     }
-
                 } catch (InterruptedException e) {
                     //如果被中断，退出循环
                     break;
@@ -239,13 +252,17 @@ public abstract class AbstractDistributionJob<T> {
             }
 
             try {
-                //Thread.yield();
                 //防止过快处理，占满CPU
-                Thread.sleep(1);
+                long sleep = getSleepByPerBatch();
+
+                if (sleep > 0) {
+                    Thread.sleep(sleep);
+                }
             } catch (InterruptedException e) {
                 //如果被中断，退出循环
                 break;
             }
+
 
         } while (!isRunOnce && dataList.size() >= 1);
 

@@ -20,7 +20,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.lang.Nullable;
-import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -28,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -47,7 +47,7 @@ public class PluginManagerImpl implements PluginManager,
 
     final String id = UUID.randomUUID().toString();
 
-    final Map<String, Plugin> pluginMap = new ConcurrentReferenceHashMap<>();
+    final Map<String, Plugin> pluginMap = new ConcurrentHashMap<>();
 
     @Nullable
     private BeanFactory beanFactory;

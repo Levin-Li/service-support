@@ -38,6 +38,8 @@ public interface SimpleVariableInjector extends VariableInjector {
 
     /**
      * 缓存
+     * <p>
+     * 允许中途释放
      */
     Map<Class<? extends GenericConverter>, GenericConverter> genericConverterInstanceCache = new ConcurrentReferenceHashMap<>();
 
