@@ -4,6 +4,7 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import org.springframework.format.Formatter;
 
 import java.text.*;
 import java.util.Calendar;
@@ -19,7 +20,7 @@ import java.util.Locale;
  * 调用hutool解析类，方便 json参数上传转换
  */
 
-public class DefaultDateFormat extends DateFormat {
+public class DefaultDateFormat extends DateFormat implements Formatter<Date> {
 
     final String format;
 
@@ -43,7 +44,7 @@ public class DefaultDateFormat extends DateFormat {
 
         this.format = format;
 
-        // initialize();
+        this.initialize();
     }
 
     private void initialize() {
@@ -66,6 +67,17 @@ public class DefaultDateFormat extends DateFormat {
         return new DefaultDateFormat(this.format, this.locale);
     }
 
+    @Override
+    public Date parse(String date, Locale locale) throws ParseException {
+        //忽略 locale
+        return parse(date);
+    }
+
+    @Override
+    public String print(Date date, Locale locale) {
+        //忽略 locale
+        return format(date);
+    }
 
     @Override
     public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
