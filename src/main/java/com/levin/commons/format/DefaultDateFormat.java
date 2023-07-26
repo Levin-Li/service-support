@@ -6,10 +6,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
-import java.text.DateFormat;
-import java.text.FieldPosition;
-import java.text.NumberFormat;
-import java.text.ParsePosition;
+import java.text.*;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -23,7 +20,7 @@ import java.util.Locale;
  * 调用hutool解析类，方便 json参数上传转换
  */
 
-public class DefaultDateFormat extends StdDateFormat {
+public class DefaultDateFormat extends DateFormat {
 
     final String format;
 
@@ -69,6 +66,7 @@ public class DefaultDateFormat extends StdDateFormat {
     public DefaultDateFormat clone() {
         return new DefaultDateFormat(this.format, this.locale);
     }
+
 
     @Override
     public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
