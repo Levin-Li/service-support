@@ -35,8 +35,8 @@ public interface VariableInjector {
      * @param variableResolvers
      * @return
      */
-    default ValueHolder<Object> getInjectValue(Object targetBean, Field field, VariableResolver... variableResolvers) {
-        return getInjectValue(targetBean, Arrays.asList(variableResolvers), field);
+    default ValueHolder<Object> output(Object targetBean, Field field, VariableResolver... variableResolvers) {
+        return output(targetBean, Arrays.asList(variableResolvers), field);
     }
 
     /**
@@ -47,8 +47,18 @@ public interface VariableInjector {
      * @param field
      * @return
      */
-    default ValueHolder<Object> getInjectValue(Object targetBean, List<VariableResolver> variableResolvers, Field field) {
+    default ValueHolder<Object> output(Object targetBean, List<VariableResolver> variableResolvers, Field field) {
         throw new UnsupportedOperationException("not implement");
+    }
+
+    /**
+     *
+     * @param targetBean
+     * @param variableResolvers
+     * @return
+     */
+    default List<ValueHolder<Object>> output(Object targetBean, List<VariableResolver> variableResolvers) {
+        return output(targetBean, null, variableResolvers);
     }
 
     /**
@@ -58,7 +68,7 @@ public interface VariableInjector {
      * @param variableResolvers
      * @return
      */
-    default List<ValueHolder<Object>> getInjectValues(Object targetBean, List<VariableResolver> variableResolvers) {
+    default List<ValueHolder<Object>> output(Object targetBean, Predicate<Field> ignoreFieldPredicate, List<VariableResolver> variableResolvers) {
         throw new UnsupportedOperationException("not implement");
     }
 
@@ -102,7 +112,6 @@ public interface VariableInjector {
     default List<String> injectByVariableResolvers(Object targetBean, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
         return injectByVariableResolvers(targetBean, null, variableResolvers);
     }
-
 
     /**
      * 为目标对象注入变量

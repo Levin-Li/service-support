@@ -150,7 +150,7 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @return
      */
     @Override
-    default ValueHolder<Object> getInjectValue(Object targetBean, List<VariableResolver> variableResolvers, Field field) {
+    default ValueHolder<Object> output(Object targetBean, List<VariableResolver> variableResolvers, Field field) {
         return getInjectValue(targetBean, null, variableResolvers, field, null, false);
     }
 
@@ -160,7 +160,7 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @return
      */
     @Override
-    default List<ValueHolder<Object>> getInjectValues(Object targetBean, List<VariableResolver> variableResolvers) {
+    default List<ValueHolder<Object>> output(Object targetBean, Predicate<Field> ignoreFieldPredicate, List<VariableResolver> variableResolvers) {
 
         List<ValueHolder<Object>> injectFields = new LinkedList<>();
 
@@ -172,6 +172,11 @@ public interface SimpleVariableInjector extends VariableInjector {
         }
 
         for (Field field : ClassUtils.getFields(targetBean.getClass(), InjectVar.class)) {
+
+            if (ignoreFieldPredicate != null && ignoreFieldPredicate.test(field)) {
+                continue;
+            }
+
             injectFields.add(getInjectValue(targetBean, resolvableTypeRoot, variableResolvers, field, null, false));
         }
 
@@ -210,10 +215,11 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @param variableResolvers
      * @param field
      * @param injectVar
-     * @param isInject           是否是注入到字段中，否则是输出
+     * @param isInject           是否是注入到字段中，否则是反向输出
      * @return
      */
-    default ValueHolder<Object> getInjectValue(Object targetBean, ResolvableType resolvableTypeRoot, List<VariableResolver> variableResolvers, Field field, InjectVar injectVar, boolean isInject) {
+    default ValueHolder<Object> getInjectValue(Object targetBean, ResolvableType resolvableTypeRoot
+            , List<VariableResolver> variableResolvers, Field field, InjectVar injectVar, boolean isInject) {
 
         if (injectVar == null) {
             injectVar = field.getAnnotation(InjectVar.class);
@@ -228,7 +234,6 @@ public interface SimpleVariableInjector extends VariableInjector {
                 && !getInjectDomain().equals(injectVar.domain())) {
             return null;
         }
-
 
         //1、获取字段类型
         //  final Class<?> fieldType = forField.resolve(field.getType());
@@ -286,13 +291,11 @@ public interface SimpleVariableInjector extends VariableInjector {
         ResolvableType expectResolvableType = getExpectResolvableType(injectVar);
 
         //求值，对于注入是求值
-//        final ValueHolder<Object> valueHolder = isInject
-//                ? eval(varName, originalValue, Optional.ofNullable(expectResolvableType).map(ResolvableType::getType).orElse(null), isRequired.get(), variableResolvers)
-//                : new ValueHolder<>(originalValue).setHasValue(true);
-
-        final ValueHolder<Object> valueHolder = eval(varName, originalValue
-                , Optional.ofNullable(expectResolvableType).map(ResolvableType::getType).orElse(null)
-                , isRequired.get(), variableResolvers);
+        //关键逻辑
+        // isInject 为 false ，则是方向输出当前字段值，然后转换输出，
+        final ValueHolder<Object> valueHolder = isInject
+                ? eval(varName, originalValue, Optional.ofNullable(expectResolvableType).map(ResolvableType::getType).orElse(null), isRequired.get(), variableResolvers)
+                : new ValueHolder<>(originalValue).setHasValue(true);
 
         //如果没有指定类型
         if (!isInject && expectResolvableType == null) {
@@ -365,7 +368,6 @@ public interface SimpleVariableInjector extends VariableInjector {
             }
         }
 
-
         //如果不允许为 null 值，则抛出异常
         if (isRequired.get() && !valueHolder.hasValue()) {
             //如果变量是必须的，则抛出异常
@@ -377,7 +379,6 @@ public interface SimpleVariableInjector extends VariableInjector {
         valueHolder.setName(StringUtils.hasText(injectVar.outputVarName()) ? injectVar.outputVarName() : field.getName());
 
         return valueHolder;
-
     }
 
 
