@@ -4,6 +4,7 @@ import com.levin.commons.service.domain.InjectVar;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -98,7 +99,20 @@ public interface VariableInjector {
      * @param variableResolvers 变量解析器列表
      * @return
      */
-    List<String> injectByVariableResolvers(Object targetBean, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException;
+    default List<String> injectByVariableResolvers(Object targetBean, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
+        return injectByVariableResolvers(targetBean, null, variableResolvers);
+    }
+
+
+    /**
+     * 为目标对象注入变量
+     *
+     * @param targetBean           被注入对象
+     * @param ignoreFieldPredicate 忽略的字段
+     * @param variableResolvers    变量解析器列表
+     * @return
+     */
+    List<String> injectByVariableResolvers(Object targetBean, Predicate<Field> ignoreFieldPredicate, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

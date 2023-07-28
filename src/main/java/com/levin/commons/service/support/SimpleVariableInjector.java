@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 /**
  * 变量注入器
@@ -116,7 +117,7 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @throws VariableNotFoundException
      */
     @Override
-    default List<String> injectByVariableResolvers(Object targetBean, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
+    default List<String> injectByVariableResolvers(Object targetBean, Predicate<Field> ignoreFieldPredicate, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
 
         List<String> injectFields = new LinkedList<>();
 
@@ -128,6 +129,11 @@ public interface SimpleVariableInjector extends VariableInjector {
         }
 
         for (Field field : ClassUtils.getFields(targetBean.getClass(), InjectVar.class)) {
+
+            //忽略注入的字段
+            if (ignoreFieldPredicate != null && ignoreFieldPredicate.test(field)) {
+                continue;
+            }
 
             getInjectValue(targetBean, resolvableTypeRoot, variableResolvers, field, null, true);
 
