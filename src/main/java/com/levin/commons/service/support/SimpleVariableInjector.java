@@ -276,14 +276,17 @@ public interface SimpleVariableInjector extends VariableInjector {
         }
 
         //获取类型
-
         //目标预期类型
         ResolvableType expectResolvableType = getExpectResolvableType(injectVar);
 
         //求值，对于注入是求值
-        final ValueHolder<Object> valueHolder = isInject
-                ? eval(varName, originalValue, Optional.ofNullable(expectResolvableType).map(ResolvableType::getType).orElse(null), isRequired.get(), variableResolvers)
-                : new ValueHolder<>(originalValue).setHasValue(true);
+//        final ValueHolder<Object> valueHolder = isInject
+//                ? eval(varName, originalValue, Optional.ofNullable(expectResolvableType).map(ResolvableType::getType).orElse(null), isRequired.get(), variableResolvers)
+//                : new ValueHolder<>(originalValue).setHasValue(true);
+
+        final ValueHolder<Object> valueHolder = eval(varName, originalValue
+                , Optional.ofNullable(expectResolvableType).map(ResolvableType::getType).orElse(null)
+                , isRequired.get(), variableResolvers);
 
         //如果没有指定类型
         if (!isInject && expectResolvableType == null) {
