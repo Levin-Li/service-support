@@ -91,7 +91,7 @@ public abstract class ExpressionUtils {
      * @param <T>
      * @return
      */
-    public static <T> T evalGroovy(String expression, BiConsumer<GroovyScriptEvaluator, Map<String, Object>> consumer, Map<String, Object>... contexts) {
+    public static <T> T evalGroovy(String expression, BiConsumer<GroovyScriptEvaluator, Map<String, Object>> consumer, Map<String, ?>... contexts) {
         return evalGroovy(expression, Arrays.asList(contexts), consumer);
     }
 
@@ -104,7 +104,7 @@ public abstract class ExpressionUtils {
      * @param <T>
      * @return
      */
-    public static <T> T evalGroovy(String expression, List<Map<String, Object>> contexts, BiConsumer<GroovyScriptEvaluator, Map<String, Object>>... consumers) {
+    public static <T> T evalGroovy(String expression, List<Map<String, ?>> contexts, BiConsumer<GroovyScriptEvaluator, Map<String, Object>>... consumers) {
 
         GroovyScriptEvaluator groovyScriptEvaluator = new GroovyScriptEvaluator();
 
@@ -135,11 +135,11 @@ public abstract class ExpressionUtils {
      * @param <T>
      * @return
      */
-    public static <T> T evalSpEL(Object rootObject, String expression, Consumer<StandardEvaluationContext> consumer, Map<String, Object>... contexts) {
+    public static <T> T evalSpEL(Object rootObject, String expression, Consumer<StandardEvaluationContext> consumer, Map<String, ?>... contexts) {
         return evalSpEL(rootObject, expression, consumer, Arrays.asList(contexts));
     }
 
-    public static <T> T evalSpEL(Object rootObject, String expression, Consumer<StandardEvaluationContext> consumer, List<Map<String, Object>> contexts) {
+    public static <T> T evalSpEL(Object rootObject, String expression, Consumer<StandardEvaluationContext> consumer, List<Map<String, ?>> contexts) {
         return evalSpEL(rootObject, expression, contexts, consumer);
     }
 
@@ -152,16 +152,20 @@ public abstract class ExpressionUtils {
      * @param <T>
      * @return
      */
-    public static <T> T evalSpEL(Object rootObject, String expression, List<Map<String, Object>> contexts, Consumer<StandardEvaluationContext>... consumers) {
+    public static <T> T evalSpEL(Object rootObject, String expression, List<Map<String, ?>> contexts, Consumer<StandardEvaluationContext>... consumers) {
 
         final StandardEvaluationContext ctx = new StandardEvaluationContext(rootObject);
 
+        //注册函数
         ctx.registerFunction("isEmpty", isEmptyMethod);
         ctx.registerFunction("isNotEmpty", isNotEmptyMethod);
 
+        //设置参数
         Optional.ofNullable(contexts).ifPresent(
                 maps ->
-                        maps.stream().filter(Objects::nonNull)
+                        maps.stream()
+                                .filter(Objects::nonNull)
+                                .map(map -> (Map<String, Object>) map)
                                 .forEachOrdered(ctx::setVariables)
         );
 
