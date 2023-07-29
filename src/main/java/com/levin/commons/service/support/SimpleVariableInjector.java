@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 /**
@@ -63,21 +64,6 @@ public interface SimpleVariableInjector extends VariableInjector {
             return holder.get();
         }
 
-        //对特别的枚举类型进行转换
-//        if (source instanceof EnumDesc) {
-//            //如果是数值，并且源是枚举
-//            if (Number.class.isAssignableFrom(targetType))
-//                source = ((EnumDesc) source).code();
-//            else if (CharSequence.class.isAssignableFrom(targetType))
-//                source = ((EnumDesc) source).name();
-//
-//        } else if (targetType.isEnum() && EnumDesc.class.isAssignableFrom(targetType)) {
-//            if (source instanceof Number)
-//                return (T) EnumDesc.parse((Class<? extends Enum>) targetType, ((Number) source).intValue());
-//            else if (source instanceof CharSequence)
-//                return (T) EnumDesc.parse((Class<? extends Enum>) targetType, source.toString());
-//        }
-
         return (T) defaultConversionService.convert(source, sourceTypeDescriptor, targetTypeDescriptor);
     }
 
@@ -104,122 +90,102 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         return converter;
     }
+///////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * 按字段注解注入变量
-     * <p>
-     * 功能实现的核心方法
+     * 执行注入处理
      *
      * @param targetBean
-     * @param variableResolvers 变量解析器列表
+     * @param field
+     * @param mode
+     * @param variableResolvers
      * @return
      * @throws VariableInjectException
      * @throws VariableNotFoundException
      */
     @Override
-    default List<String> injectByVariableResolvers(Object targetBean, Predicate<Field> ignoreFieldPredicate, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
+    default ValueHolder<Object> doInject(Object targetBean, Field field, int mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
+        return doInject(targetBean, null, field, null, mode >= 2, mode >= 3, variableResolvers);
+    }
 
-        List<String> injectFields = new LinkedList<>();
+    /**
+     * 执行注入
+     *
+     * @param targetBean
+     * @param ignoreFieldPredicate
+     * @param mode                 注入模式，1 = 输出转换值，2 = 获取注入值，3 = 注入targetBean
+     * @param variableResolvers
+     * @return
+     * @throws VariableInjectException
+     * @throws VariableNotFoundException
+     */
+    @Override
+    default List<ValueHolder<Object>> doInject(Object targetBean, Predicate<Field> ignoreFieldPredicate, int mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
+        List<ValueHolder<Object>> injectFields = new LinkedList<>();
+        doInject(targetBean, ignoreFieldPredicate, mode, variableResolvers, (field, objectValueHolder) -> injectFields.add(objectValueHolder));
+        return injectFields;
+    }
+
+    /**
+     * 执行注入
+     *
+     * @param targetBean
+     * @param ignoreFieldPredicate
+     * @param mode                 注入模式，1 = 输出转换值，2 = 获取注入值，3 = 注入targetBean
+     * @param variableResolvers
+     * @param callback
+     * @return
+     */
+    default boolean doInject(Object targetBean, Predicate<Field> ignoreFieldPredicate, int mode
+            , List<VariableResolver> variableResolvers, BiFunction<Field, ValueHolder<Object>, Boolean> callback) {
+
+        //Assert.isTrue(mode > 0, " mode must be great than 0");
+
+        if (mode < 1) {
+            mode = 1;
+        }
 
         ResolvableType resolvableTypeRoot = ResolvableType.forClass(targetBean.getClass());
-        //
-        if (variableResolvers.isEmpty()) {
+
+        if (variableResolvers == null || variableResolvers.isEmpty()) {
             //增加默认的脚本表达式支持
             variableResolvers = Arrays.asList(VariableInjector.newResolverByMap(Collections.emptyMap()));
         }
 
         for (Field field : ClassUtils.getFields(targetBean.getClass(), InjectVar.class)) {
 
-            //忽略注入的字段
             if (ignoreFieldPredicate != null && ignoreFieldPredicate.test(field)) {
                 continue;
             }
 
-            getInjectValue(targetBean, resolvableTypeRoot, variableResolvers, field, null, true);
+            ValueHolder<Object> valueHolder = doInject(targetBean, resolvableTypeRoot, field, null, mode >= 2, mode >= 3, variableResolvers);
 
-            injectFields.add(field.getName());
-        }
-
-        return injectFields;
-    }
-
-    /**
-     * @param targetBean
-     * @param variableResolvers
-     * @param field
-     * @return
-     */
-    @Override
-    default ValueHolder<Object> output(Object targetBean, List<VariableResolver> variableResolvers, Field field) {
-        return getInjectValue(targetBean, null, variableResolvers, field, null, false);
-    }
-
-    /**
-     * @param targetBean
-     * @param variableResolvers
-     * @return
-     */
-    @Override
-    default List<ValueHolder<Object>> output(Object targetBean, Predicate<Field> ignoreFieldPredicate, List<VariableResolver> variableResolvers) {
-
-        List<ValueHolder<Object>> injectFields = new LinkedList<>();
-
-        ResolvableType resolvableTypeRoot = ResolvableType.forClass(targetBean.getClass());
-
-        if (variableResolvers.isEmpty()) {
-            //增加默认的脚本表达式支持
-            variableResolvers.add(VariableInjector.newResolverByMap(Collections.emptyMap()));
-        }
-
-        for (Field field : ClassUtils.getFields(targetBean.getClass(), InjectVar.class)) {
-
-            if (ignoreFieldPredicate != null && ignoreFieldPredicate.test(field)) {
-                continue;
+            //中断执行
+            if (Boolean.FALSE.equals(callback.apply(field, valueHolder))) {
+                return false;
             }
 
-            injectFields.add(getInjectValue(targetBean, resolvableTypeRoot, variableResolvers, field, null, false));
         }
 
-        return injectFields;
+        return true;
     }
 
-    /**
-     * 获取注解上声明的类型
-     *
-     * @param injectVar
-     * @return
-     */
-    default ResolvableType getExpectResolvableType(InjectVar injectVar) {
-
-        //获取类型
-        Class<?> expectBaseType = injectVar.expectBaseType();
-
-        if (expectBaseType == null || expectBaseType == Void.class) {
-            return null;
-        }
-
-        Class<?>[] expectGenericTypes = injectVar.expectGenericTypes();
-
-        //目标预期类型
-        return (expectGenericTypes != null && expectGenericTypes.length > 0) ?
-                ResolvableType.forClassWithGenerics(expectBaseType, expectGenericTypes)
-                : ResolvableType.forClass(expectBaseType);
-    }
 
     /**
-     * 获取注入值
+     * 执行注入
      * 关键方法
      *
      * @param targetBean
      * @param resolvableTypeRoot
-     * @param variableResolvers
      * @param field
      * @param injectVar
-     * @param isInject           是否是注入到字段中，否则是反向输出
+     * @param isInput            是否是注入到字段中，否则是反向输出
+     * @param isInjectToBean     是否注入值到targetBean
+     * @param variableResolvers
      * @return
      */
-    default ValueHolder<Object> getInjectValue(Object targetBean, ResolvableType resolvableTypeRoot
-            , List<VariableResolver> variableResolvers, Field field, InjectVar injectVar, boolean isInject) {
+    default ValueHolder<Object> doInject(Object targetBean, ResolvableType resolvableTypeRoot
+            , Field field, InjectVar injectVar, boolean isInput, boolean isInjectToBean, List<VariableResolver> variableResolvers) {
 
         if (injectVar == null) {
             injectVar = field.getAnnotation(InjectVar.class);
@@ -240,8 +206,6 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         field.setAccessible(true);
 
-//            System.out.println(" *** "+injectVar.value()+" " + field.getName() +" ...");
-
         // 1、获取原值
         Object originalValue = null;//  field.get(targetBean);
 
@@ -251,6 +215,11 @@ public interface SimpleVariableInjector extends VariableInjector {
         } catch (IllegalAccessException e) {
             throw new VariableInjectException(field.getDeclaringClass().getName()
                     + "." + field.getName() + " can't get originalValue ," + injectVar.remark(), e);
+        }
+
+        //确保有解析器
+        if (variableResolvers == null || variableResolvers.isEmpty()) {
+            variableResolvers = Arrays.asList(VariableInjector.newResolverByMap(Collections.emptyMap()));
         }
 
         //如果没有值或是 true，都认为是 true
@@ -292,13 +261,13 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         //求值，对于注入是求值
         //关键逻辑
-        // isInject 为 false ，则是方向输出当前字段值，然后转换输出，
-        final ValueHolder<Object> valueHolder = isInject
+        // isInput 为 false ，则是方向输出当前字段值，然后转换输出，
+        final ValueHolder<Object> valueHolder = isInput
                 ? eval(varName, originalValue, Optional.ofNullable(expectResolvableType).map(ResolvableType::getType).orElse(null), isRequired.get(), variableResolvers)
                 : new ValueHolder<>(originalValue).setHasValue(true);
 
         //如果没有指定类型
-        if (!isInject && expectResolvableType == null) {
+        if (!isInput && expectResolvableType == null) {
             if (valueHolder.getType() != null) {
                 expectResolvableType = ResolvableType.forType(valueHolder.getType());
             } else if (valueHolder.getValue() != null) {
@@ -317,7 +286,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         final ResolvableType forField = ResolvableType.forField(field, resolvableTypeRoot);
 
-        final ResolvableType targetResolvableType = isInject ? forField : expectResolvableType;
+        final ResolvableType targetResolvableType = isInput ? forField : expectResolvableType;
 
         //源目标类型
         Type sourceType = valueHolder.getType();
@@ -342,7 +311,7 @@ public interface SimpleVariableInjector extends VariableInjector {
                 TypeDescriptor sourceTypeDescriptor = sourceType == null ? null
                         : new TypeDescriptor(ResolvableType.forType(sourceType), null, emptyArray);
 
-                TypeDescriptor targetTypeDescriptor = new TypeDescriptor(targetResolvableType, null, isInject ? field.getAnnotations() : emptyArray);
+                TypeDescriptor targetTypeDescriptor = new TypeDescriptor(targetResolvableType, null, isInput ? field.getAnnotations() : emptyArray);
 
                 if (injectVar.converter() == null
                         || injectVar.converter() == GenericConverter.class) {
@@ -355,7 +324,8 @@ public interface SimpleVariableInjector extends VariableInjector {
                     newValue = getConverter(injectVar).convert(newValue, sourceTypeDescriptor, targetTypeDescriptor);
                 }
 
-                if (isInject) {
+                //如果输入
+                if (isInput && isInjectToBean) {
                     field.set(targetBean, newValue);
                 }
 
@@ -379,6 +349,30 @@ public interface SimpleVariableInjector extends VariableInjector {
         valueHolder.setName(StringUtils.hasText(injectVar.outputVarName()) ? injectVar.outputVarName() : field.getName());
 
         return valueHolder;
+    }
+
+
+    /**
+     * 获取注解上声明的类型
+     *
+     * @param injectVar
+     * @return
+     */
+    default ResolvableType getExpectResolvableType(InjectVar injectVar) {
+
+        //获取类型
+        Class<?> expectBaseType = injectVar.expectBaseType();
+
+        if (expectBaseType == null || expectBaseType == Void.class) {
+            return null;
+        }
+
+        Class<?>[] expectGenericTypes = injectVar.expectGenericTypes();
+
+        //目标预期类型
+        return (expectGenericTypes != null && expectGenericTypes.length > 0) ?
+                ResolvableType.forClassWithGenerics(expectBaseType, expectGenericTypes)
+                : ResolvableType.forClass(expectBaseType);
     }
 
 
