@@ -46,10 +46,10 @@ public abstract class ExpressionUtils {
      * @return
      */
     @SneakyThrows
-    public static <T> T evalGroovy(@NotNull Map<String, Class<?>> cacheMap, @Nullable Supplier<GroovyClassLoader> groovyClassLoaderSupplier,
-                                   @NotNull String scriptText, @NotNull String fileName, Map<String, ?>... contexts) {
+    public static <T> T evalGroovy(@NotNull Map<String, Class<Object>> cacheMap, @Nullable Supplier<GroovyClassLoader> groovyClassLoaderSupplier,
+                                   @NotNull String scriptText, @NotNull String fileName, Map<String, Object>... contexts) {
 
-        Class<?> scriptClass = cacheMap.get(scriptText);
+        Class<Object> scriptClass = cacheMap.get(scriptText);
 
         if (scriptClass == null) {
 
@@ -66,7 +66,7 @@ public abstract class ExpressionUtils {
             LinkedHashMap tempCtx = new LinkedHashMap();
 
             if (contexts != null) {
-                for (Map<String, ?> context : contexts) {
+                for (Map<String, Object> context : contexts) {
                     if (context != null) {
                         tempCtx.putAll(context);
                     }
@@ -91,7 +91,7 @@ public abstract class ExpressionUtils {
      * @param <T>
      * @return
      */
-    public static <T> T evalGroovy(String expression, BiConsumer<GroovyScriptEvaluator, Map<String, Object>> consumer, Map<String, ?>... contexts) {
+    public static <T> T evalGroovy(String expression, BiConsumer<GroovyScriptEvaluator, Map<String, Object>> consumer, Map<String, Object>... contexts) {
         return evalGroovy(expression, Arrays.asList(contexts), consumer);
     }
 
@@ -104,7 +104,7 @@ public abstract class ExpressionUtils {
      * @param <T>
      * @return
      */
-    public static <T> T evalGroovy(String expression, List<Map<String, ?>> contexts, BiConsumer<GroovyScriptEvaluator, Map<String, Object>>... consumers) {
+    public static <T> T evalGroovy(String expression, List<Map<String, Object>> contexts, BiConsumer<GroovyScriptEvaluator, Map<String, Object>>... consumers) {
 
         GroovyScriptEvaluator groovyScriptEvaluator = new GroovyScriptEvaluator();
 
@@ -135,11 +135,11 @@ public abstract class ExpressionUtils {
      * @param <T>
      * @return
      */
-    public static <T> T evalSpEL(Object rootObject, String expression, Consumer<StandardEvaluationContext> consumer, Map<String, ?>... contexts) {
+    public static <T> T evalSpEL(Object rootObject, String expression, Consumer<StandardEvaluationContext> consumer, Map<String, Object>... contexts) {
         return evalSpEL(rootObject, expression, consumer, Arrays.asList(contexts));
     }
 
-    public static <T> T evalSpEL(Object rootObject, String expression, Consumer<StandardEvaluationContext> consumer, List<Map<String, ?>> contexts) {
+    public static <T> T evalSpEL(Object rootObject, String expression, Consumer<StandardEvaluationContext> consumer, List<Map<String, Object>> contexts) {
         return evalSpEL(rootObject, expression, contexts, consumer);
     }
 
@@ -152,7 +152,7 @@ public abstract class ExpressionUtils {
      * @param <T>
      * @return
      */
-    public static <T> T evalSpEL(Object rootObject, String expression, List<Map<String, ?>> contexts, Consumer<StandardEvaluationContext>... consumers) {
+    public static <T> T evalSpEL(Object rootObject, String expression, List<Map<String, Object>> contexts, Consumer<StandardEvaluationContext>... consumers) {
 
         final StandardEvaluationContext ctx = new StandardEvaluationContext(rootObject);
 
@@ -193,7 +193,6 @@ public abstract class ExpressionUtils {
         }
 
     }
-
 
     public static boolean isEmpty(Object value) {
         return !isNotEmpty(value);
