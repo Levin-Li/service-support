@@ -7,17 +7,23 @@ import lombok.SneakyThrows;
 import org.codehaus.groovy.runtime.InvokerHelper;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.ReflectiveMethodResolver;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.lang.Nullable;
 import org.springframework.scripting.groovy.GroovyScriptEvaluator;
 import org.springframework.scripting.support.StaticScriptSource;
+import org.springframework.util.ReflectionUtils;
 
 import javax.validation.constraints.NotNull;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+
+import static org.springframework.util.StringUtils.hasText;
 
 /**
  * 表达式工具
@@ -130,9 +136,12 @@ public abstract class ExpressionUtils {
      * @return
      */
     public static <T> T evalSpEL(Object rootObject, String expression, Consumer<StandardEvaluationContext> consumer, Map<String, Object>... contexts) {
-        return evalSpEL(rootObject, expression, Arrays.asList(contexts), consumer);
+        return evalSpEL(rootObject, expression, consumer, Arrays.asList(contexts));
     }
 
+    public static <T> T evalSpEL(Object rootObject, String expression, Consumer<StandardEvaluationContext> consumer, List<Map<String, Object>> contexts) {
+        return evalSpEL(rootObject, expression, contexts, consumer);
+    }
 
     /**
      * spring el 求值
@@ -146,6 +155,9 @@ public abstract class ExpressionUtils {
     public static <T> T evalSpEL(Object rootObject, String expression, List<Map<String, Object>> contexts, Consumer<StandardEvaluationContext>... consumers) {
 
         final StandardEvaluationContext ctx = new StandardEvaluationContext(rootObject);
+
+        ctx.registerFunction("isEmpty", isEmptyMethod);
+        ctx.registerFunction("isNotEmpty", isNotEmptyMethod);
 
         Optional.ofNullable(contexts).ifPresent(
                 maps ->
@@ -161,6 +173,49 @@ public abstract class ExpressionUtils {
         );
 
         return (T) expressionParser.parseExpression(expression).getValue(ctx);
+    }
+
+
+    private static final Method isEmptyMethod;
+    private static final Method isNotEmptyMethod;
+
+    static {
+
+        try {
+            isEmptyMethod = ExpressionUtils.class.getDeclaredMethod("isEmpty", Object.class);
+            isNotEmptyMethod = ExpressionUtils.class.getDeclaredMethod("isNotEmpty", Object.class);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
+    public static boolean isEmpty(Object value) {
+        return !isNotEmpty(value);
+    }
+
+    /**
+     * 是否非空 null 或是空字符串
+     *
+     * @param value
+     * @return
+     */
+    public static boolean isNotEmpty(Object value) {
+
+        if (value == null) {
+            return false;
+        } else if (value instanceof CharSequence) {
+            return hasText((CharSequence) value);
+        } else if (value.getClass().isArray()) {
+            return (Array.getLength(value) > 0);
+        } else if (value instanceof Collection) {
+            return (((Collection) value).size() > 0);
+        } else if (value instanceof Map) {
+            return (((Map) value).size() > 0);
+        }
+
+        return true;
     }
 
 }
