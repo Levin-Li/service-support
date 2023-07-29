@@ -262,6 +262,20 @@ public interface VariableInjector {
     }
 
     /**
+     * 兼容源方法
+     *
+     * @param targetBean
+     * @param variableResolvers
+     * @return
+     * @throws VariableInjectException
+     * @throws VariableNotFoundException
+     */
+    @Deprecated
+    default List<ValueHolder<Object>> injectByVariableResolvers(Object targetBean, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
+        return injectValues(targetBean, null, variableResolvers);
+    }
+
+    /**
      * 按字段注解注入变量
      * <p>
      * 功能实现的核心方法
