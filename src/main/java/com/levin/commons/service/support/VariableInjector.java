@@ -1,6 +1,8 @@
 package com.levin.commons.service.support;
 
 import com.levin.commons.service.domain.InjectVar;
+import org.springframework.util.PatternMatchUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -30,6 +32,22 @@ public interface VariableInjector {
      */
     default String getInjectDomain() {
         return "default";
+    }
+
+    /**
+     * @param domainList
+     * @return
+     */
+    default boolean isDomainMatch(String... domainList) {
+        return
+                //如果注入器没有指定域
+                !StringUtils.hasText(getInjectDomain())
+                        //如果注入器没有指定域
+                        || domainList == null || domainList.length == 0
+                        //
+                        || Stream.of(domainList).noneMatch(StringUtils::hasText)
+                        //如果匹配
+                        || PatternMatchUtils.simpleMatch(domainList, getInjectDomain());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////

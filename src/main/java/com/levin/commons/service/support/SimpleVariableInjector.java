@@ -19,7 +19,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 /**
  * 变量注入器
@@ -195,8 +194,7 @@ public interface SimpleVariableInjector extends VariableInjector {
         }
 
         //如果注入域不匹配
-        if (injectVar.domain() != null
-                && !PatternMatchUtils.simpleMatch(injectVar.domain(), getInjectDomain())) {
+        if (!isDomainMatch(injectVar.domain())) {
             return null;
         }
 
