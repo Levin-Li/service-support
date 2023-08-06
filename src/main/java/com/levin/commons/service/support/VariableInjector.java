@@ -40,20 +40,29 @@ public interface VariableInjector {
         return "default";
     }
 
+
+    default boolean isDomainMatch(Field field) {
+        return field != null
+                && field.isAnnotationPresent(InjectVar.class)
+                && isDomainMatch(field.getAnnotation(InjectVar.class));
+    }
+
+    default boolean isDomainMatch(InjectVar injectVar) {
+        return injectVar != null
+                && isDomainMatch(injectVar.domain());
+    }
+
     /**
      * @param domainList
      * @return
      */
     default boolean isDomainMatch(String... domainList) {
-        return
-                //如果注入器没有指定域
-                !StringUtils.hasText(getInjectDomain())
-                        //如果注入器没有指定域
-                        || domainList == null || domainList.length == 0
-                        //
-                        || Stream.of(domainList).noneMatch(StringUtils::hasText)
-                        //如果匹配
-                        || PatternMatchUtils.simpleMatch(domainList, getInjectDomain());
+
+        return domainList == null
+                || domainList.length == 0
+                || Stream.of(domainList).noneMatch(StringUtils::hasText)
+                //如果匹配
+                || PatternMatchUtils.simpleMatch(domainList, getInjectDomain());
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
