@@ -57,12 +57,40 @@ public interface VariableInjector {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    default ValueHolder<Object> getOutputValue(Object targetBean, Field field, Object... beans) {
+        return getOutputValue(targetBean, field, newResolverByBean(beans));
+    }
+
+    default ValueHolder<Object> getOutputValue(Object targetBean, Field field, Map<String, ?>... contexts) {
+        return getOutputValue(targetBean, field, newResolverByMap(contexts));
+    }
+
     default ValueHolder<Object> getOutputValue(Object targetBean, Field field, VariableResolver... variableResolvers) {
         return getOutputValue(targetBean, field, Arrays.asList(variableResolvers));
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    default ValueHolder<Object> getInjectValue(Object targetBean, Field field, Object... beans) {
+        return getInjectValue(targetBean, field, newResolverByBean(beans));
+    }
+
+    default ValueHolder<Object> getInjectValue(Object targetBean, Field field, Map<String, ?>... contexts) {
+        return getInjectValue(targetBean, field, newResolverByMap(contexts));
+    }
+
     default ValueHolder<Object> getInjectValue(Object targetBean, Field field, VariableResolver... variableResolvers) {
         return getInjectValue(targetBean, field, Arrays.asList(variableResolvers));
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    default ValueHolder<Object> injectValue(Object targetBean, Field field, Object... beans) {
+        return injectValue(targetBean, field, newResolverByBean(beans));
+    }
+
+    default ValueHolder<Object> injectValue(Object targetBean, Field field, Map<String, ?>... contexts) {
+        return injectValue(targetBean, field, newResolverByMap(contexts));
     }
 
     default ValueHolder<Object> injectValue(Object targetBean, Field field, VariableResolver... variableResolvers) {
@@ -70,9 +98,6 @@ public interface VariableInjector {
     }
 
     ////////////////////////////////////////// 注入 ///////////////////////////////////////////////////////////////////
-    default ValueHolder<Object> injectByBean(Object targetBean, Field field, Object... beans) throws VariableInjectException, VariableNotFoundException {
-        return doInject(targetBean, field, Mode.InjectToField, Arrays.asList(newResolverByBean(beans)));
-    }
 
     /**
      * 为目标对象注入变量
@@ -128,17 +153,16 @@ public interface VariableInjector {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * 注入一个字段
+     * 为目标对象注入变量
+     * <p>
+     * 支持groovy 和 spel 表达式
      *
-     * @param targetBean
-     * @param field
-     * @param contexts
+     * @param targetBean 被注入对象
+     * @param contexts   上下文环境变量支持列表
      * @return
-     * @throws VariableInjectException
-     * @throws VariableNotFoundException
      */
-    default ValueHolder<Object> injectByMap(Object targetBean, Field field, Map<String, ?>... contexts) throws VariableInjectException, VariableNotFoundException {
-        return doInject(targetBean, field, Mode.InjectToField, Arrays.asList(newResolverByMap(contexts)));
+    default List<ValueHolder<Object>> injectByMap(Object targetBean, Map<String, ?>... contexts) throws VariableInjectException, VariableNotFoundException {
+        return injectByMap(targetBean, null, contexts);
     }
 
     /**
@@ -150,8 +174,8 @@ public interface VariableInjector {
      * @param contexts   上下文环境变量支持列表
      * @return
      */
-    default List<ValueHolder<Object>> injectByMap(Object targetBean, Map<String, ?>... contexts) throws VariableInjectException, VariableNotFoundException {
-        return injectByMap(targetBean, (Predicate<Field>) null, contexts);
+    default List<ValueHolder<Object>> injectByMap(Object targetBean, List<Map<String, ?>> contexts) throws VariableInjectException, VariableNotFoundException {
+        return injectByMap(targetBean, null, contexts);
     }
 
     /**
@@ -182,6 +206,32 @@ public interface VariableInjector {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * 为目标对象注入变量
+     *
+     * @param targetBean
+     * @param beans
+     * @return
+     * @throws VariableInjectException
+     * @throws VariableNotFoundException
+     */
+    default List<ValueHolder<Object>> injectValues(Object targetBean, Object... beans) throws VariableInjectException, VariableNotFoundException {
+        return injectValues(targetBean, newResolverByBean(beans));
+    }
+
+
+    /**
+     * 为目标对象注入变量
+     *
+     * @param targetBean
+     * @param contexts
+     * @return
+     * @throws VariableInjectException
+     * @throws VariableNotFoundException
+     */
+    default List<ValueHolder<Object>> injectValues(Object targetBean, Map<String, ?>... contexts) throws VariableInjectException, VariableNotFoundException {
+        return injectValues(targetBean, newResolverByMap(contexts));
+    }
 
     /**
      * 为目标对象注入变量
