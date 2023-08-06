@@ -17,10 +17,16 @@ import java.util.stream.Stream;
 @FunctionalInterface
 public interface VariableInjector {
 
-    //注入模式，1 = 输出转换值，2 = 获取注入值，3 = 注入targetBean
-    final int CONVERT_OUT_MODE = 1;
-    final int GET_INJECT_VALUE_MODE = 2;
-    final int INJECT_MODE = 3;
+    enum Mode {
+        //把字段的当前值，反向转换
+        FieldConvertOutput,
+
+        //仅仅获取注入值，但不注入到目标对象的字段
+        OnlyGetInjectValue,
+
+        //仅仅获取注入值，并且注入到目标对象的字段
+        InjectToField,
+    }
 
     /**
      * 获取注入域
@@ -50,7 +56,7 @@ public interface VariableInjector {
                         || PatternMatchUtils.simpleMatch(domainList, getInjectDomain());
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     default ValueHolder<Object> getOutputValue(Object targetBean, Field field, VariableResolver... variableResolvers) {
         return getOutputValue(targetBean, field, Arrays.asList(variableResolvers));
     }
@@ -65,7 +71,7 @@ public interface VariableInjector {
 
     ////////////////////////////////////////// 注入 ///////////////////////////////////////////////////////////////////
     default ValueHolder<Object> injectByBean(Object targetBean, Field field, Object... beans) throws VariableInjectException, VariableNotFoundException {
-        return doInject(targetBean, field, INJECT_MODE, Arrays.asList(newResolverByBean(beans)));
+        return doInject(targetBean, field, Mode.InjectToField, Arrays.asList(newResolverByBean(beans)));
     }
 
     /**
@@ -132,7 +138,7 @@ public interface VariableInjector {
      * @throws VariableNotFoundException
      */
     default ValueHolder<Object> injectByMap(Object targetBean, Field field, Map<String, ?>... contexts) throws VariableInjectException, VariableNotFoundException {
-        return doInject(targetBean, field, INJECT_MODE, Arrays.asList(newResolverByMap(contexts)));
+        return doInject(targetBean, field, Mode.InjectToField, Arrays.asList(newResolverByMap(contexts)));
     }
 
     /**
@@ -241,7 +247,7 @@ public interface VariableInjector {
      */
 
     default ValueHolder<Object> getOutputValue(Object targetBean, Field field, List<VariableResolver> variableResolvers) {
-        return doInject(targetBean, field, CONVERT_OUT_MODE, variableResolvers);
+        return doInject(targetBean, field, Mode.FieldConvertOutput, variableResolvers);
     }
 
     /**
@@ -254,7 +260,7 @@ public interface VariableInjector {
      */
 
     default ValueHolder<Object> getInjectValue(Object targetBean, Field field, List<VariableResolver> variableResolvers) {
-        return doInject(targetBean, field, GET_INJECT_VALUE_MODE, variableResolvers);
+        return doInject(targetBean, field, Mode.OnlyGetInjectValue, variableResolvers);
     }
 
     /**
@@ -267,7 +273,7 @@ public interface VariableInjector {
      */
 
     default ValueHolder<Object> injectValue(Object targetBean, Field field, List<VariableResolver> variableResolvers) {
-        return doInject(targetBean, field, INJECT_MODE, variableResolvers);
+        return doInject(targetBean, field, Mode.InjectToField, variableResolvers);
     }
 
     /**
@@ -282,7 +288,7 @@ public interface VariableInjector {
      * @throws VariableNotFoundException
      */
     default List<ValueHolder<Object>> getOutputValues(Object targetBean, Predicate<Field> ignoreFieldPredicate, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
-        return doInject(targetBean, ignoreFieldPredicate, CONVERT_OUT_MODE, variableResolvers);
+        return doInject(targetBean, ignoreFieldPredicate, Mode.FieldConvertOutput, variableResolvers);
     }
 
     /**
@@ -298,7 +304,7 @@ public interface VariableInjector {
      */
 
     default List<ValueHolder<Object>> getInjectValues(Object targetBean, Predicate<Field> ignoreFieldPredicate, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
-        return doInject(targetBean, ignoreFieldPredicate, GET_INJECT_VALUE_MODE, variableResolvers);
+        return doInject(targetBean, ignoreFieldPredicate, Mode.OnlyGetInjectValue, variableResolvers);
     }
 
     /**
@@ -327,7 +333,7 @@ public interface VariableInjector {
      * @throws VariableNotFoundException
      */
     default List<ValueHolder<Object>> injectValues(Object targetBean, Predicate<Field> ignoreFieldPredicate, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
-        return doInject(targetBean, ignoreFieldPredicate, INJECT_MODE, variableResolvers);
+        return doInject(targetBean, ignoreFieldPredicate, Mode.InjectToField, variableResolvers);
     }
 
     /**
@@ -339,7 +345,7 @@ public interface VariableInjector {
      * @throws VariableInjectException
      * @throws VariableNotFoundException
      */
-    default ValueHolder<Object> doInject(Object targetBean, Field field, int mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
+    default ValueHolder<Object> doInject(Object targetBean, Field field, Mode mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
         throw new UnsupportedOperationException("not impl");
     }
 
@@ -352,7 +358,7 @@ public interface VariableInjector {
      * @throws VariableInjectException
      * @throws VariableNotFoundException
      */
-    List<ValueHolder<Object>> doInject(Object targetBean, Predicate<Field> ignoreFieldPredicate, int mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException;
+    List<ValueHolder<Object>> doInject(Object targetBean, Predicate<Field> ignoreFieldPredicate, Mode mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

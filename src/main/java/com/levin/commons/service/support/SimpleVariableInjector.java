@@ -102,8 +102,8 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @throws VariableNotFoundException
      */
     @Override
-    default ValueHolder<Object> doInject(Object targetBean, Field field, int mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
-        return doInject(targetBean, null, field, null, mode >= GET_INJECT_VALUE_MODE, mode >= INJECT_MODE, variableResolvers);
+    default ValueHolder<Object> doInject(Object targetBean, Field field, Mode mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
+        return doInject(targetBean, null, field, null, !mode.equals(Mode.FieldConvertOutput), mode.equals(Mode.InjectToField), variableResolvers);
     }
 
     /**
@@ -118,7 +118,7 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @throws VariableNotFoundException
      */
     @Override
-    default List<ValueHolder<Object>> doInject(Object targetBean, Predicate<Field> ignoreFieldPredicate, int mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
+    default List<ValueHolder<Object>> doInject(Object targetBean, Predicate<Field> ignoreFieldPredicate, Mode mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
         List<ValueHolder<Object>> injectFields = new LinkedList<>();
         doInject(targetBean, ignoreFieldPredicate, mode, variableResolvers, (field, objectValueHolder) -> injectFields.add(objectValueHolder));
         return injectFields;
@@ -134,14 +134,10 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @param callback
      * @return
      */
-    default boolean doInject(Object targetBean, Predicate<Field> ignoreFieldPredicate, int mode
+    default boolean doInject(Object targetBean, Predicate<Field> ignoreFieldPredicate, Mode mode
             , List<VariableResolver> variableResolvers, BiFunction<Field, ValueHolder<Object>, Boolean> callback) {
 
-        //Assert.isTrue(mode > 0, " mode must be great than 0");
-
-        if (mode < CONVERT_OUT_MODE) {
-            mode = CONVERT_OUT_MODE;
-        }
+        Assert.notNull(mode, "mode is require");
 
         ResolvableType resolvableTypeRoot = ResolvableType.forClass(targetBean.getClass());
 
@@ -152,11 +148,13 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         for (Field field : ClassUtils.getFields(targetBean.getClass(), InjectVar.class)) {
 
-            if (ignoreFieldPredicate != null && ignoreFieldPredicate.test(field)) {
+            if (ignoreFieldPredicate != null
+                    && ignoreFieldPredicate.test(field)) {
                 continue;
             }
 
-            ValueHolder<Object> valueHolder = doInject(targetBean, resolvableTypeRoot, field, null, mode >= GET_INJECT_VALUE_MODE, mode >= INJECT_MODE, variableResolvers);
+            ValueHolder<Object> valueHolder = doInject(targetBean, resolvableTypeRoot, field,
+                    null, !mode.equals(Mode.FieldConvertOutput), mode.equals(Mode.InjectToField), variableResolvers);
 
             //中断执行
             if (Boolean.FALSE.equals(callback.apply(field, valueHolder))) {
