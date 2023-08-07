@@ -3,6 +3,7 @@ package com.levin.commons.service.domain;
 
 import com.levin.commons.service.support.VariableInjector;
 import org.springframework.core.convert.converter.GenericConverter;
+import org.springframework.util.PatternMatchUtils;
 
 import java.lang.annotation.*;
 
@@ -41,11 +42,14 @@ public @interface InjectVar {
 
     /**
      * 注入域
+     * <p>
+     * 支持*通配符
      *
      * @return
      * @see VariableInjector#getInjectDomain()
+     * @see PatternMatchUtils#simpleMatch
      */
-    String domain() default "default";
+    String[] domain() default "default";
 
     /**
      * 变量名称或是表达式

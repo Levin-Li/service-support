@@ -140,8 +140,8 @@ public interface VariableResolver {
             return addMapContexts(() -> Arrays.asList(contexts));
         }
 
-        public <T extends Object> DefaultDelegateVariableResolver addBeanContexts(T... benas) {
-            variableResolvers.add(new BeanVariableResolver(() -> Arrays.asList(benas)));
+        public DefaultDelegateVariableResolver addBeanContexts(List<?> benas) {
+            variableResolvers.add(new BeanVariableResolver(() -> benas));
             return this;
         }
 

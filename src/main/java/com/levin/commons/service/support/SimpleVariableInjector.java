@@ -10,9 +10,7 @@ import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.core.convert.support.ConfigurableConversionService;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
-import org.springframework.util.ConcurrentReferenceHashMap;
-import org.springframework.util.StringUtils;
+import org.springframework.util.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -104,8 +102,8 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @throws VariableNotFoundException
      */
     @Override
-    default ValueHolder<Object> doInject(Object targetBean, Field field, int mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
-        return doInject(targetBean, null, field, null, mode >= 2, mode >= 3, variableResolvers);
+    default ValueHolder<Object> doInject(Object targetBean, Field field, Mode mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
+        return doInject(targetBean, null, field, null, !mode.equals(Mode.FieldConvertOutput), mode.equals(Mode.InjectToField), variableResolvers);
     }
 
     /**
@@ -120,7 +118,7 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @throws VariableNotFoundException
      */
     @Override
-    default List<ValueHolder<Object>> doInject(Object targetBean, Predicate<Field> ignoreFieldPredicate, int mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
+    default List<ValueHolder<Object>> doInject(Object targetBean, Predicate<Field> ignoreFieldPredicate, Mode mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
         List<ValueHolder<Object>> injectFields = new LinkedList<>();
         doInject(targetBean, ignoreFieldPredicate, mode, variableResolvers, (field, objectValueHolder) -> injectFields.add(objectValueHolder));
         return injectFields;
@@ -136,14 +134,10 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @param callback
      * @return
      */
-    default boolean doInject(Object targetBean, Predicate<Field> ignoreFieldPredicate, int mode
+    default boolean doInject(Object targetBean, Predicate<Field> ignoreFieldPredicate, Mode mode
             , List<VariableResolver> variableResolvers, BiFunction<Field, ValueHolder<Object>, Boolean> callback) {
 
-        //Assert.isTrue(mode > 0, " mode must be great than 0");
-
-        if (mode < 1) {
-            mode = 1;
-        }
+        Assert.notNull(mode, "mode is require");
 
         ResolvableType resolvableTypeRoot = ResolvableType.forClass(targetBean.getClass());
 
@@ -154,11 +148,13 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         for (Field field : ClassUtils.getFields(targetBean.getClass(), InjectVar.class)) {
 
-            if (ignoreFieldPredicate != null && ignoreFieldPredicate.test(field)) {
+            if (ignoreFieldPredicate != null
+                    && ignoreFieldPredicate.test(field)) {
                 continue;
             }
 
-            ValueHolder<Object> valueHolder = doInject(targetBean, resolvableTypeRoot, field, null, mode >= 2, mode >= 3, variableResolvers);
+            ValueHolder<Object> valueHolder = doInject(targetBean, resolvableTypeRoot, field,
+                    null, !mode.equals(Mode.FieldConvertOutput), mode.equals(Mode.InjectToField), variableResolvers);
 
             //中断执行
             if (Boolean.FALSE.equals(callback.apply(field, valueHolder))) {
@@ -195,9 +191,8 @@ public interface SimpleVariableInjector extends VariableInjector {
             return null;
         }
 
-        //如果有指定注入域，只处理指定的域
-        if (StringUtils.hasText(getInjectDomain())
-                && !getInjectDomain().equals(injectVar.domain())) {
+        //如果注入域不匹配
+        if (!isDomainMatch(injectVar.domain())) {
             return null;
         }
 
