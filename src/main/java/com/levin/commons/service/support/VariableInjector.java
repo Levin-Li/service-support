@@ -41,18 +41,32 @@ public interface VariableInjector {
     }
 
 
+    /**
+     * 域是否匹配
+     *
+     * @param field
+     * @return
+     */
     default boolean isDomainMatch(Field field) {
         return field != null
                 && field.isAnnotationPresent(InjectVar.class)
                 && isDomainMatch(field.getAnnotation(InjectVar.class));
     }
 
+    /**
+     * 域是否匹配
+     *
+     * @param injectVar
+     * @return
+     */
     default boolean isDomainMatch(InjectVar injectVar) {
         return injectVar != null
                 && isDomainMatch(injectVar.domain());
     }
 
     /**
+     * 域是否匹配
+     *
      * @param domainList
      * @return
      */
