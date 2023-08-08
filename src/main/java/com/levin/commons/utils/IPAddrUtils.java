@@ -1,6 +1,12 @@
 package com.levin.commons.utils;
 
+import lombok.extern.slf4j.Slf4j;
+import org.lionsoul.ip2region.xdb.Searcher;
+import org.springframework.util.ResourceUtils;
+
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,6 +14,7 @@ import java.util.List;
 /**
  * Created by lilw on 2016/10/10.
  */
+@Slf4j
 public class IPAddrUtils {
 
     private static List<String> ipHeadNameList = new ArrayList<>(16);
@@ -27,6 +34,54 @@ public class IPAddrUtils {
                 "HTTP_X_FORWARDED_FOR"
         ));
 
+    }
+
+    private static Searcher searcher = null;
+
+    private static final Object lock = new Object();
+
+    /**
+     * 查找IP的地区
+     * 格式：国家|区域|省份|城市|ISP，缺省的地域信息默认是0。 region 信息支持完全自定义
+     *
+     * @param ip
+     * @return 地区
+     */
+    public static String searchIpRegion(String ip) {
+
+        try {
+            //优化同步处理的性能
+            if (searcher == null) {
+                synchronized (lock) {
+                    //优化同步处理的性能
+                    if (searcher == null) {
+                        //立刻处理防止
+                        String fn = "ip2region.xdb";
+
+                        File file = null;
+
+                        if ((file = new File(fn)).exists()) {
+                        } else if ((file = new File("config", fn)).exists()) {
+
+                        } else if ((file = new File("resources", fn)).exists()) {
+
+                        } else {
+                            file = ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + file);
+                        }
+
+                        if (file != null) {
+                            searcher = Searcher.newWithBuffer(Files.readAllBytes(file.toPath()));
+                        }
+                    }
+                }
+            }
+
+            return searcher.search(ip);
+
+        } catch (Exception e) {
+            log.warn("查询IP地址[" + ip + "]地区错误," + ExceptionUtils.getAllCauseInfo(e, "->"));
+            return null;
+        }
     }
 
 
