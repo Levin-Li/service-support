@@ -192,7 +192,7 @@ public interface SimpleVariableInjector extends VariableInjector {
         }
 
         //如果注入域不匹配
-        if (!isDomainMatch(injectVar.domain())) {
+        if (!isDomainMatch(injectVar)) {
             return null;
         }
 

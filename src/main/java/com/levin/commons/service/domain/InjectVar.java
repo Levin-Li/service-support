@@ -49,7 +49,7 @@ public @interface InjectVar {
      * @see VariableInjector#getInjectDomain()
      * @see PatternMatchUtils#simpleMatch
      */
-    String[] domain() default "default";
+    String domain() default "default";
 
     /**
      * 变量名称或是表达式
