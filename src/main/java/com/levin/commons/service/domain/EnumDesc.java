@@ -204,7 +204,6 @@ public interface EnumDesc {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(type.getName() + " can't found enum value " + nameOrCode);
         }
-
     }
 
     /**
@@ -267,7 +266,7 @@ public interface EnumDesc {
 
 
     /**
-     * 值转换
+     * 枚举值转换
      *
      * @param source
      * @param targetType

@@ -5,6 +5,7 @@ import com.levin.commons.service.domain.InjectVar;
 import com.levin.commons.utils.ClassUtils;
 import lombok.SneakyThrows;
 import org.springframework.core.ResolvableType;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.core.convert.support.ConfigurableConversionService;
@@ -34,7 +35,7 @@ public interface SimpleVariableInjector extends VariableInjector {
     /**
      * 线程安全转换服务
      */
-    ConfigurableConversionService defaultConversionService = new DefaultFormattingConversionService();
+    ConversionService defaultConversionService = new DefaultFormattingConversionService();
 
     /**
      * 缓存
@@ -42,6 +43,22 @@ public interface SimpleVariableInjector extends VariableInjector {
      * 允许中途释放
      */
     Map<Class<? extends GenericConverter>, GenericConverter> genericConverterInstanceCache = new ConcurrentReferenceHashMap<>();
+
+
+    /**
+     * 转换值
+     *
+     * @param source
+     * @param targetType
+     * @param <T>
+     * @return
+     */
+    default <T> T convert(@Nullable Object source, Class<T> targetType) {
+
+        ValueHolder<T> valueHolder = EnumDesc.convert(source, targetType);
+
+        return valueHolder.hasValue() ? valueHolder.get() : defaultConversionService.convert(source, targetType);
+    }
 
     /**
      * 转换数据类型
