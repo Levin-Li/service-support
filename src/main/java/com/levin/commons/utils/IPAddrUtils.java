@@ -48,7 +48,6 @@ public class IPAddrUtils {
      * @return 地区
      */
     public static String searchIpRegion(String ip) {
-
         try {
             //优化同步处理的性能
             if (searcher == null) {
@@ -76,7 +75,7 @@ public class IPAddrUtils {
                 }
             }
 
-            return searcher.search(ip);
+            return searcher != null ? searcher.search(ip) : null;
 
         } catch (Exception e) {
             log.warn("查询IP地址[" + ip + "]地区错误," + ExceptionUtils.getAllCauseInfo(e, "->"));
@@ -85,6 +84,10 @@ public class IPAddrUtils {
     }
 
 
+    /**
+     * @param insertToFirst
+     * @param ipHeadNames
+     */
     public static void addIPAddrHeadNames(boolean insertToFirst, String... ipHeadNames) {
 
         List<String> tmpList = Arrays.asList(ipHeadNames);
@@ -106,9 +109,7 @@ public class IPAddrUtils {
     }
 
     public static boolean isValidIP(String ip) {
-
         return isIPV6(ip) || isIPV4(ip);
-
     }
 
     public static boolean isIPV6(String ip) {
@@ -225,6 +226,12 @@ public class IPAddrUtils {
     }
 
 
+    /**
+     * 获取真实IP地址
+     *
+     * @param request
+     * @return
+     */
     public static String try2GetUserRealIPAddr(HttpServletRequest request) {
         return try2GetUserRealIPAddr(request, true);
     }
