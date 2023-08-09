@@ -65,7 +65,7 @@ public class IPAddrUtils {
                         } else if ((file = new File("resources", fn)).exists()) {
 
                         } else {
-                            file = ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + file);
+                            file = ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + fn);
                         }
 
                         if (file != null) {
