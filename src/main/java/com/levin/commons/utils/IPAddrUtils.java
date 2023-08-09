@@ -1,7 +1,11 @@
 package com.levin.commons.utils;
 
+import cn.hutool.core.io.resource.ResourceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.lionsoul.ip2region.xdb.Searcher;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.ResourceUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,6 +44,8 @@ public class IPAddrUtils {
 
     private static final Object lock = new Object();
 
+    private static final ResourceLoader resourceLoader = new DefaultResourceLoader();
+
     /**
      * 查找IP的地区
      * 格式：国家|区域|省份|城市|ISP，缺省的地域信息默认是0。 region 信息支持完全自定义
@@ -65,10 +71,10 @@ public class IPAddrUtils {
                         } else if ((file = new File("resources", fn)).exists()) {
 
                         } else {
-                            file = ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + fn);
+                            searcher = Searcher.newWithBuffer(ResourceUtil.readBytes(fn));
                         }
 
-                        if (file != null) {
+                        if (searcher == null && file != null) {
                             searcher = Searcher.newWithBuffer(Files.readAllBytes(file.toPath()));
                         }
                     }
