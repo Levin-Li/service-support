@@ -151,7 +151,17 @@ public abstract class AbstractDistributionJob<T> {
     abstract protected List<T> getBatchData(long startTime, int batchNo, int batchSize);
 
     /**
+     * 单条数据处理发生错误时，是否终止任务执行
+     *
+     * @return
+     */
+    protected boolean isTerminateOnException() {
+        return false;
+    }
+
+    /**
      * 处理单条数据
+     * 返回 false 则终止任务执行
      *
      * @param data
      * @return
@@ -216,10 +226,17 @@ public abstract class AbstractDistributionJob<T> {
                 break;
             }
 
+            final AtomicBoolean isStop = new AtomicBoolean(false);
+
             for (T data : dataList) {
 
+                if (isStop.get()) {
+                    log.error("[ {} ] 第[ {} ]次批任务终止执行", getName(), counter.get());
+                    return;
+                }
+
                 if (isStatRatio()) {
-                    statHelper.onAlarm(30, 5, 0.5, (growthRatio, ratio) -> {
+                    statHelper.onAlarm(30, 15, 0.5, (growthRatio, ratio) -> {
                         log.info("[ {} ] 第[ {} ]次批任务执行 速率: {}, 同比上一个采样周期变化率: {}", getName(), counter.get(), ratio, growthRatio);
                     });
                 }
@@ -228,8 +245,22 @@ public abstract class AbstractDistributionJob<T> {
                 Optional.ofNullable(getExecutor())
                         .orElse(Runnable::run)
                         .execute(() ->
-                                //尝试锁定记录，并且处理单条记录
-                                tryLockAndDoTask(getDataLockKey(data), () -> processData(data))
+                                        //尝试锁定记录，并且处理单条记录
+                                {
+                                    boolean hasLock = tryLockAndDoTask(getDataLockKey(data), () -> {
+                                        try {
+                                            isStop.set(!processData(data));
+                                        } catch (Exception e) {
+                                            isStop.set(isTerminateOnException());
+                                            log.error(getName() + "处理单条数据时发生异常" + e.getMessage(), e);
+                                        }
+                                    });
+
+                                    if (!hasLock
+                                            && log.isDebugEnabled()) {
+                                        //  log.debug("");
+                                    }
+                                }
                         );
 
                 try {

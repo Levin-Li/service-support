@@ -61,10 +61,6 @@ public abstract class ContextHolder<K, V> {
                 return ctx;
             }
 
-            @Override
-            public boolean isConcurrentMap() {
-                return true;
-            }
         };
     }
 
@@ -107,7 +103,7 @@ public abstract class ContextHolder<K, V> {
             private final ThreadLocal<Map<K, V>> threadLocal = isInheritableThread ? new InheritableThreadLocal<>() : new ThreadLocal<>();
 
             @Override
-            protected synchronized Map<K, V> getContext() {
+            protected Map<K, V> getContext() {
 
                 Map<K, V> context = threadLocal.get();
 
@@ -119,11 +115,6 @@ public abstract class ContextHolder<K, V> {
                 }
 
                 return context;
-            }
-
-            @Override
-            public boolean isConcurrentMap() {
-                return false;
             }
 
             @Override
@@ -171,7 +162,9 @@ public abstract class ContextHolder<K, V> {
      *
      * @return
      */
-    public abstract boolean isConcurrentMap();
+    public boolean isConcurrentMap() {
+        return true;
+    }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
