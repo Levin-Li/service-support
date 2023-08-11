@@ -67,7 +67,6 @@ public abstract class AbstractDistributionJob<T> {
         if (pause) {
             return;
         }
-
         //本地不可重入
         if (running.compareAndSet(false, true)) {
             try {
@@ -202,6 +201,16 @@ public abstract class AbstractDistributionJob<T> {
     }
 
     /**
+     * 获取单条数据的描述信息
+     *
+     * @param data
+     * @return
+     */
+    protected String getDataDesc(T data) {
+        return data.toString();
+    }
+
+    /**
      * 按指定的批大小执行任务
      *
      * @param timeoutMs 处理超时时间
@@ -249,16 +258,21 @@ public abstract class AbstractDistributionJob<T> {
                                 {
                                     boolean hasLock = tryLockAndDoTask(getDataLockKey(data), () -> {
                                         try {
+                                            //执行
                                             isStop.set(!processData(data));
+
+                                            if (isStop.get()) {
+                                                log.info("[ {} ] 第[ {} ] 单条数据<<<{}>>> 后续主动终止任务执行。", getName(), counter.get(), getDataDesc(data));
+                                            }
                                         } catch (Exception e) {
                                             isStop.set(isTerminateOnException());
-                                            log.error(getName() + "处理单条数据时发生异常" + e.getMessage(), e);
+                                            log.error(getName() + "处理单条数据<<<" + getDataDesc(data) + ">>>时发生异常" + e.getMessage(), e);
                                         }
                                     });
 
                                     if (!hasLock
                                             && log.isDebugEnabled()) {
-                                        //  log.debug("");
+                                        log.debug("[ {} ] 第[ {} ] 单条数据<<<{}>>>无法获取锁，忽略处理。", getName(), counter.get(), getDataDesc(data));
                                     }
                                 }
                         );
