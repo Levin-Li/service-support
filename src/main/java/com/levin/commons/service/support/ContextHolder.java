@@ -118,6 +118,11 @@ public abstract class ContextHolder<K, V> {
             }
 
             @Override
+            public boolean isConcurrentMap() {
+                return false;
+            }
+
+            @Override
             public ContextHolder<K, V> clear() {
                 threadLocal.remove();
                 return this;
