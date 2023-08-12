@@ -1,5 +1,6 @@
 package com.levin.commons.service.support;
 
+import cn.hutool.core.util.TypeUtil;
 import com.levin.commons.service.domain.EnumDesc;
 import com.levin.commons.service.domain.InjectVar;
 import com.levin.commons.utils.ClassUtils;
@@ -33,54 +34,11 @@ public interface SimpleVariableInjector extends VariableInjector {
     };
 
     /**
-     * 线程安全转换服务
-     */
-    ConversionService defaultConversionService = new DefaultFormattingConversionService();
-
-    /**
      * 缓存
      * <p>
      * 允许中途释放
      */
     Map<Class<? extends GenericConverter>, GenericConverter> genericConverterInstanceCache = new ConcurrentReferenceHashMap<>();
-
-
-    /**
-     * 转换值
-     *
-     * @param source
-     * @param targetType
-     * @param <T>
-     * @return
-     */
-    default <T> T convert(@Nullable Object source, Class<T> targetType) {
-
-        ValueHolder<T> valueHolder = EnumDesc.convert(source, targetType);
-
-        return valueHolder.hasValue() ? valueHolder.get() : defaultConversionService.convert(source, targetType);
-    }
-
-    /**
-     * 转换数据类型
-     *
-     * @param source
-     * @param <T>
-     * @return
-     */
-    default <T> T convert(@Nullable Object source, TypeDescriptor sourceTypeDescriptor, TypeDescriptor targetTypeDescriptor) {
-
-        ResolvableType rt = targetTypeDescriptor.getResolvableType();
-
-        cn.hutool.core.lang.Assert.isTrue(!rt.hasUnresolvableGenerics(), "目标类型中有未识别的泛型：" + rt);
-
-        ValueHolder<T> holder = EnumDesc.convert(source, rt.hasGenerics() ? rt.getType() : rt.resolve());
-
-        if (holder.hasValue()) {
-            return holder.get();
-        }
-
-        return (T) defaultConversionService.convert(source, sourceTypeDescriptor, targetTypeDescriptor);
-    }
 
     /**
      * 获取转换器
@@ -330,7 +288,7 @@ public interface SimpleVariableInjector extends VariableInjector {
                     //默认的转换方式
                     //转换并且注入变量
                     //转换数据类型
-                    newValue = convert(newValue, sourceTypeDescriptor, targetTypeDescriptor);
+                    newValue = VariableInjector.convert(newValue, sourceTypeDescriptor, targetTypeDescriptor);
                 } else {
                     //临时创建转化器
                     newValue = getConverter(injectVar).convert(newValue, sourceTypeDescriptor, targetTypeDescriptor);

@@ -1,10 +1,18 @@
 package com.levin.commons.service.support;
 
+import com.levin.commons.service.domain.EnumDesc;
 import com.levin.commons.service.domain.InjectVar;
+import org.springframework.core.ResolvableType;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.format.support.DefaultFormattingConversionService;
+import org.springframework.lang.Nullable;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -16,6 +24,11 @@ import java.util.stream.Stream;
  */
 @FunctionalInterface
 public interface VariableInjector {
+
+    /**
+     * 线程安全转换服务
+     */
+    ConversionService defaultConversionService = new DefaultFormattingConversionService();
 
     enum Mode {
         //把字段的当前值，反向转换
@@ -431,6 +444,52 @@ public interface VariableInjector {
     List<ValueHolder<Object>> doInject(Object targetBean, Predicate<Field> ignoreFieldPredicate, Mode mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * 转换值
+     *
+     * @param source
+     * @param targetType
+     * @param <T>
+     * @return
+     */
+    static <T> T convert(@Nullable Object source, Type targetType) {
+
+        if (targetType == null) {
+            return (T) source;
+        }
+
+        ValueHolder<T> valueHolder = EnumDesc.convert(source, targetType);
+
+        return valueHolder.hasValue() ? valueHolder.get() : (targetType instanceof Class) ?
+                defaultConversionService.convert(source, (Class<T>) targetType)
+                : (T) defaultConversionService.convert(source, new TypeDescriptor(ResolvableType.forInstance(source), null, new Annotation[0])
+                , new TypeDescriptor(ResolvableType.forType(targetType), null, new Annotation[0]));
+
+    }
+
+    /**
+     * 转换数据类型
+     *
+     * @param source
+     * @param <T>
+     * @return
+     */
+    static <T> T convert(@Nullable Object source, TypeDescriptor sourceTypeDescriptor, TypeDescriptor targetTypeDescriptor) {
+
+        ResolvableType rt = targetTypeDescriptor.getResolvableType();
+
+        cn.hutool.core.lang.Assert.isTrue(!rt.hasUnresolvableGenerics(), "目标类型中有未识别的泛型：" + rt);
+
+        ValueHolder<T> holder = EnumDesc.convert(source, rt.hasGenerics() ? rt.getType() : rt.resolve());
+
+        if (holder.hasValue()) {
+            return holder.get();
+        }
+
+        return (T) defaultConversionService.convert(source, sourceTypeDescriptor, targetTypeDescriptor);
+    }
 
     static VariableResolver.DefaultDelegateVariableResolver newDefaultResolver() {
         return new VariableResolver.DefaultDelegateVariableResolver();
