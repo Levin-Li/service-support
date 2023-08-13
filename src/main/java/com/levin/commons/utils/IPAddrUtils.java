@@ -1,5 +1,6 @@
 package com.levin.commons.utils;
 
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.lionsoul.ip2region.xdb.Searcher;
@@ -44,6 +45,8 @@ public class IPAddrUtils {
 
     private static final Object lock = new Object();
 
+    private static Resource ip2regionRes = null;
+
     private static final ResourceLoader resourceLoader = new DefaultResourceLoader();
 
     /**
@@ -71,7 +74,15 @@ public class IPAddrUtils {
                         } else if ((file = new File("resources", fn)).exists()) {
 
                         } else {
-                            searcher = Searcher.newWithBuffer(ResourceUtil.readBytes(fn));
+
+                            if (ip2regionRes == null) {
+                                ip2regionRes = resourceLoader.getResource(ResourceLoader.CLASSPATH_URL_PREFIX + fn);
+                            }
+
+                            if (ip2regionRes.isReadable()) {
+                                searcher = Searcher.newWithBuffer(IoUtil.readBytes(ip2regionRes.getInputStream(), true));
+                            }
+
                         }
 
                         if (searcher == null && file != null) {
