@@ -71,8 +71,12 @@ public class DefaultJsonConverter implements GenericConverter {
             //去除前后的空格，回车的字符
             json = StringUtils.trimWhitespace(json);
 
+            while (json.length() > 0 && json.charAt(0) == ',') {
+                json = StringUtils.trimWhitespace(json.substring(1));
+            }
+
             //循环删除最后一个逗号
-            while (json.charAt(json.length() - 1) == ',') {
+            while (json.length() > 0 && json.charAt(json.length() - 1) == ',') {
                 json = StringUtils.trimWhitespace(json.substring(0, json.length() - 1));
             }
 
