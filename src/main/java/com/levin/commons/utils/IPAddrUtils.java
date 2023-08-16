@@ -63,6 +63,7 @@ public class IPAddrUtils {
                 synchronized (lock) {
                     //优化同步处理的性能
                     if (searcher == null) {
+
                         //立刻处理防止
                         String fn = "ip2region.xdb";
 
@@ -75,17 +76,21 @@ public class IPAddrUtils {
 
                         } else {
 
+                            file = null;
+
                             if (ip2regionRes == null) {
                                 ip2regionRes = resourceLoader.getResource(ResourceLoader.CLASSPATH_URL_PREFIX + fn);
                             }
 
                             if (ip2regionRes.isReadable()) {
                                 searcher = Searcher.newWithBuffer(IoUtil.readBytes(ip2regionRes.getInputStream(), true));
+                            } else {
+                                log.debug("资源[{}]不可读：{}", ip2regionRes.getDescription(), ip2regionRes.getFilename());
                             }
 
                         }
 
-                        if (searcher == null && file != null) {
+                        if (searcher == null && file != null && file.exists()) {
                             searcher = Searcher.newWithBuffer(Files.readAllBytes(file.toPath()));
                         }
                     }
