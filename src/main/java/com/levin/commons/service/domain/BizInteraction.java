@@ -9,7 +9,6 @@ import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**

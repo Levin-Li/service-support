@@ -4,7 +4,6 @@ package com.levin.commons.service.domain;
 import java.lang.annotation.*;
 
 /**
- *
  * 签名标识，用于标识一个参数将参与签名
  *
  * @author Laishr
@@ -19,7 +18,6 @@ import java.lang.annotation.*;
 public @interface Sign {
 
     /**
-     *
      * @return
      */
     String value() default "";
