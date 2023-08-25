@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * Column
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:03
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Column")
+@Schema(title = "Column")
 public @interface Column {
 ///////////////////////////////////////////
 
@@ -23,7 +23,7 @@ public @interface Column {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -39,14 +39,14 @@ public @interface Column {
      *
      * 参考定义: {"type":"string","description":"指定列唯一标识"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "指定列唯一标识")
+
+    @Schema(title = "指定列唯一标识")
     String key() default "	";
 
     /**
@@ -56,12 +56,12 @@ public @interface Column {
      *
      * [{"type":"string"},{"$ref":"#/definitions/SchemaObject"}]
      *
-     * 
      *
-     * @see 
+     *
+     * @see
      */
-    
-    @Schema(description = "指定列标题")
+
+    @Schema(title = "指定列标题")
     String title() default "	";
 
     /**
@@ -69,14 +69,14 @@ public @interface Column {
      *
      * 参考定义: {"type":"string","description":"指定列内容渲染器"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "指定列内容渲染器")
+
+    @Schema(title = "指定列内容渲染器")
     String type() default "	";
 
     /**
@@ -84,14 +84,14 @@ public @interface Column {
      *
      * 参考定义: {"type":"string","description":"指定行合并表达式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "指定行合并表达式")
+
+    @Schema(title = "指定行合并表达式")
     String rowSpanExpr() default "	";
 
     /**
@@ -99,14 +99,14 @@ public @interface Column {
      *
      * 参考定义: {"type":"string","description":"指定列合并表达式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "指定列合并表达式")
+
+    @Schema(title = "指定列合并表达式")
     String colSpanExpr() default "	";
 
     /**
@@ -114,14 +114,14 @@ public @interface Column {
      *
      * 参考定义: "#/definitions/ColumnSchema"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Column
      */
-    
-    @Schema(description = "表头分组")
+
+    @Schema(title = "表头分组")
     String[] children() default "	";
 
     /**
@@ -129,14 +129,14 @@ public @interface Column {
      *
      * 参考定义: {"type":"boolean","description":"可复制"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "可复制")
+
+    @Schema(title = "可复制")
     boolean copyable() default false;
 
     /**
@@ -144,14 +144,14 @@ public @interface Column {
      *
      * 参考定义: {"type":"string","description":"列表头提示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "列表头提示")
+
+    @Schema(title = "列表头提示")
     String remark() default "	";
 
     /**
@@ -161,12 +161,12 @@ public @interface Column {
      *
      * [{"type":"boolean"},{"$ref":"#/definitions/SchemaObject"}]
      *
-     * 
      *
-     * @see 
+     *
+     * @see
      */
-    
-    @Schema(description = "快速搜索")
+
+    @Schema(title = "快速搜索")
     String searchable() default "	";
 
     /**
@@ -174,14 +174,14 @@ public @interface Column {
      *
      * 参考定义: {"type":"boolean","description":"快速排序"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "快速排序")
+
+    @Schema(title = "快速排序")
     boolean sorter() default false;
 
     /**
@@ -189,14 +189,14 @@ public @interface Column {
      *
      * 参考定义: {"type":"string","description":"内容居左、居中、居右"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "内容居左、居中、居右")
+
+    @Schema(title = "内容居左、居中、居右")
     String align() default "	";
 
     /**
@@ -204,14 +204,14 @@ public @interface Column {
      *
      * 参考定义: {"type":["boolean","string"],"description":"是否固定在左侧/右侧"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否固定在左侧/右侧")
+
+    @Schema(title = "是否固定在左侧/右侧")
     String fixed() default "	";
 
     /**
@@ -219,14 +219,14 @@ public @interface Column {
      *
      * 参考定义: {"type":"boolean","description":"当前列是否展示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "当前列是否展示")
+
+    @Schema(title = "当前列是否展示")
     boolean toggled() default false;
 
     /**
@@ -234,14 +234,14 @@ public @interface Column {
      *
      * 参考定义: {"type":"string","description":"列样式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "列样式")
+
+    @Schema(title = "列样式")
     String className() default "	";
 
     /**
@@ -249,14 +249,14 @@ public @interface Column {
      *
      * 参考定义: {"type":"string","description":"表头单元格样式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "表头单元格样式")
+
+    @Schema(title = "表头单元格样式")
     String titleClassName() default "	";
 
     /**
@@ -264,14 +264,14 @@ public @interface Column {
      *
      * 参考定义: {"type":"string","description":"单元格样式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "单元格样式")
+
+    @Schema(title = "单元格样式")
     String classNameExpr() default "	";
 
 }

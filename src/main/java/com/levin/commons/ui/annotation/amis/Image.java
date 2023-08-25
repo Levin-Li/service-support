@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "图片展示控件。 文档：https://baidu.gitee.io/amis/docs/components/image")
+@Schema(title = "图片展示控件。 文档：https://baidu.gitee.io/amis/docs/components/image")
 public @interface Image {
 ///////////////////////////////////////////
 
@@ -63,7 +63,7 @@ public @interface Image {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -79,14 +79,14 @@ public @interface Image {
      *
      * 参考定义: {"type":"string","enum":["image","static-image"],"description":"指定为图片展示类型"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "指定为图片展示类型")
+
+    @Schema(title = "指定为图片展示类型")
     Type type() ;
 
     /**
@@ -94,14 +94,14 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "外层 css 类名")
+
+    @Schema(title = "外层 css 类名")
     String className() default "	";
 
     /**
@@ -109,14 +109,14 @@ public @interface Image {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -124,14 +124,14 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -139,14 +139,14 @@ public @interface Image {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -154,14 +154,14 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -169,14 +169,14 @@ public @interface Image {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -184,14 +184,14 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -199,14 +199,14 @@ public @interface Image {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -214,14 +214,14 @@ public @interface Image {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -229,14 +229,14 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see UrlPath
      */
-    
-    @Schema(description = "默认图片地址")
+
+    @Schema(title = "默认图片地址")
     String defaultImage() default "	";
 
     /**
@@ -244,14 +244,14 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Tpl
      */
-    
-    @Schema(description = "图片标题")
+
+    @Schema(title = "图片标题")
     Tpl title() ;
 
     /**
@@ -259,14 +259,14 @@ public @interface Image {
      *
      * 参考定义: {"type":"string","description":"关联字段名，也可以直接配置 src"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "关联字段名，也可以直接配置 src")
+
+    @Schema(title = "关联字段名，也可以直接配置 src")
     String name() default "	";
 
     /**
@@ -274,14 +274,14 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Tpl
      */
-    
-    @Schema(description = "图片描述信息")
+
+    @Schema(title = "图片描述信息")
     Tpl imageCaption() ;
 
     /**
@@ -289,14 +289,14 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see UrlPath
      */
-    
-    @Schema(description = "图片地址，如果配置了 name，这个属性不用配置。")
+
+    @Schema(title = "图片地址，如果配置了 name，这个属性不用配置。")
     String src() default "	";
 
     /**
@@ -304,14 +304,14 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see UrlPath
      */
-    
-    @Schema(description = "大图地址，不设置用 src")
+
+    @Schema(title = "大图地址，不设置用 src")
     String originalSrc() default "	";
 
     /**
@@ -319,14 +319,14 @@ public @interface Image {
      *
      * 参考定义: {"type":"boolean","description":"是否启动放大功能。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否启动放大功能。")
+
+    @Schema(title = "是否启动放大功能。")
     boolean enlargeAble() default false;
 
     /**
@@ -334,14 +334,14 @@ public @interface Image {
      *
      * 参考定义: {"type":"string","description":"图片无法显示时的替换文本"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "图片无法显示时的替换文本")
+
+    @Schema(title = "图片无法显示时的替换文本")
     String alt() default "	";
 
     /**
@@ -349,14 +349,14 @@ public @interface Image {
      *
      * 参考定义: {"type":"number","description":"高度"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "高度")
+
+    @Schema(title = "高度")
     double height() default 0;
 
     /**
@@ -364,14 +364,14 @@ public @interface Image {
      *
      * 参考定义: {"type":"number","description":"宽度"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "宽度")
+
+    @Schema(title = "宽度")
     double width() default 0;
 
     /**
@@ -379,14 +379,14 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "图片 css 类名")
+
+    @Schema(title = "图片 css 类名")
     String imageClassName() default "	";
 
     /**
@@ -394,14 +394,14 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "图片缩率图外层 css 类名")
+
+    @Schema(title = "图片缩率图外层 css 类名")
     String thumbClassName() default "	";
 
     /**
@@ -409,14 +409,14 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Tpl
      */
-    
-    @Schema(description = "caption")
+
+    @Schema(title = "caption")
     Tpl caption() ;
 
     /**
@@ -424,14 +424,14 @@ public @interface Image {
      *
      * 参考定义: {"type":"string","enum":["thumb","original"],"description":"图片展示模式，默认为缩略图模式、可以配置成原图模式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "图片展示模式，默认为缩略图模式、可以配置成原图模式")
+
+    @Schema(title = "图片展示模式，默认为缩略图模式、可以配置成原图模式")
     ImageMode imageMode() ;
 
     /**
@@ -439,14 +439,14 @@ public @interface Image {
      *
      * 参考定义: {"type":"string","enum":["w-full","h-full","contain","cover"],"description":"预览图模式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "预览图模式")
+
+    @Schema(title = "预览图模式")
     ThumbMode thumbMode() ;
 
     /**
@@ -454,14 +454,14 @@ public @interface Image {
      *
      * 参考定义: {"type":"string","enum":["1:1","4:3","16:9"],"description":"预览图比率"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "预览图比率")
+
+    @Schema(title = "预览图比率")
     ThumbRatio thumbRatio() ;
 
     /**
@@ -469,14 +469,14 @@ public @interface Image {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Tpl
      */
-    
-    @Schema(description = "链接地址")
+
+    @Schema(title = "链接地址")
     Tpl href() ;
 
     /**
@@ -484,14 +484,14 @@ public @interface Image {
      *
      * 参考定义: {"type":"boolean","description":"是否新窗口打开"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否新窗口打开")
+
+    @Schema(title = "是否新窗口打开")
     boolean blank() default false;
 
     /**
@@ -499,14 +499,14 @@ public @interface Image {
      *
      * 参考定义: {"type":"string","description":"链接的 target"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "链接的 target")
+
+    @Schema(title = "链接的 target")
     String htmlTarget() default "	";
 
 }

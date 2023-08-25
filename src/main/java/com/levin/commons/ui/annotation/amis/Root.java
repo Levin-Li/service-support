@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * Root
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:01
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Root")
+@Schema(title = "Root")
 public @interface Root {
 ///////////////////////////////////////////
 
@@ -23,7 +23,7 @@ public @interface Root {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */

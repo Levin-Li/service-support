@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Combo 组合输入框类型 文档：https://baidu.gitee.io/amis/docs/components/form/combo")
+@Schema(title = "Combo 组合输入框类型 文档：https://baidu.gitee.io/amis/docs/components/form/combo")
 public @interface ComboControl {
 ///////////////////////////////////////////
 
@@ -69,7 +69,7 @@ public @interface ComboControl {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -81,14 +81,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "容器 css 类名")
+
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -96,14 +96,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -111,14 +111,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -126,14 +126,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -141,14 +141,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -156,14 +156,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -171,14 +171,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -186,14 +186,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -201,14 +201,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -216,14 +216,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"string","const":"combo","description":"指定为组合输入框类型"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "指定为组合输入框类型")
+
+    @Schema(title = "指定为组合输入框类型")
     String type() default "combo";
 
     /**
@@ -231,14 +231,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"string","enum":["xs","sm","md","lg","full"],"description":"表单项大小"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "表单项大小")
+
+    @Schema(title = "表单项大小")
     Size size() ;
 
     /**
@@ -248,12 +248,12 @@ public @interface ComboControl {
      *
      * [{"type":"string"},{"type":"boolean","const":false}]
      *
-     * 
      *
-     * @see 
+     *
+     * @see
      */
-    
-    @Schema(description = "描述标题")
+
+    @Schema(title = "描述标题")
     String label() default "	";
 
     /**
@@ -261,14 +261,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/LabelAlign"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see LabelAlign
      */
-    
-    @Schema(description = "描述标题")
+
+    @Schema(title = "描述标题")
     String labelAlign() default "	";
 
     /**
@@ -276,14 +276,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "配置 label className")
+
+    @Schema(title = "配置 label className")
     String labelClassName() default "	";
 
     /**
@@ -291,14 +291,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"string","description":"字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
+
+    @Schema(title = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
     String name() default "	";
 
     /**
@@ -306,14 +306,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Remark
      */
-    
-    @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容")
+
+    @Schema(title = "显示一个小图标, 鼠标放上去的时候显示提示内容")
     Remark remark() ;
 
     /**
@@ -321,14 +321,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Remark
      */
-    
-    @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起")
+
+    @Schema(title = "显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起")
     Remark labelRemark() ;
 
     /**
@@ -336,14 +336,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"string","description":"输入提示，聚焦的时候显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "输入提示，聚焦的时候显示")
+
+    @Schema(title = "输入提示，聚焦的时候显示")
     String hint() default "	";
 
     /**
@@ -351,14 +351,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"当修改完的时候是否提交表单。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "当修改完的时候是否提交表单。")
+
+    @Schema(title = "当修改完的时候是否提交表单。")
     boolean submitOnChange() default false;
 
     /**
@@ -366,14 +366,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"是否只读"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否只读")
+
+    @Schema(title = "是否只读")
     boolean readOnly() default false;
 
     /**
@@ -381,14 +381,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "只读条件")
+
+    @Schema(title = "只读条件")
     String readOnlyOn() default "	";
 
     /**
@@ -396,14 +396,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"不设置时，当表单提交过后表单项每次修改都会触发重新验证， 如果设置了，则由此配置项来决定要不要每次修改都触发验证。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "不设置时，当表单提交过后表单项每次修改都会触发重新验证， 如果设置了，则由此配置项来决定要不要每次修改都触发验证。")
+
+    @Schema(title = "不设置时，当表单提交过后表单项每次修改都会触发重新验证， 如果设置了，则由此配置项来决定要不要每次修改都触发验证。")
     boolean validateOnChange() default false;
 
     /**
@@ -411,14 +411,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"string","description":"描述内容，支持 Html 片段。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "描述内容，支持 Html 片段。")
+
+    @Schema(title = "描述内容，支持 Html 片段。")
     String description() default "	";
 
     /**
@@ -426,14 +426,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "desc")
+
+    @Schema(title = "desc")
     String desc() default "	";
 
     /**
@@ -441,14 +441,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "配置描述上的 className")
+
+    @Schema(title = "配置描述上的 className")
     String descriptionClassName() default "	";
 
     /**
@@ -456,14 +456,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"string","enum":["normal","inline","horizontal"],"description":"配置当前表单项展示模式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "配置当前表单项展示模式")
+
+    @Schema(title = "配置当前表单项展示模式")
     Mode mode() ;
 
     /**
@@ -471,14 +471,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see FormHorizontal
      */
-    
-    @Schema(description = "当配置为水平布局的时候，用来配置具体的左右分配。")
+
+    @Schema(title = "当配置为水平布局的时候，用来配置具体的左右分配。")
     FormHorizontal horizontal() ;
 
     /**
@@ -486,14 +486,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"表单 control 是否为 inline 模式。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "表单 control 是否为 inline 模式。")
+
+    @Schema(title = "表单 control 是否为 inline 模式。")
     boolean inline() default false;
 
     /**
@@ -501,14 +501,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "配置 input className")
+
+    @Schema(title = "配置 input className")
     String inputClassName() default "	";
 
     /**
@@ -516,14 +516,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"string","description":"没有成员时显示。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "没有成员时显示。")
+
+    @Schema(title = "没有成员时显示。")
     String placeholder() default "	";
 
     /**
@@ -531,14 +531,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"是否为必填"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否为必填")
+
+    @Schema(title = "是否为必填")
     boolean required() default false;
 
     /**
@@ -546,14 +546,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"object","properties":{"isAlpha":{"type":"string"},"isAlphanumeric":{"type":"string"},"isEmail":{"type":"string"},"isFloat":{"type":"string"},"isInt":{"type":"string"},"isJson":{"type":"string"},"isLength":{"type":"string"},"isNumeric":{"type":"string"},"isRequired":{"type":"string"},"isUrl":{"type":"string"},"matchRegexp":{"type":"string"},"matchRegexp2":{"type":"string"},"matchRegexp3":{"type":"string"},"matchRegexp4":{"type":"string"},"matchRegexp5":{"type":"string"},"maxLength":{"type":"string"},"maximum":{"type":"string"},"minLength":{"type":"string"},"minimum":{"type":"string"}},"description":"验证失败的提示信息"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "验证失败的提示信息")
+
+    @Schema(title = "验证失败的提示信息")
     String validationErrors() default "	";
 
     /**
@@ -563,12 +563,12 @@ public @interface ComboControl {
      *
      * [{"type":"string"},{"type":"object","properties":{"isAlpha":{"type":"boolean","description":"是否是字母"},"isAlphanumeric":{"type":"boolean","description":"是否为字母数字"},"isEmail":{"type":"boolean","description":"是否为邮箱地址"},"isFloat":{"type":"boolean","description":"是否为浮点型"},"isInt":{"type":"boolean","description":"是否为整型"},"isJson":{"type":"boolean","description":"是否为 json"},"isLength":{"type":"number","description":"长度等于指定值"},"isNumeric":{"type":"boolean","description":"是否为数字"},"isRequired":{"type":"boolean","description":"是否为必填"},"isUrl":{"type":"boolean","description":"是否为 URL 地址"},"matchRegexp":{"type":"string","description":"内容命中指定正则"},"matchRegexp1":{"type":"string","description":"内容命中指定正则"},"matchRegexp2":{"type":"string","description":"内容命中指定正则"},"matchRegexp3":{"type":"string","description":"内容命中指定正则"},"matchRegexp4":{"type":"string","description":"内容命中指定正则"},"matchRegexp5":{"type":"string","description":"内容命中指定正则"},"maxLength":{"type":"number","description":"最大长度为指定值"},"maximum":{"type":"number","description":"最大值为指定值"},"minLength":{"type":"number","description":"最小长度为指定值"},"minimum":{"type":"number","description":"最小值为指定值"}}}]
      *
-     * 
      *
-     * @see 
+     *
+     * @see
      */
-    
-    @Schema(description = "validations")
+
+    @Schema(title = "validations")
     String validations() default "	";
 
     /**
@@ -576,14 +576,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"description":"默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。")
+
+    @Schema(title = "默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。")
     String value() default "	";
 
     /**
@@ -591,14 +591,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉")
+
+    @Schema(title = "表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉")
     boolean clearValueOnHidden() default false;
 
     /**
@@ -606,14 +606,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"$ref":"#/definitions/SchemaApiObject"}]
      *
      * @see Api
      */
-    
-    @Schema(description = "远端校验表单项接口")
+
+    @Schema(title = "远端校验表单项接口")
     String validateApi() default "	";
 
     /**
@@ -621,14 +621,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"description":"单组表单项初始值。默认为 `{}`","default":{}}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "单组表单项初始值。默认为 `{}`")
+
+    @Schema(title = "单组表单项初始值。默认为 `{}`")
     String scaffold() default "	";
 
     /**
@@ -636,14 +636,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"是否含有边框"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否含有边框")
+
+    @Schema(title = "是否含有边框")
     boolean noBorder() default false;
 
     /**
@@ -651,14 +651,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"string","description":"确认删除时的提示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "确认删除时的提示")
+
+    @Schema(title = "确认删除时的提示")
     String deleteConfirmText() default "	";
 
     /**
@@ -666,14 +666,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"$ref":"#/definitions/SchemaApiObject"}]
      *
      * @see Api
      */
-    
-    @Schema(description = "删除时调用的api")
+
+    @Schema(title = "删除时调用的api")
     String deleteApi() default "	";
 
     /**
@@ -681,14 +681,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"是否可切换条件，配合`conditions`使用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否可切换条件，配合`conditions`使用")
+
+    @Schema(title = "是否可切换条件，配合`conditions`使用")
     boolean typeSwitchable() default false;
 
     /**
@@ -696,14 +696,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/ComboCondition"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see ComboCondition
      */
-    
-    @Schema(description = "符合某类条件后才渲染的schema")
+
+    @Schema(title = "符合某类条件后才渲染的schema")
     ComboCondition[] conditions() ;
 
     /**
@@ -711,14 +711,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "内部单组表单项的类名")
+
+    @Schema(title = "内部单组表单项的类名")
     String formClassName() default "	";
 
     /**
@@ -726,14 +726,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "新增按钮CSS类名")
+
+    @Schema(title = "新增按钮CSS类名")
     String addButtonClassName() default "	";
 
     /**
@@ -741,14 +741,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"string","description":"新增按钮文字"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "新增按钮文字")
+
+    @Schema(title = "新增按钮文字")
     String addButtonText() default "	";
 
     /**
@@ -756,14 +756,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"是否可新增"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否可新增")
+
+    @Schema(title = "是否可新增")
     boolean addable() default false;
 
     /**
@@ -771,14 +771,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/ComboSubControl"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see ComboSubControl
      */
-    
-    @Schema(description = "数组输入框的子项")
+
+    @Schema(title = "数组输入框的子项")
     String[] items() default "	";
 
     /**
@@ -786,14 +786,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"是否可拖拽排序"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否可拖拽排序")
+
+    @Schema(title = "是否可拖拽排序")
     boolean draggable() default false;
 
     /**
@@ -801,14 +801,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"string","description":"可拖拽排序的提示信息。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "可拖拽排序的提示信息。")
+
+    @Schema(title = "可拖拽排序的提示信息。")
     String draggableTip() default "	";
 
     /**
@@ -816,14 +816,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"是否将结果扁平化(去掉name),只有当controls的length为1且multiple为true的时候才有效"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否将结果扁平化(去掉name),只有当controls的length为1且multiple为true的时候才有效")
+
+    @Schema(title = "是否将结果扁平化(去掉name),只有当controls的length为1且multiple为true的时候才有效")
     boolean flat() default false;
 
     /**
@@ -831,14 +831,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"string","description":"当扁平化开启并且joinValues为true时，用什么分隔符"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "当扁平化开启并且joinValues为true时，用什么分隔符")
+
+    @Schema(title = "当扁平化开启并且joinValues为true时，用什么分隔符")
     String delimiter() default "	";
 
     /**
@@ -846,14 +846,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"当扁平化开启的时候，是否用分隔符的形式发送给后端，否则采用array的方式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "当扁平化开启的时候，是否用分隔符的形式发送给后端，否则采用array的方式")
+
+    @Schema(title = "当扁平化开启的时候，是否用分隔符的形式发送给后端，否则采用array的方式")
     boolean joinValues() default false;
 
     /**
@@ -861,14 +861,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"number","description":"限制最大个数"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "限制最大个数")
+
+    @Schema(title = "限制最大个数")
     double maxLength() default 0;
 
     /**
@@ -876,14 +876,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"number","description":"限制最小个数"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "限制最小个数")
+
+    @Schema(title = "限制最小个数")
     double minLength() default 0;
 
     /**
@@ -891,14 +891,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"是否多行模式，默认一行展示完"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否多行模式，默认一行展示完")
+
+    @Schema(title = "是否多行模式，默认一行展示完")
     boolean multiLine() default false;
 
     /**
@@ -906,14 +906,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"是否可多选"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否可多选")
+
+    @Schema(title = "是否可多选")
     boolean multiple() default false;
 
     /**
@@ -921,14 +921,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"是否可删除"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否可删除")
+
+    @Schema(title = "是否可删除")
     boolean removable() default false;
 
     /**
@@ -936,14 +936,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"string","enum":["normal","horizontal","inline"],"description":"子表单的模式。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "子表单的模式。")
+
+    @Schema(title = "子表单的模式。")
     SubFormMode subFormMode() ;
 
     /**
@@ -951,14 +951,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"是否可以访问父级数据，正常 combo 已经关联到数组成员，是不能访问父级数据的。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否可以访问父级数据，正常 combo 已经关联到数组成员，是不能访问父级数据的。")
+
+    @Schema(title = "是否可以访问父级数据，正常 combo 已经关联到数组成员，是不能访问父级数据的。")
     boolean canAccessSuperData() default false;
 
     /**
@@ -966,14 +966,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"采用 Tabs 展示方式？"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "采用 Tabs 展示方式？")
+
+    @Schema(title = "采用 Tabs 展示方式？")
     boolean tabsMode() default false;
 
     /**
@@ -981,14 +981,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"string","enum":["","line","card","radio"],"description":"Tabs 的展示模式。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "Tabs 的展示模式。")
+
+    @Schema(title = "Tabs 的展示模式。")
     TabsStyle tabsStyle() ;
 
     /**
@@ -996,14 +996,14 @@ public @interface ComboControl {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Tpl
      */
-    
-    @Schema(description = "选项卡标题的生成模板。")
+
+    @Schema(title = "选项卡标题的生成模板。")
     Tpl tabsLabelTpl() ;
 
     /**
@@ -1011,14 +1011,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"数据比较多，比较卡时，可以试试开启。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "数据比较多，比较卡时，可以试试开启。")
+
+    @Schema(title = "数据比较多，比较卡时，可以试试开启。")
     boolean lazyLoad() default false;
 
     /**
@@ -1026,14 +1026,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"严格模式，为了性能默认不开的。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "严格模式，为了性能默认不开的。")
+
+    @Schema(title = "严格模式，为了性能默认不开的。")
     boolean strictMode() default false;
 
     /**
@@ -1041,14 +1041,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"array","items":{"type":"string"},"description":"配置同步字段。只有 `strictMode` 为 `false` 时有效。 如果 Combo 层级比较深，底层的获取外层的数据可能不同步。 但是给 combo 配置这个属性就能同步下来。输入格式：`[\"os\"]`"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "配置同步字段。只有 `strictMode` 为 `false` 时有效。 如果 Combo 层级比较深，底层的获取外层的数据可能不同步。 但是给 combo 配置这个属性就能同步下来。输入格式：`[os]`")
+
+    @Schema(title = "配置同步字段。只有 `strictMode` 为 `false` 时有效。 如果 Combo 层级比较深，底层的获取外层的数据可能不同步。 但是给 combo 配置这个属性就能同步下来。输入格式：`[os]`")
     String[] syncFields() default "	";
 
     /**
@@ -1056,14 +1056,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"boolean","description":"允许为空，如果子表单项里面配置验证器，且又是单条模式。可以允许用户选择清空（不填）。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "允许为空，如果子表单项里面配置验证器，且又是单条模式。可以允许用户选择清空（不填）。")
+
+    @Schema(title = "允许为空，如果子表单项里面配置验证器，且又是单条模式。可以允许用户选择清空（不填）。")
     boolean nullable() default false;
 
     /**
@@ -1071,14 +1071,14 @@ public @interface ComboControl {
      *
      * 参考定义: {"type":"object","properties":{"validateFailed":{"type":"string","description":"验证错误提示"},"minLengthValidateFailed":{"type":"string","description":"最小值验证错误提示"},"maxLengthValidateFailed":{"type":"string","description":"最大值验证错误提示"}},"additionalProperties":false,"description":"提示信息"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "提示信息")
+
+    @Schema(title = "提示信息")
     String messages() default "	";
 
 }

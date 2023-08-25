@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "消息文案配置，记住这个优先级是最低的，如果你的接口返回了 msg，接口返回的优先。")
+@Schema(title = "消息文案配置，记住这个优先级是最低的，如果你的接口返回了 msg，接口返回的优先。")
 public @interface Message {
 ///////////////////////////////////////////
 
@@ -23,7 +23,7 @@ public @interface Message {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -39,14 +39,14 @@ public @interface Message {
      *
      * 参考定义: {"type":"string","description":"获取失败时的提示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "获取失败时的提示")
+
+    @Schema(title = "获取失败时的提示")
     String fetchFailed() default "	";
 
     /**
@@ -54,14 +54,14 @@ public @interface Message {
      *
      * 参考定义: {"type":"string","description":"获取成功的提示，默认为空。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "获取成功的提示，默认为空。")
+
+    @Schema(title = "获取成功的提示，默认为空。")
     String fetchSuccess() default "	";
 
     /**
@@ -69,14 +69,14 @@ public @interface Message {
      *
      * 参考定义: {"type":"string","description":"保存失败时的提示。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "保存失败时的提示。")
+
+    @Schema(title = "保存失败时的提示。")
     String saveFailed() default "	";
 
     /**
@@ -84,14 +84,14 @@ public @interface Message {
      *
      * 参考定义: {"type":"string","description":"保存成功时的提示。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "保存成功时的提示。")
+
+    @Schema(title = "保存成功时的提示。")
     String saveSuccess() default "	";
 
 }

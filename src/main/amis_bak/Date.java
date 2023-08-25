@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Date 展示渲染器。 文档：https://baidu.gitee.io/amis/docs/components/date")
+@Schema(title = "Date 展示渲染器。 文档：https://baidu.gitee.io/amis/docs/components/date")
 public @interface Date {
 ///////////////////////////////////////////
 
@@ -43,9 +43,9 @@ public @interface Date {
      *
      * 参考定义: {"type":"string","enum":["date","datetime","time","static-date","static-datetime","static-time"],"description":"指定为日期展示类型"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "指定为日期展示类型")
+    @Schema(title = "指定为日期展示类型")
     Type type() ;
 
     /**
@@ -53,9 +53,9 @@ public @interface Date {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -63,9 +63,9 @@ public @interface Date {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -73,9 +73,9 @@ public @interface Date {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -83,9 +83,9 @@ public @interface Date {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -93,9 +93,9 @@ public @interface Date {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -103,9 +103,9 @@ public @interface Date {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -113,9 +113,9 @@ public @interface Date {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -123,9 +123,9 @@ public @interface Date {
      *
      * 参考定义: {"type":"string","description":"展示的时间格式，参考 moment 中的格式说明。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "展示的时间格式，参考 moment 中的格式说明。")
+    @Schema(title = "展示的时间格式，参考 moment 中的格式说明。")
     String format() default "	";
 
     /**
@@ -133,9 +133,9 @@ public @interface Date {
      *
      * 参考定义: {"type":"string","description":"占位符"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "占位符")
+    @Schema(title = "占位符")
     String placeholder() default "	";
 
     /**
@@ -143,9 +143,9 @@ public @interface Date {
      *
      * 参考定义: {"type":"string","description":"值的时间格式，参考 moment 中的格式说明。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "值的时间格式，参考 moment 中的格式说明。")
+    @Schema(title = "值的时间格式，参考 moment 中的格式说明。")
     String valueFormat() default "	";
 
     /**
@@ -153,9 +153,9 @@ public @interface Date {
      *
      * 参考定义: {"type":"boolean","description":"显示成相对时间，比如1分钟前"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "显示成相对时间，比如1分钟前")
+    @Schema(title = "显示成相对时间，比如1分钟前")
     boolean fromNow() default false;
 
     /**
@@ -163,9 +163,9 @@ public @interface Date {
      *
      * 参考定义: {"type":"number","description":"更新频率， 默认为1分钟"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "更新频率， 默认为1分钟")
+    @Schema(title = "更新频率， 默认为1分钟")
     double updateFrequency() default 0;
 
 }

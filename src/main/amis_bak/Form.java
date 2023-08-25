@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Form 表单渲染器。nn说明：https://baidu.gitee.io/amis/docs/components/form/index")
+@Schema(title = "Form 表单渲染器。nn说明：https://baidu.gitee.io/amis/docs/components/form/index")
 public @interface Form {
 ///////////////////////////////////////////
 
@@ -40,9 +40,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"string","const":"form","description":"指定为表单渲染器。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "指定为表单渲染器。")
+    @Schema(title = "指定为表单渲染器。")
     String type() default "form";
 
     /**
@@ -50,9 +50,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -60,9 +60,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -70,9 +70,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -80,9 +80,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -90,9 +90,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -100,9 +100,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -110,9 +110,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -120,9 +120,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"string","description":"表单标题"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "表单标题")
+    @Schema(title = "表单标题")
     String title() default "	";
 
     /**
@@ -130,9 +130,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/ActionSchema"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "按钮集合，会固定在底部显示。")
+    @Schema(title = "按钮集合，会固定在底部显示。")
     String[] actions() default "	";
 
     /**
@@ -140,9 +140,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "表单项集合")
+    @Schema(title = "表单项集合")
     String body() default "	";
 
     /**
@@ -150,9 +150,9 @@ public @interface Form {
      *
      * 参考定义: {}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "tabs")
+    @Schema(title = "tabs")
     String tabs() default "	";
 
     /**
@@ -160,9 +160,9 @@ public @interface Form {
      *
      * 参考定义: {}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "fieldSet")
+    @Schema(title = "fieldSet")
     String fieldSet() default "	";
 
     /**
@@ -170,9 +170,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaDefaultData"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "data")
+    @Schema(title = "data")
     String data() default "	";
 
     /**
@@ -180,9 +180,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"boolean","description":"是否开启调试，开启后会在顶部实时显示表单项数据。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否开启调试，开启后会在顶部实时显示表单项数据。")
+    @Schema(title = "是否开启调试，开启后会在顶部实时显示表单项数据。")
     boolean debug() default false;
 
     /**
@@ -190,9 +190,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "用来初始化表单数据")
+    @Schema(title = "用来初始化表单数据")
     String initApi() default "	";
 
     /**
@@ -200,9 +200,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "Form 用来获取初始数据的 api,与initApi不同的是，会一直轮询请求该接口，直到返回 finished 属性为 true 才 结束。")
+    @Schema(title = "Form 用来获取初始数据的 api,与initApi不同的是，会一直轮询请求该接口，直到返回 finished 属性为 true 才 结束。")
     String initAsyncApi() default "	";
 
     /**
@@ -210,9 +210,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"string","description":"设置了initAsyncApi后，默认会从返回数据的data.finished来判断是否完成，也可以设置成其他的xxx，就会从data.xxx中获取"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "设置了initAsyncApi后，默认会从返回数据的data.finished来判断是否完成，也可以设置成其他的xxx，就会从data.xxx中获取")
+    @Schema(title = "设置了initAsyncApi后，默认会从返回数据的data.finished来判断是否完成，也可以设置成其他的xxx，就会从data.xxx中获取")
     String initFinishedField() default "	";
 
     /**
@@ -220,9 +220,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"number","description":"设置了initAsyncApi以后，默认拉取的时间间隔"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "设置了initAsyncApi以后，默认拉取的时间间隔")
+    @Schema(title = "设置了initAsyncApi以后，默认拉取的时间间隔")
     double initCheckInterval() default 0;
 
     /**
@@ -230,9 +230,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"boolean","description":"是否初始加载"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否初始加载")
+    @Schema(title = "是否初始加载")
     boolean initFetch() default false;
 
     /**
@@ -240,9 +240,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "建议改成 api 的 sendOn 属性。")
+    @Schema(title = "建议改成 api 的 sendOn 属性。")
     String initFetchOn() default "	";
 
     /**
@@ -250,9 +250,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"number","description":"设置后将轮询调用 initApi"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "设置后将轮询调用 initApi")
+    @Schema(title = "设置后将轮询调用 initApi")
     double interval() default 0;
 
     /**
@@ -260,9 +260,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"boolean","description":"是否静默拉取"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否静默拉取")
+    @Schema(title = "是否静默拉取")
     boolean silentPolling() default false;
 
     /**
@@ -270,9 +270,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"string","description":"配置停止轮询的条件"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置停止轮询的条件")
+    @Schema(title = "配置停止轮询的条件")
     String stopAutoRefreshWhen() default "	";
 
     /**
@@ -280,9 +280,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"string","description":"是否开启本地缓存"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否开启本地缓存")
+    @Schema(title = "是否开启本地缓存")
     String persistData() default "	";
 
     /**
@@ -290,9 +290,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"boolean","description":"提交成功后清空本地缓存"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "提交成功后清空本地缓存")
+    @Schema(title = "提交成功后清空本地缓存")
     boolean clearPersistDataAfterSubmit() default false;
 
     /**
@@ -300,9 +300,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "Form 用来保存数据的 api。\n\n详情：https://baidu.gitee.io/amis/docs/components/form/index#%E8%A1%A8%E5%8D%95%E6%8F%90%E4%BA%A4")
+    @Schema(title = "Form 用来保存数据的 api。\n\n详情：https://baidu.gitee.io/amis/docs/components/form/index#%E8%A1%A8%E5%8D%95%E6%8F%90%E4%BA%A4")
     String api() default "	";
 
     /**
@@ -310,9 +310,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/DialogSchemaBase"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "Form 也可以配置 feedback。")
+    @Schema(title = "Form 也可以配置 feedback。")
     DialogBase feedback() ;
 
     /**
@@ -320,9 +320,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "设置此属性后，表单提交发送保存接口后，还会继续轮询请求该接口，直到返回 finished 属性为 true 才 结束。")
+    @Schema(title = "设置此属性后，表单提交发送保存接口后，还会继续轮询请求该接口，直到返回 finished 属性为 true 才 结束。")
     String asyncApi() default "	";
 
     /**
@@ -330,9 +330,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"number","description":"轮询请求的时间间隔，默认为 3秒。设置 asyncApi 才有效"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "轮询请求的时间间隔，默认为 3秒。设置 asyncApi 才有效")
+    @Schema(title = "轮询请求的时间间隔，默认为 3秒。设置 asyncApi 才有效")
     double checkInterval() default 0;
 
     /**
@@ -340,9 +340,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"string","description":"如果决定结束的字段名不是 `finished` 请设置此属性，比如 `is_success`"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "如果决定结束的字段名不是 `finished` 请设置此属性，比如 `is_success`")
+    @Schema(title = "如果决定结束的字段名不是 `finished` 请设置此属性，比如 `is_success`")
     String finishedField() default "	";
 
     /**
@@ -350,9 +350,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"boolean","description":"提交完后重置表单"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "提交完后重置表单")
+    @Schema(title = "提交完后重置表单")
     boolean resetAfterSubmit() default false;
 
     /**
@@ -360,9 +360,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"boolean","description":"提交后清空表单"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "提交后清空表单")
+    @Schema(title = "提交后清空表单")
     boolean clearAfterSubmit() default false;
 
     /**
@@ -370,9 +370,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"string","enum":["normal","inline","horizontal"],"description":"配置表单项默认的展示方式。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置表单项默认的展示方式。")
+    @Schema(title = "配置表单项默认的展示方式。")
     Mode mode() ;
 
     /**
@@ -380,9 +380,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"number","description":"表单项显示为几列"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "表单项显示为几列")
+    @Schema(title = "表单项显示为几列")
     double columnCount() default 0;
 
     /**
@@ -390,9 +390,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
+    @Schema(title = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
     FormHorizontal horizontal() ;
 
     /**
@@ -400,9 +400,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"boolean","description":"是否自动将第一个表单元素聚焦。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否自动将第一个表单元素聚焦。")
+    @Schema(title = "是否自动将第一个表单元素聚焦。")
     boolean autoFocus() default false;
 
     /**
@@ -410,9 +410,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"object","additionalProperties":false,"properties":{"fetchFailed":{"type":"string","description":"获取失败时的提示"},"fetchSuccess":{"type":"string","description":"获取成功的提示，默认为空。"},"saveFailed":{"type":"string","description":"保存失败时的提示。"},"saveSuccess":{"type":"string","description":"保存成功时的提示。"},"validateFailed":{"type":"string","description":"表单验证失败时的提示"}},"description":"消息文案配置，记住这个优先级是最低的，如果你的接口返回了 msg，接口返回的优先。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "消息文案配置，记住这个优先级是最低的，如果你的接口返回了 msg，接口返回的优先。")
+    @Schema(title = "消息文案配置，记住这个优先级是最低的，如果你的接口返回了 msg，接口返回的优先。")
     String messages() default "	";
 
     /**
@@ -420,9 +420,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "name")
+    @Schema(title = "name")
     String name() default "	";
 
     /**
@@ -430,9 +430,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置容器 panel className")
+    @Schema(title = "配置容器 panel className")
     String panelClassName() default "	";
 
     /**
@@ -440,9 +440,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"string","description":"设置主键 id, 当设置后，检测表单是否完成时（asyncApi），只会携带此数据。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "设置主键 id, 当设置后，检测表单是否完成时（asyncApi），只会携带此数据。")
+    @Schema(title = "设置主键 id, 当设置后，检测表单是否完成时（asyncApi），只会携带此数据。")
     String primaryField() default "	";
 
     /**
@@ -450,9 +450,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaRedirect"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "redirect")
+    @Schema(title = "redirect")
     String redirect() default "	";
 
     /**
@@ -460,9 +460,9 @@ public @interface Form {
      *
      * 参考定义: "#/definitions/SchemaReload"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "reload")
+    @Schema(title = "reload")
     String reload() default "	";
 
     /**
@@ -470,9 +470,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"boolean","description":"修改的时候是否直接提交表单。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "修改的时候是否直接提交表单。")
+    @Schema(title = "修改的时候是否直接提交表单。")
     boolean submitOnChange() default false;
 
     /**
@@ -480,9 +480,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"boolean","description":"表单初始先提交一次，联动的时候有用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "表单初始先提交一次，联动的时候有用")
+    @Schema(title = "表单初始先提交一次，联动的时候有用")
     boolean submitOnInit() default false;
 
     /**
@@ -490,9 +490,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"string","description":"默认的提交按钮名称，如果设置成空，则可以把默认按钮去掉。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "默认的提交按钮名称，如果设置成空，则可以把默认按钮去掉。")
+    @Schema(title = "默认的提交按钮名称，如果设置成空，则可以把默认按钮去掉。")
     String submitText() default "	";
 
     /**
@@ -500,9 +500,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"string","description":"默认表单提交自己会通过发送 api 保存数据，但是也可以设定另外一个 form 的 name 值，或者另外一个 `CRUD` 模型的 name 值。 如果 target 目标是一个 `Form` ，则目标 `Form` 会重新触发 `initApi` 和 `schemaApi`，api 可以拿到当前 form 数据。如果目标是一个 `CRUD` 模型，则目标模型会重新触发搜索，参数为当前 Form 数据。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "默认表单提交自己会通过发送 api 保存数据，但是也可以设定另外一个 form 的 name 值，或者另外一个 `CRUD` 模型的 name 值。 如果 target 目标是一个 `Form` ，则目标 `Form` 会重新触发 `initApi` 和 `schemaApi`，api 可以拿到当前 form 数据。如果目标是一个 `CRUD` 模型，则目标模型会重新触发搜索，参数为当前 Form 数据。")
+    @Schema(title = "默认表单提交自己会通过发送 api 保存数据，但是也可以设定另外一个 form 的 name 值，或者另外一个 `CRUD` 模型的 name 值。 如果 target 目标是一个 `Form` ，则目标 `Form` 会重新触发 `initApi` 和 `schemaApi`，api 可以拿到当前 form 数据。如果目标是一个 `CRUD` 模型，则目标模型会重新触发搜索，参数为当前 Form 数据。")
     String target() default "	";
 
     /**
@@ -510,9 +510,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"boolean","description":"是否用 panel 包裹起来"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否用 panel 包裹起来")
+    @Schema(title = "是否用 panel 包裹起来")
     boolean wrapWithPanel() default false;
 
     /**
@@ -520,9 +520,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"boolean","description":"是否固定底下的按钮在底部。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否固定底下的按钮在底部。")
+    @Schema(title = "是否固定底下的按钮在底部。")
     boolean affixFooter() default false;
 
     /**
@@ -530,9 +530,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"boolean","description":"页面离开提示，为了防止页面不小心跳转而导致表单没有保存。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "页面离开提示，为了防止页面不小心跳转而导致表单没有保存。")
+    @Schema(title = "页面离开提示，为了防止页面不小心跳转而导致表单没有保存。")
     boolean promptPageLeave() default false;
 
     /**
@@ -540,9 +540,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"string","description":"具体的提示信息，选填。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "具体的提示信息，选填。")
+    @Schema(title = "具体的提示信息，选填。")
     String promptPageLeaveMessage() default "	";
 
     /**
@@ -550,9 +550,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"array","items":{"type":"object","properties":{"rule":{"type":"string"},"message":{"type":"string"}},"required":["rule","message"],"additionalProperties":false},"description":"组合校验规则，选填"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "组合校验规则，选填")
+    @Schema(title = "组合校验规则，选填")
     String[] rules() default "	";
 
     /**
@@ -560,9 +560,9 @@ public @interface Form {
      *
      * 参考定义: {"type":"boolean","description":"禁用回车提交"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "禁用回车提交")
+    @Schema(title = "禁用回车提交")
     boolean preventEnterSubmit() default false;
 
 }

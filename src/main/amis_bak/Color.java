@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Color 显示渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/color")
+@Schema(title = "Color 显示渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/color")
 public @interface Color {
 ///////////////////////////////////////////
 
@@ -29,9 +29,9 @@ public @interface Color {
      *
      * 参考定义: {"type":"string","const":"color","description":"指定为颜色显示控件"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "指定为颜色显示控件")
+    @Schema(title = "指定为颜色显示控件")
     String type() default "color";
 
     /**
@@ -39,9 +39,9 @@ public @interface Color {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -49,9 +49,9 @@ public @interface Color {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -59,9 +59,9 @@ public @interface Color {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -69,9 +69,9 @@ public @interface Color {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -79,9 +79,9 @@ public @interface Color {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -89,9 +89,9 @@ public @interface Color {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -99,9 +99,9 @@ public @interface Color {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -109,9 +109,9 @@ public @interface Color {
      *
      * 参考定义: {"type":"string","description":"默认颜色"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "默认颜色")
+    @Schema(title = "默认颜色")
     String defaultColor() default "	";
 
     /**
@@ -119,9 +119,9 @@ public @interface Color {
      *
      * 参考定义: {"type":"boolean","description":"是否用文字显示值。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否用文字显示值。")
+    @Schema(title = "是否用文字显示值。")
     boolean showValue() default false;
 
 }

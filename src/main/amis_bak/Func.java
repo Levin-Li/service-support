@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * Func
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:42
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Func")
+@Schema(title = "Func")
 public @interface Func {
 ///////////////////////////////////////////
 
@@ -29,9 +29,9 @@ public @interface Func {
      *
      * 参考定义: {"type":"string"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "type")
+    @Schema(title = "type")
     String type() default "	";
 
     /**
@@ -39,9 +39,9 @@ public @interface Func {
      *
      * 参考定义: "#/definitions/FieldTypes"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "returnType")
+    @Schema(title = "returnType")
     String returnType() default "	";
 
     /**
@@ -49,9 +49,9 @@ public @interface Func {
      *
      * 参考定义: "#/definitions/FuncArg"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "args")
+    @Schema(title = "args")
     FuncArg[] args() ;
 
     /**
@@ -59,9 +59,9 @@ public @interface Func {
      *
      * 参考定义: {"type":"string"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "label")
+    @Schema(title = "label")
     String label() default "	";
 
 }

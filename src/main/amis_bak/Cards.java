@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Cards 卡片集合渲染器。 文档：https://baidu.gitee.io/amis/docs/components/card")
+@Schema(title = "Cards 卡片集合渲染器。 文档：https://baidu.gitee.io/amis/docs/components/card")
 public @interface Cards {
 ///////////////////////////////////////////
 
@@ -31,7 +31,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "指定为 cards 类型")
+    @Schema(title = "指定为 cards 类型")
     String type() default "cards";
 
     /**
@@ -41,7 +41,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -51,7 +51,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -61,7 +61,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -71,7 +71,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -81,7 +81,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -91,7 +91,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -101,7 +101,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -111,7 +111,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "Construct a type with the properties of T except for those in type K.")
+    @Schema(title = "Construct a type with the properties of T except for those in type K.")
     String card() default "	";
 
     /**
@@ -121,7 +121,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "头部 CSS 类名")
+    @Schema(title = "头部 CSS 类名")
     String headerClassName() default "	";
 
     /**
@@ -131,7 +131,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "底部 CSS 类名")
+    @Schema(title = "底部 CSS 类名")
     String footerClassName() default "	";
 
     /**
@@ -141,7 +141,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "卡片 CSS 类名")
+    @Schema(title = "卡片 CSS 类名")
     String itemClassName() default "	";
 
     /**
@@ -151,7 +151,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "无数据提示")
+    @Schema(title = "无数据提示")
     Tpl placeholder() ;
 
     /**
@@ -161,7 +161,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "是否显示底部")
+    @Schema(title = "是否显示底部")
     boolean showFooter() default false;
 
     /**
@@ -171,7 +171,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "是否显示头部")
+    @Schema(title = "是否显示头部")
     boolean showHeader() default false;
 
     /**
@@ -181,7 +181,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "数据源: 绑定当前环境变量")
+    @Schema(title = "数据源: 绑定当前环境变量")
     String source() default "	";
 
     /**
@@ -191,7 +191,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "标题")
+    @Schema(title = "标题")
     Tpl title() ;
 
     /**
@@ -201,7 +201,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏勾选框")
+    @Schema(title = "是否隐藏勾选框")
     boolean hideCheckToggler() default false;
 
     /**
@@ -211,7 +211,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "是否固顶")
+    @Schema(title = "是否固顶")
     boolean affixHeader() default false;
 
     /**
@@ -221,7 +221,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "顶部区域")
+    @Schema(title = "顶部区域")
     String header() default "	";
 
     /**
@@ -231,7 +231,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "底部区域")
+    @Schema(title = "底部区域")
     String footer() default "	";
 
     /**
@@ -241,7 +241,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "配置某项是否可以点选")
+    @Schema(title = "配置某项是否可以点选")
     String itemCheckableOn() default "	";
 
     /**
@@ -251,7 +251,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "配置某项是否可拖拽排序，前提是要开启拖拽功能")
+    @Schema(title = "配置某项是否可拖拽排序，前提是要开启拖拽功能")
     String itemDraggableOn() default "	";
 
     /**
@@ -261,7 +261,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "点击卡片的时候是否勾选卡片。")
+    @Schema(title = "点击卡片的时候是否勾选卡片。")
     boolean checkOnItemClick() default false;
 
     /**
@@ -271,7 +271,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "是否为瀑布流布局？")
+    @Schema(title = "是否为瀑布流布局？")
     boolean masonryLayout() default false;
 
     /**
@@ -281,7 +281,7 @@ public @interface Cards {
      *
      * @see 
      */
-    @Schema(description = "可以用来作为值的字段")
+    @Schema(title = "可以用来作为值的字段")
     String valueField() default "	";
 
 }

@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * Timeline
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:03
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Timeline")
+@Schema(title = "Timeline")
 public @interface Timeline {
 ///////////////////////////////////////////
 
@@ -44,7 +44,7 @@ public @interface Timeline {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -60,14 +60,14 @@ public @interface Timeline {
      *
      * 参考定义: {"type":"string","const":"timeline","description":"指定为 Timeline 时间轴渲染器"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "指定为 Timeline 时间轴渲染器")
+
+    @Schema(title = "指定为 Timeline 时间轴渲染器")
     String type() default "timeline";
 
     /**
@@ -75,14 +75,14 @@ public @interface Timeline {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "容器 css 类名")
+
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -90,14 +90,14 @@ public @interface Timeline {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -105,14 +105,14 @@ public @interface Timeline {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -120,14 +120,14 @@ public @interface Timeline {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -135,14 +135,14 @@ public @interface Timeline {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -150,14 +150,14 @@ public @interface Timeline {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -165,14 +165,14 @@ public @interface Timeline {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -180,14 +180,14 @@ public @interface Timeline {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -195,14 +195,14 @@ public @interface Timeline {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -210,14 +210,14 @@ public @interface Timeline {
      *
      * 参考定义: "#/definitions/TimelineItemSchema"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see TimelineItem
      */
-    
-    @Schema(description = "节点数据")
+
+    @Schema(title = "节点数据")
     TimelineItem[] items() ;
 
     /**
@@ -227,12 +227,12 @@ public @interface Timeline {
      *
      * [{"$ref":"#/definitions/SchemaApi"},{"$ref":"#/definitions/SchemaTokenizeableString"}]
      *
-     * 
      *
-     * @see 
+     *
+     * @see
      */
-    
-    @Schema(description = "API 或 数据映射")
+
+    @Schema(title = "API 或 数据映射")
     String source() default "	";
 
     /**
@@ -240,14 +240,14 @@ public @interface Timeline {
      *
      * 参考定义: {"type":"string","enum":["left","right","alternate"],"description":"文字相对于时间轴展示方向"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "文字相对于时间轴展示方向")
+
+    @Schema(title = "文字相对于时间轴展示方向")
     Mode mode() ;
 
     /**
@@ -255,14 +255,14 @@ public @interface Timeline {
      *
      * 参考定义: {"type":"string","enum":["horizontal","vertical"],"description":"展示方向"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "展示方向")
+
+    @Schema(title = "展示方向")
     Direction direction() ;
 
     /**
@@ -270,14 +270,14 @@ public @interface Timeline {
      *
      * 参考定义: {"type":"boolean","description":"节点倒序"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "节点倒序")
+
+    @Schema(title = "节点倒序")
     boolean reverse() default false;
 
 }

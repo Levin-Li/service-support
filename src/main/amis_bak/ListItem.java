@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "ListItem")
+@Schema(title = "ListItem")
 public @interface ListItem {
 ///////////////////////////////////////////
 
@@ -41,7 +41,7 @@ public @interface ListItem {
      *
      * @see 
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -51,7 +51,7 @@ public @interface ListItem {
      *
      * @see 
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -61,7 +61,7 @@ public @interface ListItem {
      *
      * @see 
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -71,7 +71,7 @@ public @interface ListItem {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -81,7 +81,7 @@ public @interface ListItem {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -91,7 +91,7 @@ public @interface ListItem {
      *
      * @see 
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -101,7 +101,7 @@ public @interface ListItem {
      *
      * @see 
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -111,7 +111,7 @@ public @interface ListItem {
      *
      * @see 
      */
-    @Schema(description = "actions")
+    @Schema(title = "actions")
     String[] actions() default "	";
 
     /**
@@ -121,7 +121,7 @@ public @interface ListItem {
      *
      * @see 
      */
-    @Schema(description = "操作位置，默认在右侧，可以设置成左侧。")
+    @Schema(title = "操作位置，默认在右侧，可以设置成左侧。")
     ActionsPosition actionsPosition() ;
 
     /**
@@ -131,7 +131,7 @@ public @interface ListItem {
      *
      * @see 
      */
-    @Schema(description = "图片地址")
+    @Schema(title = "图片地址")
     String avatar() default "	";
 
     /**
@@ -141,7 +141,7 @@ public @interface ListItem {
      *
      * @see 
      */
-    @Schema(description = "内容区域")
+    @Schema(title = "内容区域")
     String[] body() default "	";
 
     /**
@@ -151,7 +151,7 @@ public @interface ListItem {
      *
      * @see 
      */
-    @Schema(description = "描述")
+    @Schema(title = "描述")
     Tpl desc() ;
 
     /**
@@ -161,7 +161,7 @@ public @interface ListItem {
      *
      * @see 
      */
-    @Schema(description = "tooltip 说明")
+    @Schema(title = "tooltip 说明")
     Remark remark() ;
 
     /**
@@ -171,7 +171,7 @@ public @interface ListItem {
      *
      * @see 
      */
-    @Schema(description = "标题")
+    @Schema(title = "标题")
     Tpl title() ;
 
     /**
@@ -181,7 +181,7 @@ public @interface ListItem {
      *
      * @see 
      */
-    @Schema(description = "副标题")
+    @Schema(title = "副标题")
     Tpl subTitle() ;
 
 }

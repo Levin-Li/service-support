@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "二维码展示控件。 文档：https://baidu.gitee.io/amis/docs/components/qrcode")
+@Schema(title = "二维码展示控件。 文档：https://baidu.gitee.io/amis/docs/components/qrcode")
 public @interface QRCode {
 ///////////////////////////////////////////
 
@@ -51,9 +51,9 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"string","enum":["qrcode","qr-code"]}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "type")
+    @Schema(title = "type")
     Type type() ;
 
     /**
@@ -61,9 +61,9 @@ public @interface QRCode {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -71,9 +71,9 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -81,9 +81,9 @@ public @interface QRCode {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -91,9 +91,9 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -101,9 +101,9 @@ public @interface QRCode {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -111,9 +111,9 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -121,9 +121,9 @@ public @interface QRCode {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -131,9 +131,9 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"string","description":"关联字段名。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "关联字段名。")
+    @Schema(title = "关联字段名。")
     String name() default "	";
 
     /**
@@ -141,9 +141,9 @@ public @interface QRCode {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "css 类名")
+    @Schema(title = "css 类名")
     String qrcodeClassName() default "	";
 
     /**
@@ -151,9 +151,9 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"number","description":"二维码的宽高大小，默认 128","default":128}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "二维码的宽高大小，默认 128")
+    @Schema(title = "二维码的宽高大小，默认 128")
     double codeSize() default 0;
 
     /**
@@ -161,9 +161,9 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"string","description":"背景色"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "背景色")
+    @Schema(title = "背景色")
     String backgroundColor() default "	";
 
     /**
@@ -171,9 +171,9 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"string","description":"前景色"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "前景色")
+    @Schema(title = "前景色")
     String foregroundColor() default "	";
 
     /**
@@ -181,9 +181,9 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"string","enum":["L","M","Q","H"],"description":"二维码复杂级别"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "二维码复杂级别")
+    @Schema(title = "二维码复杂级别")
     Level level() ;
 
     /**
@@ -191,9 +191,9 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"string","description":"占位符"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "占位符")
+    @Schema(title = "占位符")
     String placeholder() default "	";
 
 }

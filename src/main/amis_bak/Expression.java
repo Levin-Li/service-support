@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "表达式，语法 `data.xxx > 5`。")
+@Schema(title = "表达式，语法 `data.xxx > 5`。")
 public @interface Expression {
 ///////////////////////////////////////////
 

@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "不指定类型默认就是文本")
+@Schema(title = "不指定类型默认就是文本")
 public @interface ListBodyFieldObject {
 ///////////////////////////////////////////
 
@@ -29,9 +29,9 @@ public @interface ListBodyFieldObject {
      *
      * 参考定义: {"type":"string","description":"列标题"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "列标题")
+    @Schema(title = "列标题")
     String label() default "	";
 
     /**
@@ -39,9 +39,9 @@ public @interface ListBodyFieldObject {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "label 类名")
+    @Schema(title = "label 类名")
     String labelClassName() default "	";
 
     /**
@@ -49,9 +49,9 @@ public @interface ListBodyFieldObject {
      *
      * 参考定义: {"type":"string","description":"绑定字段名"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "绑定字段名")
+    @Schema(title = "绑定字段名")
     String name() default "	";
 
     /**
@@ -59,9 +59,9 @@ public @interface ListBodyFieldObject {
      *
      * 参考定义: "#/definitions/SchemaPopOver"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置查看详情功能")
+    @Schema(title = "配置查看详情功能")
     boolean popOver() default false;
 
     /**
@@ -69,9 +69,9 @@ public @interface ListBodyFieldObject {
      *
      * 参考定义: "#/definitions/SchemaQuickEdit"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置快速编辑功能")
+    @Schema(title = "配置快速编辑功能")
     boolean quickEdit() default false;
 
     /**
@@ -79,9 +79,9 @@ public @interface ListBodyFieldObject {
      *
      * 参考定义: "#/definitions/SchemaCopyable"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置点击复制功能")
+    @Schema(title = "配置点击复制功能")
     boolean copyable() default false;
 
 }

@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "DropdownButton")
+@Schema(title = "DropdownButton")
 public @interface DropdownButton {
 ///////////////////////////////////////////
 

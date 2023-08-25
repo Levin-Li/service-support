@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * Steps
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:42
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Steps")
+@Schema(title = "Steps")
 public @interface Steps {
 ///////////////////////////////////////////
 
@@ -35,9 +35,9 @@ public @interface Steps {
      *
      * 参考定义: {"type":"string","const":"steps","description":"指定为 Steps 步骤条渲染器"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "指定为 Steps 步骤条渲染器")
+    @Schema(title = "指定为 Steps 步骤条渲染器")
     String type() default "steps";
 
     /**
@@ -45,9 +45,9 @@ public @interface Steps {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -55,9 +55,9 @@ public @interface Steps {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -65,9 +65,9 @@ public @interface Steps {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -75,9 +75,9 @@ public @interface Steps {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -85,9 +85,9 @@ public @interface Steps {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -95,9 +95,9 @@ public @interface Steps {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -105,9 +105,9 @@ public @interface Steps {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -115,9 +115,9 @@ public @interface Steps {
      *
      * 参考定义: "#/definitions/StepSchema"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "步骤")
+    @Schema(title = "步骤")
     Step[] steps() ;
 
     /**
@@ -125,9 +125,9 @@ public @interface Steps {
      *
      * 参考定义: {"type":"string","description":"API 或 数据映射"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "API 或 数据映射")
+    @Schema(title = "API 或 数据映射")
     String source() default "	";
 
     /**
@@ -135,9 +135,9 @@ public @interface Steps {
      *
      * 参考定义: {"type":["number","string"],"description":"指定当前步骤"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "指定当前步骤")
+    @Schema(title = "指定当前步骤")
     String value() default "	";
 
     /**
@@ -145,9 +145,9 @@ public @interface Steps {
      *
      * 参考定义: {"type":"string","description":"变量映射"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "变量映射")
+    @Schema(title = "变量映射")
     String name() default "	";
 
     /**
@@ -155,9 +155,9 @@ public @interface Steps {
      *
      * 参考定义: {"anyOf":[{"$ref":"#/definitions/StepStatus"},{"type":"object","additionalProperties":{"$ref":"#/definitions/StepStatus"}}]}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "status")
+    @Schema(title = "status")
     String status() default "	";
 
     /**
@@ -165,9 +165,9 @@ public @interface Steps {
      *
      * 参考定义: {"type":"string","enum":["horizontal","vertical"],"description":"展示模式"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "展示模式")
+    @Schema(title = "展示模式")
     Mode mode() ;
 
 }

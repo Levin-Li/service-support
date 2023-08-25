@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "操作栏渲染器。 文档：https://baidu.gitee.io/amis/docs/components/operation")
+@Schema(title = "操作栏渲染器。 文档：https://baidu.gitee.io/amis/docs/components/operation")
 public @interface Operation {
 ///////////////////////////////////////////
 
@@ -29,9 +29,9 @@ public @interface Operation {
      *
      * 参考定义: {"type":"string","const":"operation","description":"指定为操作栏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "指定为操作栏")
+    @Schema(title = "指定为操作栏")
     String type() default "operation";
 
     /**
@@ -39,9 +39,9 @@ public @interface Operation {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -49,9 +49,9 @@ public @interface Operation {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -59,9 +59,9 @@ public @interface Operation {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -69,9 +69,9 @@ public @interface Operation {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -79,9 +79,9 @@ public @interface Operation {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -89,9 +89,9 @@ public @interface Operation {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -99,9 +99,9 @@ public @interface Operation {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -109,9 +109,9 @@ public @interface Operation {
      *
      * 参考定义: {"type":"string","description":"占位符"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "占位符")
+    @Schema(title = "占位符")
     String placeholder() default "	";
 
     /**
@@ -119,9 +119,9 @@ public @interface Operation {
      *
      * 参考定义: "#/definitions/ActionSchema"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "buttons")
+    @Schema(title = "buttons")
     String[] buttons() default "	";
 
 }

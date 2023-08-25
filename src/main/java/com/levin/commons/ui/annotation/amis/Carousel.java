@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Carousel 轮播图渲染器。 文档：https://baidu.gitee.io/amis/docs/components/carousel")
+@Schema(title = "Carousel 轮播图渲染器。 文档：https://baidu.gitee.io/amis/docs/components/carousel")
 public @interface Carousel {
 ///////////////////////////////////////////
 
@@ -63,7 +63,7 @@ public @interface Carousel {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -79,14 +79,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"string","const":"carousel","description":"指定为轮播图类型"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "指定为轮播图类型")
+
+    @Schema(title = "指定为轮播图类型")
     String type() default "carousel";
 
     /**
@@ -94,14 +94,14 @@ public @interface Carousel {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "容器 css 类名")
+
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -109,14 +109,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -124,14 +124,14 @@ public @interface Carousel {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -139,14 +139,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -154,14 +154,14 @@ public @interface Carousel {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -169,14 +169,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -184,14 +184,14 @@ public @interface Carousel {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -199,14 +199,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -214,14 +214,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -229,14 +229,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"boolean","description":"是否自动播放"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否自动播放")
+
+    @Schema(title = "是否自动播放")
     boolean auto() default false;
 
     /**
@@ -244,14 +244,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"number","description":"轮播间隔时间"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "轮播间隔时间")
+
+    @Schema(title = "轮播间隔时间")
     double interval() default 0;
 
     /**
@@ -259,14 +259,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"number","description":"动画时长"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "动画时长")
+
+    @Schema(title = "动画时长")
     double duration() default 0;
 
     /**
@@ -274,14 +274,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"number","description":"设置宽度"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "设置宽度")
+
+    @Schema(title = "设置宽度")
     double width() default 0;
 
     /**
@@ -289,14 +289,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"number","description":"设置高度"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "设置高度")
+
+    @Schema(title = "设置高度")
     double height() default 0;
 
     /**
@@ -304,14 +304,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"string","enum":["light","dark"]}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "controlsTheme")
+
+    @Schema(title = "controlsTheme")
     ControlsTheme controlsTheme() ;
 
     /**
@@ -319,14 +319,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"string","description":"占位"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "占位")
+
+    @Schema(title = "占位")
     String placeholder() default "	";
 
     /**
@@ -334,14 +334,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"array","items":{"type":"string","enum":["dots","arrows"]},"description":"配置控件内容"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "配置控件内容")
+
+    @Schema(title = "配置控件内容")
     Control[] controls() ;
 
     /**
@@ -349,14 +349,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"string","enum":["fade","slide"],"description":"动画类型"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "动画类型")
+
+    @Schema(title = "动画类型")
     Animation animation() ;
 
     /**
@@ -364,14 +364,14 @@ public @interface Carousel {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * 
+     *
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-    
-    @Schema(description = "配置单条呈现模板")
+
+    @Schema(title = "配置单条呈现模板")
     String item() default "	";
 
     /**
@@ -379,14 +379,14 @@ public @interface Carousel {
      *
      * 参考定义: "#/definitions/SchemaName"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Name
      */
-    
-    @Schema(description = "name")
+
+    @Schema(title = "name")
     String name() default "	";
 
     /**
@@ -394,14 +394,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"string","enum":["contain","cover"],"description":"预览图模式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "预览图模式")
+
+    @Schema(title = "预览图模式")
     ThumbMode thumbMode() ;
 
     /**
@@ -409,14 +409,14 @@ public @interface Carousel {
      *
      * 参考定义: {"type":"array","items":{},"description":"配置固定值"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "配置固定值")
+
+    @Schema(title = "配置固定值")
     String[] options() default "	";
 
 }

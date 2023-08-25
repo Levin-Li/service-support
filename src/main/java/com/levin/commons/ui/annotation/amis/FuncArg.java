@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * FuncArg
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:03
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "FuncArg")
+@Schema(title = "FuncArg")
 public @interface FuncArg {
 ///////////////////////////////////////////
 
@@ -35,7 +35,7 @@ public @interface FuncArg {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -51,14 +51,14 @@ public @interface FuncArg {
      *
      * 参考定义: "#/definitions/FieldTypes"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see FieldTypes
      */
-    
-    @Schema(description = "type")
+
+    @Schema(title = "type")
     String type() default "	";
 
     /**
@@ -66,14 +66,14 @@ public @interface FuncArg {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "label")
+
+    @Schema(title = "label")
     String label() default "	";
 
     /**
@@ -81,14 +81,14 @@ public @interface FuncArg {
      *
      * 参考定义: {"type":"array","items":{"type":"string","enum":["value","field","func","formula"]}}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "valueTypes")
+
+    @Schema(title = "valueTypes")
     ValueType[] valueTypes() ;
 
     /**
@@ -96,14 +96,14 @@ public @interface FuncArg {
      *
      * 参考定义: {"type":"array","items":{"anyOf":[{"type":"string"},{"type":"object","properties":{"lable":{"type":"string"},"value":{"type":"string"},"values":{"type":"array","items":{}}},"required":["lable","value"],"additionalProperties":false}]}}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "operators")
+
+    @Schema(title = "operators")
     String[] operators() default "	";
 
     /**
@@ -111,14 +111,14 @@ public @interface FuncArg {
      *
      * 参考定义: {"type":"array","items":{"type":"string"}}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "funcs")
+
+    @Schema(title = "funcs")
     String[] funcs() default "	";
 
     /**
@@ -126,14 +126,14 @@ public @interface FuncArg {
      *
      * 参考定义: {}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "defaultValue")
+
+    @Schema(title = "defaultValue")
     String defaultValue() default "	";
 
     /**
@@ -141,14 +141,14 @@ public @interface FuncArg {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "placeholder")
+
+    @Schema(title = "placeholder")
     String placeholder() default "	";
 
     /**
@@ -156,14 +156,14 @@ public @interface FuncArg {
      *
      * 参考定义: {"type":"boolean"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "isOptional")
+
+    @Schema(title = "isOptional")
     boolean isOptional() default false;
 
 }

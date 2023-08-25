@@ -19,19 +19,19 @@ import lombok.experimental.FieldNameConstants;
 public class DefaultSimpleIdentifiableObject
         implements SimpleIdentifiable {
 
-    @Schema(description = "ID", required = true)
+    @Schema(title = "ID", required = true)
     protected String id;
 
-    @Schema(description = "名称", required = true)
+    @Schema(title = "名称", required = true)
     protected String name;
 
-    @Schema(description = "是否启用")
+    @Schema(title = "是否启用")
     protected boolean enable = true;
 
-    @Schema(description = "排序码")
+    @Schema(title = "排序码")
     protected Integer orderCode = 100;
 
-    @Schema(description = "备注")
+    @Schema(title = "备注")
     protected String remark;
 
     @Override

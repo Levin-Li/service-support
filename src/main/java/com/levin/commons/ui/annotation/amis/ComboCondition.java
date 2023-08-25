@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * ComboCondition
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:03
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "ComboCondition")
+@Schema(title = "ComboCondition")
 public @interface ComboCondition {
 ///////////////////////////////////////////
 
@@ -23,7 +23,7 @@ public @interface ComboCondition {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -39,14 +39,14 @@ public @interface ComboCondition {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "test")
+
+    @Schema(title = "test")
     String test() default "	";
 
     /**
@@ -54,14 +54,14 @@ public @interface ComboCondition {
      *
      * 参考定义: "#/definitions/ComboSubControl"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see ComboSubControl
      */
-    
-    @Schema(description = "items")
+
+    @Schema(title = "items")
     String[] items() default "	";
 
     /**
@@ -69,14 +69,14 @@ public @interface ComboCondition {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "label")
+
+    @Schema(title = "label")
     String label() default "	";
 
     /**
@@ -84,14 +84,14 @@ public @interface ComboCondition {
      *
      * 参考定义: {}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "scaffold")
+
+    @Schema(title = "scaffold")
     String scaffold() default "	";
 
     /**
@@ -99,14 +99,14 @@ public @interface ComboCondition {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "mode")
+
+    @Schema(title = "mode")
     String mode() default "	";
 
 }

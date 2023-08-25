@@ -16,7 +16,7 @@ import java.util.List;
  * @see com.levin.commons.rbac.ResAuthorize
  * @see Res.Action
  */
-@Schema(description = "资源操作")
+@Schema(title = "资源操作")
 @Data
 @Accessors(chain = true)
 @FieldNameConstants
@@ -24,11 +24,11 @@ import java.util.List;
 public class SimpleResAction
         implements Res.Action {
 
-    @Schema(description = "ID", required = true)
+    @Schema(title = "ID", required = true)
     protected String id;
 
     ///////////////////////////////////////////////////////////
-    @Schema(description = "是否忽略")
+    @Schema(title = "是否忽略")
     boolean ignored;
 
     /**
@@ -38,32 +38,32 @@ public class SimpleResAction
      *
      * @return
      */
-    @Schema(description = "仅要求认证")
+    @Schema(title = "仅要求认证")
     boolean onlyRequireAuthenticated;
 
-    @Schema(description = "验证表达式")
+    @Schema(title = "验证表达式")
     String verifyExpression;
 
-    @Schema(description = "匹配的任意角色")
+    @Schema(title = "匹配的任意角色")
     List<String> anyRoles;
 
     /**
      * 参考 注解 ResAuthorize
      */
-    @Schema(description = "匹配模式")
+    @Schema(title = "匹配模式")
     protected boolean isAndMode;
     /////////////////////////////////////////////////////
 
-    @Schema(description = "名称", required = true)
+    @Schema(title = "名称", required = true)
     protected String name;
 
-    @Schema(description = "是否启用")
+    @Schema(title = "是否启用")
     protected boolean enable = true;
 
-    @Schema(description = "排序码")
+    @Schema(title = "排序码")
     protected Integer orderCode = 100;
 
-    @Schema(description = "备注")
+    @Schema(title = "备注")
     protected String remark;
 
     @Override

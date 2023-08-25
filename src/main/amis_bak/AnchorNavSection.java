@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "AnchorNavSection 锚点区域渲染器 文档：https://baidu.gitee.io/amis/docs/components/anchor-nav")
+@Schema(title = "AnchorNavSection 锚点区域渲染器 文档：https://baidu.gitee.io/amis/docs/components/anchor-nav")
 public @interface AnchorNavSection {
 ///////////////////////////////////////////
 
@@ -29,9 +29,9 @@ public @interface AnchorNavSection {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -39,9 +39,9 @@ public @interface AnchorNavSection {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -49,9 +49,9 @@ public @interface AnchorNavSection {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -59,9 +59,9 @@ public @interface AnchorNavSection {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -69,9 +69,9 @@ public @interface AnchorNavSection {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -79,9 +79,9 @@ public @interface AnchorNavSection {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -89,9 +89,9 @@ public @interface AnchorNavSection {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -99,9 +99,9 @@ public @interface AnchorNavSection {
      *
      * 参考定义: {"type":"string","description":"导航文字说明"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "导航文字说明")
+    @Schema(title = "导航文字说明")
     String title() default "	";
 
     /**
@@ -109,9 +109,9 @@ public @interface AnchorNavSection {
      *
      * 参考定义: {"type":"string","description":"锚点链接"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "锚点链接")
+    @Schema(title = "锚点链接")
     String href() default "	";
 
     /**
@@ -119,9 +119,9 @@ public @interface AnchorNavSection {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "内容")
+    @Schema(title = "内容")
     String body() default "	";
 
 }

@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_All")
+@Schema(title = "Property_All")
 public @interface Property_All {
 ///////////////////////////////////////////
 

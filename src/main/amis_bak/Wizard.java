@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "表单向导 文档：https://baidu.gitee.io/amis/docs/components/wizard")
+@Schema(title = "表单向导 文档：https://baidu.gitee.io/amis/docs/components/wizard")
 public @interface Wizard {
 ///////////////////////////////////////////
 
@@ -41,7 +41,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "指定为表单向导")
+    @Schema(title = "指定为表单向导")
     String type() default "wizard";
 
     /**
@@ -51,7 +51,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -61,7 +61,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -71,7 +71,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -81,7 +81,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -91,7 +91,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -101,7 +101,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -111,7 +111,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -121,7 +121,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "配置按钮 className")
+    @Schema(title = "配置按钮 className")
     String actionClassName() default "	";
 
     /**
@@ -131,7 +131,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "完成按钮的文字描述")
+    @Schema(title = "完成按钮的文字描述")
     String actionFinishLabel() default "	";
 
     /**
@@ -141,7 +141,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "下一步按钮的文字描述")
+    @Schema(title = "下一步按钮的文字描述")
     String actionNextLabel() default "	";
 
     /**
@@ -151,7 +151,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "下一步并且保存按钮的文字描述")
+    @Schema(title = "下一步并且保存按钮的文字描述")
     String actionNextSaveLabel() default "	";
 
     /**
@@ -161,7 +161,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "上一步按钮的文字描述")
+    @Schema(title = "上一步按钮的文字描述")
     String actionPrevLabel() default "	";
 
     /**
@@ -171,7 +171,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "Wizard 用来保存数据的 api。 [详情](https://baidu.github.io/amis/docs/api#wizard)")
+    @Schema(title = "Wizard 用来保存数据的 api。 [详情](https://baidu.github.io/amis/docs/api#wizard)")
     String api() default "	";
 
     /**
@@ -181,7 +181,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "是否合并后再提交")
+    @Schema(title = "是否合并后再提交")
     boolean bulkSubmit() default false;
 
     /**
@@ -191,7 +191,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "Wizard 用来获取初始数据的 api。")
+    @Schema(title = "Wizard 用来获取初始数据的 api。")
     String initApi() default "	";
 
     /**
@@ -201,7 +201,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "展示模式")
+    @Schema(title = "展示模式")
     Mode mode() ;
 
     /**
@@ -211,7 +211,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "name")
+    @Schema(title = "name")
     String name() default "	";
 
     /**
@@ -221,7 +221,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "是否为只读模式。")
+    @Schema(title = "是否为只读模式。")
     boolean readOnly() default false;
 
     /**
@@ -231,7 +231,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "保存完后，可以指定跳转地址，支持相对路径和组内绝对路径，同时可以通过 $xxx 使用变量")
+    @Schema(title = "保存完后，可以指定跳转地址，支持相对路径和组内绝对路径，同时可以通过 $xxx 使用变量")
     String redirect() default "	";
 
     /**
@@ -241,7 +241,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "reload")
+    @Schema(title = "reload")
     String reload() default "	";
 
     /**
@@ -251,7 +251,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "默认表单提交自己会通过发送 api 保存数据，但是也可以设定另外一个 form 的 name 值，或者另外一个 `CRUD` 模型的 name 值。 如果 target 目标是一个 `Form` ，则目标 `Form` 会重新触发 `initApi` 和 `schemaApi`，api 可以拿到当前 form 数据。如果目标是一个 `CRUD` 模型，则目标模型会重新触发搜索，参数为当前 Form 数据。")
+    @Schema(title = "默认表单提交自己会通过发送 api 保存数据，但是也可以设定另外一个 form 的 name 值，或者另外一个 `CRUD` 模型的 name 值。 如果 target 目标是一个 `Form` ，则目标 `Form` 会重新触发 `initApi` 和 `schemaApi`，api 可以拿到当前 form 数据。如果目标是一个 `CRUD` 模型，则目标模型会重新触发搜索，参数为当前 Form 数据。")
     String target() default "	";
 
     /**
@@ -261,7 +261,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "是否将底部按钮固定在底部。")
+    @Schema(title = "是否将底部按钮固定在底部。")
     boolean affixFooter() default false;
 
     /**
@@ -271,7 +271,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "steps")
+    @Schema(title = "steps")
     WizardStep[] steps() ;
 
     /**
@@ -281,7 +281,7 @@ public @interface Wizard {
      *
      * @see 
      */
-    @Schema(description = "startStep")
+    @Schema(title = "startStep")
     String startStep() default "	";
 
 }

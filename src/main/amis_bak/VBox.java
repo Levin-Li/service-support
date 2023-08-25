@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "垂直布局控件 文档：https://baidu.gitee.io/amis/docs/components/vbox")
+@Schema(title = "垂直布局控件 文档：https://baidu.gitee.io/amis/docs/components/vbox")
 public @interface VBox {
 ///////////////////////////////////////////
 
@@ -31,7 +31,7 @@ public @interface VBox {
      *
      * @see 
      */
-    @Schema(description = "type")
+    @Schema(title = "type")
     String type() default "vbox";
 
     /**
@@ -41,7 +41,7 @@ public @interface VBox {
      *
      * @see 
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -51,7 +51,7 @@ public @interface VBox {
      *
      * @see 
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -61,7 +61,7 @@ public @interface VBox {
      *
      * @see 
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -71,7 +71,7 @@ public @interface VBox {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -81,7 +81,7 @@ public @interface VBox {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -91,7 +91,7 @@ public @interface VBox {
      *
      * @see 
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -101,7 +101,7 @@ public @interface VBox {
      *
      * @see 
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -111,7 +111,7 @@ public @interface VBox {
      *
      * @see 
      */
-    @Schema(description = "行集合")
+    @Schema(title = "行集合")
     String[] rows() default "	";
 
 }

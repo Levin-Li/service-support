@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "CopyableObject")
+@Schema(title = "CopyableObject")
 public @interface CopyableObject {
 ///////////////////////////////////////////
 
@@ -31,7 +31,7 @@ public @interface CopyableObject {
      *
      * @see 
      */
-    @Schema(description = "可以配置图标")
+    @Schema(title = "可以配置图标")
     Icon icon() ;
 
     /**
@@ -41,7 +41,7 @@ public @interface CopyableObject {
      *
      * @see 
      */
-    @Schema(description = "配置复制时的内容模板。")
+    @Schema(title = "配置复制时的内容模板。")
     Tpl content() ;
 
 }

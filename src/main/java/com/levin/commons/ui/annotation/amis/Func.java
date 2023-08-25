@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * Func
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:03
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Func")
+@Schema(title = "Func")
 public @interface Func {
 ///////////////////////////////////////////
 
@@ -23,7 +23,7 @@ public @interface Func {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -39,14 +39,14 @@ public @interface Func {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "type")
+
+    @Schema(title = "type")
     String type() default "	";
 
     /**
@@ -54,14 +54,14 @@ public @interface Func {
      *
      * 参考定义: "#/definitions/FieldTypes"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see FieldTypes
      */
-    
-    @Schema(description = "returnType")
+
+    @Schema(title = "returnType")
     String returnType() default "	";
 
     /**
@@ -69,14 +69,14 @@ public @interface Func {
      *
      * 参考定义: "#/definitions/FuncArg"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see FuncArg
      */
-    
-    @Schema(description = "args")
+
+    @Schema(title = "args")
     FuncArg[] args() ;
 
     /**
@@ -84,14 +84,14 @@ public @interface Func {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "label")
+
+    @Schema(title = "label")
     String label() default "	";
 
 }

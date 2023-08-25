@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * NavItem
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:02
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "NavItem")
+@Schema(title = "NavItem")
 public @interface NavItem {
 ///////////////////////////////////////////
 
@@ -23,7 +23,7 @@ public @interface NavItem {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -39,14 +39,14 @@ public @interface NavItem {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "容器 css 类名")
+
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -54,14 +54,14 @@ public @interface NavItem {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -69,14 +69,14 @@ public @interface NavItem {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -84,14 +84,14 @@ public @interface NavItem {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -99,14 +99,14 @@ public @interface NavItem {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -114,14 +114,14 @@ public @interface NavItem {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -129,14 +129,14 @@ public @interface NavItem {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -144,14 +144,14 @@ public @interface NavItem {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -159,14 +159,14 @@ public @interface NavItem {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -176,12 +176,12 @@ public @interface NavItem {
      *
      * [{"type":"string"},{"$ref":"#/definitions/SchemaCollection"}]
      *
-     * 
      *
-     * @see 
+     *
+     * @see
      */
-    
-    @Schema(description = "文字说明")
+
+    @Schema(title = "文字说明")
     String label() default "	";
 
     /**
@@ -189,14 +189,14 @@ public @interface NavItem {
      *
      * 参考定义: "#/definitions/SchemaIcon"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Icon
      */
-    
-    @Schema(description = "图标类名，参考 fontawesome 4。")
+
+    @Schema(title = "图标类名，参考 fontawesome 4。")
     Icon icon() ;
 
     /**
@@ -204,14 +204,14 @@ public @interface NavItem {
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see UrlPath
      */
-    
-    @Schema(description = "to")
+
+    @Schema(title = "to")
     String to() default "	";
 
     /**
@@ -219,14 +219,14 @@ public @interface NavItem {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "target")
+
+    @Schema(title = "target")
     String target() default "	";
 
     /**
@@ -234,14 +234,14 @@ public @interface NavItem {
      *
      * 参考定义: {"type":"boolean"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "unfolded")
+
+    @Schema(title = "unfolded")
     boolean unfolded() default false;
 
     /**
@@ -249,14 +249,14 @@ public @interface NavItem {
      *
      * 参考定义: {"type":"boolean"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "active")
+
+    @Schema(title = "active")
     boolean active() default false;
 
     /**
@@ -264,14 +264,14 @@ public @interface NavItem {
      *
      * 参考定义: {"type":"boolean"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "defer")
+
+    @Schema(title = "defer")
     boolean defer() default false;
 
     /**
@@ -279,14 +279,14 @@ public @interface NavItem {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"$ref":"#/definitions/SchemaApiObject"}]
      *
      * @see Api
      */
-    
-    @Schema(description = "deferApi")
+
+    @Schema(title = "deferApi")
     String deferApi() default "	";
 
     /**
@@ -294,14 +294,14 @@ public @interface NavItem {
      *
      * 参考定义: "#/definitions/NavItemSchema"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see NavItem
      */
-    
-    @Schema(description = "children")
+
+    @Schema(title = "children")
     String[] children() default "	";
 
 }

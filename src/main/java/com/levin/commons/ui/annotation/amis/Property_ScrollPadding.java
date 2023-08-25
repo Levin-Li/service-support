@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_ScrollPadding")
+@Schema(title = "Property_ScrollPadding")
 public @interface Property_ScrollPadding {
 ///////////////////////////////////////////
 

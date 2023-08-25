@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Table 表格渲染器。 文档：https://baidu.gitee.io/amis/docs/components/table")
+@Schema(title = "Table 表格渲染器。 文档：https://baidu.gitee.io/amis/docs/components/table")
 public @interface Table {
 ///////////////////////////////////////////
 
@@ -41,7 +41,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "指定为表格渲染器。")
+    @Schema(title = "指定为表格渲染器。")
     Type type() ;
 
     /**
@@ -51,7 +51,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -61,7 +61,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -71,7 +71,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -81,7 +81,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -91,7 +91,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -101,7 +101,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -111,7 +111,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -121,7 +121,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "是否固定表头")
+    @Schema(title = "是否固定表头")
     boolean affixHeader() default false;
 
     /**
@@ -131,7 +131,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "表格的列信息")
+    @Schema(title = "表格的列信息")
     String[] columns() default "	";
 
     /**
@@ -141,7 +141,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "展示列显示开关，自动即：列数量大于或等于5个时自动开启")
+    @Schema(title = "展示列显示开关，自动即：列数量大于或等于5个时自动开启")
     boolean columnsTogglable() default false;
 
     /**
@@ -151,7 +151,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "是否开启底部展示功能，适合移动端展示")
+    @Schema(title = "是否开启底部展示功能，适合移动端展示")
     boolean footable() default false;
 
     /**
@@ -161,7 +161,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "底部外层 CSS 类名")
+    @Schema(title = "底部外层 CSS 类名")
     String footerClassName() default "	";
 
     /**
@@ -171,7 +171,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "顶部外层 CSS 类名")
+    @Schema(title = "顶部外层 CSS 类名")
     String headerClassName() default "	";
 
     /**
@@ -181,7 +181,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "占位符")
+    @Schema(title = "占位符")
     String placeholder() default "	";
 
     /**
@@ -191,7 +191,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "是否显示底部")
+    @Schema(title = "是否显示底部")
     boolean showFooter() default false;
 
     /**
@@ -201,7 +201,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "是否显示头部")
+    @Schema(title = "是否显示头部")
     boolean showHeader() default false;
 
     /**
@@ -211,7 +211,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "数据源：绑定当前环境变量")
+    @Schema(title = "数据源：绑定当前环境变量")
     String source() default "	";
 
     /**
@@ -221,7 +221,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "表格 CSS 类名")
+    @Schema(title = "表格 CSS 类名")
     String tableClassName() default "	";
 
     /**
@@ -231,7 +231,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "标题")
+    @Schema(title = "标题")
     String title() default "	";
 
     /**
@@ -241,7 +241,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "工具栏 CSS 类名")
+    @Schema(title = "工具栏 CSS 类名")
     String toolbarClassName() default "	";
 
     /**
@@ -251,7 +251,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "合并单元格配置，配置数字表示从左到右的多少列自动合并单元格。")
+    @Schema(title = "合并单元格配置，配置数字表示从左到右的多少列自动合并单元格。")
     double combineNum() default 0;
 
     /**
@@ -261,7 +261,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "合并单元格配置，配置从第几列开始合并。")
+    @Schema(title = "合并单元格配置，配置从第几列开始合并。")
     double combineFromIndex() default 0;
 
     /**
@@ -271,7 +271,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "顶部总结行")
+    @Schema(title = "顶部总结行")
     String[] prefixRow() default "	";
 
     /**
@@ -281,7 +281,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "底部总结行")
+    @Schema(title = "底部总结行")
     String[] affixRow() default "	";
 
     /**
@@ -291,7 +291,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "是否可调整列宽")
+    @Schema(title = "是否可调整列宽")
     boolean resizable() default false;
 
     /**
@@ -301,7 +301,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "行样式表表达式")
+    @Schema(title = "行样式表表达式")
     String rowClassNameExpr() default "	";
 
     /**
@@ -311,7 +311,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "行角标")
+    @Schema(title = "行角标")
     Badge itemBadge() ;
 
     /**
@@ -321,7 +321,7 @@ public @interface Table {
      *
      * @see 
      */
-    @Schema(description = "开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单")
+    @Schema(title = "开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单")
     boolean autoGenerateFilter() default false;
 
 }

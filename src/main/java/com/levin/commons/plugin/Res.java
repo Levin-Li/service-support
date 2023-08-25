@@ -23,7 +23,7 @@ public interface Res extends SimpleIdentifiable {
      *
      * @return
      */
-    @Schema(description = "资源域")
+    @Schema(title = "资源域")
     <T extends Serializable> T getDomain();
 
     /**
@@ -31,7 +31,7 @@ public interface Res extends SimpleIdentifiable {
      *
      * @return
      */
-    @Schema(description = "资源类型")
+    @Schema(title = "资源类型")
     <T extends Serializable> T getType();
 
     /**
@@ -39,7 +39,7 @@ public interface Res extends SimpleIdentifiable {
      *
      * @return
      */
-    @Schema(description = "资源图标")
+    @Schema(title = "资源图标")
     default String getIcon() {
         return null;
     }

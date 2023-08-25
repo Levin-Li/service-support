@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_TabSize")
+@Schema(title = "Property_TabSize")
 public @interface Property_TabSize {
 ///////////////////////////////////////////
 

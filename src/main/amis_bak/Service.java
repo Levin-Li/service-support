@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Service 服务类控件。 文档：https://baidu.gitee.io/amis/docs/components/service")
+@Schema(title = "Service 服务类控件。 文档：https://baidu.gitee.io/amis/docs/components/service")
 public @interface Service {
 ///////////////////////////////////////////
 
@@ -29,9 +29,9 @@ public @interface Service {
      *
      * 参考定义: {"type":"string","const":"service","description":"指定为 Service 数据拉取控件。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "指定为 Service 数据拉取控件。")
+    @Schema(title = "指定为 Service 数据拉取控件。")
     String type() default "service";
 
     /**
@@ -39,9 +39,9 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -49,9 +49,9 @@ public @interface Service {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -59,9 +59,9 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -69,9 +69,9 @@ public @interface Service {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -79,9 +79,9 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -89,9 +89,9 @@ public @interface Service {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -99,9 +99,9 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -109,9 +109,9 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "页面初始化的时候，可以设置一个 API 让其取拉取，发送数据会携带当前 data 数据（包含地址栏参数），获取得数据会合并到 data 中，供组件内使用。")
+    @Schema(title = "页面初始化的时候，可以设置一个 API 让其取拉取，发送数据会携带当前 data 数据（包含地址栏参数），获取得数据会合并到 data 中，供组件内使用。")
     String api() default "	";
 
     /**
@@ -119,9 +119,9 @@ public @interface Service {
      *
      * 参考定义: {"type":"string","description":"WebScocket 地址，用于实时获取数据"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "WebScocket 地址，用于实时获取数据")
+    @Schema(title = "WebScocket 地址，用于实时获取数据")
     String ws() default "	";
 
     /**
@@ -129,9 +129,9 @@ public @interface Service {
      *
      * 参考定义: {"anyOf":[{"type":"string"},{"type":"object","properties":{"prototype":{},"length":{"type":"number"},"arguments":{},"caller":{"$ref":"#/definitions/interface-605559364-9821-11285-605559364-0-212357549528237"}},"required":["prototype","length","arguments","caller"],"additionalProperties":false,"description":"Creates a new function."}],"description":"通过调用外部函数来获取数据"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "通过调用外部函数来获取数据")
+    @Schema(title = "通过调用外部函数来获取数据")
     String dataProvider() default "	";
 
     /**
@@ -139,9 +139,9 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "内容区域")
+    @Schema(title = "内容区域")
     String body() default "	";
 
     /**
@@ -149,9 +149,9 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "fetchOn")
+    @Schema(title = "fetchOn")
     String fetchOn() default "	";
 
     /**
@@ -159,9 +159,9 @@ public @interface Service {
      *
      * 参考定义: {"type":"boolean","description":"是否默认加载 schemaApi"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否默认就拉取？")
+    @Schema(title = "是否默认就拉取？")
     boolean initFetch() default false;
 
     /**
@@ -169,9 +169,9 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否默认就拉取？通过表达式来决定.")
+    @Schema(title = "是否默认就拉取？通过表达式来决定.")
     String initFetchOn() default "	";
 
     /**
@@ -179,9 +179,9 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "用来获取远程 Schema 的 api")
+    @Schema(title = "用来获取远程 Schema 的 api")
     String schemaApi() default "	";
 
     /**
@@ -189,9 +189,9 @@ public @interface Service {
      *
      * 参考定义: {"type":"number","description":"是否轮询拉取"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否轮询拉取")
+    @Schema(title = "是否轮询拉取")
     double interval() default 0;
 
     /**
@@ -199,9 +199,9 @@ public @interface Service {
      *
      * 参考定义: {"type":"boolean","description":"是否静默拉取"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否静默拉取")
+    @Schema(title = "是否静默拉取")
     boolean silentPolling() default false;
 
     /**
@@ -209,9 +209,9 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "关闭轮询的条件。")
+    @Schema(title = "关闭轮询的条件。")
     String stopAutoRefreshWhen() default "	";
 
     /**
@@ -219,9 +219,9 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaMessage"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "messages")
+    @Schema(title = "messages")
     Message messages() ;
 
     /**
@@ -229,9 +229,9 @@ public @interface Service {
      *
      * 参考定义: "#/definitions/SchemaName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "name")
+    @Schema(title = "name")
     String name() default "	";
 
 }

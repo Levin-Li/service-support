@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * DataType_RepeatStyle
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:02
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "DataType_RepeatStyle")
+@Schema(title = "DataType_RepeatStyle")
 public @interface DataType_RepeatStyle {
 ///////////////////////////////////////////
 
@@ -23,7 +23,7 @@ public @interface DataType_RepeatStyle {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */

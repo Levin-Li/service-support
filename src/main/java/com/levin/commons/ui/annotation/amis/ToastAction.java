@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * ToastAction
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:02
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "ToastAction")
+@Schema(title = "ToastAction")
 public @interface ToastAction {
 ///////////////////////////////////////////
 
@@ -75,7 +75,7 @@ public @interface ToastAction {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -91,14 +91,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"string","enum":["button","submit","reset"],"description":"指定按钮类型，支持 button、submit或者reset三种类型。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "指定按钮类型，支持 button、submit或者reset三种类型。")
+
+    @Schema(title = "指定按钮类型，支持 button、submit或者reset三种类型。")
     Type type() ;
 
     /**
@@ -106,14 +106,14 @@ public @interface ToastAction {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "容器 css 类名")
+
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -121,14 +121,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -136,14 +136,14 @@ public @interface ToastAction {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -151,14 +151,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -166,14 +166,14 @@ public @interface ToastAction {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -181,14 +181,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -196,14 +196,14 @@ public @interface ToastAction {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -211,14 +211,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"string","description":"主要用于用户行为跟踪里区分是哪个按钮"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "主要用于用户行为跟踪里区分是哪个按钮")
+
+    @Schema(title = "主要用于用户行为跟踪里区分是哪个按钮")
     String id() default "	";
 
     /**
@@ -226,14 +226,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -241,14 +241,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"boolean","description":"是否为块状展示，默认为内联。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否为块状展示，默认为内联。")
+
+    @Schema(title = "是否为块状展示，默认为内联。")
     boolean block() default false;
 
     /**
@@ -256,14 +256,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"string","description":"禁用时的文案提示。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "禁用时的文案提示。")
+
+    @Schema(title = "禁用时的文案提示。")
     String disabledTip() default "	";
 
     /**
@@ -271,14 +271,14 @@ public @interface ToastAction {
      *
      * 参考定义: "#/definitions/SchemaIcon"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Icon
      */
-    
-    @Schema(description = "按钮图标， iconfont 的类名")
+
+    @Schema(title = "按钮图标， iconfont 的类名")
     Icon icon() ;
 
     /**
@@ -286,14 +286,14 @@ public @interface ToastAction {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "icon 上的css 类名")
+
+    @Schema(title = "icon 上的css 类名")
     String iconClassName() default "	";
 
     /**
@@ -301,14 +301,14 @@ public @interface ToastAction {
      *
      * 参考定义: "#/definitions/SchemaIcon"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Icon
      */
-    
-    @Schema(description = "右侧按钮图标， iconfont 的类名")
+
+    @Schema(title = "右侧按钮图标， iconfont 的类名")
     Icon rightIcon() ;
 
     /**
@@ -316,14 +316,14 @@ public @interface ToastAction {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "右侧 icon 上的 css 类名")
+
+    @Schema(title = "右侧 icon 上的 css 类名")
     String rightIconClassName() default "	";
 
     /**
@@ -331,14 +331,14 @@ public @interface ToastAction {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "loading 上的css 类名")
+
+    @Schema(title = "loading 上的css 类名")
     String loadingClassName() default "	";
 
     /**
@@ -346,14 +346,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"string","description":"按钮文字"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "按钮文字")
+
+    @Schema(title = "按钮文字")
     String label() default "	";
 
     /**
@@ -361,14 +361,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"string","enum":["info","success","warning","danger","link","primary","dark","light","secondary"],"description":"按钮样式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "按钮样式")
+
+    @Schema(title = "按钮样式")
     Level level() ;
 
     /**
@@ -376,14 +376,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"boolean"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "primary")
+
+    @Schema(title = "primary")
     boolean primary() default false;
 
     /**
@@ -391,14 +391,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"string","enum":["xs","sm","md","lg"],"description":"按钮大小"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "按钮大小")
+
+    @Schema(title = "按钮大小")
     Size size() ;
 
     /**
@@ -406,14 +406,14 @@ public @interface ToastAction {
      *
      * 参考定义: "#/definitions/SchemaTooltip"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","properties":{"title":{"type":"string","description":"标题"},"content":{"type":"string","description":"内容"}},"required":["content"],"additionalProperties":false}]
      *
      * @see Tooltip
      */
-    
-    @Schema(description = "tooltip")
+
+    @Schema(title = "tooltip")
     String tooltip() default "	";
 
     /**
@@ -421,14 +421,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"string","enum":["top","right","bottom","left"]}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "tooltipPlacement")
+
+    @Schema(title = "tooltipPlacement")
     TooltipPlacement tooltipPlacement() ;
 
     /**
@@ -436,14 +436,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"string","description":"提示文字，配置了操作前会要求用户确认。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "提示文字，配置了操作前会要求用户确认。")
+
+    @Schema(title = "提示文字，配置了操作前会要求用户确认。")
     String confirmText() default "	";
 
     /**
@@ -451,14 +451,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"array","items":{"type":"string"},"description":"如果按钮在form中，配置此属性会要求用户把指定的字段通过验证后才会触发行为。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "如果按钮在form中，配置此属性会要求用户把指定的字段通过验证后才会触发行为。")
+
+    @Schema(title = "如果按钮在form中，配置此属性会要求用户把指定的字段通过验证后才会触发行为。")
     String[] required() default "	";
 
     /**
@@ -466,14 +466,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"string","description":"激活状态时的样式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "激活状态时的样式")
+
+    @Schema(title = "激活状态时的样式")
     String activeLevel() default "	";
 
     /**
@@ -481,14 +481,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"string","description":"激活状态时的类名"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "激活状态时的类名")
+
+    @Schema(title = "激活状态时的类名")
     String activeClassName() default "	";
 
     /**
@@ -496,14 +496,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":["boolean","string"],"description":"如果按钮在弹框中，可以配置这个动作完成后是否关闭弹窗，或者指定关闭目标弹框。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "如果按钮在弹框中，可以配置这个动作完成后是否关闭弹窗，或者指定关闭目标弹框。")
+
+    @Schema(title = "如果按钮在弹框中，可以配置这个动作完成后是否关闭弹窗，或者指定关闭目标弹框。")
     String close() default "	";
 
     /**
@@ -511,14 +511,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"boolean","description":"当按钮时批量操作按钮时，默认必须有勾选元素才能可点击，如果此属性配置成 false，则没有点选成员也能点击。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "当按钮时批量操作按钮时，默认必须有勾选元素才能可点击，如果此属性配置成 false，则没有点选成员也能点击。")
+
+    @Schema(title = "当按钮时批量操作按钮时，默认必须有勾选元素才能可点击，如果此属性配置成 false，则没有点选成员也能点击。")
     boolean requireSelected() default false;
 
     /**
@@ -526,14 +526,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"boolean","description":"是否将弹框中数据 merge 到父级作用域。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否将弹框中数据 merge 到父级作用域。")
+
+    @Schema(title = "是否将弹框中数据 merge 到父级作用域。")
     boolean mergeData() default false;
 
     /**
@@ -541,14 +541,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"string","description":"可以指定让谁来触发这个动作。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "可以指定让谁来触发这个动作。")
+
+    @Schema(title = "可以指定让谁来触发这个动作。")
     String target() default "	";
 
     /**
@@ -556,14 +556,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"number","description":"点击后的禁止倒计时（秒）"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "点击后的禁止倒计时（秒）")
+
+    @Schema(title = "点击后的禁止倒计时（秒）")
     double countDown() default 0;
 
     /**
@@ -571,14 +571,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"string","description":"倒计时文字自定义"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "倒计时文字自定义")
+
+    @Schema(title = "倒计时文字自定义")
     String countDownTpl() default "	";
 
     /**
@@ -586,14 +586,14 @@ public @interface ToastAction {
      *
      * 参考定义: "#/definitions/BadgeSchema"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Badge
      */
-    
-    @Schema(description = "角标")
+
+    @Schema(title = "角标")
     Badge badge() ;
 
     /**
@@ -601,14 +601,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"string","description":"键盘快捷键"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "键盘快捷键")
+
+    @Schema(title = "键盘快捷键")
     String hotKey() default "	";
 
     /**
@@ -616,14 +616,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"string","description":"是否显示loading效果"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示loading效果")
+
+    @Schema(title = "是否显示loading效果")
     String loadingOn() default "	";
 
     /**
@@ -633,12 +633,12 @@ public @interface ToastAction {
      *
      * [{"type":"string"},{}]
      *
-     * 
      *
-     * @see 
+     *
+     * @see
      */
-    
-    @Schema(description = "自定义事件处理函数")
+
+    @Schema(title = "自定义事件处理函数")
     String onClick() default "	";
 
     /**
@@ -646,14 +646,14 @@ public @interface ToastAction {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * 
+     *
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-    
-    @Schema(description = "子内容")
+
+    @Schema(title = "子内容")
     String body() default "	";
 
     /**
@@ -661,14 +661,14 @@ public @interface ToastAction {
      *
      * 参考定义: {"type":"string","const":"toast","description":"指定为打开弹窗，抽出式弹窗"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "指定为打开弹窗，抽出式弹窗")
+
+    @Schema(title = "指定为打开弹窗，抽出式弹窗")
     String actionType() default "toast";
 
     /**
@@ -676,14 +676,14 @@ public @interface ToastAction {
      *
      * 参考定义: "#/definitions/ToastSchemaBase"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see ToastBase
      */
-    
-    @Schema(description = "轻提示详情 文档：https://baidu.gitee.io/amis/docs/components/toast")
+
+    @Schema(title = "轻提示详情 文档：https://baidu.gitee.io/amis/docs/components/toast")
     ToastBase toast() ;
 
 }

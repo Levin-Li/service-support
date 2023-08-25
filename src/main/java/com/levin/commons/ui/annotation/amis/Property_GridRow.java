@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_GridRow")
+@Schema(title = "Property_GridRow")
 public @interface Property_GridRow {
 ///////////////////////////////////////////
 

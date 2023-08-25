@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_FontVariantEastAsian")
+@Schema(title = "Property_FontVariantEastAsian")
 public @interface Property_FontVariantEastAsian {
 ///////////////////////////////////////////
 

@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Alert 提示渲染器。 文档：https://baidu.gitee.io/amis/docs/components/alert")
+@Schema(title = "Alert 提示渲染器。 文档：https://baidu.gitee.io/amis/docs/components/alert")
 public @interface Alert {
 ///////////////////////////////////////////
 
@@ -44,7 +44,7 @@ public @interface Alert {
      *
      * @see 
      */
-    @Schema(description = "指定为提示框类型")
+    @Schema(title = "指定为提示框类型")
     String type() default "alert";
 
     /**
@@ -54,7 +54,7 @@ public @interface Alert {
      *
      * @see 
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -64,7 +64,7 @@ public @interface Alert {
      *
      * @see 
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -74,7 +74,7 @@ public @interface Alert {
      *
      * @see 
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -84,7 +84,7 @@ public @interface Alert {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -94,7 +94,7 @@ public @interface Alert {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -104,7 +104,7 @@ public @interface Alert {
      *
      * @see 
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -114,7 +114,7 @@ public @interface Alert {
      *
      * @see 
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -124,7 +124,7 @@ public @interface Alert {
      *
      * @see 
      */
-    @Schema(description = "提示框标题")
+    @Schema(title = "提示框标题")
     String title() default "	";
 
     /**
@@ -134,7 +134,7 @@ public @interface Alert {
      *
      * @see 
      */
-    @Schema(description = "内容区域")
+    @Schema(title = "内容区域")
     String body() default "	";
 
     /**
@@ -144,7 +144,7 @@ public @interface Alert {
      *
      * @see 
      */
-    @Schema(description = "提示类型")
+    @Schema(title = "提示类型")
     Level level() ;
 
     /**
@@ -154,7 +154,7 @@ public @interface Alert {
      *
      * @see 
      */
-    @Schema(description = "是否显示关闭按钮")
+    @Schema(title = "是否显示关闭按钮")
     boolean showCloseButton() default false;
 
     /**
@@ -164,7 +164,7 @@ public @interface Alert {
      *
      * @see 
      */
-    @Schema(description = "关闭按钮CSS类名")
+    @Schema(title = "关闭按钮CSS类名")
     String closeButtonClassName() default "	";
 
     /**
@@ -174,7 +174,7 @@ public @interface Alert {
      *
      * @see 
      */
-    @Schema(description = "是否显示ICON")
+    @Schema(title = "是否显示ICON")
     boolean showIcon() default false;
 
     /**
@@ -184,7 +184,7 @@ public @interface Alert {
      *
      * @see 
      */
-    @Schema(description = "左侧图标")
+    @Schema(title = "左侧图标")
     Icon icon() ;
 
     /**
@@ -194,7 +194,7 @@ public @interface Alert {
      *
      * @see 
      */
-    @Schema(description = "图标CSS类名")
+    @Schema(title = "图标CSS类名")
     String iconClassName() default "	";
 
 }

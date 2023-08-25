@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * RowSelectionOptions
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:03
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "RowSelectionOptions")
+@Schema(title = "RowSelectionOptions")
 public @interface RowSelectionOptions {
 ///////////////////////////////////////////
 
@@ -23,7 +23,7 @@ public @interface RowSelectionOptions {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -39,14 +39,14 @@ public @interface RowSelectionOptions {
      *
      * 参考定义: {"type":"string","description":"选择类型 选择全部"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "选择类型 选择全部")
+
+    @Schema(title = "选择类型 选择全部")
     String key() default "	";
 
     /**
@@ -54,14 +54,14 @@ public @interface RowSelectionOptions {
      *
      * 参考定义: {"type":"string","description":"选项显示文本"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "选项显示文本")
+
+    @Schema(title = "选项显示文本")
     String text() default "	";
 
 }

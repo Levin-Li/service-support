@@ -25,38 +25,38 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @Data
 @Accessors(chain = true)
-@Schema(description = "签名对象")
+@Schema(title = "签名对象")
 public class SignatureReq
         implements ServiceReq {
 
     private static final long serialVersionUID = -944707546677849710L;
 
-    @Schema(description = "应用标识")
+    @Schema(title = "应用标识")
     @Ignore
     @NotBlank
     String appId;
 
-    @Schema(description = "应用密钥")
+    @Schema(title = "应用密钥")
     @Ignore
     @NotBlank
     String appSecret;
 
-    @Schema(description = "一次使用临时字符串")
+    @Schema(title = "一次使用临时字符串")
     @Ignore
     @NotBlank
     String nonceStr;
 
-    @Schema(description = "时间串")
+    @Schema(title = "时间串")
     @Ignore
     @NotBlank
     String timeStamp;
 
-    @Schema(description = "渠道编码")
+    @Schema(title = "渠道编码")
     @Ignore
     @NotBlank
     String channelCode;
 
-    @Schema(description = "签名串")
+    @Schema(title = "签名串")
     @Ignore
     @NotBlank
     String sign;

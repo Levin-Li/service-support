@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Image 图片上传控件 文档：https://baidu.gitee.io/amis/docs/components/form/image")
+@Schema(title = "Image 图片上传控件 文档：https://baidu.gitee.io/amis/docs/components/form/image")
 public @interface ImageControl {
 ///////////////////////////////////////////
 
@@ -71,7 +71,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -81,7 +81,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -91,7 +91,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -101,7 +101,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -111,7 +111,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -121,7 +121,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -131,7 +131,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -141,7 +141,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "指定为图片上传控件")
+    @Schema(title = "指定为图片上传控件")
     String type() default "input-image";
 
     /**
@@ -151,7 +151,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "表单项大小")
+    @Schema(title = "表单项大小")
     Size size() ;
 
     /**
@@ -161,7 +161,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "描述标题")
+    @Schema(title = "描述标题")
     String label() default "	";
 
     /**
@@ -171,7 +171,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "配置 label className")
+    @Schema(title = "配置 label className")
     String labelClassName() default "	";
 
     /**
@@ -181,7 +181,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
+    @Schema(title = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
     String name() default "	";
 
     /**
@@ -191,7 +191,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容")
+    @Schema(title = "显示一个小图标, 鼠标放上去的时候显示提示内容")
     Remark remark() ;
 
     /**
@@ -201,7 +201,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起")
+    @Schema(title = "显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起")
     Remark labelRemark() ;
 
     /**
@@ -211,7 +211,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "输入提示，聚焦的时候显示")
+    @Schema(title = "输入提示，聚焦的时候显示")
     String hint() default "	";
 
     /**
@@ -221,7 +221,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "当修改完的时候是否提交表单。")
+    @Schema(title = "当修改完的时候是否提交表单。")
     boolean submitOnChange() default false;
 
     /**
@@ -231,7 +231,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "是否只读")
+    @Schema(title = "是否只读")
     boolean readOnly() default false;
 
     /**
@@ -241,7 +241,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "不设置时，当表单提交过后表单项每次修改都会触发重新验证， 如果设置了，则由此配置项来决定要不要每次修改都触发验证。")
+    @Schema(title = "不设置时，当表单提交过后表单项每次修改都会触发重新验证， 如果设置了，则由此配置项来决定要不要每次修改都触发验证。")
     boolean validateOnChange() default false;
 
     /**
@@ -251,7 +251,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "描述内容，支持 Html 片段。")
+    @Schema(title = "描述内容，支持 Html 片段。")
     String description() default "	";
 
     /**
@@ -261,7 +261,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "desc")
+    @Schema(title = "desc")
     String desc() default "	";
 
     /**
@@ -271,7 +271,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "配置描述上的 className")
+    @Schema(title = "配置描述上的 className")
     String descriptionClassName() default "	";
 
     /**
@@ -281,7 +281,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "配置当前表单项展示模式")
+    @Schema(title = "配置当前表单项展示模式")
     Mode mode() ;
 
     /**
@@ -291,7 +291,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "当配置为水平布局的时候，用来配置具体的左右分配。")
+    @Schema(title = "当配置为水平布局的时候，用来配置具体的左右分配。")
     FormHorizontal horizontal() ;
 
     /**
@@ -301,7 +301,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "表单 control 是否为 inline 模式。")
+    @Schema(title = "表单 control 是否为 inline 模式。")
     boolean inline() default false;
 
     /**
@@ -311,7 +311,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "配置 input className")
+    @Schema(title = "配置 input className")
     String inputClassName() default "	";
 
     /**
@@ -321,7 +321,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "占位符")
+    @Schema(title = "占位符")
     String placeholder() default "	";
 
     /**
@@ -331,7 +331,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "是否为必填")
+    @Schema(title = "是否为必填")
     boolean required() default false;
 
     /**
@@ -341,7 +341,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "验证失败的提示信息")
+    @Schema(title = "验证失败的提示信息")
     String validationErrors() default "	";
 
     /**
@@ -351,7 +351,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "validations")
+    @Schema(title = "validations")
     String validations() default "	";
 
     /**
@@ -361,7 +361,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。")
+    @Schema(title = "默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。")
     String value() default "	";
 
     /**
@@ -371,7 +371,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉")
+    @Schema(title = "表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉")
     boolean clearValueOnHidden() default false;
 
     /**
@@ -381,7 +381,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "远端校验表单项接口")
+    @Schema(title = "远端校验表单项接口")
     String validateApi() default "	";
 
     /**
@@ -391,7 +391,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "默认展示图片的链接")
+    @Schema(title = "默认展示图片的链接")
     String src() default "	";
 
     /**
@@ -401,7 +401,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "默认展示图片的类名")
+    @Schema(title = "默认展示图片的类名")
     String imageClassName() default "	";
 
     /**
@@ -411,7 +411,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "配置接收的图片类型\n\n建议直接填写文件后缀 如：.txt,.csv\n\n多个类型用逗号隔开。")
+    @Schema(title = "配置接收的图片类型\n\n建议直接填写文件后缀 如：.txt,.csv\n\n多个类型用逗号隔开。")
     String accept() default "	";
 
     /**
@@ -421,7 +421,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "默认都是通过用户选择图片后上传返回图片地址，如果开启此选项，则可以允许用户图片地址。")
+    @Schema(title = "默认都是通过用户选择图片后上传返回图片地址，如果开启此选项，则可以允许用户图片地址。")
     boolean allowInput() default false;
 
     /**
@@ -431,7 +431,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "是否自动开始上传")
+    @Schema(title = "是否自动开始上传")
     boolean autoUpload() default false;
 
     /**
@@ -441,7 +441,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "选择图片按钮的 CSS 类名")
+    @Schema(title = "选择图片按钮的 CSS 类名")
     String btnClassName() default "	";
 
     /**
@@ -451,7 +451,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "上传按钮的 CSS 类名")
+    @Schema(title = "上传按钮的 CSS 类名")
     String btnUploadClassName() default "	";
 
     /**
@@ -461,7 +461,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "compress")
+    @Schema(title = "compress")
     boolean compress() default false;
 
     /**
@@ -471,7 +471,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "compressOptions")
+    @Schema(title = "compressOptions")
     String compressOptions() default "	";
 
     /**
@@ -481,7 +481,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "crop")
+    @Schema(title = "crop")
     boolean crop() default false;
 
     /**
@@ -491,7 +491,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "裁剪后的图片类型")
+    @Schema(title = "裁剪后的图片类型")
     String cropFormat() default "	";
 
     /**
@@ -501,7 +501,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "裁剪后的质量")
+    @Schema(title = "裁剪后的质量")
     double cropQuality() default 0;
 
     /**
@@ -511,7 +511,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "是否允许二次裁剪。")
+    @Schema(title = "是否允许二次裁剪。")
     boolean reCropable() default false;
 
     /**
@@ -521,7 +521,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏上传按钮")
+    @Schema(title = "是否隐藏上传按钮")
     boolean hideUploadButton() default false;
 
     /**
@@ -531,7 +531,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "限制图片大小，超出不让上传。")
+    @Schema(title = "限制图片大小，超出不让上传。")
     String limit() default "	";
 
     /**
@@ -541,7 +541,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "最多的个数")
+    @Schema(title = "最多的个数")
     double maxLength() default 0;
 
     /**
@@ -551,7 +551,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "默认没有限制，当设置后，文件大小大于此值将不允许上传。")
+    @Schema(title = "默认没有限制，当设置后，文件大小大于此值将不允许上传。")
     double maxSize() default 0;
 
     /**
@@ -561,7 +561,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "默认 `/api/upload` 如果想自己存储，请设置此选项。")
+    @Schema(title = "默认 `/api/upload` 如果想自己存储，请设置此选项。")
     String receiver() default "	";
 
     /**
@@ -571,7 +571,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "默认为 false, 开启后，允许用户输入压缩选项。")
+    @Schema(title = "默认为 false, 开启后，允许用户输入压缩选项。")
     boolean showCompressOptions() default false;
 
     /**
@@ -581,7 +581,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "是否为多选")
+    @Schema(title = "是否为多选")
     boolean multiple() default false;
 
     /**
@@ -591,7 +591,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "单选模式：当用户选中某个选项时，选项中的 value 将被作为该表单项的值提交，否则，整个选项对象都会作为该表单项的值提交。 多选模式：选中的多个选项的 `value` 会通过 `delimiter` 连接起来，否则直接将以数组的形式提交值。")
+    @Schema(title = "单选模式：当用户选中某个选项时，选项中的 value 将被作为该表单项的值提交，否则，整个选项对象都会作为该表单项的值提交。 多选模式：选中的多个选项的 `value` 会通过 `delimiter` 连接起来，否则直接将以数组的形式提交值。")
     boolean joinValues() default false;
 
     /**
@@ -601,7 +601,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "分割符")
+    @Schema(title = "分割符")
     String delimiter() default "	";
 
     /**
@@ -611,7 +611,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "开启后将选中的选项 value 的值封装为数组，作为当前表单项的值。")
+    @Schema(title = "开启后将选中的选项 value 的值封装为数组，作为当前表单项的值。")
     boolean extractValue() default false;
 
     /**
@@ -621,7 +621,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "清除时设置的值")
+    @Schema(title = "清除时设置的值")
     String resetValue() default "	";
 
     /**
@@ -631,7 +631,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "缩路图展示模式")
+    @Schema(title = "缩路图展示模式")
     ThumbMode thumbMode() ;
 
     /**
@@ -641,7 +641,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "缩路图展示比率。")
+    @Schema(title = "缩路图展示比率。")
     ThumbRatio thumbRatio() ;
 
     /**
@@ -651,7 +651,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "上传后把其他字段同步到表单内部。")
+    @Schema(title = "上传后把其他字段同步到表单内部。")
     String autoFill() default "	";
 
     /**
@@ -661,7 +661,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "默认占位图图片地址")
+    @Schema(title = "默认占位图图片地址")
     String frameImage() default "	";
 
     /**
@@ -671,7 +671,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "是否开启固定尺寸")
+    @Schema(title = "是否开启固定尺寸")
     boolean fixedSize() default false;
 
     /**
@@ -681,7 +681,7 @@ public @interface ImageControl {
      *
      * @see 
      */
-    @Schema(description = "固定尺寸的 CSS类名")
+    @Schema(title = "固定尺寸的 CSS类名")
     String fixedSizeClassName() default "	";
 
 }

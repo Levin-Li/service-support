@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Container 容器渲染器。 文档：https://baidu.gitee.io/amis/docs/components/container")
+@Schema(title = "Container 容器渲染器。 文档：https://baidu.gitee.io/amis/docs/components/container")
 public @interface Container {
 ///////////////////////////////////////////
 
@@ -29,9 +29,9 @@ public @interface Container {
      *
      * 参考定义: {"type":"string","const":"container","description":"指定为 container 类型"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "指定为 container 类型")
+    @Schema(title = "指定为 container 类型")
     String type() default "container";
 
     /**
@@ -39,9 +39,9 @@ public @interface Container {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -49,9 +49,9 @@ public @interface Container {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -59,9 +59,9 @@ public @interface Container {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -69,9 +69,9 @@ public @interface Container {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -79,9 +79,9 @@ public @interface Container {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -89,9 +89,9 @@ public @interface Container {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -99,9 +99,9 @@ public @interface Container {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -109,9 +109,9 @@ public @interface Container {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "内容")
+    @Schema(title = "内容")
     String body() default "	";
 
     /**
@@ -119,9 +119,9 @@ public @interface Container {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "body 类名")
+    @Schema(title = "body 类名")
     String bodyClassName() default "	";
 
     /**
@@ -129,9 +129,9 @@ public @interface Container {
      *
      * 参考定义: {"type":"object","description":"自定义样式"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "自定义样式")
+    @Schema(title = "自定义样式")
     String style() default "	";
 
     /**
@@ -139,9 +139,9 @@ public @interface Container {
      *
      * 参考定义: {"type":"string","description":"使用的标签"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "使用的标签")
+    @Schema(title = "使用的标签")
     String wrapperComponent() default "	";
 
 }

@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_MsScrollLimitYMax")
+@Schema(title = "Property_MsScrollLimitYMax")
 public @interface Property_MsScrollLimitYMax {
 ///////////////////////////////////////////
 

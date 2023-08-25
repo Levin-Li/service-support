@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Icon 图表渲染器 文档：https://baidu.gitee.io/amis/docs/components/icon")
+@Schema(title = "Icon 图表渲染器 文档：https://baidu.gitee.io/amis/docs/components/icon")
 public @interface Icon {
 ///////////////////////////////////////////
 
@@ -33,7 +33,7 @@ public @interface Icon {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -49,14 +49,14 @@ public @interface Icon {
      *
      * 参考定义: {"type":"string","const":"icon"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "type")
+
+    @Schema(title = "type")
     String type() default "icon";
 
     /**
@@ -64,14 +64,14 @@ public @interface Icon {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "容器 css 类名")
+
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -79,14 +79,14 @@ public @interface Icon {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -94,14 +94,14 @@ public @interface Icon {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -109,14 +109,14 @@ public @interface Icon {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -124,14 +124,14 @@ public @interface Icon {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -139,14 +139,14 @@ public @interface Icon {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -154,14 +154,14 @@ public @interface Icon {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -169,14 +169,14 @@ public @interface Icon {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -184,14 +184,14 @@ public @interface Icon {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -199,14 +199,14 @@ public @interface Icon {
      *
      * 参考定义: {"type":"string","description":"按钮类型"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "按钮类型")
+
+    @Schema(title = "按钮类型")
     String icon() default "	";
 
     /**
@@ -214,14 +214,14 @@ public @interface Icon {
      *
      * 参考定义: {"type":"string","enum":["iconfont","fa",""]}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "vendor")
+
+    @Schema(title = "vendor")
     Vendor vendor() ;
 
     /**
@@ -229,14 +229,14 @@ public @interface Icon {
      *
      * 参考定义: "#/definitions/BadgeSchema"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Badge
      */
-    
-    @Schema(description = "角标")
+
+    @Schema(title = "角标")
     Badge badge() ;
 
 }

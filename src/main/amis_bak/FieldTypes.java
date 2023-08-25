@@ -5,12 +5,12 @@ import java.lang.annotation.*;
 /**
  * FieldTypes
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 
-@Schema(description = "FieldTypes")
+@Schema(title = "FieldTypes")
 public enum FieldTypes {
 
 		text,

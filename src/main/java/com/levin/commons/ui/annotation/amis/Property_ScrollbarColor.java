@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_ScrollbarColor")
+@Schema(title = "Property_ScrollbarColor")
 public @interface Property_ScrollbarColor {
 ///////////////////////////////////////////
 

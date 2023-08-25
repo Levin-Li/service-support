@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Hidden 隐藏域。功能性组件 文档：https://baidu.gitee.io/amis/docs/components/form/hidden")
+@Schema(title = "Hidden 隐藏域。功能性组件 文档：https://baidu.gitee.io/amis/docs/components/form/hidden")
 public @interface HiddenControl {
 ///////////////////////////////////////////
 
@@ -66,7 +66,7 @@ public @interface HiddenControl {
      * @see ClassName
      */
     
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -81,7 +81,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -96,7 +96,7 @@ public @interface HiddenControl {
      * @see Expression
      */
     
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -111,7 +111,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -126,7 +126,7 @@ public @interface HiddenControl {
      * @see Expression
      */
     
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -141,7 +141,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -156,7 +156,7 @@ public @interface HiddenControl {
      * @see Expression
      */
     
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -171,7 +171,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -186,7 +186,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "事件动作配置")
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -201,7 +201,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "表单项类型")
+    @Schema(title = "表单项类型")
     String type() default "hidden";
 
     /**
@@ -216,7 +216,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "表单项大小")
+    @Schema(title = "表单项大小")
     Size size() ;
 
     /**
@@ -231,7 +231,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "描述标题")
+    @Schema(title = "描述标题")
     String label() default "	";
 
     /**
@@ -246,7 +246,7 @@ public @interface HiddenControl {
      * @see LabelAlign
      */
     
-    @Schema(description = "描述标题")
+    @Schema(title = "描述标题")
     String labelAlign() default "	";
 
     /**
@@ -261,7 +261,7 @@ public @interface HiddenControl {
      * @see ClassName
      */
     
-    @Schema(description = "配置 label className")
+    @Schema(title = "配置 label className")
     String labelClassName() default "	";
 
     /**
@@ -276,7 +276,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
+    @Schema(title = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
     String name() default "	";
 
     /**
@@ -291,7 +291,7 @@ public @interface HiddenControl {
      * @see Remark
      */
     
-    @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容")
+    @Schema(title = "显示一个小图标, 鼠标放上去的时候显示提示内容")
     Remark remark() ;
 
     /**
@@ -306,7 +306,7 @@ public @interface HiddenControl {
      * @see Remark
      */
     
-    @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起")
+    @Schema(title = "显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起")
     Remark labelRemark() ;
 
     /**
@@ -321,7 +321,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "输入提示，聚焦的时候显示")
+    @Schema(title = "输入提示，聚焦的时候显示")
     String hint() default "	";
 
     /**
@@ -336,7 +336,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "当修改完的时候是否提交表单。")
+    @Schema(title = "当修改完的时候是否提交表单。")
     boolean submitOnChange() default false;
 
     /**
@@ -351,7 +351,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "是否只读")
+    @Schema(title = "是否只读")
     boolean readOnly() default false;
 
     /**
@@ -366,7 +366,7 @@ public @interface HiddenControl {
      * @see Expression
      */
     
-    @Schema(description = "只读条件")
+    @Schema(title = "只读条件")
     String readOnlyOn() default "	";
 
     /**
@@ -381,7 +381,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "不设置时，当表单提交过后表单项每次修改都会触发重新验证， 如果设置了，则由此配置项来决定要不要每次修改都触发验证。")
+    @Schema(title = "不设置时，当表单提交过后表单项每次修改都会触发重新验证， 如果设置了，则由此配置项来决定要不要每次修改都触发验证。")
     boolean validateOnChange() default false;
 
     /**
@@ -396,7 +396,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "描述内容，支持 Html 片段。")
+    @Schema(title = "描述内容，支持 Html 片段。")
     String description() default "	";
 
     /**
@@ -411,7 +411,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "desc")
+    @Schema(title = "desc")
     String desc() default "	";
 
     /**
@@ -426,7 +426,7 @@ public @interface HiddenControl {
      * @see ClassName
      */
     
-    @Schema(description = "配置描述上的 className")
+    @Schema(title = "配置描述上的 className")
     String descriptionClassName() default "	";
 
     /**
@@ -441,7 +441,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "配置当前表单项展示模式")
+    @Schema(title = "配置当前表单项展示模式")
     Mode mode() ;
 
     /**
@@ -456,7 +456,7 @@ public @interface HiddenControl {
      * @see FormHorizontal
      */
     
-    @Schema(description = "当配置为水平布局的时候，用来配置具体的左右分配。")
+    @Schema(title = "当配置为水平布局的时候，用来配置具体的左右分配。")
     FormHorizontal horizontal() ;
 
     /**
@@ -471,7 +471,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "表单 control 是否为 inline 模式。")
+    @Schema(title = "表单 control 是否为 inline 模式。")
     boolean inline() default false;
 
     /**
@@ -486,7 +486,7 @@ public @interface HiddenControl {
      * @see ClassName
      */
     
-    @Schema(description = "配置 input className")
+    @Schema(title = "配置 input className")
     String inputClassName() default "	";
 
     /**
@@ -501,7 +501,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "占位符")
+    @Schema(title = "占位符")
     String placeholder() default "	";
 
     /**
@@ -516,7 +516,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "是否为必填")
+    @Schema(title = "是否为必填")
     boolean required() default false;
 
     /**
@@ -531,7 +531,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "验证失败的提示信息")
+    @Schema(title = "验证失败的提示信息")
     String validationErrors() default "	";
 
     /**
@@ -546,7 +546,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "validations")
+    @Schema(title = "validations")
     String validations() default "	";
 
     /**
@@ -561,7 +561,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。")
+    @Schema(title = "默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。")
     String value() default "	";
 
     /**
@@ -576,7 +576,7 @@ public @interface HiddenControl {
      * @see 
      */
     
-    @Schema(description = "表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉")
+    @Schema(title = "表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉")
     boolean clearValueOnHidden() default false;
 
     /**
@@ -591,7 +591,7 @@ public @interface HiddenControl {
      * @see Api
      */
     
-    @Schema(description = "远端校验表单项接口")
+    @Schema(title = "远端校验表单项接口")
     String validateApi() default "	";
 
 }

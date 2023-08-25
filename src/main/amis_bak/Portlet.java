@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * Portlet
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:42
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Portlet")
+@Schema(title = "Portlet")
 public @interface Portlet {
 ///////////////////////////////////////////
 
@@ -42,9 +42,9 @@ public @interface Portlet {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -52,9 +52,9 @@ public @interface Portlet {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -62,9 +62,9 @@ public @interface Portlet {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -72,9 +72,9 @@ public @interface Portlet {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -82,9 +82,9 @@ public @interface Portlet {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -92,9 +92,9 @@ public @interface Portlet {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -102,9 +102,9 @@ public @interface Portlet {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -112,9 +112,9 @@ public @interface Portlet {
      *
      * 参考定义: {"type":"string","const":"portlet","description":"指定为 portlet 类型"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "指定为 portlet 类型")
+    @Schema(title = "指定为 portlet 类型")
     String type() default "portlet";
 
     /**
@@ -122,9 +122,9 @@ public @interface Portlet {
      *
      * 参考定义: "#/definitions/PortletTabSchema"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "tabs")
+    @Schema(title = "tabs")
     PortletTab[] tabs() ;
 
     /**
@@ -132,9 +132,9 @@ public @interface Portlet {
      *
      * 参考定义: {"type":"string","description":"关联已有数据，选项卡直接根据目标数据重复。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "关联已有数据，选项卡直接根据目标数据重复。")
+    @Schema(title = "关联已有数据，选项卡直接根据目标数据重复。")
     String source() default "	";
 
     /**
@@ -142,9 +142,9 @@ public @interface Portlet {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "类名")
+    @Schema(title = "类名")
     String tabsClassName() default "	";
 
     /**
@@ -152,9 +152,9 @@ public @interface Portlet {
      *
      * 参考定义: {"type":"string","enum":["","line","card","radio","vertical","tiled"],"description":"展示形式"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "展示形式")
+    @Schema(title = "展示形式")
     TabsMode tabsMode() ;
 
     /**
@@ -162,9 +162,9 @@ public @interface Portlet {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "内容类名")
+    @Schema(title = "内容类名")
     String contentClassName() default "	";
 
     /**
@@ -172,9 +172,9 @@ public @interface Portlet {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "链接外层类名")
+    @Schema(title = "链接外层类名")
     String linksClassName() default "	";
 
     /**
@@ -182,9 +182,9 @@ public @interface Portlet {
      *
      * 参考定义: {"type":"boolean","description":"卡片是否只有在点开的时候加载？"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "卡片是否只有在点开的时候加载？")
+    @Schema(title = "卡片是否只有在点开的时候加载？")
     boolean mountOnEnter() default false;
 
     /**
@@ -192,9 +192,9 @@ public @interface Portlet {
      *
      * 参考定义: {"type":"boolean","description":"卡片隐藏的时候是否销毁卡片内容"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "卡片隐藏的时候是否销毁卡片内容")
+    @Schema(title = "卡片隐藏的时候是否销毁卡片内容")
     boolean unmountOnExit() default false;
 
     /**
@@ -202,9 +202,9 @@ public @interface Portlet {
      *
      * 参考定义: "#/definitions/ActionSchema"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "可以在右侧配置点其他功能按钮。不会随着tab切换")
+    @Schema(title = "可以在右侧配置点其他功能按钮。不会随着tab切换")
     String[] toolbar() default "	";
 
     /**
@@ -212,9 +212,9 @@ public @interface Portlet {
      *
      * 参考定义: {"type":"boolean","description":"是否支持溢出滚动"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否支持溢出滚动")
+    @Schema(title = "是否支持溢出滚动")
     boolean scrollable() default false;
 
     /**
@@ -222,9 +222,9 @@ public @interface Portlet {
      *
      * 参考定义: {"type":"boolean","description":"header和内容是否展示分割线"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "header和内容是否展示分割线")
+    @Schema(title = "header和内容是否展示分割线")
     boolean divider() default false;
 
     /**
@@ -232,9 +232,9 @@ public @interface Portlet {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "标题右侧的描述")
+    @Schema(title = "标题右侧的描述")
     Tpl description() ;
 
     /**
@@ -242,9 +242,9 @@ public @interface Portlet {
      *
      * 参考定义: {"type":"boolean","description":"隐藏头部"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "隐藏头部")
+    @Schema(title = "隐藏头部")
     boolean hideHeader() default false;
 
     /**
@@ -252,9 +252,9 @@ public @interface Portlet {
      *
      * 参考定义: {"anyOf":[{"type":"string"},{"type":"object"}],"description":"自定义样式"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "自定义样式")
+    @Schema(title = "自定义样式")
     String style() default "	";
 
 }

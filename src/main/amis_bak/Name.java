@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "组件名字，这个名字可以用来定位，用于组件通信")
+@Schema(title = "组件名字，这个名字可以用来定位，用于组件通信")
 public @interface Name {
 ///////////////////////////////////////////
 

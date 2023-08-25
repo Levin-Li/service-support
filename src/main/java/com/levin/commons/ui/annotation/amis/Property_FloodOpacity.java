@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_FloodOpacity")
+@Schema(title = "Property_FloodOpacity")
 public @interface Property_FloodOpacity {
 ///////////////////////////////////////////
 

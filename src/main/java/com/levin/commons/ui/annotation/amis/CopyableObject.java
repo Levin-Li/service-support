@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * CopyableObject
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:02
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "CopyableObject")
+@Schema(title = "CopyableObject")
 public @interface CopyableObject {
 ///////////////////////////////////////////
 
@@ -23,7 +23,7 @@ public @interface CopyableObject {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -39,14 +39,14 @@ public @interface CopyableObject {
      *
      * 参考定义: "#/definitions/SchemaIcon"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Icon
      */
-    
-    @Schema(description = "可以配置图标")
+
+    @Schema(title = "可以配置图标")
     Icon icon() ;
 
     /**
@@ -54,14 +54,14 @@ public @interface CopyableObject {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Tpl
      */
-    
-    @Schema(description = "配置复制时的内容模板。")
+
+    @Schema(title = "配置复制时的内容模板。")
     Tpl content() ;
 
 }

@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * ListItem
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:02
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "ListItem")
+@Schema(title = "ListItem")
 public @interface ListItem {
 ///////////////////////////////////////////
 
@@ -33,7 +33,7 @@ public @interface ListItem {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -49,14 +49,14 @@ public @interface ListItem {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "容器 css 类名")
+
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -64,14 +64,14 @@ public @interface ListItem {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -79,14 +79,14 @@ public @interface ListItem {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -94,14 +94,14 @@ public @interface ListItem {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -109,14 +109,14 @@ public @interface ListItem {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -124,14 +124,14 @@ public @interface ListItem {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -139,14 +139,14 @@ public @interface ListItem {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -154,14 +154,14 @@ public @interface ListItem {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -169,14 +169,14 @@ public @interface ListItem {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -184,14 +184,14 @@ public @interface ListItem {
      *
      * 参考定义: "#/definitions/ActionSchema"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Action
      */
-    
-    @Schema(description = "actions")
+
+    @Schema(title = "actions")
     String[] actions() default "	";
 
     /**
@@ -199,14 +199,14 @@ public @interface ListItem {
      *
      * 参考定义: {"type":"string","enum":["left","right"],"description":"操作位置，默认在右侧，可以设置成左侧。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "操作位置，默认在右侧，可以设置成左侧。")
+
+    @Schema(title = "操作位置，默认在右侧，可以设置成左侧。")
     ActionsPosition actionsPosition() ;
 
     /**
@@ -214,14 +214,14 @@ public @interface ListItem {
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see UrlPath
      */
-    
-    @Schema(description = "图片地址")
+
+    @Schema(title = "图片地址")
     String avatar() default "	";
 
     /**
@@ -229,14 +229,14 @@ public @interface ListItem {
      *
      * 参考定义: {"type":"array","items":{"anyOf":[{"$ref":"#/definitions/ListBodyField"},{"$ref":"#/definitions/ListBodyFieldObject"}]},"description":"内容区域"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "内容区域")
+
+    @Schema(title = "内容区域")
     String[] body() default "	";
 
     /**
@@ -244,14 +244,14 @@ public @interface ListItem {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Tpl
      */
-    
-    @Schema(description = "描述")
+
+    @Schema(title = "描述")
     Tpl desc() ;
 
     /**
@@ -259,14 +259,14 @@ public @interface ListItem {
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Remark
      */
-    
-    @Schema(description = "tooltip 说明")
+
+    @Schema(title = "tooltip 说明")
     Remark remark() ;
 
     /**
@@ -274,14 +274,14 @@ public @interface ListItem {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Tpl
      */
-    
-    @Schema(description = "标题")
+
+    @Schema(title = "标题")
     Tpl title() ;
 
     /**
@@ -289,14 +289,14 @@ public @interface ListItem {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Tpl
      */
-    
-    @Schema(description = "副标题")
+
+    @Schema(title = "副标题")
     Tpl subTitle() ;
 
 }

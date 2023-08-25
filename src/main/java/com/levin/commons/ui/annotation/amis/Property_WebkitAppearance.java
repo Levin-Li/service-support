@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_WebkitAppearance")
+@Schema(title = "Property_WebkitAppearance")
 public @interface Property_WebkitAppearance {
 ///////////////////////////////////////////
 

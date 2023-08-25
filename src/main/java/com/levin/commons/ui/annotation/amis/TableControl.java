@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * TableControl
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:03
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "TableControl")
+@Schema(title = "TableControl")
 public @interface TableControl {
 ///////////////////////////////////////////
 
@@ -47,7 +47,7 @@ public @interface TableControl {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -59,14 +59,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"是否固定表头"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否固定表头")
+
+    @Schema(title = "是否固定表头")
     boolean affixHeader() default false;
 
     /**
@@ -74,14 +74,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/TableColumn"
      *
-     * 
+     *
      *
      * [{"$ref":"#/definitions/TableColumnWithType"},{"$ref":"#/definitions/TableColumnObject"}]
      *
      * @see TableColumn
      */
-    
-    @Schema(description = "表格的列信息")
+
+    @Schema(title = "表格的列信息")
     String[] columns() default "	";
 
     /**
@@ -91,12 +91,12 @@ public @interface TableControl {
      *
      * [{"type":"boolean"},{"type":"string","const":"auto"}]
      *
-     * 
      *
-     * @see 
+     *
+     * @see
      */
-    
-    @Schema(description = "展示列显示开关，自动即：列数量大于或等于5个时自动开启")
+
+    @Schema(title = "展示列显示开关，自动即：列数量大于或等于5个时自动开启")
     String columnsTogglable() default "	";
 
     /**
@@ -106,12 +106,12 @@ public @interface TableControl {
      *
      * [{"type":"boolean"},{"type":"object","properties":{"expand":{"type":"string","enum":["first","all","none"]},"accordion":{"type":"boolean","description":"是否为手风琴模式"}},"additionalProperties":false}]
      *
-     * 
      *
-     * @see 
+     *
+     * @see
      */
-    
-    @Schema(description = "是否开启底部展示功能，适合移动端展示")
+
+    @Schema(title = "是否开启底部展示功能，适合移动端展示")
     String footable() default "	";
 
     /**
@@ -119,14 +119,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "底部外层 CSS 类名")
+
+    @Schema(title = "底部外层 CSS 类名")
     String footerClassName() default "	";
 
     /**
@@ -134,14 +134,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "顶部外层 CSS 类名")
+
+    @Schema(title = "顶部外层 CSS 类名")
     String headerClassName() default "	";
 
     /**
@@ -149,14 +149,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"占位符"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "占位符")
+
+    @Schema(title = "占位符")
     String placeholder() default "	";
 
     /**
@@ -166,12 +166,12 @@ public @interface TableControl {
      *
      * [{"type":"string"},{"$ref":"#/definitions/SchemaIcon"}]
      *
-     * 
      *
-     * @see 
+     *
+     * @see
      */
-    
-    @Schema(description = "无数据展示 icon")
+
+    @Schema(title = "无数据展示 icon")
     String emptyIcon() default "	";
 
     /**
@@ -179,14 +179,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"是否显示底部"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示底部")
+
+    @Schema(title = "是否显示底部")
     boolean showFooter() default false;
 
     /**
@@ -194,14 +194,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"是否显示头部"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示头部")
+
+    @Schema(title = "是否显示头部")
     boolean showHeader() default false;
 
     /**
@@ -209,14 +209,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaTokenizeableString"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see TokenizeableString
      */
-    
-    @Schema(description = "数据源：绑定当前环境变量")
+
+    @Schema(title = "数据源：绑定当前环境变量")
     String source() default "	";
 
     /**
@@ -224,14 +224,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "表格 CSS 类名")
+
+    @Schema(title = "表格 CSS 类名")
     String tableClassName() default "	";
 
     /**
@@ -239,14 +239,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"标题"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "标题")
+
+    @Schema(title = "标题")
     String title() default "	";
 
     /**
@@ -254,14 +254,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "工具栏 CSS 类名")
+
+    @Schema(title = "工具栏 CSS 类名")
     String toolbarClassName() default "	";
 
     /**
@@ -269,14 +269,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"number","description":"合并单元格配置，配置数字表示从左到右的多少列自动合并单元格。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "合并单元格配置，配置数字表示从左到右的多少列自动合并单元格。")
+
+    @Schema(title = "合并单元格配置，配置数字表示从左到右的多少列自动合并单元格。")
     double combineNum() default 0;
 
     /**
@@ -284,14 +284,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"number","description":"合并单元格配置，配置从第几列开始合并。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "合并单元格配置，配置从第几列开始合并。")
+
+    @Schema(title = "合并单元格配置，配置从第几列开始合并。")
     double combineFromIndex() default 0;
 
     /**
@@ -299,14 +299,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaObject"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Object
      */
-    
-    @Schema(description = "顶部总结行")
+
+    @Schema(title = "顶部总结行")
     String[] prefixRow() default "	";
 
     /**
@@ -314,14 +314,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaObject"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Object
      */
-    
-    @Schema(description = "底部总结行")
+
+    @Schema(title = "底部总结行")
     String[] affixRow() default "	";
 
     /**
@@ -329,14 +329,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"是否可调整列宽"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否可调整列宽")
+
+    @Schema(title = "是否可调整列宽")
     boolean resizable() default false;
 
     /**
@@ -344,14 +344,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"行样式表表达式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "行样式表表达式")
+
+    @Schema(title = "行样式表表达式")
     String rowClassNameExpr() default "	";
 
     /**
@@ -359,14 +359,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/BadgeSchema"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Badge
      */
-    
-    @Schema(description = "行角标")
+
+    @Schema(title = "行角标")
     Badge itemBadge() ;
 
     /**
@@ -374,14 +374,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单")
+
+    @Schema(title = "开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单")
     boolean autoGenerateFilter() default false;
 
     /**
@@ -389,14 +389,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "容器 css 类名")
+
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -404,14 +404,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -419,14 +419,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -434,14 +434,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -449,14 +449,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -464,14 +464,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -479,14 +479,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -494,14 +494,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -509,14 +509,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -524,14 +524,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","const":"input-table","description":"表单项类型"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "表单项类型")
+
+    @Schema(title = "表单项类型")
     String type() default "input-table";
 
     /**
@@ -539,14 +539,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","enum":["xs","sm","md","lg","full"],"description":"表单项大小"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "表单项大小")
+
+    @Schema(title = "表单项大小")
     Size size() ;
 
     /**
@@ -556,12 +556,12 @@ public @interface TableControl {
      *
      * [{"type":"string"},{"type":"boolean","const":false}]
      *
-     * 
      *
-     * @see 
+     *
+     * @see
      */
-    
-    @Schema(description = "描述标题")
+
+    @Schema(title = "描述标题")
     String label() default "	";
 
     /**
@@ -569,14 +569,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/LabelAlign"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see LabelAlign
      */
-    
-    @Schema(description = "描述标题")
+
+    @Schema(title = "描述标题")
     String labelAlign() default "	";
 
     /**
@@ -584,14 +584,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "配置 label className")
+
+    @Schema(title = "配置 label className")
     String labelClassName() default "	";
 
     /**
@@ -599,14 +599,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
+
+    @Schema(title = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
     String name() default "	";
 
     /**
@@ -614,14 +614,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Remark
      */
-    
-    @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容")
+
+    @Schema(title = "显示一个小图标, 鼠标放上去的时候显示提示内容")
     Remark remark() ;
 
     /**
@@ -629,14 +629,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Remark
      */
-    
-    @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起")
+
+    @Schema(title = "显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起")
     Remark labelRemark() ;
 
     /**
@@ -644,14 +644,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"输入提示，聚焦的时候显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "输入提示，聚焦的时候显示")
+
+    @Schema(title = "输入提示，聚焦的时候显示")
     String hint() default "	";
 
     /**
@@ -659,14 +659,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"当修改完的时候是否提交表单。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "当修改完的时候是否提交表单。")
+
+    @Schema(title = "当修改完的时候是否提交表单。")
     boolean submitOnChange() default false;
 
     /**
@@ -674,14 +674,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"是否只读"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否只读")
+
+    @Schema(title = "是否只读")
     boolean readOnly() default false;
 
     /**
@@ -689,14 +689,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "只读条件")
+
+    @Schema(title = "只读条件")
     String readOnlyOn() default "	";
 
     /**
@@ -704,14 +704,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"不设置时，当表单提交过后表单项每次修改都会触发重新验证， 如果设置了，则由此配置项来决定要不要每次修改都触发验证。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "不设置时，当表单提交过后表单项每次修改都会触发重新验证， 如果设置了，则由此配置项来决定要不要每次修改都触发验证。")
+
+    @Schema(title = "不设置时，当表单提交过后表单项每次修改都会触发重新验证， 如果设置了，则由此配置项来决定要不要每次修改都触发验证。")
     boolean validateOnChange() default false;
 
     /**
@@ -719,14 +719,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"描述内容，支持 Html 片段。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "描述内容，支持 Html 片段。")
+
+    @Schema(title = "描述内容，支持 Html 片段。")
     String description() default "	";
 
     /**
@@ -734,14 +734,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "desc")
+
+    @Schema(title = "desc")
     String desc() default "	";
 
     /**
@@ -749,14 +749,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "配置描述上的 className")
+
+    @Schema(title = "配置描述上的 className")
     String descriptionClassName() default "	";
 
     /**
@@ -764,14 +764,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","enum":["normal","inline","horizontal"],"description":"配置当前表单项展示模式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "配置当前表单项展示模式")
+
+    @Schema(title = "配置当前表单项展示模式")
     Mode mode() ;
 
     /**
@@ -779,14 +779,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see FormHorizontal
      */
-    
-    @Schema(description = "当配置为水平布局的时候，用来配置具体的左右分配。")
+
+    @Schema(title = "当配置为水平布局的时候，用来配置具体的左右分配。")
     FormHorizontal horizontal() ;
 
     /**
@@ -794,14 +794,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"表单 control 是否为 inline 模式。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "表单 control 是否为 inline 模式。")
+
+    @Schema(title = "表单 control 是否为 inline 模式。")
     boolean inline() default false;
 
     /**
@@ -809,14 +809,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "配置 input className")
+
+    @Schema(title = "配置 input className")
     String inputClassName() default "	";
 
     /**
@@ -824,14 +824,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"是否为必填"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否为必填")
+
+    @Schema(title = "是否为必填")
     boolean required() default false;
 
     /**
@@ -839,14 +839,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"object","properties":{"isAlpha":{"type":"string"},"isAlphanumeric":{"type":"string"},"isEmail":{"type":"string"},"isFloat":{"type":"string"},"isInt":{"type":"string"},"isJson":{"type":"string"},"isLength":{"type":"string"},"isNumeric":{"type":"string"},"isRequired":{"type":"string"},"isUrl":{"type":"string"},"matchRegexp":{"type":"string"},"matchRegexp2":{"type":"string"},"matchRegexp3":{"type":"string"},"matchRegexp4":{"type":"string"},"matchRegexp5":{"type":"string"},"maxLength":{"type":"string"},"maximum":{"type":"string"},"minLength":{"type":"string"},"minimum":{"type":"string"}},"description":"验证失败的提示信息"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "验证失败的提示信息")
+
+    @Schema(title = "验证失败的提示信息")
     String validationErrors() default "	";
 
     /**
@@ -856,12 +856,12 @@ public @interface TableControl {
      *
      * [{"type":"string"},{"type":"object","properties":{"isAlpha":{"type":"boolean","description":"是否是字母"},"isAlphanumeric":{"type":"boolean","description":"是否为字母数字"},"isEmail":{"type":"boolean","description":"是否为邮箱地址"},"isFloat":{"type":"boolean","description":"是否为浮点型"},"isInt":{"type":"boolean","description":"是否为整型"},"isJson":{"type":"boolean","description":"是否为 json"},"isLength":{"type":"number","description":"长度等于指定值"},"isNumeric":{"type":"boolean","description":"是否为数字"},"isRequired":{"type":"boolean","description":"是否为必填"},"isUrl":{"type":"boolean","description":"是否为 URL 地址"},"matchRegexp":{"type":"string","description":"内容命中指定正则"},"matchRegexp1":{"type":"string","description":"内容命中指定正则"},"matchRegexp2":{"type":"string","description":"内容命中指定正则"},"matchRegexp3":{"type":"string","description":"内容命中指定正则"},"matchRegexp4":{"type":"string","description":"内容命中指定正则"},"matchRegexp5":{"type":"string","description":"内容命中指定正则"},"maxLength":{"type":"number","description":"最大长度为指定值"},"maximum":{"type":"number","description":"最大值为指定值"},"minLength":{"type":"number","description":"最小长度为指定值"},"minimum":{"type":"number","description":"最小值为指定值"}}}]
      *
-     * 
      *
-     * @see 
+     *
+     * @see
      */
-    
-    @Schema(description = "validations")
+
+    @Schema(title = "validations")
     String validations() default "	";
 
     /**
@@ -869,14 +869,14 @@ public @interface TableControl {
      *
      * 参考定义: {"description":"默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。")
+
+    @Schema(title = "默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。")
     String value() default "	";
 
     /**
@@ -884,14 +884,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉")
+
+    @Schema(title = "表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉")
     boolean clearValueOnHidden() default false;
 
     /**
@@ -899,14 +899,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"$ref":"#/definitions/SchemaApiObject"}]
      *
      * @see Api
      */
-    
-    @Schema(description = "远端校验表单项接口")
+
+    @Schema(title = "远端校验表单项接口")
     String validateApi() default "	";
 
     /**
@@ -914,14 +914,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"可新增"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "可新增")
+
+    @Schema(title = "可新增")
     boolean addable() default false;
 
     /**
@@ -929,14 +929,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"可复制新增"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "可复制新增")
+
+    @Schema(title = "可复制新增")
     boolean copyable() default false;
 
     /**
@@ -944,14 +944,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"复制按钮文字"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "复制按钮文字")
+
+    @Schema(title = "复制按钮文字")
     String copyBtnLabel() default "	";
 
     /**
@@ -959,14 +959,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"复制按钮图标"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "复制按钮图标")
+
+    @Schema(title = "复制按钮图标")
     String copyBtnIcon() default "	";
 
     /**
@@ -974,14 +974,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"是否显示复制按钮"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示复制按钮")
+
+    @Schema(title = "是否显示复制按钮")
     boolean copyAddBtn() default false;
 
     /**
@@ -989,14 +989,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"是否可以拖拽排序"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否可以拖拽排序")
+
+    @Schema(title = "是否可以拖拽排序")
     boolean draggable() default false;
 
     /**
@@ -1004,14 +1004,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"$ref":"#/definitions/SchemaApiObject"}]
      *
      * @see Api
      */
-    
-    @Schema(description = "新增 API")
+
+    @Schema(title = "新增 API")
     String addApi() default "	";
 
     /**
@@ -1019,14 +1019,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"新增按钮文字"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "新增按钮文字")
+
+    @Schema(title = "新增按钮文字")
     String addBtnLabel() default "	";
 
     /**
@@ -1034,14 +1034,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"新增按钮图标"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "新增按钮图标")
+
+    @Schema(title = "新增按钮图标")
     String addBtnIcon() default "	";
 
     /**
@@ -1049,14 +1049,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"显示新增按钮"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "显示新增按钮")
+
+    @Schema(title = "显示新增按钮")
     boolean showAddBtn() default false;
 
     /**
@@ -1064,14 +1064,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"可否删除"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "可否删除")
+
+    @Schema(title = "可否删除")
     boolean removable() default false;
 
     /**
@@ -1079,14 +1079,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"$ref":"#/definitions/SchemaApiObject"}]
      *
      * @see Api
      */
-    
-    @Schema(description = "删除的 API")
+
+    @Schema(title = "删除的 API")
     String deleteApi() default "	";
 
     /**
@@ -1094,14 +1094,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"可否编辑"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "可否编辑")
+
+    @Schema(title = "可否编辑")
     boolean editable() default false;
 
     /**
@@ -1109,14 +1109,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"更新按钮名称"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "更新按钮名称")
+
+    @Schema(title = "更新按钮名称")
     String editBtnLabel() default "	";
 
     /**
@@ -1124,14 +1124,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"更新按钮图标"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "更新按钮图标")
+
+    @Schema(title = "更新按钮图标")
     String editBtnIcon() default "	";
 
     /**
@@ -1139,14 +1139,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"确认按钮文字"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "确认按钮文字")
+
+    @Schema(title = "确认按钮文字")
     String confirmBtnLabel() default "	";
 
     /**
@@ -1154,14 +1154,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"确认按钮图标"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "确认按钮图标")
+
+    @Schema(title = "确认按钮图标")
     String confirmBtnIcon() default "	";
 
     /**
@@ -1169,14 +1169,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"取消按钮文字"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "取消按钮文字")
+
+    @Schema(title = "取消按钮文字")
     String cancelBtnLabel() default "	";
 
     /**
@@ -1184,14 +1184,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"取消按钮图标"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "取消按钮图标")
+
+    @Schema(title = "取消按钮图标")
     String cancelBtnIcon() default "	";
 
     /**
@@ -1199,14 +1199,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"删除按钮文字"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "删除按钮文字")
+
+    @Schema(title = "删除按钮文字")
     String deleteBtnLabel() default "	";
 
     /**
@@ -1214,14 +1214,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"删除按钮图标"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "删除按钮图标")
+
+    @Schema(title = "删除按钮图标")
     String deleteBtnIcon() default "	";
 
     /**
@@ -1229,14 +1229,14 @@ public @interface TableControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"$ref":"#/definitions/SchemaApiObject"}]
      *
      * @see Api
      */
-    
-    @Schema(description = "更新 API")
+
+    @Schema(title = "更新 API")
     String updateApi() default "	";
 
     /**
@@ -1244,14 +1244,14 @@ public @interface TableControl {
      *
      * 参考定义: {"description":"初始值，新增的时候"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "初始值，新增的时候")
+
+    @Schema(title = "初始值，新增的时候")
     String scaffold() default "	";
 
     /**
@@ -1259,14 +1259,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"删除确认文字"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "删除确认文字")
+
+    @Schema(title = "删除确认文字")
     String deleteConfirmText() default "	";
 
     /**
@@ -1274,14 +1274,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"string","description":"值字段"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "值字段")
+
+    @Schema(title = "值字段")
     String valueField() default "	";
 
     /**
@@ -1289,14 +1289,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"是否为确认的编辑模式。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否为确认的编辑模式。")
+
+    @Schema(title = "是否为确认的编辑模式。")
     boolean needConfirm() default false;
 
     /**
@@ -1304,14 +1304,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"是否可以访问父级数据，正常 combo 已经关联到数组成员，是不能访问父级数据的。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否可以访问父级数据，正常 combo 已经关联到数组成员，是不能访问父级数据的。")
+
+    @Schema(title = "是否可以访问父级数据，正常 combo 已经关联到数组成员，是不能访问父级数据的。")
     boolean canAccessSuperData() default false;
 
     /**
@@ -1319,14 +1319,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"boolean","description":"是否显示序号"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示序号")
+
+    @Schema(title = "是否显示序号")
     boolean showIndex() default false;
 
     /**
@@ -1334,14 +1334,14 @@ public @interface TableControl {
      *
      * 参考定义: {"type":"number","description":"分页个数，默认不分页"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "分页个数，默认不分页")
+
+    @Schema(title = "分页个数，默认不分页")
     double perPage() default 0;
 
 }

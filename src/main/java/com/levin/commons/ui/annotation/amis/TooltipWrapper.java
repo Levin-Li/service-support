@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * TooltipWrapper
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:03
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "TooltipWrapper")
+@Schema(title = "TooltipWrapper")
 public @interface TooltipWrapper {
 ///////////////////////////////////////////
 
@@ -45,7 +45,7 @@ public @interface TooltipWrapper {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -61,14 +61,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"string","const":"tooltip-wrapper","description":"文字提示容器"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "文字提示容器")
+
+    @Schema(title = "文字提示容器")
     String type() default "tooltip-wrapper";
 
     /**
@@ -76,14 +76,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"string","description":"内容区CSS类名"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "内容区CSS类名")
+
+    @Schema(title = "内容区CSS类名")
     String className() default "	";
 
     /**
@@ -91,14 +91,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用提示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用提示")
+
+    @Schema(title = "是否禁用提示")
     boolean disabled() default false;
 
     /**
@@ -106,14 +106,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -121,14 +121,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -136,14 +136,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -151,14 +151,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -166,14 +166,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -181,14 +181,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -196,14 +196,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -211,14 +211,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"string","description":"文字提示标题"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "文字提示标题")
+
+    @Schema(title = "文字提示标题")
     String title() default "	";
 
     /**
@@ -226,14 +226,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"string","description":"文字提示内容，兼容 tooltip，但建议通过 content 来实现提示内容"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "文字提示内容，兼容 tooltip，但建议通过 content 来实现提示内容")
+
+    @Schema(title = "文字提示内容，兼容 tooltip，但建议通过 content 来实现提示内容")
     String content() default "	";
 
     /**
@@ -241,14 +241,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "tooltip")
+
+    @Schema(title = "tooltip")
     String tooltip() default "	";
 
     /**
@@ -256,14 +256,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"string","enum":["top","right","bottom","left"],"description":"文字提示浮层出现位置，默认为top"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "文字提示浮层出现位置，默认为top")
+
+    @Schema(title = "文字提示浮层出现位置，默认为top")
     Placement placement() ;
 
     /**
@@ -271,14 +271,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"array","items":{"type":"number"},"minItems":2,"maxItems":2,"description":"浮层位置相对偏移量"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "浮层位置相对偏移量")
+
+    @Schema(title = "浮层位置相对偏移量")
     double[] offset() default 0;
 
     /**
@@ -286,14 +286,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"boolean","description":"是否展示浮层指向箭头"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否展示浮层指向箭头")
+
+    @Schema(title = "是否展示浮层指向箭头")
     boolean showArrow() default false;
 
     /**
@@ -303,12 +303,12 @@ public @interface TooltipWrapper {
      *
      * [{"$ref":"#/definitions/Trigger"},{"type":"array","items":{"$ref":"#/definitions/Trigger"}}]
      *
-     * 
      *
-     * @see 
+     *
+     * @see
      */
-    
-    @Schema(description = "浮层触发方式，默认为hover")
+
+    @Schema(title = "浮层触发方式，默认为hover")
     String trigger() default "	";
 
     /**
@@ -316,14 +316,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"number","description":"浮层延迟显示时间, 单位 ms"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "浮层延迟显示时间, 单位 ms")
+
+    @Schema(title = "浮层延迟显示时间, 单位 ms")
     double mouseEnterDelay() default 0;
 
     /**
@@ -331,14 +331,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"number","description":"浮层延迟隐藏时间, 单位 ms"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "浮层延迟隐藏时间, 单位 ms")
+
+    @Schema(title = "浮层延迟隐藏时间, 单位 ms")
     double mouseLeaveDelay() default 0;
 
     /**
@@ -346,14 +346,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"boolean","description":"是否点击非内容区域关闭提示，默认为true"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否点击非内容区域关闭提示，默认为true")
+
+    @Schema(title = "是否点击非内容区域关闭提示，默认为true")
     boolean rootClose() default false;
 
     /**
@@ -361,14 +361,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * 
+     *
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-    
-    @Schema(description = "内容区域")
+
+    @Schema(title = "内容区域")
     String body() default "	";
 
     /**
@@ -376,14 +376,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"string","description":"内容区包裹标签"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "内容区包裹标签")
+
+    @Schema(title = "内容区包裹标签")
     String wrapperComponent() default "	";
 
     /**
@@ -391,14 +391,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"boolean","description":"内容区是否内联显示，默认为false"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "内容区是否内联显示，默认为false")
+
+    @Schema(title = "内容区是否内联显示，默认为false")
     boolean inline() default false;
 
     /**
@@ -406,14 +406,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"string","enum":["light","dark"],"description":"主题样式， 默认为light"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "主题样式， 默认为light")
+
+    @Schema(title = "主题样式， 默认为light")
     TooltipTheme tooltipTheme() ;
 
     /**
@@ -421,14 +421,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"object","description":"内容区自定义样式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "内容区自定义样式")
+
+    @Schema(title = "内容区自定义样式")
     String style() default "	";
 
     /**
@@ -436,14 +436,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"boolean","description":"是否可以移入浮层中, 默认true"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否可以移入浮层中, 默认true")
+
+    @Schema(title = "是否可以移入浮层中, 默认true")
     boolean enterable() default false;
 
     /**
@@ -451,14 +451,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"object","description":"自定义提示浮层样式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "自定义提示浮层样式")
+
+    @Schema(title = "自定义提示浮层样式")
     String tooltipStyle() default "	";
 
     /**
@@ -466,14 +466,14 @@ public @interface TooltipWrapper {
      *
      * 参考定义: {"type":"string","description":"文字提示浮层CSS类名"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "文字提示浮层CSS类名")
+
+    @Schema(title = "文字提示浮层CSS类名")
     String tooltipClassName() default "	";
 
 }

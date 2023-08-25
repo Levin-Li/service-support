@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * ObjectComboSubControl
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:43
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "ObjectComboSubControl")
+@Schema(title = "ObjectComboSubControl")
 public @interface ObjectComboSubControl {
 ///////////////////////////////////////////
 

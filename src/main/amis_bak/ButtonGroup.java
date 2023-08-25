@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Button Group 渲染器。 文档：https://baidu.gitee.io/amis/docs/components/button-group")
+@Schema(title = "Button Group 渲染器。 文档：https://baidu.gitee.io/amis/docs/components/button-group")
 public @interface ButtonGroup {
 ///////////////////////////////////////////
 
@@ -41,9 +41,9 @@ public @interface ButtonGroup {
      *
      * 参考定义: {"type":"string","const":"button-group","description":"指定为提交按钮类型"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "指定为提交按钮类型")
+    @Schema(title = "指定为提交按钮类型")
     String type() default "button-group";
 
     /**
@@ -51,9 +51,9 @@ public @interface ButtonGroup {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -61,9 +61,9 @@ public @interface ButtonGroup {
      *
      * 参考定义: {"type":"boolean","description":"是否为禁用状态。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否为禁用状态。")
+    @Schema(title = "是否为禁用状态。")
     boolean disabled() default false;
 
     /**
@@ -71,9 +71,9 @@ public @interface ButtonGroup {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "通过 JS 表达式来配置当前表单项的禁用状态。")
+    @Schema(title = "通过 JS 表达式来配置当前表单项的禁用状态。")
     String disabledOn() default "	";
 
     /**
@@ -81,9 +81,9 @@ public @interface ButtonGroup {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -91,9 +91,9 @@ public @interface ButtonGroup {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -101,9 +101,9 @@ public @interface ButtonGroup {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -111,9 +111,9 @@ public @interface ButtonGroup {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "通过 JS 表达式来配置当前表单项是否显示")
+    @Schema(title = "通过 JS 表达式来配置当前表单项是否显示")
     String visibleOn() default "	";
 
     /**
@@ -121,9 +121,9 @@ public @interface ButtonGroup {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "给 Button 配置 className。")
+    @Schema(title = "给 Button 配置 className。")
     String btnClassName() default "	";
 
     /**
@@ -131,9 +131,9 @@ public @interface ButtonGroup {
      *
      * 参考定义: {"type":"string","description":"给选中态 Button 配置 className。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "给选中态 Button 配置 className。")
+    @Schema(title = "给选中态 Button 配置 className。")
     String btnActiveClassName() default "	";
 
     /**
@@ -141,9 +141,9 @@ public @interface ButtonGroup {
      *
      * 参考定义: "#/definitions/ActionSchema"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "按钮集合")
+    @Schema(title = "按钮集合")
     String[] buttons() default "	";
 
     /**
@@ -151,9 +151,9 @@ public @interface ButtonGroup {
      *
      * 参考定义: {"type":"string","description":"按钮样式级别"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "按钮样式级别")
+    @Schema(title = "按钮样式级别")
     String btnLevel() default "	";
 
     /**
@@ -161,9 +161,9 @@ public @interface ButtonGroup {
      *
      * 参考定义: {"type":"string","description":"按钮选中的样式级别"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "按钮选中的样式级别")
+    @Schema(title = "按钮选中的样式级别")
     String btnActiveLevel() default "	";
 
     /**
@@ -171,9 +171,9 @@ public @interface ButtonGroup {
      *
      * 参考定义: {"type":"boolean","description":"垂直展示？"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "垂直展示？")
+    @Schema(title = "垂直展示？")
     boolean vertical() default false;
 
     /**
@@ -181,9 +181,9 @@ public @interface ButtonGroup {
      *
      * 参考定义: {"type":"boolean","description":"平铺展示？"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "平铺展示？")
+    @Schema(title = "平铺展示？")
     boolean tiled() default false;
 
     /**
@@ -191,9 +191,9 @@ public @interface ButtonGroup {
      *
      * 参考定义: {"type":"string","enum":["xs","sm","md","lg"],"description":"按钮大小"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "按钮大小")
+    @Schema(title = "按钮大小")
     Size size() ;
 
 }

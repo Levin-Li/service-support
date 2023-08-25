@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * ListenerAction
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:01
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "ListenerAction")
+@Schema(title = "ListenerAction")
 public @interface ListenerAction {
 ///////////////////////////////////////////
 
@@ -23,7 +23,7 @@ public @interface ListenerAction {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -39,14 +39,14 @@ public @interface ListenerAction {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "actionType")
+
+    @Schema(title = "actionType")
     String actionType() default "	";
 
     /**
@@ -54,14 +54,14 @@ public @interface ListenerAction {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "description")
+
+    @Schema(title = "description")
     String description() default "	";
 
     /**
@@ -69,14 +69,14 @@ public @interface ListenerAction {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "componentId")
+
+    @Schema(title = "componentId")
     String componentId() default "	";
 
     /**
@@ -84,14 +84,14 @@ public @interface ListenerAction {
      *
      * 参考定义: {"type":"object"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "args")
+
+    @Schema(title = "args")
     String args() default "	";
 
     /**
@@ -99,14 +99,14 @@ public @interface ListenerAction {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "outputVar")
+
+    @Schema(title = "outputVar")
     String outputVar() default "	";
 
     /**
@@ -114,14 +114,14 @@ public @interface ListenerAction {
      *
      * 参考定义: {"type":"boolean"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "preventDefault")
+
+    @Schema(title = "preventDefault")
     boolean preventDefault() default false;
 
     /**
@@ -129,14 +129,14 @@ public @interface ListenerAction {
      *
      * 参考定义: {"type":"boolean"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "stopPropagation")
+
+    @Schema(title = "stopPropagation")
     boolean stopPropagation() default false;
 
     /**
@@ -144,14 +144,14 @@ public @interface ListenerAction {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "expression")
+
+    @Schema(title = "expression")
     String expression() default "	";
 
     /**
@@ -159,14 +159,14 @@ public @interface ListenerAction {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "execOn")
+
+    @Schema(title = "execOn")
     String execOn() default "	";
 
 }

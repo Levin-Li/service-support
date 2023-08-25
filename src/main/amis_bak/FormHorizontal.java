@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * FormHorizontal
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:42
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "FormHorizontal")
+@Schema(title = "FormHorizontal")
 public @interface FormHorizontal {
 ///////////////////////////////////////////
 
@@ -29,9 +29,9 @@ public @interface FormHorizontal {
      *
      * 参考定义: {"type":"number"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "left")
+    @Schema(title = "left")
     double left() default 0;
 
     /**
@@ -39,9 +39,9 @@ public @interface FormHorizontal {
      *
      * 参考定义: {"type":"number"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "right")
+    @Schema(title = "right")
     double right() default 0;
 
     /**
@@ -49,9 +49,9 @@ public @interface FormHorizontal {
      *
      * 参考定义: {"anyOf":[{"type":"boolean"},{"type":"number"},{"type":"string","const":"xs"},{"type":"string","const":"sm"},{"type":"string","const":"md"},{"type":"string","const":"lg"}]}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "leftFixed")
+    @Schema(title = "leftFixed")
     boolean leftFixed() default false;
 
 }

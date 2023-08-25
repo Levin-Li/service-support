@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * ApiObject
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:02
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "ApiObject")
+@Schema(title = "ApiObject")
 public @interface ApiObject {
 ///////////////////////////////////////////
 
@@ -48,7 +48,7 @@ public @interface ApiObject {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -64,14 +64,14 @@ public @interface ApiObject {
      *
      * 参考定义: {"type":"string","enum":["get","post","put","delete","patch","jsonp"],"description":"API 发送类型"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "API 发送类型")
+
+    @Schema(title = "API 发送类型")
     Method method() ;
 
     /**
@@ -79,14 +79,14 @@ public @interface ApiObject {
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see UrlPath
      */
-    
-    @Schema(description = "API 发送目标地址")
+
+    @Schema(title = "API 发送目标地址")
     String url() default "	";
 
     /**
@@ -94,14 +94,14 @@ public @interface ApiObject {
      *
      * 参考定义: {"type":"object","description":"用来控制携带数据. 当key 为 `&` 值为 `$$` 时, 将所有原始数据打平设置到 data 中. 当值为 $$ 将所有原始数据赋值到对应的 key 中. 当值为 $ 打头时, 将变量值设置到 key 中."}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "用来控制携带数据. 当key 为 `&` 值为 `$$` 时, 将所有原始数据打平设置到 data 中. 当值为 $$ 将所有原始数据赋值到对应的 key 中. 当值为 $ 打头时, 将变量值设置到 key 中.")
+
+    @Schema(title = "用来控制携带数据. 当key 为 `&` 值为 `$$` 时, 将所有原始数据打平设置到 data 中. 当值为 $$ 将所有原始数据赋值到对应的 key 中. 当值为 $ 打头时, 将变量值设置到 key 中.")
     String data() default "	";
 
     /**
@@ -109,14 +109,14 @@ public @interface ApiObject {
      *
      * 参考定义: {"type":"boolean","description":"默认数据映射中的key如果带点，或者带大括号，会转成对象比如：\n\n{   'a.b': '123' }\n\n经过数据映射后变成 {  a: {   b: '123  } }\n\n如果想要关闭此功能，请设置 convertKeyToPath 为 false"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "默认数据映射中的key如果带点，或者带大括号，会转成对象比如：\n\n{   'a.b': '123' }\n\n经过数据映射后变成 {  a: {   b: '123  } }\n\n如果想要关闭此功能，请设置 convertKeyToPath 为 false")
+
+    @Schema(title = "默认数据映射中的key如果带点，或者带大括号，会转成对象比如：\n\n{   'a.b': '123' }\n\n经过数据映射后变成 {  a: {   b: '123  } }\n\n如果想要关闭此功能，请设置 convertKeyToPath 为 false")
     boolean convertKeyToPath() default false;
 
     /**
@@ -124,14 +124,14 @@ public @interface ApiObject {
      *
      * 参考定义: {"type":"object","description":"用来做接口返回的数据映射。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "用来做接口返回的数据映射。")
+
+    @Schema(title = "用来做接口返回的数据映射。")
     String responseData() default "	";
 
     /**
@@ -139,14 +139,14 @@ public @interface ApiObject {
      *
      * 参考定义: {"type":"boolean","description":"如果 method 为 get 的接口，设置了 data 信息。 默认 data 会自动附带在 query 里面发送给后端。\n\n如果想通过 body 发送给后端，那么请把这个配置成 false。\n\n但是，浏览器还不支持啊，设置了只是摆设。除非服务端支持 method-override"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "如果 method 为 get 的接口，设置了 data 信息。 默认 data 会自动附带在 query 里面发送给后端。\n\n如果想通过 body 发送给后端，那么请把这个配置成 false。\n\n但是，浏览器还不支持啊，设置了只是摆设。除非服务端支持 method-override")
+
+    @Schema(title = "如果 method 为 get 的接口，设置了 data 信息。 默认 data 会自动附带在 query 里面发送给后端。\n\n如果想通过 body 发送给后端，那么请把这个配置成 false。\n\n但是，浏览器还不支持啊，设置了只是摆设。除非服务端支持 method-override")
     boolean attachDataToQuery() default false;
 
     /**
@@ -154,14 +154,14 @@ public @interface ApiObject {
      *
      * 参考定义: {"type":"string","enum":["json","form-data","form"],"description":"发送体的格式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "发送体的格式")
+
+    @Schema(title = "发送体的格式")
     DataType dataType() ;
 
     /**
@@ -169,14 +169,14 @@ public @interface ApiObject {
      *
      * 参考定义: {"type":"string","const":"blob","description":"如果是文件下载接口，请配置这个。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "如果是文件下载接口，请配置这个。")
+
+    @Schema(title = "如果是文件下载接口，请配置这个。")
     String responseType() default "blob";
 
     /**
@@ -184,14 +184,14 @@ public @interface ApiObject {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":["string","number"]},"description":"携带 headers，用法和 data 一样，可以用变量。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "携带 headers，用法和 data 一样，可以用变量。")
+
+    @Schema(title = "携带 headers，用法和 data 一样，可以用变量。")
     String headers() default "	";
 
     /**
@@ -199,14 +199,14 @@ public @interface ApiObject {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "设置发送条件")
+
+    @Schema(title = "设置发送条件")
     String sendOn() default "	";
 
     /**
@@ -214,14 +214,14 @@ public @interface ApiObject {
      *
      * 参考定义: {"type":"boolean","description":"默认都是追加模式，如果想完全替换把这个配置成 true"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "默认都是追加模式，如果想完全替换把这个配置成 true")
+
+    @Schema(title = "默认都是追加模式，如果想完全替换把这个配置成 true")
     boolean replaceData() default false;
 
     /**
@@ -229,14 +229,14 @@ public @interface ApiObject {
      *
      * 参考定义: {"type":"boolean","description":"是否自动刷新，当 url 中的取值结果变化时，自动刷新数据。","default":true}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否自动刷新，当 url 中的取值结果变化时，自动刷新数据。")
+
+    @Schema(title = "是否自动刷新，当 url 中的取值结果变化时，自动刷新数据。")
     boolean autoRefresh() default false;
 
     /**
@@ -244,14 +244,14 @@ public @interface ApiObject {
      *
      * 参考定义: {"type":"string","description":"当开启自动刷新的时候，默认是 api 的 url 来自动跟踪变量变化的。 如果你希望监控 url 外的变量，请配置 traceExpression。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "当开启自动刷新的时候，默认是 api 的 url 来自动跟踪变量变化的。 如果你希望监控 url 外的变量，请配置 traceExpression。")
+
+    @Schema(title = "当开启自动刷新的时候，默认是 api 的 url 来自动跟踪变量变化的。 如果你希望监控 url 外的变量，请配置 traceExpression。")
     String trackExpression() default "	";
 
     /**
@@ -259,14 +259,14 @@ public @interface ApiObject {
      *
      * 参考定义: {"type":"number","description":"如果设置了值，同一个接口，相同参数，指定的时间（单位：ms）内请求将直接走缓存。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "如果设置了值，同一个接口，相同参数，指定的时间（单位：ms）内请求将直接走缓存。")
+
+    @Schema(title = "如果设置了值，同一个接口，相同参数，指定的时间（单位：ms）内请求将直接走缓存。")
     double cache() default 0;
 
     /**
@@ -274,14 +274,14 @@ public @interface ApiObject {
      *
      * 参考定义: {"type":"boolean","description":"强制将数据附加在 query，默认只有 api 地址中没有用变量的时候 crud 查询接口才会 自动附加数据到 query 部分，如果想强制附加请设置这个属性。 对于那种临时加了个变量但是又不想全部参数写一遍的时候配置很有用。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "强制将数据附加在 query，默认只有 api 地址中没有用变量的时候 crud 查询接口才会 自动附加数据到 query 部分，如果想强制附加请设置这个属性。 对于那种临时加了个变量但是又不想全部参数写一遍的时候配置很有用。")
+
+    @Schema(title = "强制将数据附加在 query，默认只有 api 地址中没有用变量的时候 crud 查询接口才会 自动附加数据到 query 部分，如果想强制附加请设置这个属性。 对于那种临时加了个变量但是又不想全部参数写一遍的时候配置很有用。")
     boolean forceAppendDataToQuery() default false;
 
     /**
@@ -289,14 +289,14 @@ public @interface ApiObject {
      *
      * 参考定义: {"type":"object","properties":{"arrayFormat":{"type":"string","enum":["indices","brackets","repeat","comma"]},"indices":{"type":"boolean"},"allowDots":{"type":"boolean"}},"additionalProperties":false,"description":"qs 配置项"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "qs 配置项")
+
+    @Schema(title = "qs 配置项")
     String qsOptions() default "	";
 
     /**
@@ -304,14 +304,14 @@ public @interface ApiObject {
      *
      * 参考定义: {"type":"boolean","description":"autoFillApi 是否显示自动填充错误提示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "autoFillApi 是否显示自动填充错误提示")
+
+    @Schema(title = "autoFillApi 是否显示自动填充错误提示")
     boolean silent() default false;
 
 }

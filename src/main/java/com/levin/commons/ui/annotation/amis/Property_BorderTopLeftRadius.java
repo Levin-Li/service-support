@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_BorderTopLeftRadius")
+@Schema(title = "Property_BorderTopLeftRadius")
 public @interface Property_BorderTopLeftRadius {
 ///////////////////////////////////////////
 

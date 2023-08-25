@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Group 表单集合渲染器，能让多个表单在一行显示 文档：https://baidu.gitee.io/amis/docs/components/form/group")
+@Schema(title = "Group 表单集合渲染器，能让多个表单在一行显示 文档：https://baidu.gitee.io/amis/docs/components/form/group")
 public @interface GroupControl {
 ///////////////////////////////////////////
 
@@ -81,9 +81,9 @@ public @interface GroupControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -91,9 +91,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -101,9 +101,9 @@ public @interface GroupControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -111,9 +111,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -121,9 +121,9 @@ public @interface GroupControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -131,9 +131,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -141,9 +141,9 @@ public @interface GroupControl {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -151,9 +151,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"string","const":"group","description":"表单项类型"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "表单项类型")
+    @Schema(title = "表单项类型")
     String type() default "group";
 
     /**
@@ -161,9 +161,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"string","enum":["xs","sm","md","lg","full"],"description":"表单项大小"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "表单项大小")
+    @Schema(title = "表单项大小")
     Size size() ;
 
     /**
@@ -171,9 +171,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"anyOf":[{"type":"string"},{"type":"boolean","const":false}],"description":"描述标题"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "描述标题")
+    @Schema(title = "描述标题")
     String label() default "	";
 
     /**
@@ -181,9 +181,9 @@ public @interface GroupControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置 label className")
+    @Schema(title = "配置 label className")
     String labelClassName() default "	";
 
     /**
@@ -191,9 +191,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"string","description":"字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
+    @Schema(title = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
     String name() default "	";
 
     /**
@@ -201,9 +201,9 @@ public @interface GroupControl {
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容")
+    @Schema(title = "显示一个小图标, 鼠标放上去的时候显示提示内容")
     Remark remark() ;
 
     /**
@@ -211,9 +211,9 @@ public @interface GroupControl {
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起")
+    @Schema(title = "显示一个小图标, 鼠标放上去的时候显示提示内容, 这个小图标跟 label 在一起")
     Remark labelRemark() ;
 
     /**
@@ -221,9 +221,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"string","description":"输入提示，聚焦的时候显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "输入提示，聚焦的时候显示")
+    @Schema(title = "输入提示，聚焦的时候显示")
     String hint() default "	";
 
     /**
@@ -231,9 +231,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"boolean","description":"当修改完的时候是否提交表单。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "当修改完的时候是否提交表单。")
+    @Schema(title = "当修改完的时候是否提交表单。")
     boolean submitOnChange() default false;
 
     /**
@@ -241,9 +241,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"boolean","description":"是否只读"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否只读")
+    @Schema(title = "是否只读")
     boolean readOnly() default false;
 
     /**
@@ -251,9 +251,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"boolean","description":"不设置时，当表单提交过后表单项每次修改都会触发重新验证， 如果设置了，则由此配置项来决定要不要每次修改都触发验证。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "不设置时，当表单提交过后表单项每次修改都会触发重新验证， 如果设置了，则由此配置项来决定要不要每次修改都触发验证。")
+    @Schema(title = "不设置时，当表单提交过后表单项每次修改都会触发重新验证， 如果设置了，则由此配置项来决定要不要每次修改都触发验证。")
     boolean validateOnChange() default false;
 
     /**
@@ -261,9 +261,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"string","description":"描述内容，支持 Html 片段。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "描述内容，支持 Html 片段。")
+    @Schema(title = "描述内容，支持 Html 片段。")
     String description() default "	";
 
     /**
@@ -271,9 +271,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"string"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "desc")
+    @Schema(title = "desc")
     String desc() default "	";
 
     /**
@@ -281,9 +281,9 @@ public @interface GroupControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置描述上的 className")
+    @Schema(title = "配置描述上的 className")
     String descriptionClassName() default "	";
 
     /**
@@ -291,9 +291,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"string","enum":["normal","inline","horizontal"],"description":"配置当前表单项展示模式"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置当前表单项展示模式")
+    @Schema(title = "配置当前表单项展示模式")
     Mode mode() ;
 
     /**
@@ -301,9 +301,9 @@ public @interface GroupControl {
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "当配置为水平布局的时候，用来配置具体的左右分配。")
+    @Schema(title = "当配置为水平布局的时候，用来配置具体的左右分配。")
     FormHorizontal horizontal() ;
 
     /**
@@ -311,9 +311,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"boolean","description":"表单 control 是否为 inline 模式。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "表单 control 是否为 inline 模式。")
+    @Schema(title = "表单 control 是否为 inline 模式。")
     boolean inline() default false;
 
     /**
@@ -321,9 +321,9 @@ public @interface GroupControl {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置 input className")
+    @Schema(title = "配置 input className")
     String inputClassName() default "	";
 
     /**
@@ -331,9 +331,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"string","description":"占位符"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "占位符")
+    @Schema(title = "占位符")
     String placeholder() default "	";
 
     /**
@@ -341,9 +341,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"boolean","description":"是否为必填"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否为必填")
+    @Schema(title = "是否为必填")
     boolean required() default false;
 
     /**
@@ -351,9 +351,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"object","properties":{"isAlpha":{"type":"string"},"isAlphanumeric":{"type":"string"},"isEmail":{"type":"string"},"isFloat":{"type":"string"},"isInt":{"type":"string"},"isJson":{"type":"string"},"isLength":{"type":"string"},"isNumeric":{"type":"string"},"isRequired":{"type":"string"},"isUrl":{"type":"string"},"matchRegexp":{"type":"string"},"matchRegexp2":{"type":"string"},"matchRegexp3":{"type":"string"},"matchRegexp4":{"type":"string"},"matchRegexp5":{"type":"string"},"maxLength":{"type":"string"},"maximum":{"type":"string"},"minLength":{"type":"string"},"minimum":{"type":"string"}},"description":"验证失败的提示信息"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "验证失败的提示信息")
+    @Schema(title = "验证失败的提示信息")
     String validationErrors() default "	";
 
     /**
@@ -361,9 +361,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"anyOf":[{"type":"string"},{"type":"object","properties":{"isAlpha":{"type":"boolean","description":"是否是字母"},"isAlphanumeric":{"type":"boolean","description":"是否为字母数字"},"isEmail":{"type":"boolean","description":"是否为邮箱地址"},"isFloat":{"type":"boolean","description":"是否为浮点型"},"isInt":{"type":"boolean","description":"是否为整型"},"isJson":{"type":"boolean","description":"是否为 json"},"isLength":{"type":"number","description":"长度等于指定值"},"isNumeric":{"type":"boolean","description":"是否为数字"},"isRequired":{"type":"boolean","description":"是否为必填"},"isUrl":{"type":"boolean","description":"是否为 URL 地址"},"matchRegexp":{"type":"string","description":"内容命中指定正则"},"matchRegexp1":{"type":"string","description":"内容命中指定正则"},"matchRegexp2":{"type":"string","description":"内容命中指定正则"},"matchRegexp3":{"type":"string","description":"内容命中指定正则"},"matchRegexp4":{"type":"string","description":"内容命中指定正则"},"matchRegexp5":{"type":"string","description":"内容命中指定正则"},"maxLength":{"type":"number","description":"最大长度为指定值"},"maximum":{"type":"number","description":"最大值为指定值"},"minLength":{"type":"number","description":"最小长度为指定值"},"minimum":{"type":"number","description":"最小值为指定值"}}}]}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "validations")
+    @Schema(title = "validations")
     String validations() default "	";
 
     /**
@@ -371,9 +371,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"description":"默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。")
+    @Schema(title = "默认值，切记只能是静态值，不支持取变量，跟数据关联是通过设置 name 属性来实现的。")
     String value() default "	";
 
     /**
@@ -381,9 +381,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"boolean","description":"表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉")
+    @Schema(title = "表单项隐藏时，是否在当前 Form 中删除掉该表单项值。注意同名的未隐藏的表单项值也会删掉")
     boolean clearValueOnHidden() default false;
 
     /**
@@ -391,9 +391,9 @@ public @interface GroupControl {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "远端校验表单项接口")
+    @Schema(title = "远端校验表单项接口")
     String validateApi() default "	";
 
     /**
@@ -401,9 +401,9 @@ public @interface GroupControl {
      *
      * 参考定义: "#/definitions/GroupSubControl"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "FormItem 集合")
+    @Schema(title = "FormItem 集合")
     String[] body() default "	";
 
     /**
@@ -411,9 +411,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"string","enum":["xs","sm","normal"],"description":"间隔"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "间隔")
+    @Schema(title = "间隔")
     Gap gap() ;
 
     /**
@@ -421,9 +421,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"string","enum":["horizontal","vertical"],"description":"配置时垂直摆放还是左右摆放。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置时垂直摆放还是左右摆放。")
+    @Schema(title = "配置时垂直摆放还是左右摆放。")
     Direction direction() ;
 
     /**
@@ -431,9 +431,9 @@ public @interface GroupControl {
      *
      * 参考定义: {"type":"string","enum":["normal","inline","horizontal"],"description":"配置子表单项默认的展示方式。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置子表单项默认的展示方式。")
+    @Schema(title = "配置子表单项默认的展示方式。")
     SubFormMode subFormMode() ;
 
     /**
@@ -441,9 +441,9 @@ public @interface GroupControl {
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
+    @Schema(title = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
     FormHorizontal subFormHorizontal() ;
 
 }

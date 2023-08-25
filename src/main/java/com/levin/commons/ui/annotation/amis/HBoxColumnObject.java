@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * HBoxColumnObject
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:02
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "HBoxColumnObject")
+@Schema(title = "HBoxColumnObject")
 public @interface HBoxColumnObject {
 ///////////////////////////////////////////
 
@@ -46,7 +46,7 @@ public @interface HBoxColumnObject {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -62,14 +62,14 @@ public @interface HBoxColumnObject {
      *
      * 参考定义: {"type":"string","description":"列上 CSS 类名"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "列上 CSS 类名")
+
+    @Schema(title = "列上 CSS 类名")
     String columnClassName() default "	";
 
     /**
@@ -77,14 +77,14 @@ public @interface HBoxColumnObject {
      *
      * 参考定义: {"type":"string","enum":["top","middle","bottom","between"],"description":"垂直对齐方式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "垂直对齐方式")
+
+    @Schema(title = "垂直对齐方式")
     Valign valign() ;
 
     /**
@@ -92,14 +92,14 @@ public @interface HBoxColumnObject {
      *
      * 参考定义: {"type":["number","string"],"description":"宽度"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "宽度")
+
+    @Schema(title = "宽度")
     String width() default "	";
 
     /**
@@ -107,14 +107,14 @@ public @interface HBoxColumnObject {
      *
      * 参考定义: {"type":["number","string"],"description":"高度"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "高度")
+
+    @Schema(title = "高度")
     String height() default "	";
 
     /**
@@ -122,14 +122,14 @@ public @interface HBoxColumnObject {
      *
      * 参考定义: {"type":"object","description":"其他样式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "其他样式")
+
+    @Schema(title = "其他样式")
     String style() default "	";
 
     /**
@@ -137,14 +137,14 @@ public @interface HBoxColumnObject {
      *
      * 参考定义: {"type":"string","enum":["normal","inline","horizontal"],"description":"配置子表单项默认的展示方式。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "配置子表单项默认的展示方式。")
+
+    @Schema(title = "配置子表单项默认的展示方式。")
     Mode mode() ;
 
     /**
@@ -152,14 +152,14 @@ public @interface HBoxColumnObject {
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see FormHorizontal
      */
-    
-    @Schema(description = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
+
+    @Schema(title = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
     FormHorizontal horizontal() ;
 
     /**
@@ -167,14 +167,14 @@ public @interface HBoxColumnObject {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * 
+     *
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-    
-    @Schema(description = "内容区")
+
+    @Schema(title = "内容区")
     String body() default "	";
 
     /**
@@ -182,14 +182,14 @@ public @interface HBoxColumnObject {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -197,14 +197,14 @@ public @interface HBoxColumnObject {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
 }

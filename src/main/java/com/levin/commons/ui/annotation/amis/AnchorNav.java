@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "AnchorNav 锚点导航渲染器 文档：https://baidu.gitee.io/amis/docs/components/anchor-nav")
+@Schema(title = "AnchorNav 锚点导航渲染器 文档：https://baidu.gitee.io/amis/docs/components/anchor-nav")
 public @interface AnchorNav {
 ///////////////////////////////////////////
 
@@ -33,7 +33,7 @@ public @interface AnchorNav {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -49,14 +49,14 @@ public @interface AnchorNav {
      *
      * 参考定义: {"type":"string","const":"anchor-nav","description":"指定为 AnchorNav 锚点导航渲染器"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "指定为 AnchorNav 锚点导航渲染器")
+
+    @Schema(title = "指定为 AnchorNav 锚点导航渲染器")
     String type() default "anchor-nav";
 
     /**
@@ -64,14 +64,14 @@ public @interface AnchorNav {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "样式名")
+
+    @Schema(title = "样式名")
     String className() default "	";
 
     /**
@@ -79,14 +79,14 @@ public @interface AnchorNav {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -94,14 +94,14 @@ public @interface AnchorNav {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -109,14 +109,14 @@ public @interface AnchorNav {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -124,14 +124,14 @@ public @interface AnchorNav {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -139,14 +139,14 @@ public @interface AnchorNav {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -154,14 +154,14 @@ public @interface AnchorNav {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -169,14 +169,14 @@ public @interface AnchorNav {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -184,14 +184,14 @@ public @interface AnchorNav {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -199,14 +199,14 @@ public @interface AnchorNav {
      *
      * 参考定义: "#/definitions/AnchorNavSectionSchema"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see AnchorNavSection
      */
-    
-    @Schema(description = "楼层集合")
+
+    @Schema(title = "楼层集合")
     AnchorNavSection[] links() ;
 
     /**
@@ -214,14 +214,14 @@ public @interface AnchorNav {
      *
      * 参考定义: {"type":["string","number"],"description":"被激活（定位）的楼层"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "被激活（定位）的楼层")
+
+    @Schema(title = "被激活（定位）的楼层")
     String active() default "	";
 
     /**
@@ -229,14 +229,14 @@ public @interface AnchorNav {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "导航样式名")
+
+    @Schema(title = "导航样式名")
     String linkClassName() default "	";
 
     /**
@@ -244,14 +244,14 @@ public @interface AnchorNav {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "楼层样式名")
+
+    @Schema(title = "楼层样式名")
     String sectionClassName() default "	";
 
     /**
@@ -259,14 +259,14 @@ public @interface AnchorNav {
      *
      * 参考定义: {"type":"string","enum":["vertical","horizontal"]}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "direction")
+
+    @Schema(title = "direction")
     Direction direction() ;
 
 }

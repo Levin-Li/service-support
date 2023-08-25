@@ -12,11 +12,11 @@ import java.io.Serializable;
  * @author lilw
  */
 
-@Schema(description = "服务请求类")
+@Schema(title = "服务请求类")
 public interface ServiceReq
         extends Serializable {
 
-    @Schema(description = "是否需要签名验证")
+    @Schema(title = "是否需要签名验证")
     default boolean requireSignVerification() {
         return false;
     }

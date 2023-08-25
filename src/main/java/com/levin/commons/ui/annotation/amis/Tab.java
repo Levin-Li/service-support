@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * Tab
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:03
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Tab")
+@Schema(title = "Tab")
 public @interface Tab {
 ///////////////////////////////////////////
 
@@ -44,7 +44,7 @@ public @interface Tab {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -60,14 +60,14 @@ public @interface Tab {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "容器 css 类名")
+
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -75,14 +75,14 @@ public @interface Tab {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -90,14 +90,14 @@ public @interface Tab {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -105,14 +105,14 @@ public @interface Tab {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -120,14 +120,14 @@ public @interface Tab {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -135,14 +135,14 @@ public @interface Tab {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -150,14 +150,14 @@ public @interface Tab {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -165,14 +165,14 @@ public @interface Tab {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -180,14 +180,14 @@ public @interface Tab {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -195,14 +195,14 @@ public @interface Tab {
      *
      * 参考定义: {"type":"string","description":"Tab 标题"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "Tab 标题")
+
+    @Schema(title = "Tab 标题")
     String title() default "	";
 
     /**
@@ -210,14 +210,14 @@ public @interface Tab {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * 
+     *
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-    
-    @Schema(description = "内容")
+
+    @Schema(title = "内容")
     String tab() default "	";
 
     /**
@@ -225,14 +225,14 @@ public @interface Tab {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * 
+     *
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-    
-    @Schema(description = "内容")
+
+    @Schema(title = "内容")
     String body() default "	";
 
     /**
@@ -240,14 +240,14 @@ public @interface Tab {
      *
      * 参考定义: {"type":"number","description":"徽标"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "徽标")
+
+    @Schema(title = "徽标")
     double badge() default 0;
 
     /**
@@ -255,14 +255,14 @@ public @interface Tab {
      *
      * 参考定义: {"type":"string","description":"设置以后将跟url的hash对应"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "设置以后将跟url的hash对应")
+
+    @Schema(title = "设置以后将跟url的hash对应")
     String hash() default "	";
 
     /**
@@ -270,14 +270,14 @@ public @interface Tab {
      *
      * 参考定义: "#/definitions/SchemaIcon"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Icon
      */
-    
-    @Schema(description = "按钮图标")
+
+    @Schema(title = "按钮图标")
     Icon icon() ;
 
     /**
@@ -285,14 +285,14 @@ public @interface Tab {
      *
      * 参考定义: {"type":"string","enum":["left","right"]}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "iconPosition")
+
+    @Schema(title = "iconPosition")
     IconPosition iconPosition() ;
 
     /**
@@ -300,14 +300,14 @@ public @interface Tab {
      *
      * 参考定义: {"type":"boolean","description":"设置以后内容每次都会重新渲染"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "设置以后内容每次都会重新渲染")
+
+    @Schema(title = "设置以后内容每次都会重新渲染")
     boolean reload() default false;
 
     /**
@@ -315,14 +315,14 @@ public @interface Tab {
      *
      * 参考定义: {"type":"boolean","description":"点开时才加载卡片内容"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "点开时才加载卡片内容")
+
+    @Schema(title = "点开时才加载卡片内容")
     boolean mountOnEnter() default false;
 
     /**
@@ -330,14 +330,14 @@ public @interface Tab {
      *
      * 参考定义: {"type":"boolean","description":"卡片隐藏就销毁卡片节点。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "卡片隐藏就销毁卡片节点。")
+
+    @Schema(title = "卡片隐藏就销毁卡片节点。")
     boolean unmountOnExit() default false;
 
     /**
@@ -345,14 +345,14 @@ public @interface Tab {
      *
      * 参考定义: {"type":"string","enum":["normal","inline","horizontal"],"description":"配置子表单项默认的展示方式。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "配置子表单项默认的展示方式。")
+
+    @Schema(title = "配置子表单项默认的展示方式。")
     Mode mode() ;
 
     /**
@@ -360,14 +360,14 @@ public @interface Tab {
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see FormHorizontal
      */
-    
-    @Schema(description = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
+
+    @Schema(title = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
     FormHorizontal horizontal() ;
 
     /**
@@ -375,14 +375,14 @@ public @interface Tab {
      *
      * 参考定义: {"type":"boolean","description":"是否可关闭，优先级高于 tabs 的 closable"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否可关闭，优先级高于 tabs 的 closable")
+
+    @Schema(title = "是否可关闭，优先级高于 tabs 的 closable")
     boolean closable() default false;
 
 }

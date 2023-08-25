@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "二维布局渲染器。 文档：https://baidu.gitee.io/amis/docs/components/grid-2d")
+@Schema(title = "二维布局渲染器。 文档：https://baidu.gitee.io/amis/docs/components/grid-2d")
 public @interface Grid2D {
 ///////////////////////////////////////////
 
@@ -29,9 +29,9 @@ public @interface Grid2D {
      *
      * 参考定义: {"type":"string","const":"grid-2d","description":"指定为 grid-2d 展示类型"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "指定为 grid-2d 展示类型")
+    @Schema(title = "指定为 grid-2d 展示类型")
     String type() default "grid-2d";
 
     /**
@@ -39,9 +39,9 @@ public @interface Grid2D {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -49,9 +49,9 @@ public @interface Grid2D {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -59,9 +59,9 @@ public @interface Grid2D {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -69,9 +69,9 @@ public @interface Grid2D {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -79,9 +79,9 @@ public @interface Grid2D {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -89,9 +89,9 @@ public @interface Grid2D {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -99,9 +99,9 @@ public @interface Grid2D {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -109,9 +109,9 @@ public @interface Grid2D {
      *
      * 参考定义: {"type":"number","description":"列数量，默认是 12"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "列数量，默认是 12")
+    @Schema(title = "列数量，默认是 12")
     double cols() default 0;
 
     /**
@@ -119,9 +119,9 @@ public @interface Grid2D {
      *
      * 参考定义: {"anyOf":[{"type":"number"},{"type":"string"},{"type":"string","const":"auto"}],"description":"grid 2d 容器宽度，默认是 auto"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "grid 2d 容器宽度，默认是 auto")
+    @Schema(title = "grid 2d 容器宽度，默认是 auto")
     double width() default 0;
 
     /**
@@ -129,9 +129,9 @@ public @interface Grid2D {
      *
      * 参考定义: {"type":["number","string"],"description":"格子间距，默认 0，包含行和列"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "格子间距，默认 0，包含行和列")
+    @Schema(title = "格子间距，默认 0，包含行和列")
     String gap() default "	";
 
     /**
@@ -139,9 +139,9 @@ public @interface Grid2D {
      *
      * 参考定义: {"type":["number","string"],"description":"格子行级别的间距，如果不设置就和 gap 一样"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "格子行级别的间距，如果不设置就和 gap 一样")
+    @Schema(title = "格子行级别的间距，如果不设置就和 gap 一样")
     String gapRow() default "	";
 
     /**
@@ -149,9 +149,9 @@ public @interface Grid2D {
      *
      * 参考定义: {"type":["number","string"],"description":"单位行高度，默认 50 px"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "单位行高度，默认 50 px")
+    @Schema(title = "单位行高度，默认 50 px")
     String rowHeight() default "	";
 
     /**
@@ -159,9 +159,9 @@ public @interface Grid2D {
      *
      * 参考定义: "#/definitions/Grid"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "每个格子的配置")
+    @Schema(title = "每个格子的配置")
     String[] grids() default "	";
 
 }

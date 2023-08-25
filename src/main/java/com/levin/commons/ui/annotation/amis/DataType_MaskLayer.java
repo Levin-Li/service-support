@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "DataType_MaskLayer")
+@Schema(title = "DataType_MaskLayer")
 public @interface DataType_MaskLayer {
 ///////////////////////////////////////////
 

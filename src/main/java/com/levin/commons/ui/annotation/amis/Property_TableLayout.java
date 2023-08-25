@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_TableLayout")
+@Schema(title = "Property_TableLayout")
 public @interface Property_TableLayout {
 ///////////////////////////////////////////
 

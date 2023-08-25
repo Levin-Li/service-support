@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * MultipleValue
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:03
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "MultipleValue")
+@Schema(title = "MultipleValue")
 public @interface MultipleValue {
 ///////////////////////////////////////////
 
@@ -23,7 +23,7 @@ public @interface MultipleValue {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -39,14 +39,14 @@ public @interface MultipleValue {
      *
      * 参考定义: {"type":"number"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "min")
+
+    @Schema(title = "min")
     double min() default 0;
 
     /**
@@ -54,14 +54,14 @@ public @interface MultipleValue {
      *
      * 参考定义: {"type":"number"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "max")
+
+    @Schema(title = "max")
     double max() default 0;
 
 }

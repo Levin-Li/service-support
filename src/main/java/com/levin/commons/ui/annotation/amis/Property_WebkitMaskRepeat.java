@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_WebkitMaskRepeat")
+@Schema(title = "Property_WebkitMaskRepeat")
 public @interface Property_WebkitMaskRepeat {
 ///////////////////////////////////////////
 

@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * FuncArg
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:42
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "FuncArg")
+@Schema(title = "FuncArg")
 public @interface FuncArg {
 ///////////////////////////////////////////
 
@@ -41,9 +41,9 @@ public @interface FuncArg {
      *
      * 参考定义: "#/definitions/FieldTypes"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "type")
+    @Schema(title = "type")
     String type() default "	";
 
     /**
@@ -51,9 +51,9 @@ public @interface FuncArg {
      *
      * 参考定义: {"type":"string"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "label")
+    @Schema(title = "label")
     String label() default "	";
 
     /**
@@ -61,9 +61,9 @@ public @interface FuncArg {
      *
      * 参考定义: {"type":"array","items":{"type":"string","enum":["value","field","func","formula"]}}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "valueTypes")
+    @Schema(title = "valueTypes")
     ValueType[] valueTypes() ;
 
     /**
@@ -71,9 +71,9 @@ public @interface FuncArg {
      *
      * 参考定义: {"type":"array","items":{"type":"string"}}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "operators")
+    @Schema(title = "operators")
     String[] operators() default "	";
 
     /**
@@ -81,9 +81,9 @@ public @interface FuncArg {
      *
      * 参考定义: {"type":"array","items":{"type":"string"}}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "funcs")
+    @Schema(title = "funcs")
     String[] funcs() default "	";
 
     /**
@@ -91,9 +91,9 @@ public @interface FuncArg {
      *
      * 参考定义: {}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "defaultValue")
+    @Schema(title = "defaultValue")
     String defaultValue() default "	";
 
     /**
@@ -101,9 +101,9 @@ public @interface FuncArg {
      *
      * 参考定义: {"type":"string"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "placeholder")
+    @Schema(title = "placeholder")
     String placeholder() default "	";
 
     /**
@@ -111,9 +111,9 @@ public @interface FuncArg {
      *
      * 参考定义: {"type":"boolean"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "isOptional")
+    @Schema(title = "isOptional")
     boolean isOptional() default false;
 
 }

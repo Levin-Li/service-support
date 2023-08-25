@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * CRUDCards
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:42
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "CRUDCards")
+@Schema(title = "CRUDCards")
 public @interface CRUDCards {
 ///////////////////////////////////////////
 
@@ -29,9 +29,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"object","properties":{"header":{"type":"object","properties":{"className":{"$ref":"#/definitions/SchemaClassName"},"title":{"$ref":"#/definitions/SchemaTpl","description":"标题"},"titleClassName":{"$ref":"#/definitions/SchemaClassName"},"subTitle":{"$ref":"#/definitions/SchemaTpl","description":"副标题"},"subTitleClassName":{"$ref":"#/definitions/SchemaClassName"},"subTitlePlaceholder":{"type":"string"},"description":{"$ref":"#/definitions/SchemaTpl","description":"描述"},"descriptionPlaceholder":{"type":"string","description":"描述占位内容"},"descriptionClassName":{"$ref":"#/definitions/SchemaClassName","description":"描述占位类名"},"desc":{"$ref":"#/definitions/SchemaTpl"},"descPlaceholder":{"$ref":"#/definitions/SchemaTpl"},"descClassName":{"$ref":"#/definitions/SchemaClassName"},"avatar":{"$ref":"#/definitions/SchemaUrlPath","description":"图片地址"},"avatarText":{"$ref":"#/definitions/SchemaTpl"},"avatarTextBackground":{"type":"array","items":{"type":"object","properties":{"length":{"type":"number","description":"Returns the length of a String object."}},"required":["length"],"additionalProperties":{"type":"string"},"description":"Allows manipulation and formatting of text strings and determination and location of substrings within strings."}},"avatarTextClassName":{"$ref":"#/definitions/SchemaClassName"},"avatarClassName":{"$ref":"#/definitions/SchemaClassName","description":"图片包括层类名"},"imageClassName":{"$ref":"#/definitions/SchemaClassName","description":"图片类名。"},"highlight":{"$ref":"#/definitions/SchemaExpression","description":"是否点亮"},"highlightClassName":{"$ref":"#/definitions/SchemaClassName"},"href":{"$ref":"#/definitions/SchemaTpl","description":"链接地址"},"blank":{"type":"boolean","description":"是否新窗口打开"}},"additionalProperties":false,"description":"头部配置"},"body":{"type":"array","items":{"$ref":"#/definitions/CardBodyField"},"description":"内容区域"},"media":{"type":"object","properties":{"className":{"$ref":"#/definitions/SchemaClassName"},"type":{"type":"string","enum":["image","video"],"description":"多媒体类型"},"url":{"$ref":"#/definitions/SchemaUrlPath","description":"多媒体链接地址"},"position":{"type":"string","enum":["top","left","right","bottom"],"description":"多媒体区域位置"},"autoPlay":{"type":"boolean","description":"类型为video时是否自动播放"},"isLive":{"type":"boolean","description":"类型为video时是否是直播"},"poster":{"$ref":"#/definitions/SchemaUrlPath","description":"类型为video时视频封面"}},"additionalProperties":false,"description":"多媒体区域"},"actions":{"type":"array","items":{"$ref":"#/definitions/ActionSchema"},"description":"底部按钮集合。"},"toolbar":{"type":"array","items":{"$ref":"#/definitions/ActionSchema"},"description":"工具栏按钮"},"secondary":{"$ref":"#/definitions/SchemaTpl","description":"次要说明"},"className":{"$ref":"#/definitions/SchemaClassName","description":"容器 css 类名"},"$ref":{"type":"string","description":"配合 definitions 一起使用，可以实现无限循环的渲染器。"},"disabled":{"type":"boolean","description":"是否禁用"},"disabledOn":{"$ref":"#/definitions/SchemaExpression","description":"是否禁用表达式"},"hidden":{"type":"boolean","description":"是否隐藏"},"hiddenOn":{"$ref":"#/definitions/SchemaExpression","description":"是否隐藏表达式"},"visible":{"type":"boolean","description":"是否显示"},"visibleOn":{"$ref":"#/definitions/SchemaExpression","description":"是否显示表达式"}},"additionalProperties":false,"description":"Construct a type with the properties of T except for those in type K."}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "Construct a type with the properties of T except for those in type K.")
+    @Schema(title = "Construct a type with the properties of T except for those in type K.")
     String card() default "	";
 
     /**
@@ -39,9 +39,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "头部 CSS 类名")
+    @Schema(title = "头部 CSS 类名")
     String headerClassName() default "	";
 
     /**
@@ -49,9 +49,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "底部 CSS 类名")
+    @Schema(title = "底部 CSS 类名")
     String footerClassName() default "	";
 
     /**
@@ -59,9 +59,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "卡片 CSS 类名")
+    @Schema(title = "卡片 CSS 类名")
     String itemClassName() default "	";
 
     /**
@@ -69,9 +69,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "无数据提示")
+    @Schema(title = "无数据提示")
     Tpl placeholder() ;
 
     /**
@@ -79,9 +79,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"是否显示底部"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示底部")
+    @Schema(title = "是否显示底部")
     boolean showFooter() default false;
 
     /**
@@ -89,9 +89,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"是否显示头部"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示头部")
+    @Schema(title = "是否显示头部")
     boolean showHeader() default false;
 
     /**
@@ -99,9 +99,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaTokenizeableString"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "也可以直接从环境变量中读取，但是不太推荐。")
+    @Schema(title = "也可以直接从环境变量中读取，但是不太推荐。")
     String source() default "	";
 
     /**
@@ -109,9 +109,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "标题")
+    @Schema(title = "标题")
     Tpl title() ;
 
     /**
@@ -119,9 +119,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏勾选框"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏勾选框")
+    @Schema(title = "是否隐藏勾选框")
     boolean hideCheckToggler() default false;
 
     /**
@@ -129,9 +129,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"是否固顶"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否固顶")
+    @Schema(title = "是否固顶")
     boolean affixHeader() default false;
 
     /**
@@ -139,9 +139,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "顶部区域")
+    @Schema(title = "顶部区域")
     String header() default "	";
 
     /**
@@ -149,9 +149,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "底部区域")
+    @Schema(title = "底部区域")
     String footer() default "	";
 
     /**
@@ -159,9 +159,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置某项是否可以点选")
+    @Schema(title = "配置某项是否可以点选")
     String itemCheckableOn() default "	";
 
     /**
@@ -169,9 +169,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置某项是否可拖拽排序，前提是要开启拖拽功能")
+    @Schema(title = "配置某项是否可拖拽排序，前提是要开启拖拽功能")
     String itemDraggableOn() default "	";
 
     /**
@@ -179,9 +179,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"点击卡片的时候是否勾选卡片。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "点击卡片的时候是否勾选卡片。")
+    @Schema(title = "点击卡片的时候是否勾选卡片。")
     boolean checkOnItemClick() default false;
 
     /**
@@ -189,9 +189,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"是否为瀑布流布局？"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否为瀑布流布局？")
+    @Schema(title = "是否为瀑布流布局？")
     boolean masonryLayout() default false;
 
     /**
@@ -199,9 +199,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"string","description":"可以用来作为值的字段"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "可以用来作为值的字段")
+    @Schema(title = "可以用来作为值的字段")
     String valueField() default "	";
 
     /**
@@ -209,9 +209,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -219,9 +219,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -229,9 +229,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -239,9 +239,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -249,9 +249,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -259,9 +259,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -269,9 +269,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -279,9 +279,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"string","description":"指定内容区的展示模式。","const":"cards"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "指定内容区的展示模式。")
+    @Schema(title = "指定内容区的展示模式。")
     String mode() default "cards";
 
     /**
@@ -289,9 +289,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"string","const":"crud","description":"指定为 CRUD 渲染器。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "指定为 CRUD 渲染器。")
+    @Schema(title = "指定为 CRUD 渲染器。")
     String type() default "crud";
 
     /**
@@ -299,9 +299,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "初始化数据 API")
+    @Schema(title = "初始化数据 API")
     String api() default "	";
 
     /**
@@ -309,9 +309,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/ActionSchema"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "批量操作")
+    @Schema(title = "批量操作")
     String[] bulkActions() default "	";
 
     /**
@@ -319,9 +319,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/ActionSchema"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "单条操作")
+    @Schema(title = "单条操作")
     String[] itemActions() default "	";
 
     /**
@@ -329,9 +329,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"number","description":"每页个数，默认为 10，如果不是请设置。","default":10}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "每页个数，默认为 10，如果不是请设置。")
+    @Schema(title = "每页个数，默认为 10，如果不是请设置。")
     double perPage() default 0;
 
     /**
@@ -339,9 +339,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/PlainObject"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "可以默认给定初始参数如： {perPage: 24}")
+    @Schema(title = "可以默认给定初始参数如： {perPage: 24}")
     String defaultParams() default "	";
 
     /**
@@ -349,9 +349,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"是否可通过拖拽排序"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否可通过拖拽排序")
+    @Schema(title = "是否可通过拖拽排序")
     boolean draggable() default false;
 
     /**
@@ -359,9 +359,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否可通过拖拽排序，通过表达式来配置")
+    @Schema(title = "是否可通过拖拽排序，通过表达式来配置")
     String draggableOn() default "	";
 
     /**
@@ -369,9 +369,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "name")
+    @Schema(title = "name")
     String name() default "	";
 
     /**
@@ -379,9 +379,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"description":"过滤器表单"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "过滤器表单")
+    @Schema(title = "过滤器表单")
     String filter() default "	";
 
     /**
@@ -389,9 +389,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"初始是否拉取"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "初始是否拉取")
+    @Schema(title = "初始是否拉取")
     boolean initFetch() default false;
 
     /**
@@ -399,9 +399,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "初始是否拉取，用表达式来配置。")
+    @Schema(title = "初始是否拉取，用表达式来配置。")
     String initFetchOn() default "	";
 
     /**
@@ -409,9 +409,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置内部 DOM 的 className")
+    @Schema(title = "配置内部 DOM 的 className")
     String innerClassName() default "	";
 
     /**
@@ -419,9 +419,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"number","description":"设置自动刷新时间"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "设置自动刷新时间")
+    @Schema(title = "设置自动刷新时间")
     double interval() default 0;
 
     /**
@@ -429,9 +429,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"string","description":"设置用来确定位置的字段名，设置后新的顺序将被赋值到该字段中。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "设置用来确定位置的字段名，设置后新的顺序将被赋值到该字段中。")
+    @Schema(title = "设置用来确定位置的字段名，设置后新的顺序将被赋值到该字段中。")
     String orderField() default "	";
 
     /**
@@ -439,9 +439,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"string","description":"设置分页页码字段名。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "设置分页页码字段名。")
+    @Schema(title = "设置分页页码字段名。")
     String pageField() default "	";
 
     /**
@@ -449,9 +449,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"string","description":"设置分页一页显示的多少条数据的字段名。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "设置分页一页显示的多少条数据的字段名。")
+    @Schema(title = "设置分页一页显示的多少条数据的字段名。")
     String perPageField() default "	";
 
     /**
@@ -459,9 +459,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "快速编辑后用来批量保存的 API")
+    @Schema(title = "快速编辑后用来批量保存的 API")
     String quickSaveApi() default "	";
 
     /**
@@ -469,9 +469,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "快速编辑配置成及时保存时使用的 API")
+    @Schema(title = "快速编辑配置成及时保存时使用的 API")
     String quickSaveItemApi() default "	";
 
     /**
@@ -479,9 +479,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "保存排序的 api")
+    @Schema(title = "保存排序的 api")
     String saveOrderApi() default "	";
 
     /**
@@ -489,9 +489,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"是否将过滤条件的参数同步到地址栏,默认为true","default":true}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否将过滤条件的参数同步到地址栏,默认为true")
+    @Schema(title = "是否将过滤条件的参数同步到地址栏,默认为true")
     boolean syncLocation() default false;
 
     /**
@@ -499,9 +499,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"array","items":{"anyOf":[{"allOf":[{"$ref":"#/definitions/SchemaObject","patternProperties":{"^(align)$":{}}},{"type":"object","additionalProperties":true,"properties":{"align":{"type":"string","enum":["left","right"],"description":"对齐方式"}}}]},{"type":"object","additionalProperties":false,"properties":{"align":{"type":"string","enum":["left","right"],"description":"对齐方式"},"className":{"$ref":"#/definitions/SchemaClassName","description":"容器 css 类名"},"$ref":{"type":"string","description":"配合 definitions 一起使用，可以实现无限循环的渲染器。"},"disabled":{"type":"boolean","description":"是否禁用"},"disabledOn":{"$ref":"#/definitions/SchemaExpression","description":"是否禁用表达式"},"hidden":{"type":"boolean","description":"是否隐藏"},"hiddenOn":{"$ref":"#/definitions/SchemaExpression","description":"是否隐藏表达式"},"visible":{"type":"boolean","description":"是否显示"},"visibleOn":{"$ref":"#/definitions/SchemaExpression","description":"是否显示表达式"},"type":{"$ref":"#/definitions/CRUDBultinToolbarType"}},"required":["type"]},{"$ref":"#/definitions/CRUDBultinToolbarType"}]},"description":"顶部工具栏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "顶部工具栏")
+    @Schema(title = "顶部工具栏")
     String[] headerToolbar() default "	";
 
     /**
@@ -509,9 +509,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"array","items":{"anyOf":[{"allOf":[{"$ref":"#/definitions/SchemaObject","patternProperties":{"^(align)$":{}}},{"type":"object","additionalProperties":true,"properties":{"align":{"type":"string","enum":["left","right"],"description":"对齐方式"}}}]},{"type":"object","additionalProperties":false,"properties":{"align":{"type":"string","enum":["left","right"],"description":"对齐方式"},"className":{"$ref":"#/definitions/SchemaClassName","description":"容器 css 类名"},"$ref":{"type":"string","description":"配合 definitions 一起使用，可以实现无限循环的渲染器。"},"disabled":{"type":"boolean","description":"是否禁用"},"disabledOn":{"$ref":"#/definitions/SchemaExpression","description":"是否禁用表达式"},"hidden":{"type":"boolean","description":"是否隐藏"},"hiddenOn":{"$ref":"#/definitions/SchemaExpression","description":"是否隐藏表达式"},"visible":{"type":"boolean","description":"是否显示"},"visibleOn":{"$ref":"#/definitions/SchemaExpression","description":"是否显示表达式"},"type":{"$ref":"#/definitions/CRUDBultinToolbarType"}},"required":["type"]},{"$ref":"#/definitions/CRUDBultinToolbarType"}]},"description":"底部工具栏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "底部工具栏")
+    @Schema(title = "底部工具栏")
     String[] footerToolbar() default "	";
 
     /**
@@ -519,9 +519,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"array","items":{"type":"number"},"description":"每页显示多少个空间成员的配置如： [10, 20, 50, 100]。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "每页显示多少个空间成员的配置如： [10, 20, 50, 100]。")
+    @Schema(title = "每页显示多少个空间成员的配置如： [10, 20, 50, 100]。")
     double[] perPageAvailable() default 0;
 
     /**
@@ -529,9 +529,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaMessage"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "messages")
+    @Schema(title = "messages")
     Message messages() ;
 
     /**
@@ -539,9 +539,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏快速编辑的按钮。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏快速编辑的按钮。")
+    @Schema(title = "是否隐藏快速编辑的按钮。")
     boolean hideQuickSaveBtn() default false;
 
     /**
@@ -549,9 +549,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"是否自动跳顶部，当切分页的时候。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否自动跳顶部，当切分页的时候。")
+    @Schema(title = "是否自动跳顶部，当切分页的时候。")
     boolean autoJumpToTopOnPagerChange() default false;
 
     /**
@@ -559,9 +559,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"静默拉取"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "静默拉取")
+    @Schema(title = "静默拉取")
     boolean silentPolling() default false;
 
     /**
@@ -569,9 +569,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "stopAutoRefreshWhen")
+    @Schema(title = "stopAutoRefreshWhen")
     String stopAutoRefreshWhen() default "	";
 
     /**
@@ -579,9 +579,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "stopAutoRefreshWhenModalIsOpen")
+    @Schema(title = "stopAutoRefreshWhenModalIsOpen")
     boolean stopAutoRefreshWhenModalIsOpen() default false;
 
     /**
@@ -589,9 +589,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "filterTogglable")
+    @Schema(title = "filterTogglable")
     boolean filterTogglable() default false;
 
     /**
@@ -599,9 +599,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "filterDefaultVisible")
+    @Schema(title = "filterDefaultVisible")
     boolean filterDefaultVisible() default false;
 
     /**
@@ -609,9 +609,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"是否将接口返回的内容自动同步到地址栏，前提是开启了同步地址栏。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否将接口返回的内容自动同步到地址栏，前提是开启了同步地址栏。")
+    @Schema(title = "是否将接口返回的内容自动同步到地址栏，前提是开启了同步地址栏。")
     boolean syncResponse2Query() default false;
 
     /**
@@ -619,9 +619,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"分页的时候是否保留用户选择。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "分页的时候是否保留用户选择。")
+    @Schema(title = "分页的时候是否保留用户选择。")
     boolean keepItemSelectionOnPageChange() default false;
 
     /**
@@ -629,9 +629,9 @@ public @interface CRUDCards {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "当配置 keepItemSelectionOnPageChange 时有用，用来配置已勾选项的文案。")
+    @Schema(title = "当配置 keepItemSelectionOnPageChange 时有用，用来配置已勾选项的文案。")
     Tpl labelTpl() ;
 
     /**
@@ -639,9 +639,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"是否为前端单次加载模式，可以用来实现前端分页。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否为前端单次加载模式，可以用来实现前端分页。")
+    @Schema(title = "是否为前端单次加载模式，可以用来实现前端分页。")
     boolean loadDataOnce() default false;
 
     /**
@@ -649,9 +649,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"在开启loadDataOnce时，filter时是否去重新请求api"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "在开启loadDataOnce时，filter时是否去重新请求api")
+    @Schema(title = "在开启loadDataOnce时，filter时是否去重新请求api")
     boolean loadDataOnceFetchOnFilter() default false;
 
     /**
@@ -659,9 +659,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"object","properties":{"expand":{"type":"string","enum":["first","all","none"],"description":"默认是展开第一个、所有、还是都不展开。"},"expandAll":{"type":"boolean","description":"是否显示全部切换按钮"},"accordion":{"type":"boolean","description":"是否为手风琴模式"}},"additionalProperties":false,"description":"如果时内嵌模式，可以通过这个来配置默认的展开选项。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "如果时内嵌模式，可以通过这个来配置默认的展开选项。")
+    @Schema(title = "如果时内嵌模式，可以通过这个来配置默认的展开选项。")
     String expandConfig() default "	";
 
     /**
@@ -669,9 +669,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"默认只有当分页数大于 1 是才显示，如果总是想显示请配置。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "默认只有当分页数大于 1 是才显示，如果总是想显示请配置。")
+    @Schema(title = "默认只有当分页数大于 1 是才显示，如果总是想显示请配置。")
     boolean alwaysShowPagination() default false;
 
     /**
@@ -679,9 +679,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单")
+    @Schema(title = "开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单")
     boolean autoGenerateFilter() default false;
 
     /**
@@ -689,9 +689,9 @@ public @interface CRUDCards {
      *
      * 参考定义: {"type":"boolean","description":"内容区域占满屏幕剩余空间"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "内容区域占满屏幕剩余空间")
+    @Schema(title = "内容区域占满屏幕剩余空间")
     boolean autoFillHeight() default false;
 
 }

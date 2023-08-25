@@ -17,7 +17,7 @@ import java.util.Collections;
 /**
  * 简单资源
  */
-@Schema(description = "资源")
+@Schema(title = "资源")
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(of = {"domain", "path"})
@@ -45,44 +45,44 @@ public class SimpleMenu
         return null;
     }
 
-    @Schema(description = "子域")
+    @Schema(title = "子域")
     protected String domain;
 
-    @Schema(description = "名称")
+    @Schema(title = "名称")
     protected String name;
 
-    @Schema(description = "需要的授权，Json数组")
+    @Schema(title = "需要的授权，Json数组")
     @Column(length = 1800)
     protected String requireAuthorizations;
 
-    @Schema(description = "无权限时是否展示")
+    @Schema(title = "无权限时是否展示")
     @Column(nullable = false)
     protected Boolean alwaysShow;
 
-    @Schema(description = "目标")
+    @Schema(title = "目标")
     protected String target;
 
-    @Schema(description = "打开方式")
+    @Schema(title = "打开方式")
     @Enumerated(EnumType.STRING)
     protected MenuItem.ActionType actionType;
 
-    @Schema(description = "路径/链接")
+    @Schema(title = "路径/链接")
     protected String path;
 
-    @Schema(description = "参数")
+    @Schema(title = "参数")
     @Column(length = 1800)
     protected String params;
 
-    @Schema(description = "是否启用")
+    @Schema(title = "是否启用")
     protected boolean enable = true;
 
-    @Schema(description = "排序码")
+    @Schema(title = "排序码")
     protected Integer orderCode = 100;
 
-    @Schema(description = "备注")
+    @Schema(title = "备注")
     protected String remark;
 
-    @Schema(description = "图标")
+    @Schema(title = "图标")
     protected String icon;
 
     @Override

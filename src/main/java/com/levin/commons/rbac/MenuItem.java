@@ -7,38 +7,38 @@ import io.swagger.v3.oas.annotations.media.Schema;
 /**
  * 菜单
  */
-@Schema(description = "抽象菜单项")
+@Schema(title = "抽象菜单项")
 public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
         extends TreeObject<PARENT, CHILD>, AuthorizedObject, SimpleIdentifiable {
 
-    @Schema(description = "动作类型")
+    @Schema(title = "动作类型")
     enum ActionType implements EnumDesc {
 
-        @Schema(description = "默认")
+        @Schema(title = "默认")
         Default,
 
-        @Schema(description = "模态窗口")
+        @Schema(title = "模态窗口")
         ModalWindow,
 
-        @Schema(description = "Tab栏")
+        @Schema(title = "Tab栏")
         TabPanel,
 
-        @Schema(description = "Tab栏Iframe")
+        @Schema(title = "Tab栏Iframe")
         TabPanelIFrame,
 
-        @Schema(description = "新浏览器窗口")
+        @Schema(title = "新浏览器窗口")
         NewWindow,
 
-        @Schema(description = "地址栏重定向")
+        @Schema(title = "地址栏重定向")
         Redirect,
 
-        @Schema(description = "路径重写")
+        @Schema(title = "路径重写")
         Rewrite,
 
-        @Schema(description = "jsonp回调")
+        @Schema(title = "jsonp回调")
         Jsonp,
 
-        @Schema(description = "服务端动作")
+        @Schema(title = "服务端动作")
         ServerSideAction
     }
 
@@ -62,7 +62,7 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
      *
      * @return
      */
-    @Schema(description = "target", title = "href中的target")
+    @Schema(title = "target", title = "href中的target")
     default String getTarget() {
         return null;
     }
@@ -72,7 +72,7 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
      *
      * @return
      */
-    @Schema(description = "资源路径")
+    @Schema(title = "资源路径")
     default String getPath() {
         return null;
     }
@@ -82,7 +82,7 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
      *
      * @return
      */
-    @Schema(description = "资源参数", title = "可以是 json，vue 路由参数 或是 url参数")
+    @Schema(title = "资源参数", title = "可以是 json，vue 路由参数 或是 url参数")
     default String getParams() {
         return null;
     }
@@ -92,7 +92,7 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
      *
      * @return
      */
-    @Schema(description = "资源图标")
+    @Schema(title = "资源图标")
     default String getIcon() {
         return null;
     }
@@ -102,7 +102,7 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
      *
      * @return
      */
-    @Schema(description = "是否总是显示", title = "当没有权限的时候，是否显示，true为显示，false不显示")
+    @Schema(title = "是否总是显示", title = "当没有权限的时候，是否显示，true为显示，false不显示")
     default boolean isAlwaysShow() {
         return false;
     }

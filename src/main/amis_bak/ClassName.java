@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "css类名，配置字符串，或者对象。nn    className: rednn用对象配置时意味着你能跟表达式一起搭配使用，如：nn    className: {         red: data.progress > 80,         blue: data.progress > 60     }")
+@Schema(title = "css类名，配置字符串，或者对象。nn    className: rednn用对象配置时意味着你能跟表达式一起搭配使用，如：nn    className: {         red: data.progress > 80,         blue: data.progress > 60     }")
 public @interface ClassName {
 ///////////////////////////////////////////
 

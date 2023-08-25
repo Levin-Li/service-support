@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "页面跳转地址，支持相对地址。")
+@Schema(title = "页面跳转地址，支持相对地址。")
 public @interface Redirect {
 ///////////////////////////////////////////
 

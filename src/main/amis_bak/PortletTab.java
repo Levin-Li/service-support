@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "栏目容器渲染器。 文档：https://baidu.gitee.io/amis/docs/components/portlet")
+@Schema(title = "栏目容器渲染器。 文档：https://baidu.gitee.io/amis/docs/components/portlet")
 public @interface PortletTab {
 ///////////////////////////////////////////
 
@@ -41,7 +41,7 @@ public @interface PortletTab {
      *
      * @see 
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -51,7 +51,7 @@ public @interface PortletTab {
      *
      * @see 
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -61,7 +61,7 @@ public @interface PortletTab {
      *
      * @see 
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -71,7 +71,7 @@ public @interface PortletTab {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -81,7 +81,7 @@ public @interface PortletTab {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -91,7 +91,7 @@ public @interface PortletTab {
      *
      * @see 
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -101,7 +101,7 @@ public @interface PortletTab {
      *
      * @see 
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -111,7 +111,7 @@ public @interface PortletTab {
      *
      * @see 
      */
-    @Schema(description = "Tab 标题")
+    @Schema(title = "Tab 标题")
     String title() default "	";
 
     /**
@@ -121,7 +121,7 @@ public @interface PortletTab {
      *
      * @see 
      */
-    @Schema(description = "内容")
+    @Schema(title = "内容")
     String tab() default "	";
 
     /**
@@ -131,7 +131,7 @@ public @interface PortletTab {
      *
      * @see 
      */
-    @Schema(description = "可以在右侧配置点其他功能按钮，随着tab切换而切换")
+    @Schema(title = "可以在右侧配置点其他功能按钮，随着tab切换而切换")
     String[] toolbar() default "	";
 
     /**
@@ -141,7 +141,7 @@ public @interface PortletTab {
      *
      * @see 
      */
-    @Schema(description = "内容")
+    @Schema(title = "内容")
     String body() default "	";
 
     /**
@@ -151,7 +151,7 @@ public @interface PortletTab {
      *
      * @see 
      */
-    @Schema(description = "按钮图标")
+    @Schema(title = "按钮图标")
     Icon icon() ;
 
     /**
@@ -161,7 +161,7 @@ public @interface PortletTab {
      *
      * @see 
      */
-    @Schema(description = "iconPosition")
+    @Schema(title = "iconPosition")
     IconPosition iconPosition() ;
 
     /**
@@ -171,7 +171,7 @@ public @interface PortletTab {
      *
      * @see 
      */
-    @Schema(description = "设置以后内容每次都会重新渲染")
+    @Schema(title = "设置以后内容每次都会重新渲染")
     boolean reload() default false;
 
     /**
@@ -181,7 +181,7 @@ public @interface PortletTab {
      *
      * @see 
      */
-    @Schema(description = "点开时才加载卡片内容")
+    @Schema(title = "点开时才加载卡片内容")
     boolean mountOnEnter() default false;
 
     /**
@@ -191,7 +191,7 @@ public @interface PortletTab {
      *
      * @see 
      */
-    @Schema(description = "卡片隐藏就销毁卡片节点。")
+    @Schema(title = "卡片隐藏就销毁卡片节点。")
     boolean unmountOnExit() default false;
 
 }

@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "提示渲染器，默认会显示个小图标，鼠标放上来的时候显示配置的内容。")
+@Schema(title = "提示渲染器，默认会显示个小图标，鼠标放上来的时候显示配置的内容。")
 public @interface Remark {
 ///////////////////////////////////////////
 
@@ -52,9 +52,9 @@ public @interface Remark {
      *
      * 参考定义: {"type":"string","const":"remark","description":"指定为提示类型"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "指定为提示类型")
+    @Schema(title = "指定为提示类型")
     String type() default "remark";
 
     /**
@@ -62,9 +62,9 @@ public @interface Remark {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -72,9 +72,9 @@ public @interface Remark {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -82,9 +82,9 @@ public @interface Remark {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -92,9 +92,9 @@ public @interface Remark {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -102,9 +102,9 @@ public @interface Remark {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -112,9 +112,9 @@ public @interface Remark {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -122,9 +122,9 @@ public @interface Remark {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -132,9 +132,9 @@ public @interface Remark {
      *
      * 参考定义: {"type":"string"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "label")
+    @Schema(title = "label")
     String label() default "	";
 
     /**
@@ -142,9 +142,9 @@ public @interface Remark {
      *
      * 参考定义: "#/definitions/SchemaIcon"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "icon")
+    @Schema(title = "icon")
     Icon icon() ;
 
     /**
@@ -152,9 +152,9 @@ public @interface Remark {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "tooltipClassName")
+    @Schema(title = "tooltipClassName")
     String tooltipClassName() default "	";
 
     /**
@@ -162,9 +162,9 @@ public @interface Remark {
      *
      * 参考定义: {"type":"array","items":{"type":"string","enum":["click","hover","focus"]},"description":"触发规则"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "触发规则")
+    @Schema(title = "触发规则")
     Trigger[] trigger() ;
 
     /**
@@ -172,9 +172,9 @@ public @interface Remark {
      *
      * 参考定义: {"type":"string","description":"提示标题"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "提示标题")
+    @Schema(title = "提示标题")
     String title() default "	";
 
     /**
@@ -182,9 +182,9 @@ public @interface Remark {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "提示内容")
+    @Schema(title = "提示内容")
     Tpl content() ;
 
     /**
@@ -192,9 +192,9 @@ public @interface Remark {
      *
      * 参考定义: {"type":"string","enum":["top","right","bottom","left"],"description":"显示位置"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "显示位置")
+    @Schema(title = "显示位置")
     Placement placement() ;
 
     /**
@@ -202,9 +202,9 @@ public @interface Remark {
      *
      * 参考定义: {"type":"boolean","description":"点击其他内容时是否关闭弹框信息"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "点击其他内容时是否关闭弹框信息")
+    @Schema(title = "点击其他内容时是否关闭弹框信息")
     boolean rootClose() default false;
 
 }

@@ -5,12 +5,12 @@ import java.lang.annotation.*;
 /**
  * TextPositionType
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:43
  */
 
-@Schema(description = "TextPositionType")
+@Schema(title = "TextPositionType")
 public enum TextPositionType {
 
 		left,

@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "RowSelection")
+@Schema(title = "RowSelection")
 public @interface RowSelection {
 ///////////////////////////////////////////
 
@@ -46,7 +46,7 @@ public @interface RowSelection {
      * @see 
      */
     
-    @Schema(description = "选择类型 单选/多选")
+    @Schema(title = "选择类型 单选/多选")
     String type() default "	";
 
     /**
@@ -61,7 +61,7 @@ public @interface RowSelection {
      * @see 
      */
     
-    @Schema(description = "对应数据源的key值")
+    @Schema(title = "对应数据源的key值")
     String keyField() default "	";
 
     /**
@@ -76,7 +76,7 @@ public @interface RowSelection {
      * @see 
      */
     
-    @Schema(description = "行是否禁用表达式")
+    @Schema(title = "行是否禁用表达式")
     String disableOn() default "	";
 
     /**
@@ -91,7 +91,7 @@ public @interface RowSelection {
      * @see RowSelectionOptions
      */
     
-    @Schema(description = "自定义选择菜单")
+    @Schema(title = "自定义选择菜单")
     RowSelectionOptions[] selections() ;
 
     /**
@@ -106,7 +106,7 @@ public @interface RowSelection {
      * @see 
      */
     
-    @Schema(description = "已选择的key值")
+    @Schema(title = "已选择的key值")
     String[] selectedRowKeys() default "	";
 
     /**
@@ -121,7 +121,7 @@ public @interface RowSelection {
      * @see 
      */
     
-    @Schema(description = "已选择的key值表达式")
+    @Schema(title = "已选择的key值表达式")
     String selectedRowKeysExpr() default "	";
 
     /**
@@ -136,7 +136,7 @@ public @interface RowSelection {
      * @see 
      */
     
-    @Schema(description = "已选择的key值表达式")
+    @Schema(title = "已选择的key值表达式")
     double columnWidth() default 0;
 
     /**
@@ -151,7 +151,7 @@ public @interface RowSelection {
      * @see 
      */
     
-    @Schema(description = "是否点击行触发选中或取消选中")
+    @Schema(title = "是否点击行触发选中或取消选中")
     boolean rowClick() default false;
 
 }

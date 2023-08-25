@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Badge 角标。 文档：https://baidu.gitee.io/amis/docs/components/badge")
+@Schema(title = "Badge 角标。 文档：https://baidu.gitee.io/amis/docs/components/badge")
 public @interface Badge {
 ///////////////////////////////////////////
 
@@ -52,9 +52,9 @@ public @interface Badge {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -62,9 +62,9 @@ public @interface Badge {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -72,9 +72,9 @@ public @interface Badge {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -82,9 +82,9 @@ public @interface Badge {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -92,9 +92,9 @@ public @interface Badge {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -102,9 +102,9 @@ public @interface Badge {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -112,9 +112,9 @@ public @interface Badge {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "动态控制是否显示")
+    @Schema(title = "动态控制是否显示")
     String visibleOn() default "	";
 
     /**
@@ -122,9 +122,9 @@ public @interface Badge {
      *
      * 参考定义: {"type":["string","number"],"description":"文本内容"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "文本内容")
+    @Schema(title = "文本内容")
     String text() default "	";
 
     /**
@@ -132,9 +132,9 @@ public @interface Badge {
      *
      * 参考定义: {"type":"number","description":"大小"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "大小")
+    @Schema(title = "大小")
     double size() default 0;
 
     /**
@@ -142,9 +142,9 @@ public @interface Badge {
      *
      * 参考定义: {"type":"string","enum":["text","dot","ribbon"],"description":"角标类型"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "角标类型")
+    @Schema(title = "角标类型")
     Mode mode() ;
 
     /**
@@ -152,9 +152,9 @@ public @interface Badge {
      *
      * 参考定义: {"type":"array","items":{"type":["number","string"]},"minItems":2,"maxItems":2,"description":"角标位置，优先级大于position"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "角标位置，优先级大于position")
+    @Schema(title = "角标位置，优先级大于position")
     String[] offset() default "	";
 
     /**
@@ -162,9 +162,9 @@ public @interface Badge {
      *
      * 参考定义: {"type":"string","enum":["top-right","top-left","bottom-right","bottom-left"],"description":"角标位置"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "角标位置")
+    @Schema(title = "角标位置")
     Position position() ;
 
     /**
@@ -172,9 +172,9 @@ public @interface Badge {
      *
      * 参考定义: {"type":"number","description":"封顶的数字值"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "封顶的数字值")
+    @Schema(title = "封顶的数字值")
     double overflowCount() default 0;
 
     /**
@@ -182,9 +182,9 @@ public @interface Badge {
      *
      * 参考定义: {"type":"boolean","description":"是否显示动画"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示动画")
+    @Schema(title = "是否显示动画")
     boolean animation() default false;
 
     /**
@@ -192,9 +192,9 @@ public @interface Badge {
      *
      * 参考定义: {"type":"object","description":"角标的自定义样式"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "角标的自定义样式")
+    @Schema(title = "角标的自定义样式")
     String style() default "	";
 
     /**
@@ -202,9 +202,9 @@ public @interface Badge {
      *
      * 参考定义: {"anyOf":[{"type":"string","const":"info"},{"type":"string","const":"warning"},{"type":"string","const":"success"},{"type":"string","const":"danger"},{"$ref":"#/definitions/SchemaExpression"}],"description":"提示类型"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "提示类型")
+    @Schema(title = "提示类型")
     String level() default "	";
 
 }

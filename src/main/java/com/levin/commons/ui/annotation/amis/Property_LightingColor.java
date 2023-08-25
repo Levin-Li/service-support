@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_LightingColor")
+@Schema(title = "Property_LightingColor")
 public @interface Property_LightingColor {
 ///////////////////////////////////////////
 

@@ -19,16 +19,16 @@ import java.io.Serializable;
 @EqualsAndHashCode
 public class ResPermission implements Permission, Serializable {
 
-    @Schema(description = "资源域", title = "逗号隔开", required = true)
+    @Schema(title = "资源域", title = "逗号隔开", required = true)
     protected String domain;
 
-    @Schema(description = "资源类型", title = "逗号隔开", required = true)
+    @Schema(title = "资源类型", title = "逗号隔开", required = true)
     protected String type;
 
-    @Schema(description = "资源列表", title = "逗号隔开", required = true)
+    @Schema(title = "资源列表", title = "逗号隔开", required = true)
     protected String res;
 
-    @Schema(description = "资源操作列表", title = "逗号隔开", required = true)
+    @Schema(title = "资源操作列表", title = "逗号隔开", required = true)
     protected String action;
 
     /**

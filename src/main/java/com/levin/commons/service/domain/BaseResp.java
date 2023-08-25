@@ -25,7 +25,7 @@ import java.util.List;
 //@Builder
 @Data
 @Accessors(chain = true)
-@Schema(description = "服务响应对象")
+@Schema(title = "服务响应对象")
 @FieldNameConstants
 //@Builder
 public class BaseResp<T>
@@ -40,21 +40,21 @@ public class BaseResp<T>
 //    4**	客户端错误，请求包含语法错误或无法完成请求
 //    5**	服务器错误，服务器在处理请求的过程中发生了错误
 
-    @Schema(description = "服务响应码，不为0表示有异常，一般情况数字越大表示错误等级越高")
+    @Schema(title = "服务响应码，不为0表示有异常，一般情况数字越大表示错误等级越高")
     @NotNull
     protected int code = 0;
 
-    @Schema(description = "信息摘要，可用于界面展示")
+    @Schema(title = "信息摘要，可用于界面展示")
     protected String msg;
 
-    @Schema(description = "详情信息，不用于展示，用于追查问题")
+    @Schema(title = "详情信息，不用于展示，用于追查问题")
     protected String detailMsg;
 
     //数据
-    @Schema(description = "业务数据")
+    @Schema(title = "业务数据")
     protected T data;
 
-    @Schema(description = "服务提示-用于互动")
+    @Schema(title = "服务提示-用于互动")
     protected List<Interaction> interactions;
 
     public BaseResp(T data) {
@@ -78,7 +78,7 @@ public class BaseResp<T>
         this.detailMsg = detailMsg;
     }
 
-    @Schema(description = "服务响应码，等同于code，不为0表示有异常，特别增加为了兼容部分平台或是框架的API规范，如百度amis API")
+    @Schema(title = "服务响应码，等同于code，不为0表示有异常，特别增加为了兼容部分平台或是框架的API规范，如百度amis API")
     public int getStatus() {
         return code;
     }

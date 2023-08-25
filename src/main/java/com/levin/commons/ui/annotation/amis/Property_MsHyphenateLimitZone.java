@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_MsHyphenateLimitZone")
+@Schema(title = "Property_MsHyphenateLimitZone")
 public @interface Property_MsHyphenateLimitZone {
 ///////////////////////////////////////////
 

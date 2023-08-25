@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_MinWidth")
+@Schema(title = "Property_MinWidth")
 public @interface Property_MinWidth {
 ///////////////////////////////////////////
 

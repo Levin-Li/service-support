@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 
-@Schema(description = "分布式定时任务")
+@Schema(title = "分布式定时任务")
 @Slf4j
 public abstract class AbstractDistributionJob<T> {
 

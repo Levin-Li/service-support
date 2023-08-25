@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * Config
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:03
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Config")
+@Schema(title = "Config")
 public @interface Config {
 ///////////////////////////////////////////
 
@@ -35,7 +35,7 @@ public @interface Config {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -51,14 +51,14 @@ public @interface Config {
      *
      * 参考定义: {"type":"array","items":{"type":"string","enum":["value","field","func","formula"]}}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "valueTypes")
+
+    @Schema(title = "valueTypes")
     ValueType[] valueTypes() ;
 
     /**
@@ -66,14 +66,14 @@ public @interface Config {
      *
      * 参考定义: "#/definitions/Fields"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Fields
      */
-    
-    @Schema(description = "fields")
+
+    @Schema(title = "fields")
     String[] fields() default "	";
 
     /**
@@ -81,14 +81,14 @@ public @interface Config {
      *
      * 参考定义: "#/definitions/Funcs"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Funcs
      */
-    
-    @Schema(description = "funcs")
+
+    @Schema(title = "funcs")
     String[] funcs() default "	";
 
     /**
@@ -96,14 +96,14 @@ public @interface Config {
      *
      * 参考定义: {"type":"number"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "maxLevel")
+
+    @Schema(title = "maxLevel")
     double maxLevel() default 0;
 
     /**
@@ -111,14 +111,14 @@ public @interface Config {
      *
      * 参考定义: {"type":"object","additionalProperties":{"$ref":"#/definitions/Type"}}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "types")
+
+    @Schema(title = "types")
     String types() default "	";
 
 }

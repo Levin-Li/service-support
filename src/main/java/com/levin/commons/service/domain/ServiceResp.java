@@ -14,7 +14,7 @@ import java.util.List;
  * @author lilw
  */
 
-@Schema(description = "服务响应")
+@Schema(title = "服务响应")
 public interface ServiceResp<T>
         extends Serializable {
 
@@ -30,7 +30,7 @@ public interface ServiceResp<T>
      *
      * @return
      */
-    @Schema(description = "请求是否成功，等同于code == 0")
+    @Schema(title = "请求是否成功，等同于code == 0")
     default boolean isSuccessful() {
         return getCode() == 0;
     }
@@ -41,12 +41,12 @@ public interface ServiceResp<T>
      *
      * @return
      */
-    @Schema(description = "获取异常类型，如果没有异常则返回null")
+    @Schema(title = "获取异常类型，如果没有异常则返回null")
     default ErrorType getErrorType() {
         return ErrorType.getErrorType(getCode());
     }
 
-    @Schema(description = "错误发生时，是否为业务异常")
+    @Schema(title = "错误发生时，是否为业务异常")
     default boolean isBizError() {
         return !isSuccessful() && getCode() < ErrorType.AuthenticationError.baseErrorCode;
     }
@@ -79,7 +79,7 @@ public interface ServiceResp<T>
      */
     T getData();
 
-    @Schema(description = "错误类型")
+    @Schema(title = "错误类型")
     enum ErrorType implements EnumDesc {
 
 //    http 错误码 参考
@@ -90,22 +90,22 @@ public interface ServiceResp<T>
 //    5**	服务器错误，服务器在处理请求的过程中发生了错误
 
 
-        @Schema(description = "业务警告")
+        @Schema(title = "业务警告")
         BizWarning(1),
 
-        @Schema(description = "业务异常")
+        @Schema(title = "业务异常")
         BizError(10000),
 
-        @Schema(description = "鉴权异常")
+        @Schema(title = "鉴权异常")
         AuthenticationError(20000),
 
-        @Schema(description = "资源异常")
+        @Schema(title = "资源异常")
         ResourceError(30000),
 
-        @Schema(description = "系统内部异常")
+        @Schema(title = "系统内部异常")
         SystemInnerError(40000),
 
-        @Schema(description = "未知系统异常")
+        @Schema(title = "未知系统异常")
         UnknownError(50000);
 
         /**

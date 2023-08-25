@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "DataType_GeometryBox")
+@Schema(title = "DataType_GeometryBox")
 public @interface DataType_GeometryBox {
 ///////////////////////////////////////////
 

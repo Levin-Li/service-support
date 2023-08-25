@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "amis Page 渲染器。详情请见：https://baidu.gitee.io/amis/docs/components/page")
+@Schema(title = "amis Page 渲染器。详情请见：https://baidu.gitee.io/amis/docs/components/page")
 public @interface Page {
 ///////////////////////////////////////////
 
@@ -35,7 +35,7 @@ public @interface Page {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -51,14 +51,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"string","const":"page","description":"指定为 page 渲染器。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "指定为 page 渲染器。")
+
+    @Schema(title = "指定为 page 渲染器。")
     String type() default "page";
 
     /**
@@ -66,14 +66,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "配置容器 className")
+
+    @Schema(title = "配置容器 className")
     String className() default "	";
 
     /**
@@ -81,14 +81,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -96,14 +96,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -111,14 +111,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -126,14 +126,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -141,14 +141,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -156,14 +156,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -171,14 +171,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -186,14 +186,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -201,14 +201,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"string","description":"页面标题"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "页面标题")
+
+    @Schema(title = "页面标题")
     String title() default "	";
 
     /**
@@ -216,14 +216,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"string","description":"页面副标题"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "页面副标题")
+
+    @Schema(title = "页面副标题")
     String subTitle() default "	";
 
     /**
@@ -231,14 +231,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Remark
      */
-    
-    @Schema(description = "页面描述, 标题旁边会出现个小图标，放上去会显示这个属性配置的内容。")
+
+    @Schema(title = "页面描述, 标题旁边会出现个小图标，放上去会显示这个属性配置的内容。")
     Remark remark() ;
 
     /**
@@ -246,14 +246,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * 
+     *
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-    
-    @Schema(description = "内容区域")
+
+    @Schema(title = "内容区域")
     String body() default "	";
 
     /**
@@ -261,14 +261,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "内容区 css 类名")
+
+    @Schema(title = "内容区 css 类名")
     String bodyClassName() default "	";
 
     /**
@@ -276,14 +276,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * 
+     *
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-    
-    @Schema(description = "边栏区域")
+
+    @Schema(title = "边栏区域")
     String aside() default "	";
 
     /**
@@ -291,14 +291,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"boolean","description":"边栏是否允许拖动"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "边栏是否允许拖动")
+
+    @Schema(title = "边栏是否允许拖动")
     boolean asideResizor() default false;
 
     /**
@@ -306,14 +306,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"boolean","description":"边栏内容是否粘住，即不跟随滚动。","default":true}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "边栏内容是否粘住，即不跟随滚动。")
+
+    @Schema(title = "边栏内容是否粘住，即不跟随滚动。")
     boolean asideSticky() default false;
 
     /**
@@ -321,14 +321,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"number","description":"边栏最小宽度"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "边栏最小宽度")
+
+    @Schema(title = "边栏最小宽度")
     double asideMinWidth() default 0;
 
     /**
@@ -336,14 +336,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"number","description":"边栏最小宽度"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "边栏最小宽度")
+
+    @Schema(title = "边栏最小宽度")
     double asideMaxWidth() default 0;
 
     /**
@@ -351,14 +351,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "边栏区 css 类名")
+
+    @Schema(title = "边栏区 css 类名")
     String asideClassName() default "	";
 
     /**
@@ -366,14 +366,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","additionalProperties":{"type":"string"},"description":"样式属性名及值"},"description":"自定义页面级别样式表"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "自定义页面级别样式表")
+
+    @Schema(title = "自定义页面级别样式表")
     String css() default "	";
 
     /**
@@ -381,14 +381,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","additionalProperties":{"type":"string"},"description":"样式属性名及值"},"description":"移动端下的样式表"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "移动端下的样式表")
+
+    @Schema(title = "移动端下的样式表")
     String mobileCSS() default "	";
 
     /**
@@ -396,14 +396,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaDefaultData"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see DefaultData
      */
-    
-    @Schema(description = "页面级别的初始数据")
+
+    @Schema(title = "页面级别的初始数据")
     String data() default "	";
 
     /**
@@ -411,14 +411,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "配置 header 容器 className")
+
+    @Schema(title = "配置 header 容器 className")
     String headerClassName() default "	";
 
     /**
@@ -426,14 +426,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"$ref":"#/definitions/SchemaApiObject"}]
      *
      * @see Api
      */
-    
-    @Schema(description = "页面初始化的时候，可以设置一个 API 让其取拉取，发送数据会携带当前 data 数据（包含地址栏参数），获取得数据会合并到 data 中，供组件内使用。")
+
+    @Schema(title = "页面初始化的时候，可以设置一个 API 让其取拉取，发送数据会携带当前 data 数据（包含地址栏参数），获取得数据会合并到 data 中，供组件内使用。")
     String initApi() default "	";
 
     /**
@@ -441,14 +441,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"boolean","description":"是否默认就拉取？"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否默认就拉取？")
+
+    @Schema(title = "是否默认就拉取？")
     boolean initFetch() default false;
 
     /**
@@ -456,14 +456,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否默认就拉取表达式")
+
+    @Schema(title = "是否默认就拉取表达式")
     String initFetchOn() default "	";
 
     /**
@@ -471,14 +471,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaMessage"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Message
      */
-    
-    @Schema(description = "messages")
+
+    @Schema(title = "messages")
     Message messages() ;
 
     /**
@@ -486,14 +486,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaName"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Name
      */
-    
-    @Schema(description = "name")
+
+    @Schema(title = "name")
     String name() default "	";
 
     /**
@@ -501,14 +501,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * 
+     *
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-    
-    @Schema(description = "页面顶部区域，当存在 title 时在右上角显示。")
+
+    @Schema(title = "页面顶部区域，当存在 title 时在右上角显示。")
     String toolbar() default "	";
 
     /**
@@ -516,14 +516,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "配置 toolbar 容器 className")
+
+    @Schema(title = "配置 toolbar 容器 className")
     String toolbarClassName() default "	";
 
     /**
@@ -531,14 +531,14 @@ public @interface Page {
      *
      * 参考定义: {}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "definitions")
+
+    @Schema(title = "definitions")
     String definitions() default "	";
 
     /**
@@ -546,14 +546,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"number","description":"配置轮询间隔，配置后 initApi 将轮询加载。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "配置轮询间隔，配置后 initApi 将轮询加载。")
+
+    @Schema(title = "配置轮询间隔，配置后 initApi 将轮询加载。")
     double interval() default 0;
 
     /**
@@ -561,14 +561,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"boolean","description":"是否要静默加载，也就是说不显示进度"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否要静默加载，也就是说不显示进度")
+
+    @Schema(title = "是否要静默加载，也就是说不显示进度")
     boolean silentPolling() default false;
 
     /**
@@ -576,14 +576,14 @@ public @interface Page {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "配置停止轮询的条件。")
+
+    @Schema(title = "配置停止轮询的条件。")
     String stopAutoRefreshWhen() default "	";
 
     /**
@@ -591,14 +591,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"boolean","description":"是否显示错误信息，默认是显示的。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示错误信息，默认是显示的。")
+
+    @Schema(title = "是否显示错误信息，默认是显示的。")
     boolean showErrorMsg() default false;
 
     /**
@@ -606,14 +606,14 @@ public @interface Page {
      *
      * 参考定义: {"description":"css 变量"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "css 变量")
+
+    @Schema(title = "css 变量")
     String cssVars() default "	";
 
     /**
@@ -621,14 +621,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"array","items":{"type":"string","enum":["aside","body","toolbar","header"]},"description":"默认不设置自动感觉内容来决定要不要展示这些区域 如果配置了，以配置为主。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "默认不设置自动感觉内容来决定要不要展示这些区域 如果配置了，以配置为主。")
+
+    @Schema(title = "默认不设置自动感觉内容来决定要不要展示这些区域 如果配置了，以配置为主。")
     Region[] regions() ;
 
     /**
@@ -636,14 +636,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"object","description":"自定义样式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "自定义样式")
+
+    @Schema(title = "自定义样式")
     String style() default "	";
 
     /**
@@ -651,14 +651,14 @@ public @interface Page {
      *
      * 参考定义: {"type":"object","properties":{"disabled":{"type":"boolean"},"pullingText":{"type":"string"},"loosingText":{"type":"string"}},"additionalProperties":false,"description":"下拉刷新配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "下拉刷新配置")
+
+    @Schema(title = "下拉刷新配置")
     String pullRefresh() default "	";
 
 }

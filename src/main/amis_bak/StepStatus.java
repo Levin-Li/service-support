@@ -5,12 +5,12 @@ import java.lang.annotation.*;
 /**
  * StepStatus
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 
-@Schema(description = "StepStatus")
+@Schema(title = "StepStatus")
 public enum StepStatus {
 
 		wait,

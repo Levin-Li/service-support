@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "ObjectCardBodyField")
+@Schema(title = "ObjectCardBodyField")
 public @interface ObjectCardBodyField {
 ///////////////////////////////////////////
 

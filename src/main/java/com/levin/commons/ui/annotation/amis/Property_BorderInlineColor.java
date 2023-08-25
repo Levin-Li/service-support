@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_BorderInlineColor")
+@Schema(title = "Property_BorderInlineColor")
 public @interface Property_BorderInlineColor {
 ///////////////////////////////////////////
 

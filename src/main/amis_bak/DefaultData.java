@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "初始数据，设置得值可用于组件内部模板使用。")
+@Schema(title = "初始数据，设置得值可用于组件内部模板使用。")
 public @interface DefaultData {
 ///////////////////////////////////////////
 

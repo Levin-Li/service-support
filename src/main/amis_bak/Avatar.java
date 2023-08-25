@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * Avatar
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:41
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Avatar")
+@Schema(title = "Avatar")
 public @interface Avatar {
 ///////////////////////////////////////////
 
@@ -63,9 +63,9 @@ public @interface Avatar {
      *
      * 参考定义: {"type":"string","const":"avatar"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "type")
+    @Schema(title = "type")
     String type() default "avatar";
 
     /**
@@ -73,9 +73,9 @@ public @interface Avatar {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "类名")
+    @Schema(title = "类名")
     String className() default "	";
 
     /**
@@ -83,9 +83,9 @@ public @interface Avatar {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -93,9 +93,9 @@ public @interface Avatar {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -103,9 +103,9 @@ public @interface Avatar {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -113,9 +113,9 @@ public @interface Avatar {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -123,9 +123,9 @@ public @interface Avatar {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -133,9 +133,9 @@ public @interface Avatar {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -143,9 +143,9 @@ public @interface Avatar {
      *
      * 参考定义: {"type":"object","description":"自定义样式"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "自定义样式")
+    @Schema(title = "自定义样式")
     String style() default "	";
 
     /**
@@ -153,9 +153,9 @@ public @interface Avatar {
      *
      * 参考定义: "#/definitions/BadgeSchema"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "角标")
+    @Schema(title = "角标")
     Badge badge() ;
 
     /**
@@ -163,9 +163,9 @@ public @interface Avatar {
      *
      * 参考定义: {"type":"string","description":"图片地址"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "图片地址")
+    @Schema(title = "图片地址")
     String src() default "	";
 
     /**
@@ -173,9 +173,9 @@ public @interface Avatar {
      *
      * 参考定义: {"type":"string","description":"图标"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "图标")
+    @Schema(title = "图标")
     String icon() default "	";
 
     /**
@@ -183,9 +183,9 @@ public @interface Avatar {
      *
      * 参考定义: {"type":"string","enum":["fill","contain","cover","none","scale-down"],"description":"图片相对于容器的缩放方式"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "图片相对于容器的缩放方式")
+    @Schema(title = "图片相对于容器的缩放方式")
     Fit fit() ;
 
     /**
@@ -193,9 +193,9 @@ public @interface Avatar {
      *
      * 参考定义: {"type":"string","enum":["circle","square","rounded"],"description":"形状"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "形状")
+    @Schema(title = "形状")
     Shape shape() ;
 
     /**
@@ -203,9 +203,9 @@ public @interface Avatar {
      *
      * 参考定义: {"anyOf":[{"type":"number"},{"type":"string","const":"small"},{"type":"string","const":"default"},{"type":"string","const":"large"}],"description":"大小"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "大小")
+    @Schema(title = "大小")
     double size() default 0;
 
     /**
@@ -213,9 +213,9 @@ public @interface Avatar {
      *
      * 参考定义: {"type":"string","description":"文本"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "文本")
+    @Schema(title = "文本")
     String text() default "	";
 
     /**
@@ -223,9 +223,9 @@ public @interface Avatar {
      *
      * 参考定义: {"type":"number","description":"字符类型距离左右两侧边界单位像素"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "字符类型距离左右两侧边界单位像素")
+    @Schema(title = "字符类型距离左右两侧边界单位像素")
     double gap() default 0;
 
     /**
@@ -233,9 +233,9 @@ public @interface Avatar {
      *
      * 参考定义: {"type":"string","description":"图片无法显示时的替换文字地址"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "图片无法显示时的替换文字地址")
+    @Schema(title = "图片无法显示时的替换文字地址")
     String alt() default "	";
 
     /**
@@ -243,9 +243,9 @@ public @interface Avatar {
      *
      * 参考定义: {"type":"boolean","description":"图片是否允许拖动"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "图片是否允许拖动")
+    @Schema(title = "图片是否允许拖动")
     boolean draggable() default false;
 
     /**
@@ -253,9 +253,9 @@ public @interface Avatar {
      *
      * 参考定义: {"type":"string","enum":["anonymous","use-credentials",""],"description":"图片CORS属性"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "图片CORS属性")
+    @Schema(title = "图片CORS属性")
     CrossOrigin crossOrigin() ;
 
     /**
@@ -263,9 +263,9 @@ public @interface Avatar {
      *
      * 参考定义: {"type":"string","description":"图片加载失败的是否默认处理，字符串函数"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "图片加载失败的是否默认处理，字符串函数")
+    @Schema(title = "图片加载失败的是否默认处理，字符串函数")
     String onError() default "	";
 
 }

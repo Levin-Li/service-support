@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_ScrollSnapCoordinate")
+@Schema(title = "Property_ScrollSnapCoordinate")
 public @interface Property_ScrollSnapCoordinate {
 ///////////////////////////////////////////
 

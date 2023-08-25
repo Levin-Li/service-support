@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @Data
 @Accessors(chain = true)
-@Schema(description = "分页对象")
+@Schema(title = "分页对象")
 @FieldNameConstants
 public class PageableDataImpl<T> implements PageableData<T> {
 

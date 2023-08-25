@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author lilw
  */
-@Schema(description = "服务交互")
+@Schema(title = "服务交互")
 public interface Interaction
         extends Serializable {
 
@@ -23,19 +23,19 @@ public interface Interaction
     interface Action {
 
         enum Cmd implements EnumDesc {
-            @Schema(description = "自动消失的提示")
+            @Schema(title = "自动消失的提示")
             prompt,
 
-            @Schema(description = "跳转到UI页面")
+            @Schema(title = "跳转到UI页面")
             jumpToPage,
 
-            @Schema(description = "执行脚本")
+            @Schema(title = "执行脚本")
             execScript,
 
-            @Schema(description = "是否下一步")
+            @Schema(title = "是否下一步")
             nextStep,
 
-            @Schema(description = "访问接口")
+            @Schema(title = "访问接口")
             requestApi,
         }
 
@@ -45,7 +45,7 @@ public interface Interaction
          *
          * @return
          */
-        @Schema(description = "名称")
+        @Schema(title = "名称")
         String getName();
 
         /**
@@ -53,7 +53,7 @@ public interface Interaction
          *
          * @return
          */
-        @Schema(description = "图标")
+        @Schema(title = "图标")
         default String getIcon() {
             return null;
         }
@@ -63,7 +63,7 @@ public interface Interaction
          *
          * @return
          */
-        @Schema(description = "命令")
+        @Schema(title = "命令")
         Cmd getCmd();
 
         /**
@@ -71,7 +71,7 @@ public interface Interaction
          *
          * @return
          */
-        @Schema(description = "命令参数")
+        @Schema(title = "命令参数")
         String getArgs();
 
     }
@@ -81,7 +81,7 @@ public interface Interaction
      *
      * @return
      */
-    @Schema(description = "提示框标题")
+    @Schema(title = "提示框标题")
     default String getTitle() {
         return "";
     }
@@ -96,7 +96,7 @@ public interface Interaction
      *
      * @return
      */
-    @Schema(description = "提示等级，值越大表示越严重")
+    @Schema(title = "提示等级，值越大表示越严重")
     default int getLevel() {
         return 0;
     }
@@ -106,7 +106,7 @@ public interface Interaction
      *
      * @return
      */
-    @Schema(description = "提示信息")
+    @Schema(title = "提示信息")
     String getInfo();
 
     /**
@@ -114,7 +114,7 @@ public interface Interaction
      *
      * @return
      */
-    @Schema(description = "动作列表，客户端应该以模态对话框的方式展示按钮，等待用户做出选择并执行响应的动作。")
+    @Schema(title = "动作列表，客户端应该以模态对话框的方式展示按钮，等待用户做出选择并执行响应的动作。")
     default List<Action> getActions() {
         return Collections.emptyList();
     }

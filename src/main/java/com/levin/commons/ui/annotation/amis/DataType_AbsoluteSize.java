@@ -9,7 +9,7 @@ import java.lang.annotation.*;
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:02
  */
-@Schema(description = "DataType_AbsoluteSize")
+@Schema(title = "DataType_AbsoluteSize")
 public enum DataType_AbsoluteSize {
 
 		large,

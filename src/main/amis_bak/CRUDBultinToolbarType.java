@@ -5,12 +5,12 @@ import java.lang.annotation.*;
 /**
  * CRUDBultinToolbarType
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:42
  */
 
-@Schema(description = "CRUDBultinToolbarType")
+@Schema(title = "CRUDBultinToolbarType")
 public enum CRUDBultinToolbarType {
 
 		columns_toggler,

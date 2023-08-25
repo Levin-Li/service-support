@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Range 文档：https://baidu.gitee.io/amis/docs/components/form/range")
+@Schema(title = "Range 文档：https://baidu.gitee.io/amis/docs/components/form/range")
 public @interface Value {
 ///////////////////////////////////////////
 

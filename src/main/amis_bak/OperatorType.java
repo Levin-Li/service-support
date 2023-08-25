@@ -5,12 +5,12 @@ import java.lang.annotation.*;
 /**
  * OperatorType
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:43
  */
 
-@Schema(description = "OperatorType")
+@Schema(title = "OperatorType")
 public enum OperatorType {
 
 		equal,

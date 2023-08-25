@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * Pagination
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:42
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Pagination")
+@Schema(title = "Pagination")
 public @interface Pagination {
 ///////////////////////////////////////////
 
@@ -39,9 +39,9 @@ public @interface Pagination {
      *
      * 参考定义: {"type":"string","const":"pagination"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "type")
+    @Schema(title = "type")
     String type() default "pagination";
 
     /**
@@ -49,9 +49,9 @@ public @interface Pagination {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -59,9 +59,9 @@ public @interface Pagination {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -69,9 +69,9 @@ public @interface Pagination {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -79,9 +79,9 @@ public @interface Pagination {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -89,9 +89,9 @@ public @interface Pagination {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -99,9 +99,9 @@ public @interface Pagination {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -109,9 +109,9 @@ public @interface Pagination {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -119,9 +119,9 @@ public @interface Pagination {
      *
      * 参考定义: {"type":"boolean","description":"是否显示快速跳转输入框"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示快速跳转输入框")
+    @Schema(title = "是否显示快速跳转输入框")
     boolean showPageInput() default false;
 
     /**
@@ -129,9 +129,9 @@ public @interface Pagination {
      *
      * 参考定义: {"type":"string","enum":["simple","normal"],"description":"模式，默认显示多个分页数字，如果只想简单显示可以配置成 `simple`。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "模式，默认显示多个分页数字，如果只想简单显示可以配置成 `simple`。")
+    @Schema(title = "模式，默认显示多个分页数字，如果只想简单显示可以配置成 `simple`。")
     Mode mode() ;
 
     /**
@@ -139,9 +139,9 @@ public @interface Pagination {
      *
      * 参考定义: {"type":"number","description":"最多显示多少个分页按钮。","default":5}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "最多显示多少个分页按钮。")
+    @Schema(title = "最多显示多少个分页按钮。")
     double maxButtons() default 0;
 
 }

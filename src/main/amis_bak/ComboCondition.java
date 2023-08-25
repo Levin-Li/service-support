@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * ComboCondition
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:42
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "ComboCondition")
+@Schema(title = "ComboCondition")
 public @interface ComboCondition {
 ///////////////////////////////////////////
 
@@ -29,9 +29,9 @@ public @interface ComboCondition {
      *
      * 参考定义: {"type":"string"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "test")
+    @Schema(title = "test")
     String test() default "	";
 
     /**
@@ -39,9 +39,9 @@ public @interface ComboCondition {
      *
      * 参考定义: "#/definitions/ComboSubControl"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "items")
+    @Schema(title = "items")
     String[] items() default "	";
 
     /**
@@ -49,9 +49,9 @@ public @interface ComboCondition {
      *
      * 参考定义: {"type":"string"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "label")
+    @Schema(title = "label")
     String label() default "	";
 
     /**
@@ -59,9 +59,9 @@ public @interface ComboCondition {
      *
      * 参考定义: {}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "scaffold")
+    @Schema(title = "scaffold")
     String scaffold() default "	";
 
     /**
@@ -69,9 +69,9 @@ public @interface ComboCondition {
      *
      * 参考定义: {"type":"string"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "mode")
+    @Schema(title = "mode")
     String mode() default "	";
 
 }

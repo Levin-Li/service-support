@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_MozWindowDragging")
+@Schema(title = "Property_MozWindowDragging")
 public @interface Property_MozWindowDragging {
 ///////////////////////////////////////////
 

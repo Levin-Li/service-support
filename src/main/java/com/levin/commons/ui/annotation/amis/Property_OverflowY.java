@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * Property_OverflowY
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:02
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_OverflowY")
+@Schema(title = "Property_OverflowY")
 public @interface Property_OverflowY {
 ///////////////////////////////////////////
 

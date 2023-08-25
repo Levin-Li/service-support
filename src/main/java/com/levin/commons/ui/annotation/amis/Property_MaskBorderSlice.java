@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_MaskBorderSlice")
+@Schema(title = "Property_MaskBorderSlice")
 public @interface Property_MaskBorderSlice {
 ///////////////////////////////////////////
 

@@ -11,11 +11,11 @@ public abstract class BaseException
 
     private static final long serialVersionUID = -677894470754649710L;
 
-    @Schema(description = "错误码，不为0表示有异常，一般情况数字越大表示错误等级越高")
+    @Schema(title = "错误码，不为0表示有异常，一般情况数字越大表示错误等级越高")
     @NotNull
     protected int code = -1;
 
-    @Schema(description = "友好提示信息，可用于界面展示")
+    @Schema(title = "友好提示信息，可用于界面展示")
     protected String friendlyTips;
 
     public BaseException(String friendlyTips) {

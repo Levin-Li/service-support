@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * PresetColor
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:42
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "PresetColor")
+@Schema(title = "PresetColor")
 public @interface PresetColor {
 ///////////////////////////////////////////
 

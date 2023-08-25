@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_TextEmphasisPosition")
+@Schema(title = "Property_TextEmphasisPosition")
 public @interface Property_TextEmphasisPosition {
 ///////////////////////////////////////////
 

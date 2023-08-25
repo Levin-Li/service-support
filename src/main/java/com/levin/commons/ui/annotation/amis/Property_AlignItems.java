@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_AlignItems")
+@Schema(title = "Property_AlignItems")
 public @interface Property_AlignItems {
 ///////////////////////////////////////////
 

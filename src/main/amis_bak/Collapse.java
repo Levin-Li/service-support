@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Collapse 折叠渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/collapse")
+@Schema(title = "Collapse 折叠渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/collapse")
 public @interface Collapse {
 ///////////////////////////////////////////
 
@@ -52,9 +52,9 @@ public @interface Collapse {
      *
      * 参考定义: {"type":"string","const":"collapse","description":"指定为折叠器类型"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "指定为折叠器类型")
+    @Schema(title = "指定为折叠器类型")
     String type() default "collapse";
 
     /**
@@ -62,9 +62,9 @@ public @interface Collapse {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -72,9 +72,9 @@ public @interface Collapse {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -82,9 +82,9 @@ public @interface Collapse {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -92,9 +92,9 @@ public @interface Collapse {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -102,9 +102,9 @@ public @interface Collapse {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -112,9 +112,9 @@ public @interface Collapse {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -122,9 +122,9 @@ public @interface Collapse {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -132,9 +132,9 @@ public @interface Collapse {
      *
      * 参考定义: {"type":"string","description":"标识"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "标识")
+    @Schema(title = "标识")
     String key() default "	";
 
     /**
@@ -142,9 +142,9 @@ public @interface Collapse {
      *
      * 参考定义: {"type":"string","enum":["top","bottom"],"description":"标题展示位置"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "标题展示位置")
+    @Schema(title = "标题展示位置")
     HeaderPosition headerPosition() ;
 
     /**
@@ -152,9 +152,9 @@ public @interface Collapse {
      *
      * 参考定义: {"anyOf":[{"type":"string"},{"$ref":"#/definitions/SchemaCollection"}],"description":"标题"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "标题")
+    @Schema(title = "标题")
     String header() default "	";
 
     /**
@@ -162,9 +162,9 @@ public @interface Collapse {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "内容区域")
+    @Schema(title = "内容区域")
     String body() default "	";
 
     /**
@@ -172,9 +172,9 @@ public @interface Collapse {
      *
      * 参考定义: {"type":"string","description":"配置 Body 容器 className"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置 Body 容器 className")
+    @Schema(title = "配置 Body 容器 className")
     String bodyClassName() default "	";
 
     /**
@@ -182,9 +182,9 @@ public @interface Collapse {
      *
      * 参考定义: {"type":"boolean","description":"是否可折叠"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否可折叠")
+    @Schema(title = "是否可折叠")
     boolean collapsable() default false;
 
     /**
@@ -192,9 +192,9 @@ public @interface Collapse {
      *
      * 参考定义: {"type":"boolean","description":"默认是否折叠"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "默认是否折叠")
+    @Schema(title = "默认是否折叠")
     boolean collapsed() default false;
 
     /**
@@ -202,9 +202,9 @@ public @interface Collapse {
      *
      * 参考定义: {"type":"boolean","description":"图标是否展示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "图标是否展示")
+    @Schema(title = "图标是否展示")
     boolean showArrow() default false;
 
     /**
@@ -212,9 +212,9 @@ public @interface Collapse {
      *
      * 参考定义: "#/definitions/SchemaObject"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "自定义切换图标")
+    @Schema(title = "自定义切换图标")
     String expandIcon() default "	";
 
     /**
@@ -222,9 +222,9 @@ public @interface Collapse {
      *
      * 参考定义: {"type":"string","description":"标题 CSS 类名"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "标题 CSS 类名")
+    @Schema(title = "标题 CSS 类名")
     String headingClassName() default "	";
 
     /**
@@ -232,9 +232,9 @@ public @interface Collapse {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "收起的标题")
+    @Schema(title = "收起的标题")
     Tpl collapseHeader() ;
 
     /**
@@ -242,9 +242,9 @@ public @interface Collapse {
      *
      * 参考定义: {"type":"string","enum":["xs","sm","md","lg","base"],"description":"控件大小"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "控件大小")
+    @Schema(title = "控件大小")
     Size size() ;
 
     /**
@@ -252,9 +252,9 @@ public @interface Collapse {
      *
      * 参考定义: {"type":"boolean","description":"点开时才加载内容"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "点开时才加载内容")
+    @Schema(title = "点开时才加载内容")
     boolean mountOnEnter() default false;
 
     /**
@@ -262,9 +262,9 @@ public @interface Collapse {
      *
      * 参考定义: {"type":"boolean","description":"卡片隐藏就销毁内容。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "卡片隐藏就销毁内容。")
+    @Schema(title = "卡片隐藏就销毁内容。")
     boolean unmountOnExit() default false;
 
 }

@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_StrokeDashoffset")
+@Schema(title = "Property_StrokeDashoffset")
 public @interface Property_StrokeDashoffset {
 ///////////////////////////////////////////
 

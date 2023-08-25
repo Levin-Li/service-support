@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "ObjectGroupSubControl")
+@Schema(title = "ObjectGroupSubControl")
 public @interface ObjectGroupSubControl {
 ///////////////////////////////////////////
 

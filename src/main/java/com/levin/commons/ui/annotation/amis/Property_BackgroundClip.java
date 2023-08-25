@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_BackgroundClip")
+@Schema(title = "Property_BackgroundClip")
 public @interface Property_BackgroundClip {
 ///////////////////////////////////////////
 

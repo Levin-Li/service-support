@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_GlyphOrientationVertical")
+@Schema(title = "Property_GlyphOrientationVertical")
 public @interface Property_GlyphOrientationVertical {
 ///////////////////////////////////////////
 

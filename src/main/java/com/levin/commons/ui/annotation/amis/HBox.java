@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Hbox 水平布局渲染器。 文档：https://baidu.gitee.io/amis/docs/components/hbox")
+@Schema(title = "Hbox 水平布局渲染器。 文档：https://baidu.gitee.io/amis/docs/components/hbox")
 public @interface HBox {
 ///////////////////////////////////////////
 
@@ -72,7 +72,7 @@ public @interface HBox {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -88,14 +88,14 @@ public @interface HBox {
      *
      * 参考定义: {"type":"string","const":"hbox","description":"指定为each展示类型"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "指定为each展示类型")
+
+    @Schema(title = "指定为each展示类型")
     String type() default "hbox";
 
     /**
@@ -103,14 +103,14 @@ public @interface HBox {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "容器 css 类名")
+
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -118,14 +118,14 @@ public @interface HBox {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -133,14 +133,14 @@ public @interface HBox {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -148,14 +148,14 @@ public @interface HBox {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -163,14 +163,14 @@ public @interface HBox {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -178,14 +178,14 @@ public @interface HBox {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -193,14 +193,14 @@ public @interface HBox {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -208,14 +208,14 @@ public @interface HBox {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -223,14 +223,14 @@ public @interface HBox {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -238,14 +238,14 @@ public @interface HBox {
      *
      * 参考定义: "#/definitions/HBoxColumn"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see HBoxColumn
      */
-    
-    @Schema(description = "columns")
+
+    @Schema(title = "columns")
     HBoxColumnObject[] columns() ;
 
     /**
@@ -253,14 +253,14 @@ public @interface HBox {
      *
      * 参考定义: {"type":"string","enum":["normal","inline","horizontal"],"description":"配置子表单项默认的展示方式。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "配置子表单项默认的展示方式。")
+
+    @Schema(title = "配置子表单项默认的展示方式。")
     SubFormMode subFormMode() ;
 
     /**
@@ -268,14 +268,14 @@ public @interface HBox {
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see FormHorizontal
      */
-    
-    @Schema(description = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
+
+    @Schema(title = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
     FormHorizontal subFormHorizontal() ;
 
     /**
@@ -283,14 +283,14 @@ public @interface HBox {
      *
      * 参考定义: {"type":"string","enum":["xs","sm","base","none","md","lg"],"description":"水平间距"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "水平间距")
+
+    @Schema(title = "水平间距")
     Gap gap() ;
 
     /**
@@ -298,14 +298,14 @@ public @interface HBox {
      *
      * 参考定义: {"type":"string","enum":["top","middle","bottom","between"],"description":"垂直对齐方式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "垂直对齐方式")
+
+    @Schema(title = "垂直对齐方式")
     Valign valign() ;
 
     /**
@@ -313,14 +313,14 @@ public @interface HBox {
      *
      * 参考定义: {"type":"string","enum":["left","right","between","center"],"description":"水平对齐方式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "水平对齐方式")
+
+    @Schema(title = "水平对齐方式")
     Align align() ;
 
 }

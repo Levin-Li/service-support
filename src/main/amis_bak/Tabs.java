@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "选项卡控件。 文档：https://baidu.gitee.io/amis/docs/components/tabs")
+@Schema(title = "选项卡控件。 文档：https://baidu.gitee.io/amis/docs/components/tabs")
 public @interface Tabs {
 ///////////////////////////////////////////
 
@@ -53,9 +53,9 @@ public @interface Tabs {
      *
      * 参考定义: {"type":"string","const":"tabs"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "type")
+    @Schema(title = "type")
     String type() default "tabs";
 
     /**
@@ -63,9 +63,9 @@ public @interface Tabs {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -73,9 +73,9 @@ public @interface Tabs {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -83,9 +83,9 @@ public @interface Tabs {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -93,9 +93,9 @@ public @interface Tabs {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -103,9 +103,9 @@ public @interface Tabs {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -113,9 +113,9 @@ public @interface Tabs {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -123,9 +123,9 @@ public @interface Tabs {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -133,9 +133,9 @@ public @interface Tabs {
      *
      * 参考定义: "#/definitions/TabSchema"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "选项卡成员。当配置了 source 时，选项卡成员，将会根据目标数据进行重复。")
+    @Schema(title = "选项卡成员。当配置了 source 时，选项卡成员，将会根据目标数据进行重复。")
     Tab[] tabs() ;
 
     /**
@@ -143,9 +143,9 @@ public @interface Tabs {
      *
      * 参考定义: {"type":"string","description":"关联已有数据，选项卡直接根据目标数据重复。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "关联已有数据，选项卡直接根据目标数据重复。")
+    @Schema(title = "关联已有数据，选项卡直接根据目标数据重复。")
     String source() default "	";
 
     /**
@@ -153,9 +153,9 @@ public @interface Tabs {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "类名")
+    @Schema(title = "类名")
     String tabsClassName() default "	";
 
     /**
@@ -163,9 +163,9 @@ public @interface Tabs {
      *
      * 参考定义: {"type":"string","enum":["","line","card","radio","vertical","tiled"],"description":"展示形式"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "展示形式")
+    @Schema(title = "展示形式")
     TabsMode tabsMode() ;
 
     /**
@@ -173,9 +173,9 @@ public @interface Tabs {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "内容类名")
+    @Schema(title = "内容类名")
     String contentClassName() default "	";
 
     /**
@@ -183,9 +183,9 @@ public @interface Tabs {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "链接外层类名")
+    @Schema(title = "链接外层类名")
     String linksClassName() default "	";
 
     /**
@@ -193,9 +193,9 @@ public @interface Tabs {
      *
      * 参考定义: {"type":"boolean","description":"卡片是否只有在点开的时候加载？"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "卡片是否只有在点开的时候加载？")
+    @Schema(title = "卡片是否只有在点开的时候加载？")
     boolean mountOnEnter() default false;
 
     /**
@@ -203,9 +203,9 @@ public @interface Tabs {
      *
      * 参考定义: {"type":"boolean","description":"卡片隐藏的时候是否销毁卡片内容"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "卡片隐藏的时候是否销毁卡片内容")
+    @Schema(title = "卡片隐藏的时候是否销毁卡片内容")
     boolean unmountOnExit() default false;
 
     /**
@@ -213,9 +213,9 @@ public @interface Tabs {
      *
      * 参考定义: "#/definitions/ActionSchema"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "可以在右侧配置点其他功能按钮。")
+    @Schema(title = "可以在右侧配置点其他功能按钮。")
     String toolbar() default "	";
 
     /**
@@ -223,9 +223,9 @@ public @interface Tabs {
      *
      * 参考定义: {"type":"string","enum":["normal","inline","horizontal"],"description":"配置子表单项默认的展示方式。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置子表单项默认的展示方式。")
+    @Schema(title = "配置子表单项默认的展示方式。")
     SubFormMode subFormMode() ;
 
     /**
@@ -233,9 +233,9 @@ public @interface Tabs {
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
+    @Schema(title = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
     FormHorizontal subFormHorizontal() ;
 
     /**
@@ -243,9 +243,9 @@ public @interface Tabs {
      *
      * 参考定义: {"type":"boolean","description":"是否支持溢出滚动"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否支持溢出滚动")
+    @Schema(title = "是否支持溢出滚动")
     boolean scrollable() default false;
 
 }

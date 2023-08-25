@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * Tooltip
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:41
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Tooltip")
+@Schema(title = "Tooltip")
 public @interface Tooltip {
 ///////////////////////////////////////////
 

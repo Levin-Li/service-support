@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * GroupSubControl
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:03
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "GroupSubControl")
+@Schema(title = "GroupSubControl")
 public @interface GroupSubControl {
 ///////////////////////////////////////////
 
@@ -23,7 +23,7 @@ public @interface GroupSubControl {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */

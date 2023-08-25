@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "图片集展示控件。 文档：https://baidu.gitee.io/amis/docs/components/images")
+@Schema(title = "图片集展示控件。 文档：https://baidu.gitee.io/amis/docs/components/images")
 public @interface Images {
 ///////////////////////////////////////////
 
@@ -57,7 +57,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "指定为图片集渲染器")
+    @Schema(title = "指定为图片集渲染器")
     Type type() ;
 
     /**
@@ -67,7 +67,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "外层 CSS 类名")
+    @Schema(title = "外层 CSS 类名")
     String className() default "	";
 
     /**
@@ -77,7 +77,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -87,7 +87,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -97,7 +97,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -107,7 +107,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -117,7 +117,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -127,7 +127,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -137,7 +137,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "默认图片地址")
+    @Schema(title = "默认图片地址")
     String defaultImage() default "	";
 
     /**
@@ -147,7 +147,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "列表为空时显示")
+    @Schema(title = "列表为空时显示")
     String placeholder() default "	";
 
     /**
@@ -157,7 +157,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "配置值的连接符")
+    @Schema(title = "配置值的连接符")
     String delimiter() default "	";
 
     /**
@@ -167,7 +167,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "预览图模式")
+    @Schema(title = "预览图模式")
     ThumbMode thumbMode() ;
 
     /**
@@ -177,7 +177,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "预览图比率")
+    @Schema(title = "预览图比率")
     ThumbRatio thumbRatio() ;
 
     /**
@@ -187,7 +187,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "关联字段名，也可以直接配置 src")
+    @Schema(title = "关联字段名，也可以直接配置 src")
     String name() default "	";
 
     /**
@@ -197,7 +197,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "value")
+    @Schema(title = "value")
     String value() default "	";
 
     /**
@@ -207,7 +207,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "source")
+    @Schema(title = "source")
     String source() default "	";
 
     /**
@@ -217,7 +217,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "options")
+    @Schema(title = "options")
     String[] options() default "	";
 
     /**
@@ -227,7 +227,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "图片地址，默认读取数据中的 image 属性，如果不是请配置 ,如  ${imageUrl}")
+    @Schema(title = "图片地址，默认读取数据中的 image 属性，如果不是请配置 ,如  ${imageUrl}")
     String src() default "	";
 
     /**
@@ -237,7 +237,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "大图地址，不设置用 src 属性，如果不是请配置，如：${imageOriginUrl}")
+    @Schema(title = "大图地址，不设置用 src 属性，如果不是请配置，如：${imageOriginUrl}")
     String originalSrc() default "	";
 
     /**
@@ -247,7 +247,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "是否启动放大功能。")
+    @Schema(title = "是否启动放大功能。")
     boolean enlargeAble() default false;
 
     /**
@@ -257,7 +257,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "是否显示尺寸。")
+    @Schema(title = "是否显示尺寸。")
     boolean showDimensions() default false;
 
     /**
@@ -267,7 +267,7 @@ public @interface Images {
      *
      * @see 
      */
-    @Schema(description = "列表 CSS 类名")
+    @Schema(title = "列表 CSS 类名")
     String listClassName() default "	";
 
 }

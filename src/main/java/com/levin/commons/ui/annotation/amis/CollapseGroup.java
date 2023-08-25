@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "CollapseGroup 折叠渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/collapse")
+@Schema(title = "CollapseGroup 折叠渲染器，格式说明。 文档：https://baidu.gitee.io/amis/docs/components/collapse")
 public @interface CollapseGroup {
 ///////////////////////////////////////////
 
@@ -33,7 +33,7 @@ public @interface CollapseGroup {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -49,14 +49,14 @@ public @interface CollapseGroup {
      *
      * 参考定义: {"type":"string","const":"collapse-group","description":"指定为折叠器类型"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "指定为折叠器类型")
+
+    @Schema(title = "指定为折叠器类型")
     String type() default "collapse-group";
 
     /**
@@ -64,14 +64,14 @@ public @interface CollapseGroup {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "容器 css 类名")
+
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -79,14 +79,14 @@ public @interface CollapseGroup {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -94,14 +94,14 @@ public @interface CollapseGroup {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -109,14 +109,14 @@ public @interface CollapseGroup {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -124,14 +124,14 @@ public @interface CollapseGroup {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -139,14 +139,14 @@ public @interface CollapseGroup {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -154,14 +154,14 @@ public @interface CollapseGroup {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -169,14 +169,14 @@ public @interface CollapseGroup {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -184,14 +184,14 @@ public @interface CollapseGroup {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -201,12 +201,12 @@ public @interface CollapseGroup {
      *
      * [{"type":"array","items":{"type":["string","number"]}},{"type":"string"},{"type":"number"}]
      *
-     * 
      *
-     * @see 
+     *
+     * @see
      */
-    
-    @Schema(description = "激活面板")
+
+    @Schema(title = "激活面板")
     String activeKey() default "	";
 
     /**
@@ -214,14 +214,14 @@ public @interface CollapseGroup {
      *
      * 参考定义: {"type":"boolean","description":"手风琴模式"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "手风琴模式")
+
+    @Schema(title = "手风琴模式")
     boolean accordion() default false;
 
     /**
@@ -229,14 +229,14 @@ public @interface CollapseGroup {
      *
      * 参考定义: "#/definitions/SchemaObject"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Object
      */
-    
-    @Schema(description = "自定义切换图标")
+
+    @Schema(title = "自定义切换图标")
     String expandIcon() default "	";
 
     /**
@@ -244,14 +244,14 @@ public @interface CollapseGroup {
      *
      * 参考定义: {"type":"string","enum":["left","right"],"description":"设置图标位置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "设置图标位置")
+
+    @Schema(title = "设置图标位置")
     ExpandIconPosition expandIconPosition() ;
 
     /**
@@ -259,14 +259,14 @@ public @interface CollapseGroup {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * 
+     *
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-    
-    @Schema(description = "内容区域")
+
+    @Schema(title = "内容区域")
     String body() default "	";
 
 }

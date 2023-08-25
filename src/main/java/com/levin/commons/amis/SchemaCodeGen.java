@@ -334,8 +334,8 @@ public class SchemaCodeGen {
                 }
             }
 
-            if (description != null) {
-                dataType.setDescription(replace(description.toString() + addInfo));
+            if (title != null) {
+                dataType.setDescription(replace(title.toString() + addInfo));
             }
 
             if (StringUtils.hasText(type)

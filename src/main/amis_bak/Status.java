@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "状态展示控件。 文档：https://baidu.gitee.io/amis/docs/components/status")
+@Schema(title = "状态展示控件。 文档：https://baidu.gitee.io/amis/docs/components/status")
 public @interface Status {
 ///////////////////////////////////////////
 
@@ -29,9 +29,9 @@ public @interface Status {
      *
      * 参考定义: {"type":"string","const":"status","description":"指定为状态展示控件"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "指定为状态展示控件")
+    @Schema(title = "指定为状态展示控件")
     String type() default "status";
 
     /**
@@ -39,9 +39,9 @@ public @interface Status {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -49,9 +49,9 @@ public @interface Status {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -59,9 +59,9 @@ public @interface Status {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -69,9 +69,9 @@ public @interface Status {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -79,9 +79,9 @@ public @interface Status {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -89,9 +89,9 @@ public @interface Status {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -99,9 +99,9 @@ public @interface Status {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -109,9 +109,9 @@ public @interface Status {
      *
      * 参考定义: {"type":"string","description":"占位符"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "占位符")
+    @Schema(title = "占位符")
     String placeholder() default "	";
 
     /**
@@ -119,9 +119,9 @@ public @interface Status {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"string"},"description":"状态图标映射关系"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "状态图标映射关系")
+    @Schema(title = "状态图标映射关系")
     String map() default "	";
 
     /**
@@ -129,9 +129,9 @@ public @interface Status {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"string"},"description":"文字映射关系","default":{"success":"成功","pending":"运行中","fail":"失败","queue":"排队中","schedule":"调度中"}}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "文字映射关系")
+    @Schema(title = "文字映射关系")
     String labelMap() default "	";
 
 }

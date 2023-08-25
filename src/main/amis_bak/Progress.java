@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "进度展示控件。 文档：https://baidu.gitee.io/amis/docs/components/progress")
+@Schema(title = "进度展示控件。 文档：https://baidu.gitee.io/amis/docs/components/progress")
 public @interface Progress {
 ///////////////////////////////////////////
 
@@ -52,9 +52,9 @@ public @interface Progress {
      *
      * 参考定义: {"type":"string","const":"progress"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "type")
+    @Schema(title = "type")
     String type() default "progress";
 
     /**
@@ -62,9 +62,9 @@ public @interface Progress {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -72,9 +72,9 @@ public @interface Progress {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -82,9 +82,9 @@ public @interface Progress {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -92,9 +92,9 @@ public @interface Progress {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -102,9 +102,9 @@ public @interface Progress {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -112,9 +112,9 @@ public @interface Progress {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -122,9 +122,9 @@ public @interface Progress {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -132,9 +132,9 @@ public @interface Progress {
      *
      * 参考定义: {"type":"string","description":"关联字段名。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "关联字段名。")
+    @Schema(title = "关联字段名。")
     String name() default "	";
 
     /**
@@ -142,9 +142,9 @@ public @interface Progress {
      *
      * 参考定义: {"type":"string","enum":["line","circle","dashboard"],"description":"进度条类型。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "进度条类型。")
+    @Schema(title = "进度条类型。")
     Mode mode() ;
 
     /**
@@ -152,9 +152,9 @@ public @interface Progress {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "进度条 CSS 类名")
+    @Schema(title = "进度条 CSS 类名")
     String progressClassName() default "	";
 
     /**
@@ -162,9 +162,9 @@ public @interface Progress {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "进度外层 CSS 类名")
+    @Schema(title = "进度外层 CSS 类名")
     String progressBarClassName() default "	";
 
     /**
@@ -172,9 +172,9 @@ public @interface Progress {
      *
      * 参考定义: {"type":"array","items":{"type":"string"},"description":"配置不通的值段，用不通的样式提示用户"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置不通的值段，用不通的样式提示用户")
+    @Schema(title = "配置不通的值段，用不通的样式提示用户")
     String[] map() default "	";
 
     /**
@@ -182,9 +182,9 @@ public @interface Progress {
      *
      * 参考定义: {"type":"boolean","description":"是否显示值"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示值")
+    @Schema(title = "是否显示值")
     boolean showLabel() default false;
 
     /**
@@ -192,9 +192,9 @@ public @interface Progress {
      *
      * 参考定义: {"type":"string","description":"占位符"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "占位符")
+    @Schema(title = "占位符")
     String placeholder() default "	";
 
     /**
@@ -202,9 +202,9 @@ public @interface Progress {
      *
      * 参考定义: {"type":"boolean","description":"是否显示背景间隔"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示背景间隔")
+    @Schema(title = "是否显示背景间隔")
     boolean stripe() default false;
 
     /**
@@ -212,9 +212,9 @@ public @interface Progress {
      *
      * 参考定义: {"type":"boolean","description":"是否显示动画（只有在开启的时候才能看出来）"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示动画（只有在开启的时候才能看出来）")
+    @Schema(title = "是否显示动画（只有在开启的时候才能看出来）")
     boolean animate() default false;
 
     /**
@@ -222,9 +222,9 @@ public @interface Progress {
      *
      * 参考定义: {"type":"number","description":"圆形进度条线的宽度"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "圆形进度条线的宽度")
+    @Schema(title = "圆形进度条线的宽度")
     double strokeWidth() default 0;
 
     /**
@@ -232,9 +232,9 @@ public @interface Progress {
      *
      * 参考定义: {"type":"number","description":"仪表盘进度条缺口角度，可取值 0 ~ 295"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "仪表盘进度条缺口角度，可取值 0 ~ 295")
+    @Schema(title = "仪表盘进度条缺口角度，可取值 0 ~ 295")
     double gapDegree() default 0;
 
     /**
@@ -242,9 +242,9 @@ public @interface Progress {
      *
      * 参考定义: {"type":"string","enum":["top","bottom","left","right"],"description":"仪表盘进度条缺口位置"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "仪表盘进度条缺口位置")
+    @Schema(title = "仪表盘进度条缺口位置")
     GapPosition gapPosition() ;
 
     /**
@@ -252,9 +252,9 @@ public @interface Progress {
      *
      * 参考定义: {"type":"string","description":"内容的模板函数"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "内容的模板函数")
+    @Schema(title = "内容的模板函数")
     String valueTpl() default "	";
 
 }

@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Property_MsTextAutospace")
+@Schema(title = "Property_MsTextAutospace")
 public @interface Property_MsTextAutospace {
 ///////////////////////////////////////////
 

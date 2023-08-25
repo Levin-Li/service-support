@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Function")
+@Schema(title = "Function")
 public @interface Function {
 ///////////////////////////////////////////
 

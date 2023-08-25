@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * FeedbackDialog
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:41
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "FeedbackDialog")
+@Schema(title = "FeedbackDialog")
 public @interface FeedbackDialog {
 ///////////////////////////////////////////
 
@@ -43,9 +43,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/ActionSchema"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "默认不用填写，自动会创建确认和取消按钮。")
+    @Schema(title = "默认不用填写，自动会创建确认和取消按钮。")
     String[] actions() default "	";
 
     /**
@@ -53,9 +53,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "内容区域")
+    @Schema(title = "内容区域")
     String body() default "	";
 
     /**
@@ -63,9 +63,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置 Body 容器 className")
+    @Schema(title = "配置 Body 容器 className")
     String bodyClassName() default "	";
 
     /**
@@ -73,9 +73,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: {"type":"boolean","description":"是否支持按 ESC 关闭 Dialog"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否支持按 ESC 关闭 Dialog")
+    @Schema(title = "是否支持按 ESC 关闭 Dialog")
     boolean closeOnEsc() default false;
 
     /**
@@ -83,9 +83,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: {"type":"boolean","description":"是否支持点其它区域关闭 Dialog"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否支持点其它区域关闭 Dialog")
+    @Schema(title = "是否支持点其它区域关闭 Dialog")
     boolean closeOnOutside() default false;
 
     /**
@@ -93,9 +93,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "name")
+    @Schema(title = "name")
     String name() default "	";
 
     /**
@@ -103,9 +103,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: {"type":"string","enum":["xs","sm","md","lg","xl","full"],"description":"Dialog 大小"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "Dialog 大小")
+    @Schema(title = "Dialog 大小")
     Size size() ;
 
     /**
@@ -113,9 +113,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "请通过配置 title 设置标题")
+    @Schema(title = "请通过配置 title 设置标题")
     String title() default "	";
 
     /**
@@ -123,9 +123,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "header")
+    @Schema(title = "header")
     String header() default "	";
 
     /**
@@ -133,9 +133,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "headerClassName")
+    @Schema(title = "headerClassName")
     String headerClassName() default "	";
 
     /**
@@ -143,9 +143,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "footer")
+    @Schema(title = "footer")
     String footer() default "	";
 
     /**
@@ -153,9 +153,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: {"type":"boolean","description":"影响自动生成的按钮，如果自己配置了按钮这个配置无效。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "影响自动生成的按钮，如果自己配置了按钮这个配置无效。")
+    @Schema(title = "影响自动生成的按钮，如果自己配置了按钮这个配置无效。")
     boolean confirm() default false;
 
     /**
@@ -163,9 +163,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: {"type":"boolean","description":"是否显示关闭按钮"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示关闭按钮")
+    @Schema(title = "是否显示关闭按钮")
     boolean showCloseButton() default false;
 
     /**
@@ -173,9 +173,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: {"type":"boolean","description":"是否显示错误信息"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示错误信息")
+    @Schema(title = "是否显示错误信息")
     boolean showErrorMsg() default false;
 
     /**
@@ -183,9 +183,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -193,9 +193,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -203,9 +203,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -213,9 +213,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -223,9 +223,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -233,9 +233,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -243,9 +243,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: {"type":"string","description":"可以用来配置 feedback 的出现条件"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "可以用来配置 feedback 的出现条件")
+    @Schema(title = "可以用来配置 feedback 的出现条件")
     String visibleOn() default "	";
 
     /**
@@ -253,9 +253,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: {"type":"boolean","description":"feedback 弹框取消是否中断后续操作"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "feedback 弹框取消是否中断后续操作")
+    @Schema(title = "feedback 弹框取消是否中断后续操作")
     boolean skipRestOnCancel() default false;
 
     /**
@@ -263,9 +263,9 @@ public @interface FeedbackDialog {
      *
      * 参考定义: {"type":"boolean","description":"feedback 弹框确认是否中断后续操作"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "feedback 弹框确认是否中断后续操作")
+    @Schema(title = "feedback 弹框确认是否中断后续操作")
     boolean skipRestOnConfirm() default false;
 
 }

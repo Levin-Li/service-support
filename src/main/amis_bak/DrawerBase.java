@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Construct a type with the properties of T except for those in type K.")
+@Schema(title = "Construct a type with the properties of T except for those in type K.")
 public @interface DrawerBase {
 ///////////////////////////////////////////
 
@@ -54,9 +54,9 @@ public @interface DrawerBase {
      *
      * 参考定义: "#/definitions/ActionSchema"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "默认不用填写，自动会创建确认和取消按钮。")
+    @Schema(title = "默认不用填写，自动会创建确认和取消按钮。")
     String[] actions() default "	";
 
     /**
@@ -64,9 +64,9 @@ public @interface DrawerBase {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "内容区域")
+    @Schema(title = "内容区域")
     String body() default "	";
 
     /**
@@ -74,9 +74,9 @@ public @interface DrawerBase {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置 Body 容器 className")
+    @Schema(title = "配置 Body 容器 className")
     String bodyClassName() default "	";
 
     /**
@@ -84,9 +84,9 @@ public @interface DrawerBase {
      *
      * 参考定义: {"type":"boolean","description":"是否支持按 ESC 关闭 Dialog"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否支持按 ESC 关闭 Dialog")
+    @Schema(title = "是否支持按 ESC 关闭 Dialog")
     boolean closeOnEsc() default false;
 
     /**
@@ -94,9 +94,9 @@ public @interface DrawerBase {
      *
      * 参考定义: "#/definitions/SchemaName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "name")
+    @Schema(title = "name")
     String name() default "	";
 
     /**
@@ -104,9 +104,9 @@ public @interface DrawerBase {
      *
      * 参考定义: {"type":"string","enum":["xs","sm","md","lg","full"],"description":"Dialog 大小"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "Dialog 大小")
+    @Schema(title = "Dialog 大小")
     Size size() ;
 
     /**
@@ -114,9 +114,9 @@ public @interface DrawerBase {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "请通过配置 title 设置标题")
+    @Schema(title = "请通过配置 title 设置标题")
     String title() default "	";
 
     /**
@@ -124,9 +124,9 @@ public @interface DrawerBase {
      *
      * 参考定义: {"type":"string","enum":["left","right","top","bottom"],"description":"从什么位置弹出"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "从什么位置弹出")
+    @Schema(title = "从什么位置弹出")
     Position position() ;
 
     /**
@@ -134,9 +134,9 @@ public @interface DrawerBase {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "头部")
+    @Schema(title = "头部")
     String header() default "	";
 
     /**
@@ -144,9 +144,9 @@ public @interface DrawerBase {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "底部")
+    @Schema(title = "底部")
     String footer() default "	";
 
     /**
@@ -154,9 +154,9 @@ public @interface DrawerBase {
      *
      * 参考定义: {"type":"boolean","description":"影响自动生成的按钮，如果自己配置了按钮这个配置无效。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "影响自动生成的按钮，如果自己配置了按钮这个配置无效。")
+    @Schema(title = "影响自动生成的按钮，如果自己配置了按钮这个配置无效。")
     boolean confirm() default false;
 
     /**
@@ -164,9 +164,9 @@ public @interface DrawerBase {
      *
      * 参考定义: {"type":"boolean","description":"是否可以拖动弹窗大小"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否可以拖动弹窗大小")
+    @Schema(title = "是否可以拖动弹窗大小")
     boolean resizable() default false;
 
     /**
@@ -174,9 +174,9 @@ public @interface DrawerBase {
      *
      * 参考定义: {"type":"boolean","description":"是否显示蒙层"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示蒙层")
+    @Schema(title = "是否显示蒙层")
     boolean overlay() default false;
 
     /**
@@ -184,9 +184,9 @@ public @interface DrawerBase {
      *
      * 参考定义: {"type":"boolean","description":"点击外部的时候是否关闭弹框。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "点击外部的时候是否关闭弹框。")
+    @Schema(title = "点击外部的时候是否关闭弹框。")
     boolean closeOnOutside() default false;
 
     /**
@@ -194,9 +194,9 @@ public @interface DrawerBase {
      *
      * 参考定义: {"type":"boolean","description":"是否显示错误信息"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示错误信息")
+    @Schema(title = "是否显示错误信息")
     boolean showErrorMsg() default false;
 
     /**
@@ -204,9 +204,9 @@ public @interface DrawerBase {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -214,9 +214,9 @@ public @interface DrawerBase {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -224,9 +224,9 @@ public @interface DrawerBase {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -234,9 +234,9 @@ public @interface DrawerBase {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -244,9 +244,9 @@ public @interface DrawerBase {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -254,9 +254,9 @@ public @interface DrawerBase {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -264,9 +264,9 @@ public @interface DrawerBase {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
 }

@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Cards 卡片集合渲染器。 文档：https://baidu.gitee.io/amis/docs/components/card")
+@Schema(title = "Cards 卡片集合渲染器。 文档：https://baidu.gitee.io/amis/docs/components/card")
 public @interface Cards {
 ///////////////////////////////////////////
 
@@ -23,7 +23,7 @@ public @interface Cards {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -39,14 +39,14 @@ public @interface Cards {
      *
      * 参考定义: {"type":"string","const":"cards","description":"指定为 cards 类型"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "指定为 cards 类型")
+
+    @Schema(title = "指定为 cards 类型")
     String type() default "cards";
 
     /**
@@ -54,14 +54,14 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "容器 css 类名")
+
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -69,14 +69,14 @@ public @interface Cards {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -84,14 +84,14 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -99,14 +99,14 @@ public @interface Cards {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -114,14 +114,14 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -129,14 +129,14 @@ public @interface Cards {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -144,14 +144,14 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -159,14 +159,14 @@ public @interface Cards {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -174,14 +174,14 @@ public @interface Cards {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -191,12 +191,12 @@ public @interface Cards {
      *
      * [{"type":"object","properties":{"type":{"type":"string","const":"card","description":"指定为 card 类型"},"header":{"type":"object","properties":{"className":{"$ref":"#/definitions/SchemaClassName"},"title":{"$ref":"#/definitions/SchemaTpl","description":"标题"},"titleClassName":{"$ref":"#/definitions/SchemaClassName"},"subTitle":{"$ref":"#/definitions/SchemaTpl","description":"副标题"},"subTitleClassName":{"$ref":"#/definitions/SchemaClassName"},"subTitlePlaceholder":{"type":"string"},"description":{"$ref":"#/definitions/SchemaTpl","description":"描述"},"descriptionPlaceholder":{"type":"string","description":"描述占位内容"},"descriptionClassName":{"$ref":"#/definitions/SchemaClassName","description":"描述占位类名"},"desc":{"$ref":"#/definitions/SchemaTpl"},"descPlaceholder":{"$ref":"#/definitions/SchemaTpl"},"descClassName":{"$ref":"#/definitions/SchemaClassName"},"avatar":{"$ref":"#/definitions/SchemaUrlPath","description":"图片地址"},"avatarText":{"$ref":"#/definitions/SchemaTpl"},"avatarTextBackground":{"type":"array","items":{"type":"object","properties":{"length":{"type":"number"}},"required":["length"],"additionalProperties":{"type":"string"}}},"avatarTextClassName":{"$ref":"#/definitions/SchemaClassName"},"avatarClassName":{"$ref":"#/definitions/SchemaClassName","description":"图片包括层类名"},"imageClassName":{"$ref":"#/definitions/SchemaClassName","description":"图片类名。"},"highlight":{"$ref":"#/definitions/SchemaExpression","description":"是否点亮"},"highlightClassName":{"$ref":"#/definitions/SchemaClassName"},"href":{"$ref":"#/definitions/SchemaTpl","description":"链接地址"},"blank":{"type":"boolean","description":"是否新窗口打开"}},"additionalProperties":false,"description":"头部配置"},"body":{"type":"array","items":{"$ref":"#/definitions/CardBodyField"},"description":"内容区域"},"media":{"type":"object","properties":{"className":{"$ref":"#/definitions/SchemaClassName"},"type":{"type":"string","enum":["image","video"],"description":"多媒体类型"},"url":{"$ref":"#/definitions/SchemaUrlPath","description":"多媒体链接地址"},"position":{"type":"string","enum":["top","left","right","bottom"],"description":"多媒体区域位置"},"autoPlay":{"type":"boolean","description":"类型为video时是否自动播放"},"isLive":{"type":"boolean","description":"类型为video时是否是直播"},"poster":{"$ref":"#/definitions/SchemaUrlPath","description":"类型为video时视频封面"}},"additionalProperties":false,"description":"多媒体区域"},"actions":{"type":"array","items":{"$ref":"#/definitions/ActionSchema"},"description":"底部按钮集合。"},"toolbar":{"type":"array","items":{"$ref":"#/definitions/ActionSchema"},"description":"工具栏按钮"},"secondary":{"$ref":"#/definitions/SchemaTpl","description":"次要说明"},"className":{"$ref":"#/definitions/SchemaClassName","description":"容器 css 类名"},"$ref":{"type":"string","description":"配合 definitions 一起使用，可以实现无限循环的渲染器。"},"disabled":{"type":"boolean","description":"是否禁用"},"disabledOn":{"$ref":"#/definitions/SchemaExpression","description":"是否禁用表达式"},"hidden":{"type":"boolean","description":"是否隐藏"},"hiddenOn":{"$ref":"#/definitions/SchemaExpression","description":"是否隐藏表达式"},"visible":{"type":"boolean","description":"是否显示"},"visibleOn":{"$ref":"#/definitions/SchemaExpression","description":"是否显示表达式"},"id":{"type":"string","description":"组件唯一 id，主要用于日志采集"},"onEvent":{"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}},"additionalProperties":false},{"$ref":"#/definitions/Card2Schema"}]
      *
-     * 
      *
-     * @see 
+     *
+     * @see
      */
-    
-    @Schema(description = "card")
+
+    @Schema(title = "card")
     String card() default "	";
 
     /**
@@ -204,14 +204,14 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "头部 CSS 类名")
+
+    @Schema(title = "头部 CSS 类名")
     String headerClassName() default "	";
 
     /**
@@ -219,14 +219,14 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "底部 CSS 类名")
+
+    @Schema(title = "底部 CSS 类名")
     String footerClassName() default "	";
 
     /**
@@ -234,14 +234,14 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "卡片 CSS 类名")
+
+    @Schema(title = "卡片 CSS 类名")
     String itemClassName() default "	";
 
     /**
@@ -249,14 +249,14 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Tpl
      */
-    
-    @Schema(description = "无数据提示")
+
+    @Schema(title = "无数据提示")
     Tpl placeholder() ;
 
     /**
@@ -264,14 +264,14 @@ public @interface Cards {
      *
      * 参考定义: {"type":"boolean","description":"是否显示底部"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示底部")
+
+    @Schema(title = "是否显示底部")
     boolean showFooter() default false;
 
     /**
@@ -279,14 +279,14 @@ public @interface Cards {
      *
      * 参考定义: {"type":"boolean","description":"是否显示头部"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示头部")
+
+    @Schema(title = "是否显示头部")
     boolean showHeader() default false;
 
     /**
@@ -294,14 +294,14 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaTokenizeableString"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see TokenizeableString
      */
-    
-    @Schema(description = "数据源: 绑定当前环境变量")
+
+    @Schema(title = "数据源: 绑定当前环境变量")
     String source() default "	";
 
     /**
@@ -309,14 +309,14 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Tpl
      */
-    
-    @Schema(description = "标题")
+
+    @Schema(title = "标题")
     Tpl title() ;
 
     /**
@@ -324,14 +324,14 @@ public @interface Cards {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏勾选框"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏勾选框")
+
+    @Schema(title = "是否隐藏勾选框")
     boolean hideCheckToggler() default false;
 
     /**
@@ -339,14 +339,14 @@ public @interface Cards {
      *
      * 参考定义: {"type":"boolean","description":"是否固顶"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否固顶")
+
+    @Schema(title = "是否固顶")
     boolean affixHeader() default false;
 
     /**
@@ -354,14 +354,14 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * 
+     *
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-    
-    @Schema(description = "顶部区域")
+
+    @Schema(title = "顶部区域")
     String header() default "	";
 
     /**
@@ -369,14 +369,14 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * 
+     *
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-    
-    @Schema(description = "底部区域")
+
+    @Schema(title = "底部区域")
     String footer() default "	";
 
     /**
@@ -384,14 +384,14 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "配置某项是否可以点选")
+
+    @Schema(title = "配置某项是否可以点选")
     String itemCheckableOn() default "	";
 
     /**
@@ -399,14 +399,14 @@ public @interface Cards {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "配置某项是否可拖拽排序，前提是要开启拖拽功能")
+
+    @Schema(title = "配置某项是否可拖拽排序，前提是要开启拖拽功能")
     String itemDraggableOn() default "	";
 
     /**
@@ -414,14 +414,14 @@ public @interface Cards {
      *
      * 参考定义: {"type":"boolean","description":"点击卡片的时候是否勾选卡片。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "点击卡片的时候是否勾选卡片。")
+
+    @Schema(title = "点击卡片的时候是否勾选卡片。")
     boolean checkOnItemClick() default false;
 
     /**
@@ -429,14 +429,14 @@ public @interface Cards {
      *
      * 参考定义: {"type":"boolean","description":"是否为瀑布流布局？"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否为瀑布流布局？")
+
+    @Schema(title = "是否为瀑布流布局？")
     boolean masonryLayout() default false;
 
     /**
@@ -444,14 +444,14 @@ public @interface Cards {
      *
      * 参考定义: {"type":"string","description":"可以用来作为值的字段"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "可以用来作为值的字段")
+
+    @Schema(title = "可以用来作为值的字段")
     String valueField() default "	";
 
 }

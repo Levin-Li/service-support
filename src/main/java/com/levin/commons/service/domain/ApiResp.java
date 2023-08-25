@@ -27,7 +27,7 @@ import java.io.Serializable;
 @Data
 @Accessors(chain = true)
 @ToString(callSuper = true)
-@Schema(description = "服务响应对象")
+@Schema(title = "服务响应对象")
 @FieldNameConstants
 //@Builder
 public class ApiResp<T>
@@ -36,10 +36,10 @@ public class ApiResp<T>
 
     private static final long serialVersionUID = -944707546677849710L;
 
-    @Schema(description = "HTTP状态码，默认为0，表示忽略，以http请求为准")
+    @Schema(title = "HTTP状态码，默认为0，表示忽略，以http请求为准")
     protected int httpStatusCode;
 
-    @Schema(description = "响应消息的签名验证，防止响应消息被拦截篡改")
+    @Schema(title = "响应消息的签名验证，防止响应消息被拦截篡改")
     protected String sign;
 
     public ApiResp(T data) {

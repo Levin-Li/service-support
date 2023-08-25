@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * Step
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:42
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Step")
+@Schema(title = "Step")
 public @interface Step {
 ///////////////////////////////////////////
 
@@ -25,9 +25,9 @@ public @interface Step {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "容器 css 类名")
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -35,9 +35,9 @@ public @interface Step {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用")
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -45,9 +45,9 @@ public @interface Step {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否禁用表达式")
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -55,9 +55,9 @@ public @interface Step {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏")
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -65,9 +65,9 @@ public @interface Step {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否隐藏表达式")
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -75,9 +75,9 @@ public @interface Step {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示")
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -85,9 +85,9 @@ public @interface Step {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否显示表达式")
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -95,9 +95,9 @@ public @interface Step {
      *
      * 参考定义: {"anyOf":[{"type":"string"},{"$ref":"#/definitions/SchemaCollection"}],"description":"标题"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "标题")
+    @Schema(title = "标题")
     String title() default "	";
 
     /**
@@ -105,9 +105,9 @@ public @interface Step {
      *
      * 参考定义: {"anyOf":[{"type":"string"},{"$ref":"#/definitions/SchemaCollection"}],"description":"子标题"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "子标题")
+    @Schema(title = "子标题")
     String subTitle() default "	";
 
     /**
@@ -115,9 +115,9 @@ public @interface Step {
      *
      * 参考定义: {"type":"string","description":"图标"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "图标")
+    @Schema(title = "图标")
     String icon() default "	";
 
     /**
@@ -125,9 +125,9 @@ public @interface Step {
      *
      * 参考定义: {"type":["string","number"]}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "value")
+    @Schema(title = "value")
     String value() default "	";
 
     /**
@@ -135,9 +135,9 @@ public @interface Step {
      *
      * 参考定义: {"anyOf":[{"type":"string"},{"$ref":"#/definitions/SchemaCollection"}],"description":"描述"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "描述")
+    @Schema(title = "描述")
     String description() default "	";
 
 }

@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * Config
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:42
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Config")
+@Schema(title = "Config")
 public @interface Config {
 ///////////////////////////////////////////
 
@@ -41,9 +41,9 @@ public @interface Config {
      *
      * 参考定义: {"type":"array","items":{"type":"string","enum":["value","field","func","formula"]}}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "valueTypes")
+    @Schema(title = "valueTypes")
     ValueType[] valueTypes() ;
 
     /**
@@ -51,9 +51,9 @@ public @interface Config {
      *
      * 参考定义: "#/definitions/Fields"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "fields")
+    @Schema(title = "fields")
     String[] fields() default "	";
 
     /**
@@ -61,9 +61,9 @@ public @interface Config {
      *
      * 参考定义: "#/definitions/Funcs"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "funcs")
+    @Schema(title = "funcs")
     String[] funcs() default "	";
 
     /**
@@ -71,9 +71,9 @@ public @interface Config {
      *
      * 参考定义: {"type":"number"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "maxLevel")
+    @Schema(title = "maxLevel")
     double maxLevel() default 0;
 
     /**
@@ -81,9 +81,9 @@ public @interface Config {
      *
      * 参考定义: {"type":"object","additionalProperties":{"$ref":"#/definitions/Type"}}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "types")
+    @Schema(title = "types")
     String types() default "	";
 
 }

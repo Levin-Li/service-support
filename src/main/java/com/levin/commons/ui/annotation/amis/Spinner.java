@@ -7,7 +7,7 @@ import com.levin.commons.ui.annotation.*;
 /**
  * Spinner
  *
- * 
+ *
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at 2022-6-6 23:52:03
  */
@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Spinner")
+@Schema(title = "Spinner")
 public @interface Spinner {
 ///////////////////////////////////////////
 
@@ -45,7 +45,7 @@ public @interface Spinner {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -61,14 +61,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"string","const":"spinner","description":"组件类型"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件类型")
+
+    @Schema(title = "组件类型")
     String type() default "spinner";
 
     /**
@@ -76,14 +76,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"string","description":"自定义spinner的class"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "自定义spinner的class")
+
+    @Schema(title = "自定义spinner的class")
     String className() default "	";
 
     /**
@@ -91,14 +91,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -106,14 +106,14 @@ public @interface Spinner {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -121,14 +121,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -136,14 +136,14 @@ public @interface Spinner {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -151,14 +151,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -166,14 +166,14 @@ public @interface Spinner {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -181,14 +181,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -196,14 +196,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -211,14 +211,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"boolean","description":"控制Spinner显示与隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "控制Spinner显示与隐藏")
+
+    @Schema(title = "控制Spinner显示与隐藏")
     boolean show() default false;
 
     /**
@@ -226,14 +226,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"string","description":"spin图标位置包裹元素的自定义class"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "spin图标位置包裹元素的自定义class")
+
+    @Schema(title = "spin图标位置包裹元素的自定义class")
     String spinnerClassName() default "	";
 
     /**
@@ -241,14 +241,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"string","description":"作为容器使用时最外层元素的class"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "作为容器使用时最外层元素的class")
+
+    @Schema(title = "作为容器使用时最外层元素的class")
     String spinnerWrapClassName() default "	";
 
     /**
@@ -256,14 +256,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"string"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "mode")
+
+    @Schema(title = "mode")
     String mode() default "	";
 
     /**
@@ -271,14 +271,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"string","enum":["sm","lg",""],"description":"spinner Icon 大小"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "spinner Icon 大小")
+
+    @Schema(title = "spinner Icon 大小")
     Size size() ;
 
     /**
@@ -286,14 +286,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"string","description":"自定义icon"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "自定义icon")
+
+    @Schema(title = "自定义icon")
     String icon() default "	";
 
     /**
@@ -301,14 +301,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"string","description":"spinner文案"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "spinner文案")
+
+    @Schema(title = "spinner文案")
     String tip() default "	";
 
     /**
@@ -316,14 +316,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"string","enum":["top","right","bottom","left"],"description":"spinner文案位置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "spinner文案位置")
+
+    @Schema(title = "spinner文案位置")
     TipPlacement tipPlacement() ;
 
     /**
@@ -331,14 +331,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"number","description":"延迟显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "延迟显示")
+
+    @Schema(title = "延迟显示")
     double delay() default 0;
 
     /**
@@ -346,14 +346,14 @@ public @interface Spinner {
      *
      * 参考定义: {"type":"boolean","description":"是否显示遮罩层"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示遮罩层")
+
+    @Schema(title = "是否显示遮罩层")
     boolean overlay() default false;
 
     /**
@@ -361,14 +361,14 @@ public @interface Spinner {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * 
+     *
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-    
-    @Schema(description = "作为容器使用时内容")
+
+    @Schema(title = "作为容器使用时内容")
     String body() default "	";
 
 }

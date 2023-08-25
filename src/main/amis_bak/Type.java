@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * Type
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:43
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "Type")
+@Schema(title = "Type")
 public @interface Type {
 ///////////////////////////////////////////
 
@@ -41,9 +41,9 @@ public @interface Type {
      *
      * 参考定义: "#/definitions/OperatorType"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "defaultOp")
+    @Schema(title = "defaultOp")
     String defaultOp() default "	";
 
     /**
@@ -51,9 +51,9 @@ public @interface Type {
      *
      * 参考定义: "#/definitions/OperatorType"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "operators")
+    @Schema(title = "operators")
     String[] operators() default "	";
 
     /**
@@ -61,9 +61,9 @@ public @interface Type {
      *
      * 参考定义: {"type":"string"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "placeholder")
+    @Schema(title = "placeholder")
     String placeholder() default "	";
 
     /**
@@ -71,9 +71,9 @@ public @interface Type {
      *
      * 参考定义: {"type":"array","items":{"type":"string","enum":["value","field","func","formula"]}}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "valueTypes")
+    @Schema(title = "valueTypes")
     ValueType[] valueTypes() ;
 
 }

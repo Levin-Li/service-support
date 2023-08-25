@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * GridColumnObject
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:42
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "GridColumnObject")
+@Schema(title = "GridColumnObject")
 public @interface GridColumnObject {
 ///////////////////////////////////////////
 
@@ -52,9 +52,9 @@ public @interface GridColumnObject {
      *
      * 参考定义: {"anyOf":[{"type":"number"},{"type":"string","const":"auto"}],"description":"极小屏（<768px）时宽度占比"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "极小屏（<768px）时宽度占比")
+    @Schema(title = "极小屏（<768px）时宽度占比")
     double xs() default 0;
 
     /**
@@ -62,9 +62,9 @@ public @interface GridColumnObject {
      *
      * 参考定义: {"anyOf":[{"type":"number"},{"type":"string","const":"auto"}],"description":"小屏时（>=768px）宽度占比"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "小屏时（>=768px）宽度占比")
+    @Schema(title = "小屏时（>=768px）宽度占比")
     double sm() default 0;
 
     /**
@@ -72,9 +72,9 @@ public @interface GridColumnObject {
      *
      * 参考定义: {"anyOf":[{"type":"number"},{"type":"string","const":"auto"}],"description":"中屏时(>=992px)宽度占比"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "中屏时(>=992px)宽度占比")
+    @Schema(title = "中屏时(>=992px)宽度占比")
     double md() default 0;
 
     /**
@@ -82,9 +82,9 @@ public @interface GridColumnObject {
      *
      * 参考定义: {"anyOf":[{"type":"number"},{"type":"string","const":"auto"}],"description":"大屏时(>=1200px)宽度占比"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "大屏时(>=1200px)宽度占比")
+    @Schema(title = "大屏时(>=1200px)宽度占比")
     double lg() default 0;
 
     /**
@@ -92,9 +92,9 @@ public @interface GridColumnObject {
      *
      * 参考定义: {"type":"string","enum":["top","middle","bottom","between"],"description":"垂直对齐方式"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "垂直对齐方式")
+    @Schema(title = "垂直对齐方式")
     Valign valign() ;
 
     /**
@@ -102,9 +102,9 @@ public @interface GridColumnObject {
      *
      * 参考定义: {"type":"string","enum":["normal","inline","horizontal"],"description":"配置子表单项默认的展示方式。"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置子表单项默认的展示方式。")
+    @Schema(title = "配置子表单项默认的展示方式。")
     Mode mode() ;
 
     /**
@@ -112,9 +112,9 @@ public @interface GridColumnObject {
      *
      * 参考定义: "#/definitions/FormSchemaHorizontal"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
+    @Schema(title = "如果是水平排版，这个属性可以细化水平排版的左右宽度占比。")
     FormHorizontal horizontal() ;
 
     /**
@@ -122,9 +122,9 @@ public @interface GridColumnObject {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "body")
+    @Schema(title = "body")
     String body() default "	";
 
     /**
@@ -132,9 +132,9 @@ public @interface GridColumnObject {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "列类名")
+    @Schema(title = "列类名")
     String columnClassName() default "	";
 
 }

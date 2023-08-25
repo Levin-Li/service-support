@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 /**
  * FieldGroup
  *
- * 
+ *
  *
  * @author auto gen by service-support at 2022-2-10 12:04:42
  */
@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "FieldGroup")
+@Schema(title = "FieldGroup")
 public @interface FieldGroup {
 ///////////////////////////////////////////
 
@@ -29,9 +29,9 @@ public @interface FieldGroup {
      *
      * 参考定义: {"type":"string"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "label")
+    @Schema(title = "label")
     String label() default "	";
 
     /**
@@ -39,9 +39,9 @@ public @interface FieldGroup {
      *
      * 参考定义: "#/definitions/FieldSimple"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "children")
+    @Schema(title = "children")
     String[] children() default "	";
 
 }

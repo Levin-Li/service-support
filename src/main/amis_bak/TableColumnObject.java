@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "表格列，不指定类型时默认为文本类型。")
+@Schema(title = "表格列，不指定类型时默认为文本类型。")
 public @interface TableColumnObject {
 ///////////////////////////////////////////
 
@@ -60,9 +60,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: {"type":"string","description":"列标题"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "列标题")
+    @Schema(title = "列标题")
     String label() default "	";
 
     /**
@@ -70,9 +70,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: {"type":"string","enum":["left","right","none"],"description":"配置是否固定当前列"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置是否固定当前列")
+    @Schema(title = "配置是否固定当前列")
     Fixed fixed() ;
 
     /**
@@ -80,9 +80,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: {"type":"string","description":"绑定字段名"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "绑定字段名")
+    @Schema(title = "绑定字段名")
     String name() default "	";
 
     /**
@@ -90,9 +90,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: "#/definitions/SchemaPopOver"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置查看详情功能")
+    @Schema(title = "配置查看详情功能")
     boolean popOver() default false;
 
     /**
@@ -100,9 +100,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: "#/definitions/SchemaQuickEdit"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置快速编辑功能")
+    @Schema(title = "配置快速编辑功能")
     boolean quickEdit() default false;
 
     /**
@@ -110,9 +110,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: "#/definitions/SchemaQuickEdit"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "作为表单项时，可以单独配置编辑时的快速编辑面板。")
+    @Schema(title = "作为表单项时，可以单独配置编辑时的快速编辑面板。")
     boolean quickEditOnUpdate() default false;
 
     /**
@@ -120,9 +120,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: "#/definitions/SchemaCopyable"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置点击复制功能")
+    @Schema(title = "配置点击复制功能")
     boolean copyable() default false;
 
     /**
@@ -130,9 +130,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: {"type":"boolean","description":"配置是否可以排序"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置是否可以排序")
+    @Schema(title = "配置是否可以排序")
     boolean sortable() default false;
 
     /**
@@ -140,9 +140,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: {"anyOf":[{"type":"boolean"},{"$ref":"#/definitions/SchemaObject"}],"description":"是否可快速搜索"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否可快速搜索")
+    @Schema(title = "是否可快速搜索")
     boolean searchable() default false;
 
     /**
@@ -150,9 +150,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: {"type":"boolean","description":"配置是否默认展示"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "配置是否默认展示")
+    @Schema(title = "配置是否默认展示")
     boolean toggled() default false;
 
     /**
@@ -160,9 +160,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: {"type":["number","string"],"description":"列宽度"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "列宽度")
+    @Schema(title = "列宽度")
     String width() default "	";
 
     /**
@@ -170,9 +170,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: {"type":"string","enum":["left","right","center","justify"],"description":"列对齐方式"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "列对齐方式")
+    @Schema(title = "列对齐方式")
     Align align() ;
 
     /**
@@ -180,9 +180,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: {"type":"string","description":"列样式表"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "列样式表")
+    @Schema(title = "列样式表")
     String className() default "	";
 
     /**
@@ -190,9 +190,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: {"type":"string","description":"单元格样式表达式"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "单元格样式表达式")
+    @Schema(title = "单元格样式表达式")
     String classNameExpr() default "	";
 
     /**
@@ -200,9 +200,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: {"type":"string","description":"列头样式表"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "列头样式表")
+    @Schema(title = "列头样式表")
     String labelClassName() default "	";
 
     /**
@@ -210,9 +210,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: {"anyOf":[{"type":"boolean"},{"type":"object","properties":{"source":{"type":"string"},"options":{"type":"array","items":{}}},"additionalProperties":false}],"description":"todo"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "todo")
+    @Schema(title = "todo")
     boolean filterable() default false;
 
     /**
@@ -220,9 +220,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: {"type":"string","enum":["*","xs","sm","md","lg"],"description":"结合表格的 footable 一起使用。 填写 *、xs、sm、md、lg指定 footable 的触发条件，可以填写多个用空格隔开"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "结合表格的 footable 一起使用。 填写 *、xs、sm、md、lg指定 footable 的触发条件，可以填写多个用空格隔开")
+    @Schema(title = "结合表格的 footable 一起使用。 填写 *、xs、sm、md、lg指定 footable 的触发条件，可以填写多个用空格隔开")
     Breakpoint breakpoint() ;
 
     /**
@@ -230,9 +230,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: "#/definitions/SchemaRemark"
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "提示信息")
+    @Schema(title = "提示信息")
     Remark remark() ;
 
     /**
@@ -240,9 +240,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: {"description":"默认值, 只有在 inputTable 里面才有用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "默认值, 只有在 inputTable 里面才有用")
+    @Schema(title = "默认值, 只有在 inputTable 里面才有用")
     String value() default "	";
 
     /**
@@ -250,9 +250,9 @@ public @interface TableColumnObject {
      *
      * 参考定义: {"type":"boolean","description":"是否唯一, 只有在 inputTable 里面才有用"}
      *
-     * @see 
+     * @see
      */
-    @Schema(description = "是否唯一, 只有在 inputTable 里面才有用")
+    @Schema(title = "是否唯一, 只有在 inputTable 里面才有用")
     boolean unique() default false;
 
 }

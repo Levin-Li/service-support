@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "${ui.description!ref!name}")
+@Schema(title = "${ui.description!ref!name}")
 public @interface ${name} {
 ///////////////////////////////////////////
 ${ui.getEnumDefines()}
@@ -53,7 +53,7 @@ ${ui.getEnumDefines()}
      * @see ${props.refType?cap_first}
      */
     ${props.getConsts('@Const({','})')}
-    @Schema(description = "${ui.descriptions[porpsName]!props.description!porpsName}")
+    @Schema(title = "${ui.descriptions[porpsName]!props.description!porpsName}")
     ${props.getTypeInfo()} ${porpsName}() ${props.defaultValue()};
 
 </#list>

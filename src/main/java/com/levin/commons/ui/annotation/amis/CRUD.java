@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "CRUD 增删改查渲染器。 文档：https://baidu.gitee.io/amis/docs/components/crud")
+@Schema(title = "CRUD 增删改查渲染器。 文档：https://baidu.gitee.io/amis/docs/components/crud")
 public @interface CRUD {
 ///////////////////////////////////////////
 

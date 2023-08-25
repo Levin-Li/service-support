@@ -15,7 +15,7 @@ import com.levin.commons.ui.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(description = "List 列表展示控件。 文档：https://baidu.gitee.io/amis/docs/components/card")
+@Schema(title = "List 列表展示控件。 文档：https://baidu.gitee.io/amis/docs/components/card")
 public @interface List {
 ///////////////////////////////////////////
 
@@ -43,7 +43,7 @@ public @interface List {
 
   /**
    * Any Of
-   * 
+   *
    *
    *
    */
@@ -59,14 +59,14 @@ public @interface List {
      *
      * 参考定义: {"type":"string","enum":["list","static-list"],"description":"指定为 List 列表展示控件。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "指定为 List 列表展示控件。")
+
+    @Schema(title = "指定为 List 列表展示控件。")
     Type type() ;
 
     /**
@@ -74,14 +74,14 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "容器 css 类名")
+
+    @Schema(title = "容器 css 类名")
     String className() default "	";
 
     /**
@@ -89,14 +89,14 @@ public @interface List {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否禁用")
+
+    @Schema(title = "是否禁用")
     boolean disabled() default false;
 
     /**
@@ -104,14 +104,14 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否禁用表达式")
+
+    @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
     /**
@@ -119,14 +119,14 @@ public @interface List {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏")
+
+    @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
     /**
@@ -134,14 +134,14 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否隐藏表达式")
+
+    @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
     /**
@@ -149,14 +149,14 @@ public @interface List {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示")
+
+    @Schema(title = "是否显示")
     boolean visible() default false;
 
     /**
@@ -164,14 +164,14 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "是否显示表达式")
+
+    @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
     /**
@@ -179,14 +179,14 @@ public @interface List {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "组件唯一 id，主要用于日志采集")
+
+    @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
@@ -194,14 +194,14 @@ public @interface List {
      *
      * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "事件动作配置")
+
+    @Schema(title = "事件动作配置")
     String onEvent() default "	";
 
     /**
@@ -209,14 +209,14 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Tpl
      */
-    
-    @Schema(description = "标题")
+
+    @Schema(title = "标题")
     Tpl title() ;
 
     /**
@@ -224,14 +224,14 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * 
+     *
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-    
-    @Schema(description = "底部区域")
+
+    @Schema(title = "底部区域")
     String footer() default "	";
 
     /**
@@ -239,14 +239,14 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "底部区域类名")
+
+    @Schema(title = "底部区域类名")
     String footerClassName() default "	";
 
     /**
@@ -254,14 +254,14 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     * 
+     *
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-    
-    @Schema(description = "顶部区域")
+
+    @Schema(title = "顶部区域")
     String header() default "	";
 
     /**
@@ -269,14 +269,14 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
-     * 
+     *
      *
      * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
      *
      * @see ClassName
      */
-    
-    @Schema(description = "顶部区域类名")
+
+    @Schema(title = "顶部区域类名")
     String headerClassName() default "	";
 
     /**
@@ -284,14 +284,14 @@ public @interface List {
      *
      * 参考定义: "#/definitions/ListItemSchema"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see ListItem
      */
-    
-    @Schema(description = "单条数据展示内容配置")
+
+    @Schema(title = "单条数据展示内容配置")
     ListItem listItem() ;
 
     /**
@@ -299,14 +299,14 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaTokenizeableString"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see TokenizeableString
      */
-    
-    @Schema(description = "数据源: 绑定当前环境变量")
+
+    @Schema(title = "数据源: 绑定当前环境变量")
     String source() default "	";
 
     /**
@@ -314,14 +314,14 @@ public @interface List {
      *
      * 参考定义: {"type":"boolean","description":"是否显示底部"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示底部")
+
+    @Schema(title = "是否显示底部")
     boolean showFooter() default false;
 
     /**
@@ -329,14 +329,14 @@ public @interface List {
      *
      * 参考定义: {"type":"boolean","description":"是否显示头部"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否显示头部")
+
+    @Schema(title = "是否显示头部")
     boolean showHeader() default false;
 
     /**
@@ -344,14 +344,14 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaTpl"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Tpl
      */
-    
-    @Schema(description = "无数据提示")
+
+    @Schema(title = "无数据提示")
     Tpl placeholder() ;
 
     /**
@@ -359,14 +359,14 @@ public @interface List {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏勾选框"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否隐藏勾选框")
+
+    @Schema(title = "是否隐藏勾选框")
     boolean hideCheckToggler() default false;
 
     /**
@@ -374,14 +374,14 @@ public @interface List {
      *
      * 参考定义: {"type":"boolean","description":"是否固顶"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "是否固顶")
+
+    @Schema(title = "是否固顶")
     boolean affixHeader() default false;
 
     /**
@@ -389,14 +389,14 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "配置某项是否可以点选")
+
+    @Schema(title = "配置某项是否可以点选")
     String itemCheckableOn() default "	";
 
     /**
@@ -404,14 +404,14 @@ public @interface List {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Expression
      */
-    
-    @Schema(description = "配置某项是否可拖拽排序，前提是要开启拖拽功能")
+
+    @Schema(title = "配置某项是否可拖拽排序，前提是要开启拖拽功能")
     String itemDraggableOn() default "	";
 
     /**
@@ -419,14 +419,14 @@ public @interface List {
      *
      * 参考定义: {"type":"boolean","description":"点击卡片的时候是否勾选卡片。"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "点击卡片的时候是否勾选卡片。")
+
+    @Schema(title = "点击卡片的时候是否勾选卡片。")
     boolean checkOnItemClick() default false;
 
     /**
@@ -434,14 +434,14 @@ public @interface List {
      *
      * 参考定义: {"type":"string","description":"可以用来作为值的字段"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "可以用来作为值的字段")
+
+    @Schema(title = "可以用来作为值的字段")
     String valueField() default "	";
 
     /**
@@ -449,14 +449,14 @@ public @interface List {
      *
      * 参考定义: {"type":"string","enum":["sm","base"],"description":"大小"}
      *
-     * 
      *
-     * 
      *
-     * @see 
+     *
+     *
+     * @see
      */
-    
-    @Schema(description = "大小")
+
+    @Schema(title = "大小")
     Size size() ;
 
     /**
@@ -464,14 +464,14 @@ public @interface List {
      *
      * 参考定义: "#/definitions/ActionSchema"
      *
-     * 
      *
-     * 
+     *
+     *
      *
      * @see Action
      */
-    
-    @Schema(description = "点击列表项的行为")
+
+    @Schema(title = "点击列表项的行为")
     String itemAction() default "	";
 
 }

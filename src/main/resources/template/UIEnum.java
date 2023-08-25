@@ -9,7 +9,7 @@ import java.lang.annotation.*;
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
  * @author auto gen by service-support at ${.now}
  */
-@Schema(description = "${ui.description!name}")
+@Schema(title = "${ui.description!name}")
 public enum ${name} {
 ${ui.getEnums()}
 }

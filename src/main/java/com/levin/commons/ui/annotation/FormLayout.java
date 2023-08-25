@@ -18,24 +18,24 @@ public @interface FormLayout {
 
     enum Type implements EnumDesc {
 
-        @Schema(description = "行布局")
+        @Schema(title = "行布局")
         hbox,
 
-        @Schema(description = "面板布局")
+        @Schema(title = "面板布局")
         panel,
 
-        @Schema(description = "卡片布局")
+        @Schema(title = "卡片布局")
         tabs,
 
         //https://aisuda.bce.baidu.com/amis/examples/wizard
-        @Schema(description = "向导式布局")
+        @Schema(title = "向导式布局")
         wizard,
 
-        @Schema(description = "格子布局")
+        @Schema(title = "格子布局")
         grid,
 
         //参考：https://aisuda.bce.baidu.com/amis/examples/form/anchor-nav
-        @Schema(description = "左侧锚点布局")
+        @Schema(title = "左侧锚点布局")
         anchor
     }
 
