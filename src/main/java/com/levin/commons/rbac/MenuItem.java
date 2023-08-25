@@ -62,7 +62,7 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
      *
      * @return
      */
-    @Schema(title = "target", title = "href中的target")
+    @Schema(title = "target", description = "href中的target")
     default String getTarget() {
         return null;
     }
@@ -82,7 +82,7 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
      *
      * @return
      */
-    @Schema(title = "资源参数", title = "可以是 json，vue 路由参数 或是 url参数")
+    @Schema(title = "资源参数", description = "可以是 json，vue 路由参数 或是 url参数")
     default String getParams() {
         return null;
     }
@@ -102,7 +102,7 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
      *
      * @return
      */
-    @Schema(title = "是否总是显示", title = "当没有权限的时候，是否显示，true为显示，false不显示")
+    @Schema(title = "是否总是显示", description = "当没有权限的时候，是否显示，true为显示，false不显示")
     default boolean isAlwaysShow() {
         return false;
     }

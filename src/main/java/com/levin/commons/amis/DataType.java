@@ -147,7 +147,7 @@ public class DataType {
                 .filter(p -> p.enums != null && p.enums.size() > 0)
                 .forEach(p -> {
 
-                    builder.append(HEAD_LINE1).append("//").append(titles.get(p.name));
+                    builder.append(HEAD_LINE1).append("//").append(descriptions.get(p.name));
 
                     builder.append(HEAD_LINE1).append("enum ").append(capFirst(p.isArray() ? toSingularize(p.name) : p.name)).append("{");
 
