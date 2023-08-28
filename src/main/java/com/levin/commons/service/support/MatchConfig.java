@@ -16,6 +16,7 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 @FieldNameConstants
+@ToString
 public class MatchConfig
         implements Serializable {
 
@@ -60,7 +61,6 @@ public class MatchConfig
      * 包含的 URL ，Ant path 匹配
      */
     protected List<String> includePathPatterns = Collections.emptyList();
-
 
     protected MatchConfig(String key, String name, String description) {
         this.key = key;
