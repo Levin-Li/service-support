@@ -3,6 +3,7 @@ package com.levin.commons.rbac;
 
 /**
  * 授权对象
+ *
  * @author llw
  */
 public interface AuthorizedObject {

@@ -7,6 +7,7 @@ import com.levin.commons.dao.domain.OrderableObject;
 
 /**
  * 可标识的对象
+ *
  * @author levin
  */
 public interface SimpleIdentifiable extends Identifiable, EnableObject, NamedObject, OrderableObject {
