@@ -17,6 +17,11 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * IP地址工具
+ * <p>
+ * 主要用于获取用户的真实IP地址
+ * 获取用户的地域信息
+ * <p>
  * Created by lilw on 2016/10/10.
  */
 @Slf4j

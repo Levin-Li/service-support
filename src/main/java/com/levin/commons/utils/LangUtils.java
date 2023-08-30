@@ -4,6 +4,10 @@ import org.springframework.util.StringUtils;
 
 import java.util.regex.Pattern;
 
+
+/**
+ * 中文处理工具
+ */
 public abstract class LangUtils {
 
     //识别中文

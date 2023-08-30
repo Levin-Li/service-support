@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
  * 模块名称：
  * 功能说明：
  */
-
 public abstract class ExceptionUtils {
 
     //识别中文

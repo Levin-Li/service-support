@@ -12,7 +12,6 @@ import java.util.Map;
 
 public abstract class JwtUtils {
 
-
     /**
      * 加密
      *

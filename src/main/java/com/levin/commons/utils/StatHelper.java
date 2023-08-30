@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 
 /**
  * 单位时间内速率的统计辅助类
+ * <p>
+ * 主要用于打印统计
  */
 public class StatHelper {
 

@@ -12,6 +12,8 @@ import java.util.stream.Stream;
 
 /**
  * Json 字符串数组 处理工具
+ * <p>
+ * 主要用于生成数据库库的Like语句
  */
 public abstract class JsonStrArrayUtils {
 

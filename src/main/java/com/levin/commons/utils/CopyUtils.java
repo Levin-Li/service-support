@@ -12,6 +12,11 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+/**
+ * 对象拷贝工具
+ * <p>
+ * 基于 hutool
+ */
 public abstract class CopyUtils {
 
     public static <T> T convert(Object source, Type targetType) {
