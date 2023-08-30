@@ -2,7 +2,6 @@ package com.levin.commons.utils;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import com.levin.commons.service.support.SimpleVariableInjector;
 import com.levin.commons.service.support.VariableInjector;
 import org.springframework.util.ReflectionUtils;
 

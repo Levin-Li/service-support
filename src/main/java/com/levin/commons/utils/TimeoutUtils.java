@@ -1,7 +1,6 @@
 package com.levin.commons.utils;
 
 import org.springframework.util.Assert;
-
 import java.util.function.Supplier;
 
 /**
