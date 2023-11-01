@@ -14,20 +14,6 @@ import java.util.function.Supplier;
 @AllArgsConstructor
 @Accessors(chain = true)
 public class ValueHolder<T> implements Supplier<T> {
-//
-//    private static final ValueHolder NOT_VALUE = new ValueHolder() {
-//        @Override
-//        public final boolean hasValue() {
-//            return false;
-//        }
-//
-//        @Override
-//        public final Object getValue() {
-//            throw new IllegalStateException("not value");
-//        }
-//    };
-
-
     public static <T> ValueHolder<T> notValue(boolean throwEx, String name) {
         return notValue(throwEx, name, null);
     }
@@ -67,7 +53,7 @@ public class ValueHolder<T> implements Supplier<T> {
 
     private String name;
 
-    //类型
+    //值的类型
     private Type type;
 
     private T value;

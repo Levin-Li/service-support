@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import org.springframework.format.Formatter;
+import org.springframework.util.StringUtils;
 
 import java.text.*;
 import java.util.Calendar;
@@ -87,13 +88,58 @@ public class DefaultDateFormat extends DateFormat implements Formatter<Date> {
         return toAppendTo;
     }
 
+    /**
+     * 解析顺序
+     * <p>
+     * yyyy-MM-dd HH:mm:ss
+     * yyyy/MM/dd HH:mm:ss
+     * yyyy.MM.dd HH:mm:ss
+     * yyyy年MM月dd日 HH时mm分ss秒
+     * yyyy-MM-dd
+     * yyyy/MM/dd
+     * yyyy.MM.dd
+     * HH:mm:ss
+     * HH时mm分ss秒
+     * yyyy-MM-dd HH:mm
+     * yyyy-MM-dd HH:mm:ss.SSS
+     * yyyy-MM-dd HH:mm:ss.SSSSSS
+     * yyyyMMddHHmmss
+     * yyyyMMddHHmmssSSS
+     * yyyyMMdd
+     * EEE, dd MMM yyyy HH:mm:ss z
+     * EEE MMM dd HH:mm:ss zzz yyyy
+     * yyyy-MM-dd'T'HH:mm:ss'Z'
+     * yyyy-MM-dd'T'HH:mm:ss.SSS'Z'
+     * yyyy-MM-dd'T'HH:mm:ssZ
+     * yyyy-MM-dd'T'HH:mm:ss.SSSZ
+     *
+     * @param source The date/time string to be parsed
+     * @param pos    On input, the position at which to start parsing; on
+     *               output, the position at which parsing terminated, or the
+     *               start position if the parse failed.
+     * @return
+     */
     @Override
     public Date parse(String source, ParsePosition pos) {
 
         Date result = null;
 
-        DateTime parse = DateUtil.parse(source);
+        if (StrUtil.isBlank(source)) {
+            return null;
+        }
 
+        //source = StringUtils.trimWhitespace(source);
+
+        //如果都是数字
+        if (source.trim().chars().allMatch(Character::isDigit)) {
+            //时间戳（秒）
+            //95640525954 秒
+            //1695474929406
+            //1695480398236
+            // 无法区分时间戳的秒和毫秒，不支持处理
+        }
+
+        DateTime parse = DateUtil.parse(source);
         if (parse != null) {
             result = parse.toJdkDate();
         }

@@ -16,7 +16,6 @@ import java.lang.annotation.*;
  *
  * 注入域
  *
- *
  * 把表达式求解后的值注入到被注解的字段中
  *
  * 样例：
@@ -61,7 +60,7 @@ public @interface InjectVar {
     String value() default "";
 
     /**
-     * 输出的名字
+     * 输出的变量名字，默认为 value()
      *
      * @return
      */

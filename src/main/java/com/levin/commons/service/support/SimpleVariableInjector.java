@@ -316,7 +316,7 @@ public interface SimpleVariableInjector extends VariableInjector {
         }
 
         //输出的名字
-        valueHolder.setName(StringUtils.hasText(injectVar.outputVarName()) ? injectVar.outputVarName() : field.getName());
+        valueHolder.setName(StringUtils.hasText(injectVar.outputVarName()) ? injectVar.outputVarName() : varName);
 
         return valueHolder;
     }
