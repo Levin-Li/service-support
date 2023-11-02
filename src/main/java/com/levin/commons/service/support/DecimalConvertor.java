@@ -32,7 +32,6 @@ public class DecimalConvertor {
         for (int i = 0; i < charArray.length; i++) {
             charArray[i] = start++;
         }
-
     }
 
     /**

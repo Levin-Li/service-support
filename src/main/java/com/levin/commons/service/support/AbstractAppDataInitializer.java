@@ -68,7 +68,7 @@ public abstract class AbstractAppDataInitializer implements ApplicationContextAw
     @SneakyThrows
     protected void init() {
 
-        printAppDoc();
+       // printAppDoc();
 
         initData();
     }
