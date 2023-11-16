@@ -26,6 +26,7 @@ import java.io.File;
 import java.net.InetAddress;
 import java.util.*;
 
+@Deprecated
 @Slf4j
 public abstract class AbstractAppDataInitializer implements ApplicationContextAware, ApplicationListener<ContextRefreshedEvent> {
 

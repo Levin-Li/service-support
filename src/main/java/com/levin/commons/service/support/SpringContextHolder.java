@@ -146,5 +146,4 @@ public class SpringContextHolder implements EnvironmentAware,
                 .collect(Collectors.toList());
     }
 
-
 }

@@ -109,8 +109,4 @@ public class DefaultJsonConverter implements GenericConverter {
     }
 
 
-    public static void main(String[] args) {
-
-    }
-
 }
