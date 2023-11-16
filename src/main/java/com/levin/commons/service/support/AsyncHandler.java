@@ -177,7 +177,13 @@ public class AsyncHandler<T> {
     }
 
     protected void syncDoTask(T task) {
-        if (task instanceof Runnable) {
+        if (task instanceof Callable) {
+            try {
+                ((Callable) task).call();
+            } catch (Exception e) {
+                log.error("异步处理器[{}]处理任务异常", name, e);
+            }
+        } else if (task instanceof Runnable) {
             ((Runnable) task).run();
         } else {
             throw new IllegalArgumentException("task type " + task.getClass() + " not supported");
