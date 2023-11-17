@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.*;
 
@@ -18,42 +19,44 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @Slf4j
+@Data
+@Accessors(chain = true)
 public class SimpleEventBus implements EventBus {
 
     @Data
+    @Accessors(chain = true)
     @AllArgsConstructor
-    static class Event implements Serializable {
+    static class Event<T> implements Serializable {
 
         String topic;
         Long expireTime;
         boolean isBroadcast;
-        Object data;
+        T data;
     }
 
     @Data
+    @Accessors(chain = true)
     @AllArgsConstructor
-    static class EventConsumer implements Serializable {
+    static class EventConsumer<T> implements Serializable {
 
         String topicExpr;
 
         Type[] expectEventTypes;
 
-        Consumer<Object> consumer;
+        Consumer<T> consumer;
     }
 
     private final BlockingDeque<Event> eventQueue;
 
     private final BlockingDeque<EventConsumer> consumerQueue;
 
-    @Setter
-    Executor executor;
-
     private final AtomicBoolean stop = new AtomicBoolean(false);
 
-    private static final PathMatcher matcher = new AntPathMatcher();
-
+    private final PathMatcher matcher = new AntPathMatcher();
 
     private final AtomicBoolean working = new AtomicBoolean(false);
+
+    Executor executor;
 
     public SimpleEventBus() {
         this(Integer.MAX_VALUE, Integer.MAX_VALUE);
@@ -197,7 +200,7 @@ public class SimpleEventBus implements EventBus {
      */
     @SneakyThrows
     @Override
-    public void addEventConsumer(String topicExpr, Consumer eventConsumer, Type... expectEventTypes) {
+    public <T> void addEventConsumer(String topicExpr, Consumer<T> eventConsumer, Type... expectEventTypes) {
 
         checkStatus();
 
