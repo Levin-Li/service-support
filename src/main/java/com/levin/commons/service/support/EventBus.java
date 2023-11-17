@@ -39,12 +39,25 @@ public interface EventBus {
     /**
      * 增加事件处理器
      *
+     * @param eventConsumer   事件处理器, @NonNull
+     * @param expectEventType
+     * @return 处理器
+     */
+    default <T> void addEventConsumer(Class<T> expectEventType, Consumer<T> eventConsumer) {
+        addEventConsumer("**", eventConsumer, expectEventType);
+    }
+
+    /**
+     * 增加事件处理器
+     *
      * @param topicExpr       ant path 匹配
      * @param eventConsumer   事件处理器, @NonNull
      * @param expectEventType
      * @return 处理器
      */
-    <T> void addEventConsumer(String topicExpr, Consumer<T> eventConsumer, Class<T> expectEventType);
+    default <T> void addEventConsumer(String topicExpr, Class<T> expectEventType, Consumer<T> eventConsumer) {
+        addEventConsumer(topicExpr, eventConsumer, expectEventType);
+    }
 
     /**
      * 增加事件处理器
