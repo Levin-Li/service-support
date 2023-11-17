@@ -10,6 +10,12 @@ import java.util.function.Consumer;
  */
 public interface EventBus {
 
+    String DEFAULT_TOPIC = "default";
+
+    default void sendEvent(Object event) {
+        sendEvent(DEFAULT_TOPIC, event);
+    }
+
     /**
      * 发送事件
      *
@@ -26,9 +32,19 @@ public interface EventBus {
      * @param topic       /test/new/
      * @param timeoutMs
      * @param isBroadcast 非广播事件，只会给第一个匹配的消费者
-     * @param event nonull
+     * @param event       nonull
      */
     void sendEvent(String topic, long timeoutMs, boolean isBroadcast, Object event);
+
+    /**
+     * 增加事件处理器
+     *
+     * @param topicExpr       ant path 匹配
+     * @param eventConsumer   事件处理器, @NonNull
+     * @param expectEventType
+     * @return 处理器
+     */
+    <T> void addEventConsumer(String topicExpr, Consumer<T> eventConsumer, Class<T> expectEventType);
 
     /**
      * 增加事件处理器
@@ -38,7 +54,7 @@ public interface EventBus {
      * @param expectEventTypes
      * @return 处理器
      */
-    void addEventConsumer(String topicExpr,Consumer eventConsumer, Type... expectEventTypes);
+    <T> void addEventConsumer(String topicExpr, Consumer<T> eventConsumer, Type... expectEventTypes);
 
     /**
      * 移除消费者
