@@ -46,23 +46,6 @@ public class DefaultVariableResolverManager
     @Nullable
     private ApplicationContext applicationContext;
 
-    private VariableInjector variableInjector;
-
-    public DefaultVariableResolverManager(VariableInjector variableInjector) {
-        this.variableInjector = variableInjector;
-        Assert.notNull(variableInjector, "variableInjector is null");
-    }
-
-    /**
-     * 获取注入器
-     *
-     * @return
-     */
-    @Override
-    public VariableInjector getVariableInjector() {
-        return variableInjector;
-    }
-
     @Override
     public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, boolean isRequireNotNull, Type... expectTypes) throws VariableNotFoundException {
 

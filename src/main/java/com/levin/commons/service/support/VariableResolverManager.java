@@ -14,13 +14,6 @@ public interface VariableResolverManager extends VariableResolver, Supplier<List
      *
      * @return
      */
-    VariableInjector getVariableInjector();
-
-    /**
-     * 获取注入器
-     *
-     * @return
-     */
     @Override
     default List<VariableResolver> get() {
         return getVariableResolvers();

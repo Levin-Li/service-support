@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Role;
 
 import javax.annotation.PostConstruct;
 
+import java.util.List;
+
 import static org.springframework.beans.factory.config.BeanDefinition.ROLE_SUPPORT;
 
 @Configuration
@@ -26,23 +28,27 @@ public class VariableResolverConfiguration {
 
     @Bean
     @Role(ROLE_SUPPORT)
-    @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = VariableInjector.class)
-    VariableInjector variableInjector() {
+    @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = VariableResolverManager.class)
+    VariableResolverManager variableResolverManager() {
 
-        log.debug("*** init default variable injector ...");
+        log.debug("*** init default variable resolver manager ...");
 
-        return SimpleVariableInjector.defaultSimpleVariableInjector;
-
+        return new DefaultVariableResolverManager();
     }
 
     @Bean
     @Role(ROLE_SUPPORT)
-    @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = VariableResolverManager.class)
-    VariableResolverManager variableResolverManager(@Autowired VariableInjector variableInjector) {
+    @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = VariableInjector.class)
+    VariableInjector variableInjector(@Autowired VariableResolverManager vrm) {
 
-        log.debug("*** init default variable resolver manager ...");
+        log.debug("*** init default variable injector ...");
 
-        return new DefaultVariableResolverManager(variableInjector);
+        return new SimpleVariableInjector() {
+            @Override
+            public List<VariableResolver> getDefaultVariableResolvers() {
+                return vrm.getVariableResolvers();
+            }
+        };
 
     }
 

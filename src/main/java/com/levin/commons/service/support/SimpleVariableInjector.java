@@ -28,12 +28,6 @@ import java.util.function.Predicate;
 public interface SimpleVariableInjector extends VariableInjector {
 
     /**
-     * 默认注入器
-     */
-    SimpleVariableInjector defaultSimpleVariableInjector = new SimpleVariableInjector() {
-    };
-
-    /**
      * 缓存
      * <p>
      * 允许中途释放

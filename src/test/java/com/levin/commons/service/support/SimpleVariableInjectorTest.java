@@ -178,7 +178,7 @@ class SimpleVariableInjectorTest {
                 .put(InjectConsts.IP_ADDR, "192.168.0.1")
                 .build();
 
-        SimpleVariableInjector injector = SimpleVariableInjector.defaultSimpleVariableInjector;
+        SimpleVariableInjector injector = new SimpleVariableInjector(){};
 
         Dto dto = new Dto();
 
