@@ -1,6 +1,7 @@
 package com.levin.commons.service.support;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -19,11 +20,10 @@ import java.lang.ref.PhantomReference;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 @Slf4j
 public class DefaultVariableResolverManager
@@ -36,7 +36,9 @@ public class DefaultVariableResolverManager
         ApplicationListener<ContextRefreshedEvent>,
         DisposableBean {
 
-    private final List<VariableResolver> defaultVariableResolvers = new LinkedList<>();
+    private final List<VariableResolver> defaultVariableResolvers = new CopyOnWriteArrayList<>();
+
+    private final List<Supplier<VariableResolver>> defaultVariableResolverSuppliers = new CopyOnWriteArrayList<>();
 
     @Nullable
     private BeanFactory beanFactory;
@@ -65,9 +67,9 @@ public class DefaultVariableResolverManager
     public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, boolean isRequireNotNull, Type... expectTypes) throws VariableNotFoundException {
 
         //保留最后一个异常，做为异常
-        AtomicReference<Throwable> exRef = new AtomicReference();
+        final AtomicReference<Throwable> exRef = new AtomicReference();
 
-        return defaultVariableResolvers.stream()
+        return getVariableResolvers().stream()
                 .map(resolver -> resolver.resolve(name, originalValue, false, isRequireNotNull, expectTypes))
                 .map(vh -> {
                     if (vh.getValueNotFoundCause() != null) {
@@ -85,7 +87,15 @@ public class DefaultVariableResolverManager
      */
     @Override
     public List<VariableResolver> getVariableResolvers() {
-        return Collections.unmodifiableList(defaultVariableResolvers);
+
+        var result = new ArrayList<VariableResolver>(defaultVariableResolvers.size() + 7);
+
+        //优先获取提供者变量解析器
+        defaultVariableResolverSuppliers.stream().map(Supplier::get).filter(Objects::nonNull).forEach(result::add);
+
+        result.addAll(defaultVariableResolvers);
+
+        return result;
     }
 
     /**
@@ -105,7 +115,22 @@ public class DefaultVariableResolverManager
                 .forEachOrdered(tempListRef::add);
 
         return this;
+    }
 
+    @Override
+    public VariableResolverManager addSuppliers(List<Supplier<VariableResolver>> variableResolverSuppliers) {
+
+        Assert.notNull(variableResolverSuppliers, "variableResolverSuppliers is null");
+
+        List<Supplier<VariableResolver>> tempListRef = defaultVariableResolverSuppliers;
+
+        variableResolverSuppliers
+                .stream()
+                .filter(Objects::nonNull)
+                .filter(variableResolverSupplier -> !(tempListRef.contains(variableResolverSupplier)))
+                .forEachOrdered(tempListRef::add);
+
+        return this;
     }
 
     private void finishRegistration() {

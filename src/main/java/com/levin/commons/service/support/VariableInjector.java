@@ -37,7 +37,7 @@ public interface VariableInjector {
         //仅仅获取注入值，但不注入到目标对象的字段
         OnlyGetInjectValue,
 
-        //仅仅获取注入值，并且注入到目标对象的字段
+        //获取注入值，并且注入到目标对象的字段
         InjectToField,
     }
 

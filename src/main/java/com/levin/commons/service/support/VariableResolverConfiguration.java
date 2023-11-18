@@ -24,7 +24,7 @@ public class VariableResolverConfiguration {
 
     }
 
-    @Bean("defaultSimpleVariableInjector")
+    @Bean
     @Role(ROLE_SUPPORT)
     @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = VariableInjector.class)
     VariableInjector variableInjector() {

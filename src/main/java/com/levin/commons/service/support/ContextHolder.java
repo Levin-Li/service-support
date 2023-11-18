@@ -38,7 +38,7 @@ public abstract class ContextHolder<K, V> {
      * @param <V>
      * @return
      */
-    public static final <K, V> ContextHolder<K, V> buildContext(boolean isStrongReference) {
+    public static <K, V> ContextHolder<K, V> buildContext(boolean isStrongReference) {
         return buildContext(isStrongReference, false);
     }
 
@@ -51,7 +51,7 @@ public abstract class ContextHolder<K, V> {
      * @param <V>
      * @return
      */
-    public static final <K, V> ContextHolder<K, V> buildContext(boolean isStrongReference, boolean isWeakReference) {
+    public static <K, V> ContextHolder<K, V> buildContext(boolean isStrongReference, boolean isWeakReference) {
         return new ContextHolder<K, V>() {
 
             private final Map<K, V> ctx = MapUtils.newMap(isConcurrentMap(), isStrongReference, isWeakReference);
@@ -71,7 +71,7 @@ public abstract class ContextHolder<K, V> {
      * @param <V>
      * @return
      */
-    public static final <K, V> ContextHolder<K, V> buildThreadContext(boolean isStrongReference) {
+    public static <K, V> ContextHolder<K, V> buildThreadContext(boolean isStrongReference) {
         return buildThreadContext(isStrongReference, false);
     }
 
@@ -82,7 +82,7 @@ public abstract class ContextHolder<K, V> {
      * @param <V>
      * @return
      */
-    public static final <K, V> ContextHolder<K, V> buildThreadContext(boolean isStrongReference, boolean isWeakReference) {
+    public static <K, V> ContextHolder<K, V> buildThreadContext(boolean isStrongReference, boolean isWeakReference) {
         return buildThreadContext(isStrongReference, isWeakReference, false);
     }
 
@@ -96,7 +96,7 @@ public abstract class ContextHolder<K, V> {
      * @param <V>
      * @return
      */
-    public static final <K, V> ContextHolder<K, V> buildThreadContext(boolean isStrongReference, boolean isWeakReference, boolean isInheritableThread) {
+    public static <K, V> ContextHolder<K, V> buildThreadContext(boolean isStrongReference, boolean isWeakReference, boolean isInheritableThread) {
 
         return new ContextHolder<K, V>() {
 

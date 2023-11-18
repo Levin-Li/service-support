@@ -19,7 +19,7 @@ public abstract class Locker {
 
         return new Locker() {
 
-            private final Map<Object, Object> locks = new ConcurrentHashMap();
+            private final Map<Object, Object> locks = new ConcurrentHashMap<>();
 
             @Override
             public Object clearLock(Object key) {
