@@ -111,6 +111,7 @@ public class DefaultVariableResolverManager
         variableResolvers
                 .stream()
                 .filter(Objects::nonNull)
+                .filter(variableResolver -> variableResolver != this)
                 .filter(variableResolver -> !(tempListRef.contains(variableResolver)))
                 .forEachOrdered(tempListRef::add);
 

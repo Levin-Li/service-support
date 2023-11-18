@@ -116,11 +116,6 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         ResolvableType resolvableTypeRoot = ResolvableType.forClass(targetBean.getClass());
 
-        if (variableResolvers == null || variableResolvers.isEmpty()) {
-            //增加默认的脚本表达式支持
-            variableResolvers = Arrays.asList(VariableInjector.newResolverByMap(Collections.emptyMap()));
-        }
-
         for (Field field : ClassUtils.getFields(targetBean.getClass(), InjectVar.class)) {
 
             if (ignoreFieldPredicate != null
@@ -144,7 +139,10 @@ public interface SimpleVariableInjector extends VariableInjector {
 
     /**
      * 执行注入
-     * 关键方法
+     * 关键方法 核心方法
+     * <p>
+     * 实现根据InjectVar注解注入到目标bean的字段
+     * 或是只是获取注入值然后返回
      *
      * @param targetBean
      * @param resolvableTypeRoot
@@ -187,10 +185,25 @@ public interface SimpleVariableInjector extends VariableInjector {
                     + "." + field.getName() + " can't get originalValue ," + injectVar.remark(), e);
         }
 
+        /////////////////////////////////解析器列表/////////////////////////////////////////
+        //加上默认的变量解析器
+        List<VariableResolver> defaultVariableResolvers = getDefaultVariableResolvers();
+
+        if (defaultVariableResolvers != null && !defaultVariableResolvers.isEmpty()) {
+
+            //复制自己
+            variableResolvers = new ArrayList<>(variableResolvers != null ? variableResolvers : Collections.emptyList());
+
+            //添加默认的变量解析器
+            variableResolvers.addAll(defaultVariableResolvers);
+        }
+
         //确保有解析器
         if (variableResolvers == null || variableResolvers.isEmpty()) {
             variableResolvers = Arrays.asList(VariableInjector.newResolverByMap(Collections.emptyMap()));
         }
+        /////////////////////////////////解析器列表/////////////////////////////////////////
+
 
         //如果没有值或是 true，都认为是 true
         ValueHolder<Boolean> isOverride = getBooleanValueHolder(variableResolvers, injectVar.isOverride());
@@ -343,6 +356,7 @@ public interface SimpleVariableInjector extends VariableInjector {
         return (expectGenericTypes != null && expectGenericTypes.length > 0) ?
                 ResolvableType.forClassWithGenerics(expectBaseType, expectGenericTypes)
                 : ResolvableType.forClass(expectBaseType);
+
     }
 
 

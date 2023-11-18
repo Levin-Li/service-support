@@ -53,6 +53,14 @@ public interface VariableInjector {
         return "default";
     }
 
+    /**
+     * 获取默认变量解析器
+     *
+     * @return
+     */
+    default List<VariableResolver> getDefaultVariableResolvers() {
+        return Collections.emptyList();
+    }
 
     /**
      * 域是否匹配

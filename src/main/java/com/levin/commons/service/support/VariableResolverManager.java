@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 /**
  * 变量解析器管理器
  */
-public interface VariableResolverManager extends VariableResolver {
+public interface VariableResolverManager extends VariableResolver, Supplier<List<VariableResolver>> {
 
     /**
      * 获取注入器
@@ -15,6 +15,16 @@ public interface VariableResolverManager extends VariableResolver {
      * @return
      */
     VariableInjector getVariableInjector();
+
+    /**
+     * 获取注入器
+     *
+     * @return
+     */
+    @Override
+    default List<VariableResolver> get() {
+        return getVariableResolvers();
+    }
 
     /**
      * 获取变量解析器，包括全局的和局部的解析器
