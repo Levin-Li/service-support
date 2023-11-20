@@ -244,9 +244,18 @@ public class GenNameConstantProcessor extends AbstractProcessor {
 
                     })
                     .forEach(e -> {
+                        ElementKind kind = e.getKind();
+
                         Name name = e.getSimpleName();
                         if (!fieldMap.containsKey(name.toString())) {
+
                             codeBlock.append("    String ").append(name).append(" = \"").append(name).append("\";\n\n");
+
+                            if (kind == ElementKind.ENUM_CONSTANT) {
+                                //对于枚举常量，生成字符串常量
+                                codeBlock.append("    String ").append(name + "_STR").append(" = \"'").append(name).append("'\";\n\n");
+                            }
+
                             fieldMap.put(name.toString(), "");
                         }
                     });
