@@ -108,6 +108,7 @@ public class GenNameConstantProcessor extends AbstractProcessor {
                 continue;
             }
 
+
             TypeElement typeElement = (TypeElement) element;
 
 
@@ -119,14 +120,15 @@ public class GenNameConstantProcessor extends AbstractProcessor {
                 continue;
             }
 
-
             final String packageName = elementUtils.getPackageOf(typeElement).getQualifiedName().toString();
             // final String newPackageName = elementUtils.getPackageOf(typeElement).getQualifiedName().toString()+".gen";
 
             final String fullClassName = typeElement.getQualifiedName().toString();
-            final String simpleClassName = typeElement.getSimpleName().toString();
 
-            final String newSimpleClassName = CLASS_NAME_PREFIX + typeElement.getSimpleName().toString();
+            //包括匿名类，成员类的名称
+            final String simpleClassName = fullClassName.substring(packageName.length() + 1);
+
+            final String newSimpleClassName = CLASS_NAME_PREFIX + simpleClassName.replace('.', '_');
 
             final String newFullClassName = packageName + "." + newSimpleClassName;
 
@@ -216,7 +218,6 @@ public class GenNameConstantProcessor extends AbstractProcessor {
                         if (tmp != null && tmp.ignore()) {
                             return false;
                         }
-
 
                         Set<Modifier> modifiers = e.getModifiers();
 
