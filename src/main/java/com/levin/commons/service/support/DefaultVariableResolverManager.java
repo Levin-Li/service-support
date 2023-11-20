@@ -16,9 +16,6 @@ import org.springframework.core.Ordered;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
-import java.lang.ref.PhantomReference;
-import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -45,6 +42,8 @@ public class DefaultVariableResolverManager
 
     @Nullable
     private ApplicationContext applicationContext;
+
+    private final ThreadLocal<List<VariableResolver>> threadLocalHolder = new ThreadLocal<>();
 
     @Override
     public <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, boolean isRequireNotNull, Type... expectTypes) throws VariableNotFoundException {
@@ -73,6 +72,13 @@ public class DefaultVariableResolverManager
 
         var result = new ArrayList<VariableResolver>(defaultVariableResolvers.size() + 7);
 
+        List<VariableResolver> tempThreadLocalVariableResolvers = threadLocalHolder.get();
+
+        //优先放入线程变量解析器
+        if (tempThreadLocalVariableResolvers != null) {
+            result.addAll(tempThreadLocalVariableResolvers);
+        }
+
         //优先获取提供者变量解析器
         defaultVariableResolverSuppliers.stream().map(Supplier::get).filter(Objects::nonNull).forEach(result::add);
 
@@ -81,22 +87,39 @@ public class DefaultVariableResolverManager
         return result;
     }
 
+    private List<VariableResolver> getVariableResolvers(boolean isOnlyForCurrentThread) {
+
+        if (!isOnlyForCurrentThread) {
+            return defaultVariableResolvers;
+        }
+
+        List<VariableResolver> tempThreadLocalVariableResolvers = threadLocalHolder.get();
+
+        //优先放入线程变量解析器
+        if (tempThreadLocalVariableResolvers == null) {
+            tempThreadLocalVariableResolvers = new CopyOnWriteArrayList<>();
+            threadLocalHolder.set(tempThreadLocalVariableResolvers);
+        }
+
+        return tempThreadLocalVariableResolvers;
+    }
+
     /**
      * @param variableResolvers
      */
     @Override
-    public synchronized VariableResolverManager add(List<VariableResolver> variableResolvers) {
+    public synchronized VariableResolverManager add(boolean isOnlyForCurrentThread, List<VariableResolver> variableResolvers) {
 
         Assert.notNull(variableResolvers, "variableResolvers is null");
 
-        List<VariableResolver> tempListRef = defaultVariableResolvers;
+        List<VariableResolver> targetList = getVariableResolvers(isOnlyForCurrentThread);
 
         variableResolvers
                 .stream()
                 .filter(Objects::nonNull)
                 .filter(variableResolver -> variableResolver != this)
-                .filter(variableResolver -> !(tempListRef.contains(variableResolver)))
-                .forEachOrdered(tempListRef::add);
+                .filter(variableResolver -> !(targetList.contains(variableResolver)))
+                .forEachOrdered(targetList::add);
 
         return this;
     }

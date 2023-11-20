@@ -35,8 +35,8 @@ public interface VariableResolverManager extends VariableResolver, Supplier<List
      *
      * @param variableResolvers
      */
-    default VariableResolverManager add(VariableResolver... variableResolvers) {
-        return add(Arrays.asList(variableResolvers));
+    default VariableResolverManager add(boolean isOnlyForCurrentThread, VariableResolver... variableResolvers) {
+        return add(isOnlyForCurrentThread, Arrays.asList(variableResolvers));
     }
 
     /**
@@ -44,7 +44,7 @@ public interface VariableResolverManager extends VariableResolver, Supplier<List
      *
      * @param variableResolvers
      */
-    VariableResolverManager add(List<VariableResolver> variableResolvers);
+    VariableResolverManager add(boolean isOnlyForCurrentThread, List<VariableResolver> variableResolvers);
 
     /**
      * 增加变量解析器提供者
