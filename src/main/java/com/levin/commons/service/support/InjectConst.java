@@ -6,6 +6,13 @@ package com.levin.commons.service.support;
  */
 public interface InjectConst {
 
+    String IS_WEB_CONTEXT = "isWebContext";
+
+    String IS_SUPER_ADMIN = "isSuperAdmin";
+
+
+    String IS_TENANT_ADMIN = "isTenantAdmin";
+
     String ACCESS_TOKEN = "accessToken";
 
     /**
@@ -17,10 +24,6 @@ public interface InjectConst {
     String USER_LOGIN_NAME = "userLoginName";
     String USER_PHONE = "userPhone";
     String USER_EMAIL = "userEmail";
-
-
-    String IS_SUPER_ADMIN = "isSuperAdmin";
-    String IS_TENANT_ADMIN = "isTenantAdmin";
 
     ////////////////////////////////////////////////////////
 
