@@ -253,7 +253,7 @@ public class GenNameConstantProcessor extends AbstractProcessor {
 
                             if (kind == ElementKind.ENUM_CONSTANT) {
                                 //对于枚举常量，生成字符串常量
-                                codeBlock.append("    String ").append(name + "_STR").append(" = \"'").append(name).append("'\";\n\n");
+                                codeBlock.append("    String ").append(name).append("_STR").append(" = \"'").append(name).append("'\";\n\n");
                             }
 
                             fieldMap.put(name.toString(), "");
