@@ -2,13 +2,12 @@ package com.levin.commons.dao.domain;
 
 
 /**
- * 可逻辑删除的对象
+ * 可逻辑删除对象
  * <p/>
  *
  * @author llw
  */
-@Deprecated
-public interface DeletableObject {
+public interface LogicDeletableObject {
 
     /**
      * 是否已经删除
