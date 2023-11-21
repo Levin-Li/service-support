@@ -14,9 +14,9 @@ public interface InjectConst {
 
     String IS_TENANT_ADMIN = "isTenantAdmin";
 
-    String NOT_SUPER_ADMIN = " !(#" + IS_SUPER_ADMIN + "?:false) ";
+    String NOT_SUPER_ADMIN = " !(#" + IS_SUPER_ADMIN + ") ";
 
-    String NOT_TENANT_ADMIN = " !(#" + IS_TENANT_ADMIN + "?:false) ";
+    String NOT_TENANT_ADMIN = " !(#" + IS_TENANT_ADMIN + ") ";
 
     String SPEL_NOT_SUPER_ADMIN_AND_NOT_TENANT_ADMIN = InjectVar.SPEL_PREFIX + NOT_SUPER_ADMIN + " && " + NOT_TENANT_ADMIN;
 
