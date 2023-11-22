@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 /**
  * 多租户对象
+ * <p>
+ * 租户ID不允许为空
  *
  * @Author levin li
  * @Since 2.2.23
