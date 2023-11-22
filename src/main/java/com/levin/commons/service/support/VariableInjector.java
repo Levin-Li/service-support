@@ -503,8 +503,16 @@ public interface VariableInjector {
         return new VariableResolver.DefaultDelegateVariableResolver();
     }
 
+    static VariableResolver.DefaultDelegateVariableResolver newResolverByMap(Supplier<List<Map<String, ?>>>... suppliers) {
+        return newResolverByMap(null, suppliers);
+    }
+
     static VariableResolver.DefaultDelegateVariableResolver newResolverByMap(Object rootObject, Supplier<List<Map<String, ?>>>... suppliers) {
         return newDefaultResolver().addMapContexts(rootObject, suppliers);
+    }
+
+    static VariableResolver.DefaultDelegateVariableResolver newResolverByMap(Map<String, ?>... contexts) {
+        return newResolverByMap(null, contexts);
     }
 
     static VariableResolver.DefaultDelegateVariableResolver newResolverByMap(Object rootObject, Map<String, ?>... contexts) {
