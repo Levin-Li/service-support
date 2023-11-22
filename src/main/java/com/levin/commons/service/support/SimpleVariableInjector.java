@@ -194,7 +194,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         //确保有解析器
         if (variableResolvers == null || variableResolvers.isEmpty()) {
-            variableResolvers = Arrays.asList(VariableInjector.newResolverByMap(Collections.emptyMap()));
+            variableResolvers = Arrays.asList(VariableInjector.newResolverByMap(targetBean, Collections.emptyMap()));
         }
         /////////////////////////////////解析器列表/////////////////////////////////////////
 

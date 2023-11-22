@@ -126,18 +126,18 @@ public interface VariableResolver {
         public DefaultDelegateVariableResolver() {
         }
 
-        public DefaultDelegateVariableResolver addMapContexts(Supplier<List<Map<String, ?>>>... suppliers) {
+        public DefaultDelegateVariableResolver addMapContexts(Object rootObject, Supplier<List<Map<String, ?>>>... suppliers) {
 
             //强制类型转换
             variableResolvers.add(new BeanVariableResolver((Supplier[]) suppliers));
-            variableResolvers.add(new SpelVariableResolver(suppliers));
-            variableResolvers.add(new GroovyVariableResolver(suppliers));
+            variableResolvers.add(new SpelVariableResolver(rootObject, suppliers));
+            variableResolvers.add(new GroovyVariableResolver(rootObject, suppliers));
 
             return this;
         }
 
-        public DefaultDelegateVariableResolver addMapContexts(Map<String, ?>... contexts) {
-            return addMapContexts(() -> Arrays.asList(contexts));
+        public DefaultDelegateVariableResolver addMapContexts(Object rootObject, Map<String, ?>... contexts) {
+            return addMapContexts(rootObject, () -> Arrays.asList(contexts));
         }
 
         public DefaultDelegateVariableResolver addBeanContexts(List<?> benas) {
@@ -239,10 +239,13 @@ public interface VariableResolver {
 
         protected final Supplier<List<Map<String, ?>>>[] contextSuppliers;
 
-        public ScriptResolver(Supplier<List<Map<String, ?>>>... contextSuppliers) {
+        protected final Object rootObject;
+
+        public ScriptResolver(Object rootObject, Supplier<List<Map<String, ?>>>... contextSuppliers) {
             Assert.notNull(contextSuppliers, "contextSuppliers is null");
             //倒序排列
             this.contextSuppliers = reverse(contextSuppliers);
+            this.rootObject = rootObject;
         }
 
         /**
@@ -363,8 +366,8 @@ public interface VariableResolver {
     @Slf4j
     class SpelVariableResolver extends ScriptResolver {
 
-        public SpelVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
-            super(suppliers);
+        public SpelVariableResolver(Object rootObject, Supplier<List<Map<String, ?>>>... suppliers) {
+            super(rootObject, suppliers);
         }
 
         @Override
@@ -379,7 +382,7 @@ public interface VariableResolver {
 //                log.debug(" eval [ {} ] ...", scriptText);
 //            }
 
-            return ExpressionUtils.evalSpEL(null, scriptText, (ctx) -> {
+            return ExpressionUtils.evalSpEL(rootObject, scriptText, (ctx) -> {
 
                 if (SpringContextHolder.getBeanFactory() != null) {
                     ctx.setBeanResolver(new BeanFactoryResolver(SpringContextHolder.getBeanFactory()));
@@ -399,8 +402,8 @@ public interface VariableResolver {
     @Slf4j
     class GroovyVariableResolver extends ScriptResolver {
 
-        public GroovyVariableResolver(Supplier<List<Map<String, ?>>>... suppliers) {
-            super(suppliers);
+        public GroovyVariableResolver(Object rootObject, Supplier<List<Map<String, ?>>>... suppliers) {
+            super(rootObject, suppliers);
         }
 
         @Override

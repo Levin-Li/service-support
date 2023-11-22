@@ -110,7 +110,7 @@ public interface VariableInjector {
     }
 
     default ValueHolder<Object> getOutputValue(Object targetBean, Field field, Map<String, ?>... contexts) {
-        return getOutputValue(targetBean, field, newResolverByMap(contexts));
+        return getOutputValue(targetBean, field, newResolverByMap(targetBean, contexts));
     }
 
     default ValueHolder<Object> getOutputValue(Object targetBean, Field field, VariableResolver... variableResolvers) {
@@ -128,7 +128,7 @@ public interface VariableInjector {
     }
 
     default ValueHolder<Object> getInjectValue(Object targetBean, Field field, Map<String, ?>... contexts) {
-        return getInjectValue(targetBean, field, newResolverByMap(contexts));
+        return getInjectValue(targetBean, field, newResolverByMap(targetBean, contexts));
     }
 
     default ValueHolder<Object> getInjectValue(Object targetBean, Field field, VariableResolver... variableResolvers) {
@@ -145,7 +145,7 @@ public interface VariableInjector {
     }
 
     default ValueHolder<Object> injectValue(Object targetBean, Field field, Map<String, ?>... contexts) {
-        return injectValue(targetBean, field, newResolverByMap(contexts));
+        return injectValue(targetBean, field, newResolverByMap(targetBean, contexts));
     }
 
     default ValueHolder<Object> injectValue(Object targetBean, Field field, VariableResolver... variableResolvers) {
@@ -256,7 +256,7 @@ public interface VariableInjector {
      * @return
      */
     default List<ValueHolder<Object>> injectByMap(Object targetBean, Predicate<Field> ignoreFieldPredicate, List<Map<String, ?>> contexts) throws VariableInjectException, VariableNotFoundException {
-        return injectValues(targetBean, ignoreFieldPredicate, newResolverByMap(() -> contexts));
+        return injectValues(targetBean, ignoreFieldPredicate, newResolverByMap(targetBean, () -> contexts));
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -271,7 +271,7 @@ public interface VariableInjector {
      * @throws VariableNotFoundException
      */
     default List<ValueHolder<Object>> injectValues(Object targetBean, Map<String, ?>... contexts) throws VariableInjectException, VariableNotFoundException {
-        return injectValues(targetBean, newResolverByMap(contexts));
+        return injectValues(targetBean, newResolverByMap(targetBean, contexts));
     }
 
     /**
@@ -503,12 +503,12 @@ public interface VariableInjector {
         return new VariableResolver.DefaultDelegateVariableResolver();
     }
 
-    static VariableResolver.DefaultDelegateVariableResolver newResolverByMap(Supplier<List<Map<String, ?>>>... suppliers) {
-        return newDefaultResolver().addMapContexts(suppliers);
+    static VariableResolver.DefaultDelegateVariableResolver newResolverByMap(Object rootObject, Supplier<List<Map<String, ?>>>... suppliers) {
+        return newDefaultResolver().addMapContexts(rootObject, suppliers);
     }
 
-    static VariableResolver.DefaultDelegateVariableResolver newResolverByMap(Map<String, ?>... contexts) {
-        return newDefaultResolver().addMapContexts(contexts);
+    static VariableResolver.DefaultDelegateVariableResolver newResolverByMap(Object rootObject, Map<String, ?>... contexts) {
+        return newDefaultResolver().addMapContexts(rootObject, contexts);
     }
 
     static VariableResolver.DefaultDelegateVariableResolver newResolverByBean(Supplier<List<?>>... suppliers) {
