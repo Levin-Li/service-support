@@ -5,6 +5,7 @@ import com.levin.commons.dao.domain.MultiTenantObject;
 import com.levin.commons.dao.domain.NamedObject;
 import com.levin.commons.service.domain.Identifiable;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
 /**
  * 用户基本信息
  */
-public interface RbacUserObject<ROLE> extends MultiTenantObject, Identifiable, NamedObject {
+public interface RbacUserObject<ROLE> extends Serializable, MultiTenantObject, Identifiable, NamedObject {
 
     /**
      * 是否超级用户
