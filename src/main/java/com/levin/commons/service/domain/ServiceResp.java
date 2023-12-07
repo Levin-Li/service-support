@@ -108,6 +108,7 @@ public interface ServiceResp<T>
         @Schema(title = "未知系统异常")
         UnknownError(50000);
 
+
         /**
          * 基本错误码
          */

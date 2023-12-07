@@ -1,5 +1,7 @@
 package com.levin.commons.rbac;
 
+import org.springframework.util.StringUtils;
+
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
@@ -42,21 +44,5 @@ public interface Permission {
      * @param < T>
      */
     <A extends Serializable> A getAction();
-
-    /**
-     * @param requirePermission
-     * @param currentPermission
-     * @return
-     */
-    default boolean isMatch(String requirePermission, String currentPermission) {
-
-        // 如果表达式不带有*号，则只需简单equals即可 (速度提升200倍)
-        if (!currentPermission.contains("*")) {
-            return currentPermission.equals(requirePermission);
-        }
-
-        //正则表达式
-        return Pattern.matches(currentPermission.replaceAll("\\*", ".*"), requirePermission);
-    }
 
 }

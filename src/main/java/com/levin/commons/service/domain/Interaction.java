@@ -37,6 +37,12 @@ public interface Interaction
 
             @Schema(title = "访问接口")
             requestApi,
+
+            ;
+            @Override
+            public String toString() {
+                return nameAndDesc();
+            }
         }
 
 

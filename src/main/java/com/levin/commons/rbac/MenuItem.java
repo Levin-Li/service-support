@@ -40,6 +40,12 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
 
         @Schema(title = "服务端动作")
         ServerSideAction
+
+        ;
+        @Override
+        public String toString() {
+            return nameAndDesc();
+        }
     }
 
     /**

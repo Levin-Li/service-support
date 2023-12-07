@@ -37,6 +37,12 @@ public @interface FormLayout {
         //参考：https://aisuda.bce.baidu.com/amis/examples/form/anchor-nav
         @Schema(title = "左侧锚点布局")
         anchor
+
+        ;
+        @Override
+        public String toString() {
+            return nameAndDesc();
+        }
     }
 
     /**
