@@ -13,15 +13,16 @@ import java.util.Collections;
  */
 public interface RbacRoleObject<P> extends MultiTenantObject, Identifiable, NamedObject {
 
+    String ROLE_PREFIX = "R_";
+
     //超级管理员
-    String SA_ROLE = "R_SA";
+    String SA_ROLE = ROLE_PREFIX + "SA";
 
     //系统管理员，通常是一个租户的管理员
-    String ADMIN_ROLE = "R_ADMIN";
+    String ADMIN_ROLE = ROLE_PREFIX + "ADMIN";
 
     //部门管理员
-    String ORG_ADMIN_ROLE = "R_ORG_ADMIN";
-
+    String ORG_ADMIN_ROLE = ROLE_PREFIX + "ORG_ADMIN";
 
     /**
      * 获取授权列表

@@ -25,7 +25,7 @@ public class ResPermission implements Permission, Serializable {
     @Schema(title = "资源类型", description = "逗号隔开", required = true)
     protected String type;
 
-    @Schema(title = "资源列表", description = "逗号隔开", required = true)
+    @Schema(title = "资源清单", description = "逗号隔开", required = true)
     protected String res;
 
     @Schema(title = "资源操作列表", description = "逗号隔开", required = true)
