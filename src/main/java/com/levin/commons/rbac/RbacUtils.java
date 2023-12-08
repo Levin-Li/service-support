@@ -174,8 +174,8 @@ public abstract class RbacUtils {
 
                         Assert.isTrue(Arrays.stream(tags).anyMatch(StringUtils::hasText), "需要鉴权的控制器方法[Operation]注解的tags属性需要指定，控制器方法：" + method);
 
-                        //资源标识
-                        final String resId = Arrays.stream(tags).filter(StringUtils::hasText).findFirst().orElse(beanType.getSimpleName());
+                        //资源标识, 2023 优化表达式结构
+                        final String resId = "";// Arrays.stream(tags).filter(StringUtils::hasText).findFirst().orElse(beanType.getSimpleName());
 
                         String actionName = StringUtils.hasText(operation.summary()) ? operation.summary() : null;
 
@@ -307,6 +307,9 @@ public abstract class RbacUtils {
                         .setDomain(packageName)
                         .setType(resAuthorize != null ? resAuthorize.type() : "数据")
                         .setRes(tag != null ? tag.name() : defaultName)
+
+                         //不标识具体的资源
+                        .setRes("")
                         .setAction(actionName);
                 //@todo 设置权限
 
