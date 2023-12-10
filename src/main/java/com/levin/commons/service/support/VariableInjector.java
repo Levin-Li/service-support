@@ -506,11 +506,16 @@ public interface VariableInjector {
 
     //////////////////////////////////////////////////////////////////////
 
-    static void setVariableResolvers(List<VariableResolver> variableResolvers) {
+    /**
+     * 设置变量解析器
+     *
+     * @param variableResolvers 为空，则清空原有设置
+     */
+    static void setVariableResolversForCurrentThread(List<VariableResolver> variableResolvers) {
         if (variableResolvers != null) {
-            ExpressionUtils.variableResolvers.set(variableResolvers);
+            ExpressionUtils.setVariableResolversForCurrentThread(variableResolvers);
         } else {
-            ExpressionUtils.variableResolvers.remove();
+            ExpressionUtils.setVariableResolversForCurrentThread(null);
         }
     }
 

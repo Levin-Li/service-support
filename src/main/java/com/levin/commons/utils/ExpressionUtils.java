@@ -9,12 +9,10 @@ import lombok.SneakyThrows;
 import org.codehaus.groovy.runtime.InvokerHelper;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.ReflectiveMethodResolver;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.lang.Nullable;
 import org.springframework.scripting.groovy.GroovyScriptEvaluator;
 import org.springframework.scripting.support.StaticScriptSource;
-import org.springframework.util.ReflectionUtils;
 
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Array;
@@ -35,7 +33,7 @@ public abstract class ExpressionUtils {
     //线程安全的解析器
     private static final ExpressionParser expressionParser = new SpelExpressionParser();
 
-    public static final ThreadLocal<List<VariableResolver>> variableResolvers = new ThreadLocal<List<VariableResolver>>() {
+    private static final ThreadLocal<List<VariableResolver>> currentThreadVariableResolvers = new ThreadLocal<List<VariableResolver>>() {
         @Override
         public List<VariableResolver> get() {
 
@@ -48,6 +46,20 @@ public abstract class ExpressionUtils {
             return variableResolvers;
         }
     };
+
+    /**
+     * 设置当前线程变量解析器
+     *
+     * @param variableResolvers 为空，则清空原有设置
+     */
+    public static void setVariableResolversForCurrentThread(List<VariableResolver> variableResolvers) {
+        if (variableResolvers != null) {
+            currentThreadVariableResolvers.set(variableResolvers);
+        } else {
+            currentThreadVariableResolvers.remove();
+        }
+    }
+
 
     /**
      * eval groovy
@@ -174,16 +186,14 @@ public abstract class ExpressionUtils {
 
                 Object value = super.lookupVariable(name);
 
-                if (value == null) {
-                    if (variableResolver != null
-                            && variableResolver.isSupported(name)) {
-                        value = variableResolver.resolve(name, false, null);
-                    }
+                if (value == null && variableResolver != null
+                        && variableResolver.isSupported(name)) {
+                    value = variableResolver.resolve(name, false, null);
                 }
 
                 if (value == null) {
                     //线程变量
-                    value = VariableInjector.eval(name, null, false, variableResolvers.get());
+                    value = VariableInjector.eval(name, null, false, currentThreadVariableResolvers.get());
                 }
 
                 return value;
@@ -211,6 +221,7 @@ public abstract class ExpressionUtils {
         );
 
         return (T) expressionParser.parseExpression(expression).getValue(ctx);
+
     }
 
 
