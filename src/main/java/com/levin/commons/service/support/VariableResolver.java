@@ -399,10 +399,6 @@ public interface VariableResolver {
 
         @Override
         Object eval(String scriptText, Object originalValue) {
-//
-//            if (log.isDebugEnabled()) {
-//                log.debug(" eval [ {} ] ...", scriptText);
-//            }
 
             return ExpressionUtils.evalSpEL(rootObject, scriptText, (ctx) -> {
 
@@ -436,10 +432,6 @@ public interface VariableResolver {
 
         @Override
         Object eval(String scriptText, Object originalValue) {
-//
-//            if (log.isDebugEnabled()) {
-//                log.debug(" eval [ {} ] ...", scriptText);
-//            }
 
             return ExpressionUtils.evalGroovy(scriptText, (groovyScriptEvaluator, ctx) -> {
 
