@@ -2,6 +2,7 @@ package com.levin.commons.service.support;
 
 import com.levin.commons.service.domain.EnumDesc;
 import com.levin.commons.service.domain.InjectVar;
+import com.levin.commons.utils.ExpressionUtils;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
@@ -454,6 +455,7 @@ public interface VariableInjector {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
     /**
      * 获取注解上声明的类型
      *
@@ -500,6 +502,16 @@ public interface VariableInjector {
         }
 
         return booleanValueHolder;
+    }
+
+    //////////////////////////////////////////////////////////////////////
+
+    static void setVariableResolvers(List<VariableResolver> variableResolvers) {
+        if (variableResolvers != null) {
+            ExpressionUtils.variableResolvers.set(variableResolvers);
+        } else {
+            ExpressionUtils.variableResolvers.remove();
+        }
     }
 
     /**
