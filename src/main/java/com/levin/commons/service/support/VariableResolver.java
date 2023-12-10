@@ -162,6 +162,17 @@ public interface VariableResolver {
             return this;
         }
 
+        public DefaultDelegateVariableResolver addVariableResolvers(VariableResolver... variableResolvers) {
+
+            if (variableResolvers != null) {
+                for (VariableResolver variableResolver : variableResolvers) {
+                    this.variableResolvers.add(variableResolver);
+                }
+            }
+
+            return this;
+        }
+
         @Override
         public boolean isSupported(String name) {
             return variableResolvers.stream().anyMatch(vr -> vr.isSupported(name));
