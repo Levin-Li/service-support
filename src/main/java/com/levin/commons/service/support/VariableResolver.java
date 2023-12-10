@@ -126,6 +126,18 @@ public interface VariableResolver {
         public DefaultDelegateVariableResolver() {
         }
 
+        public DefaultDelegateVariableResolver(List<VariableResolver> variableResolvers) {
+            this.variableResolvers.addAll(variableResolvers);
+        }
+
+        public static DefaultDelegateVariableResolver of(VariableResolver... variableResolvers) {
+            return of(Arrays.asList(variableResolvers));
+        }
+
+        public static DefaultDelegateVariableResolver of(List<VariableResolver> variableResolvers) {
+            return new DefaultDelegateVariableResolver(variableResolvers);
+        }
+
         public DefaultDelegateVariableResolver addMapContexts(Object rootObject, Supplier<List<Map<String, ?>>>... suppliers) {
 
             //强制类型转换
@@ -175,7 +187,6 @@ public interface VariableResolver {
                     .orElse(ValueHolder.notValue(throwExWhenNotFound, name, exRef.get()));
 
         }
-
     }
 
     /**
@@ -244,8 +255,8 @@ public interface VariableResolver {
         public ScriptResolver(Object rootObject, Supplier<List<Map<String, ?>>>... contextSuppliers) {
             Assert.notNull(contextSuppliers, "contextSuppliers is null");
             //倒序排列
-            this.contextSuppliers = reverse(contextSuppliers);
             this.rootObject = rootObject;
+            this.contextSuppliers = reverse(contextSuppliers);
         }
 
         /**
@@ -389,6 +400,7 @@ public interface VariableResolver {
                 }
 
                 initContext(ctx::setVariables);
+
             });
 
         }

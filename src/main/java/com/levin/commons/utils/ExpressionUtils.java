@@ -1,5 +1,7 @@
 package com.levin.commons.utils;
 
+import com.levin.commons.service.support.VariableInjector;
+import com.levin.commons.service.support.VariableResolver;
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.Script;
@@ -33,6 +35,19 @@ public abstract class ExpressionUtils {
     //线程安全的解析器
     private static final ExpressionParser expressionParser = new SpelExpressionParser();
 
+    public static final ThreadLocal<List<VariableResolver>> variableResolvers = new ThreadLocal<List<VariableResolver>>() {
+        @Override
+        public List<VariableResolver> get() {
+
+            List<VariableResolver> variableResolvers = super.get();
+
+            if (variableResolvers == null) {
+                variableResolvers = Collections.emptyList();
+            }
+
+            return variableResolvers;
+        }
+    };
 
     /**
      * eval groovy
@@ -140,7 +155,7 @@ public abstract class ExpressionUtils {
     }
 
     public static <T> T evalSpEL(Object rootObject, String expression, Consumer<StandardEvaluationContext> consumer, List<Map<String, Object>> contexts) {
-        return evalSpEL(rootObject, expression, contexts, consumer);
+        return evalSpEL(rootObject, null, expression, contexts, consumer);
     }
 
     /**
@@ -152,9 +167,28 @@ public abstract class ExpressionUtils {
      * @param <T>
      * @return
      */
-    public static <T> T evalSpEL(Object rootObject, String expression, List<Map<String, Object>> contexts, Consumer<StandardEvaluationContext>... consumers) {
+    public static <T> T evalSpEL(Object rootObject, VariableResolver variableResolver, String expression, List<Map<String, Object>> contexts, Consumer<StandardEvaluationContext>... consumers) {
+        final StandardEvaluationContext ctx = new StandardEvaluationContext(rootObject) {
+            @Override
+            public Object lookupVariable(String name) {
 
-        final StandardEvaluationContext ctx = new StandardEvaluationContext(rootObject);
+                Object value = super.lookupVariable(name);
+
+                if (value == null) {
+                    if (variableResolver != null
+                            && variableResolver.isSupported(name)) {
+                        value = variableResolver.resolve(name, false, null);
+                    }
+                }
+
+                if (value == null) {
+                    //线程变量
+                    value = VariableInjector.eval(name, null, false, variableResolvers.get());
+                }
+
+                return value;
+            }
+        };
 
         //注册函数
         ctx.registerFunction("isEmpty", isEmptyMethod);

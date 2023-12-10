@@ -14,6 +14,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -453,6 +454,109 @@ public interface VariableInjector {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * 获取注解上声明的类型
+     *
+     * @param injectVar
+     * @return
+     */
+    default ResolvableType getExpectResolvableType(InjectVar injectVar) {
+
+        //获取类型
+        Class<?> expectBaseType = injectVar.expectBaseType();
+
+        if (expectBaseType == null || expectBaseType == Void.class) {
+            return null;
+        }
+
+        Class<?>[] expectGenericTypes = injectVar.expectGenericTypes();
+
+        //目标预期类型
+        return (expectGenericTypes != null && expectGenericTypes.length > 0) ?
+                ResolvableType.forClassWithGenerics(expectBaseType, expectGenericTypes)
+                : ResolvableType.forClass(expectBaseType);
+
+    }
+
+
+    /**
+     * @param variableResolvers
+     * @param expr
+     * @return
+     */
+    default ValueHolder<Boolean> getBooleanValueHolder(List<VariableResolver> variableResolvers, String expr) {
+
+        //特别处理
+        //如果是 true 或是 空值，都任务是 true
+        boolean isTrue = !StringUtils.hasText(expr) || Boolean.TRUE.toString().equalsIgnoreCase(expr.trim());
+
+        boolean isFalse = !isTrue && Boolean.FALSE.toString().equalsIgnoreCase(expr.trim());
+
+        ValueHolder<Boolean> booleanValueHolder = new ValueHolder<Boolean>().setHasValue(isTrue || isFalse).setValue(isTrue);
+
+        //如果没有值
+        if (!booleanValueHolder.hasValue()) {
+            booleanValueHolder = eval(expr, VariableResolver.NOT_VALUE, Boolean.class, true, variableResolvers);
+        }
+
+        return booleanValueHolder;
+    }
+
+    /**
+     * 求值函数
+     *
+     * @param expr
+     * @param defaultValue
+     * @param isRequireNotNull
+     * @param variableResolvers
+     * @return
+     */
+    static <T> T eval(String expr, Object defaultValue, boolean isRequireNotNull, List<VariableResolver> variableResolvers) {
+        return (T) eval(expr, null, null, isRequireNotNull, variableResolvers).get(defaultValue);
+    }
+
+    /**
+     * @param expr
+     * @param originalValue
+     * @param expectType
+     * @param variableResolvers
+     * @return
+     */
+    static ValueHolder<Object> eval(String expr, Object originalValue, Type expectType, boolean isRequireNotNull, VariableResolver... variableResolvers) {
+        return eval(expr, originalValue, expectType, isRequireNotNull, Arrays.asList(variableResolvers));
+    }
+
+    /**
+     * 求值函数
+     *
+     * @param expr
+     * @param originalValue
+     * @param expectType
+     * @param variableResolvers
+     * @return
+     */
+    static <T> ValueHolder<T> eval(String expr, Object originalValue, Type expectType, boolean isRequireNotNull, List<VariableResolver> variableResolvers) {
+
+        //保留最后一个异常，做为异常
+        AtomicReference<Throwable> exRef = new AtomicReference();
+
+        return (ValueHolder<T>) variableResolvers.stream()
+                .filter(Objects::nonNull)
+                .filter(vr -> vr.isSupported(expr))
+                .map(variableResolver -> variableResolver.resolve(expr, originalValue, false, isRequireNotNull, expectType))
+                .filter(Objects::nonNull)
+                .map(vh -> {
+                    if (vh.getValueNotFoundCause() != null) {
+                        exRef.set(vh.getValueNotFoundCause());
+                    }
+                    return vh;
+                })
+                .filter(ValueHolder::hasValue)
+                .findFirst()
+                .orElse(ValueHolder.notValue(false, expr, exRef.get()));
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * 转换值
