@@ -177,7 +177,7 @@ public abstract class RbacUtils {
                         Assert.isTrue(Arrays.stream(tags).anyMatch(StringUtils::hasText), "需要鉴权的控制器方法[Operation]注解的tags属性需要指定，控制器方法：" + method);
 
                         //资源标识, 2023 优化表达式结构
-                        final String resId = "";// Arrays.stream(tags).filter(StringUtils::hasText).findFirst().orElse(beanType.getSimpleName());
+                        final String resId = StringUtils.hasText(fieldResAuthorize.res()) ? fieldResAuthorize.res() : "";// Arrays.stream(tags).filter(StringUtils::hasText).findFirst().orElse(beanType.getSimpleName());
 
                         String actionName = StringUtils.hasText(operation.summary()) ? operation.summary() : null;
 
@@ -339,7 +339,7 @@ public abstract class RbacUtils {
 
                         //.setRes(tagName)
                         //不标识具体的资源
-                        .setRes("")
+                        .setRes(StringUtils.hasText(resAuthorize.res()) ? resAuthorize.res() : "")
 
                         .setAction(actionName);
                 //@todo 设置权限
