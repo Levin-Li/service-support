@@ -376,6 +376,9 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 } else if (StringUtils.hasText(schema.description())) {
                     //
                     fieldDesc = LangUtils.splitDesc(schema.description());
+                    if(!StringUtils.hasText(fieldDesc[1])){
+                        fieldDesc[1] = fieldDesc[0];
+                    }
                 }
             } else if (desc != null) {
 
