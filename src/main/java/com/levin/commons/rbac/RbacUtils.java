@@ -143,6 +143,8 @@ public abstract class RbacUtils {
 
                     final Map<String, Object> classResAuthorizeAttrs = classResAuthorize != null ? AnnotationUtils.getAnnotationAttributes(classResAuthorize) : Collections.emptyMap();
 
+                    final String tagName = clsTag != null ? clsTag.name() : beanType.getSimpleName();
+
                     //获取方法上的注解描述
                     for (Method method : beanType.getMethods()) {
 
@@ -219,16 +221,32 @@ public abstract class RbacUtils {
                         }
 
                         Assert.hasText(fieldResAuthorize.domain(), "需要鉴权的控制器方法[ResAuthorize]注解" + SimpleRes.Fields.domain + "属性未设置，方法：" + method);
-                        Assert.hasText(fieldResAuthorize.type(), "需要鉴权的控制器方法[ResAuthorize]注解" + SimpleRes.Fields.type + "属性未设置，方法：" + method);
+
+                        //Assert.hasText(fieldResAuthorize.type(), "需要鉴权的控制器方法[ResAuthorize]注解" + SimpleRes.Fields.type + "属性未设置，方法：" + method);
+
                         Assert.hasText(fieldResAuthorize.res(), "需要鉴权的控制器方法[ResAuthorize]注解res属性未设置，方法：" + method);
 
-                        final String key = fieldResAuthorize.domain() + fieldResAuthorize.type() + fieldResAuthorize.res();
 
                         final ResAuthorize tempResAuthorize = fieldResAuthorize;
 
+                        //设置权限
+                        String resType = tempResAuthorize != null ? tempResAuthorize.type() : "";
+
+                        //如果以-结尾，则加上tagName名称
+                        if (StringUtils.hasText(resType)
+                                && resType.endsWith("-")) {
+                            resType += tagName;
+                        } else if (!StringUtils.hasText(resType)) {
+                            resType = tagName;
+                        }
+
+                        final String tempResType = resType;
+
+                        final String key = fieldResAuthorize.domain() + resType + fieldResAuthorize.res();
+
                         final SimpleRes res = MapUtils.getAndAutoPut(cacheMap, key, null, () -> new SimpleRes()
                                 .setDomain(tempResAuthorize.domain())
-                                .setType(tempResAuthorize.type())
+                                .setType(tempResType)
                                 .setId(tempResAuthorize.res())
                                 .setActionList(new ArrayList<>(10)));
 
@@ -302,14 +320,27 @@ public abstract class RbacUtils {
 
                 SimpleMenu menuRes = new SimpleMenu();
 
+                final String tagName = tag != null ? tag.name() : defaultName;
+
                 //设置权限
+                String resType = resAuthorize != null ? resAuthorize.type() : "";
+
+                //如果以-结尾，则加上tagName名称
+                if (StringUtils.hasText(resType)
+                        && resType.endsWith("-")) {
+                    resType += tagName;
+                } else if (!StringUtils.hasText(resType)) {
+                    resType = tagName;
+                }
+
                 ResPermission permission = new ResPermission()
                         .setDomain(packageName)
-                        .setType(resAuthorize != null ? resAuthorize.type() : "数据")
-                        .setRes(tag != null ? tag.name() : defaultName)
+                        .setType(resType)
 
-                         //不标识具体的资源
+                        //.setRes(tagName)
+                        //不标识具体的资源
                         .setRes("")
+
                         .setAction(actionName);
                 //@todo 设置权限
 
