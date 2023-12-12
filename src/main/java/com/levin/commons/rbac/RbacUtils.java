@@ -196,22 +196,21 @@ public abstract class RbacUtils {
                         fieldResAuthorizeAttrs.put(ResPermission.Fields.action, actionName);
                         fieldResAuthorizeAttrs.put(ResPermission.Fields.res, resId);
 
-                        if (fieldResAuthorize != null) {
-                            Map<String, Object> tempAttrs = AnnotationUtils.getAnnotationAttributes(classResAuthorize);
-                            tempAttrs.forEach((k, v) -> {
-                                //只有 domain  type   res  action
-                                if (v == null
-                                        //空数组不覆盖
-                                        || (v.getClass().isArray() && Array.getLength(v) == 0)
-                                        //空字符串不覆盖，注意，字符串里面有空格不算
-                                        || ((v instanceof CharSequence) && ((CharSequence) v).length() == 0)) {
-                                    //nothing to do
-                                } else {
-                                    //其它情况都覆盖
-                                    fieldResAuthorizeAttrs.put(k, v);
-                                }
-                            });
-                        }
+                        Map<String, Object> tempAttrs = AnnotationUtils.getAnnotationAttributes(classResAuthorize);
+                        tempAttrs.forEach((k, v) -> {
+                            //只有 domain  type   res  action
+                            if (v == null
+                                    //空数组不覆盖
+                                    || (v.getClass().isArray() && Array.getLength(v) == 0)
+                                    //空字符串不覆盖，注意，字符串里面有空格不算
+                                    || ((v instanceof CharSequence) && ((CharSequence) v).length() == 0)) {
+                                //nothing to do
+                            } else {
+                                //其它情况都覆盖
+                                fieldResAuthorizeAttrs.put(k, v);
+                            }
+                        });
+
 
                         //重新定义
                         fieldResAuthorize = AnnotationUtils.synthesizeAnnotation(fieldResAuthorizeAttrs, ResAuthorize.class, null);
