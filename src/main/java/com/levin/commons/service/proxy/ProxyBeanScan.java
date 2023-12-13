@@ -43,6 +43,7 @@ public @interface ProxyBeanScan {
     /**
      * Spring FactoryBean 工厂类
      *
+     *
      * @return
      */
     Class<? extends FactoryBean> factoryBeanClass() default ProxyFactoryBean.class;
@@ -52,11 +53,13 @@ public @interface ProxyBeanScan {
      * <p>
      * 支持 Spring 装配
      * <p>
-     * 支持3中代理类
+     * 支持3种代理类
      * <p>
-     * org.aopalliance.intercept.MethodInterceptor
-     * java.lang.reflect.InvocationHandler
-     * org.springframework.cglib.proxy.MethodInterceptor
+     * 1-org.aopalliance.intercept.MethodInterceptor
+     * <p>
+     * 2-java.lang.reflect.InvocationHandler
+     * <p>
+     * 3-org.springframework.cglib.proxy.MethodInterceptor
      *
      * @return
      */
