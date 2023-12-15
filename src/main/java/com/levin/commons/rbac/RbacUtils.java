@@ -35,6 +35,8 @@ public abstract class RbacUtils {
 
     private static final Map<String, List<MenuItem>> menuCache = new ConcurrentHashMap<>();
 
+    private static final Map<Class<?>, Map<Method, ResAuthorize>> resAuthorizeCache = new ConcurrentHashMap<>();
+
     /**
      * 获取资源类型
      *
@@ -111,6 +113,163 @@ public abstract class RbacUtils {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 获取方法上的权限注解
+     *
+     * @param bean
+     * @param targetMethod
+     * @return
+     */
+    public static ResAuthorize getMethodResAuthorize(Object bean, Method targetMethod) {
+
+        Assert.notNull(targetMethod, "方法不能为空");
+
+        Class<?> beanType = (bean instanceof Class) ? (Class<?>) bean : (bean != null ? AopProxyUtils.ultimateTargetClass(bean) : targetMethod.getDeclaringClass());
+
+        Assert.isTrue(targetMethod.getDeclaringClass().isAssignableFrom(beanType), "方法的声明类" + beanType);
+
+        return getClassResAuthorizeFormCache(beanType).get(targetMethod);
+    }
+
+
+    public static Map<Method, ResAuthorize> getClassResAuthorizeFormCache(Object beanOrType) {
+
+        Assert.notNull(beanOrType, "beanOrType 参数不能为空");
+
+        Class<?> beanType = (beanOrType instanceof Class) ? (Class<?>) beanOrType : AopProxyUtils.ultimateTargetClass(beanOrType);
+
+        return resAuthorizeCache.computeIfAbsent(beanType, (type) -> loadClassResAuthorize(type));
+
+    }
+
+    /**
+     * 获取类上的权限注解
+     *
+     * @param beanOrType
+     * @return
+     */
+    public static Map<Method, ResAuthorize> loadClassResAuthorize(Object beanOrType) {
+
+        Assert.notNull(beanOrType, "beanOrType 参数不能为空");
+
+        final Class<?> beanType = (beanOrType instanceof Class) ? (Class<?>) beanOrType : AopProxyUtils.ultimateTargetClass(beanOrType);
+
+        Map<Method, ResAuthorize> methodResAuthorizeMap = new ConcurrentHashMap<>();
+
+        Tag clsTag = AnnotatedElementUtils.getMergedAnnotation(beanType, Tag.class);
+
+        //获取类注解
+        final ResAuthorize classResAuthorize = AnnotatedElementUtils.getMergedAnnotation(beanType, ResAuthorize.class);
+
+        final Map<String, Object> classResAuthorizeAttrs = classResAuthorize != null ? AnnotationUtils.getAnnotationAttributes(classResAuthorize) : Collections.emptyMap();
+
+        final String tagName = clsTag != null ? clsTag.name() : beanType.getSimpleName();
+
+        //获取方法上的注解描述
+        for (Method method : beanType.getMethods()) {
+
+            //如果没有请求注解，将忽略
+            if (AnnotatedElementUtils.getMergedAnnotation(method, RequestMapping.class) == null) {
+                continue;
+            }
+
+            //获取方法注解
+            ResAuthorize fieldResAuthorize = AnnotatedElementUtils.getMergedAnnotation(method, ResAuthorize.class);
+
+            if (classResAuthorize == null && fieldResAuthorize == null) {
+                log.warn("控制器方法 {} 没有可用的[ResAuthorize]注解，将不进行鉴权", method);
+                continue;
+            }
+
+            Operation operation = method.getAnnotation(Operation.class);
+
+            Assert.notNull(operation, "需要鉴权的控制器方法必须定义[Operation]注解，控制器方法：" + method);
+            Assert.isTrue(StringUtils.hasText(operation.summary()), "需要鉴权的控制器方法[Operation]注解的summary属性需要指定，控制器方法：" + method);
+
+            String[] tags = operation.tags();
+
+            if (tags == null || tags.length == 0) {
+                if (clsTag != null && StringUtils.hasText(clsTag.name())) {
+                    tags = new String[]{clsTag.name()};
+                }
+            }
+
+            Assert.isTrue(Arrays.stream(tags).anyMatch(StringUtils::hasText), "需要鉴权的控制器方法[Operation]注解的tags属性需要指定，控制器方法：" + method);
+
+            //资源标识, 2023 优化表达式结构
+            //final String resId = (fieldResAuthorize != null && StringUtils.hasText(fieldResAuthorize.res())) ? fieldResAuthorize.res() : "";// Arrays.stream(tags).filter(StringUtils::hasText).findFirst().orElse(beanType.getSimpleName());
+
+            String actionName = StringUtils.hasText(operation.summary()) ? operation.summary() : null;
+
+            if (!StringUtils.hasText(actionName)) {
+                log.warn("控制器方法 {} 没有 Operation注解或是Operation注解的summary属性没有定义.", method);
+                actionName = method.getName();
+            }
+
+            //复制父类
+            final Map<String, Object> fieldResAuthorizeAttrs = new LinkedHashMap<>(classResAuthorizeAttrs);
+
+            //设置操作名称
+            fieldResAuthorizeAttrs.put(ResPermission.Fields.action, actionName);
+
+            if (fieldResAuthorize != null) {
+                //获取类注解
+                Map<String, Object> tempAttrs = AnnotationUtils.getAnnotationAttributes(fieldResAuthorize);
+                tempAttrs.forEach((k, v) -> {
+                    //只有 domain  type   res  action
+                    if (v == null
+                            //空数组不覆盖
+                            || (v.getClass().isArray() && Array.getLength(v) == 0)
+                            //空字符串不覆盖，注意，字符串里面有空格不算
+                            || ((v instanceof CharSequence) && ((CharSequence) v).length() == 0)) {
+                        //nothing to do
+                    } else {
+                        //其它情况都覆盖
+                        fieldResAuthorizeAttrs.put(k, v);
+                    }
+                });
+            }
+
+            String resType = (String) fieldResAuthorizeAttrs.get(ResPermission.Fields.type);
+
+            //如果以-结尾，则加上tagName名称
+            if (StringUtils.hasText(resType)
+                    && resType.endsWith("-")) {
+                resType += tagName;
+            } else if (!StringUtils.hasText(resType)) {
+                resType = tagName;
+            }
+
+            if (!fieldResAuthorizeAttrs.containsKey(ResPermission.Fields.remark)) {
+                fieldResAuthorizeAttrs.put(ResPermission.Fields.remark, operation.description());
+            }
+
+            //
+            fieldResAuthorizeAttrs.put(ResPermission.Fields.type, resType);
+
+            //去除空格
+
+            //重新定义
+            fieldResAuthorize = AnnotationUtils.synthesizeAnnotation(fieldResAuthorizeAttrs, ResAuthorize.class, null);
+
+            if (fieldResAuthorize.ignored()) {
+                continue;
+            }
+
+            Assert.hasText(fieldResAuthorize.domain(), "需要鉴权的控制器方法[ResAuthorize]注解" + ResPermission.Fields.domain + "属性未设置，方法：" + method);
+
+            Assert.hasText(fieldResAuthorize.type(), "需要鉴权的控制器方法[ResAuthorize]注解" + ResPermission.Fields.type + "属性未设置，方法：" + method);
+
+            Assert.hasText(fieldResAuthorize.action(), "需要鉴权的控制器方法[ResAuthorize]注解" + ResPermission.Fields.action + "属性未设置，方法：" + method);
+
+            //Assert.notNull(fieldResAuthorize.res(), "需要鉴权的控制器方法[ResAuthorize]注解res属性未设置，方法：" + method);
+
+            methodResAuthorizeMap.put(method, fieldResAuthorize);
+        }
+
+        return methodResAuthorizeMap;
+
+    }
 
     private static void initBeanResCache(ApplicationContext context) {
 
@@ -120,139 +279,26 @@ public abstract class RbacUtils {
 
         final Map<String, SimpleRes> cacheMap = new LinkedHashMap<>();
 
-        context.getBeansWithAnnotation(Controller.class)
-                .entrySet().stream().forEach((it) -> {
+        context.getBeansWithAnnotation(Controller.class).forEach((name, bean) -> {
 
-                    String beanName = it.getKey();
+            Map<Method, ResAuthorize> classResAuthorize = getClassResAuthorizeFormCache(bean);
 
-                    Class<?> beanType = AopProxyUtils.ultimateTargetClass(it.getValue());
+            classResAuthorize.forEach((k, fieldResAuthorize) -> {
 
-//            Tag tag = beanType.getAnnotation(Tag.class);
-//
-//            if (tag == null || !StringUtils.hasText(tag.name())) {
-//                log.warn("bean {} [ {} ] 无 Tag 注解或注解 name 属性 没有值，被被忽略. ", beanName, beanType.getName());
-//                return;
-//            }
+                final String key = fieldResAuthorize.domain() + fieldResAuthorize.type() + fieldResAuthorize.res();
 
-                    Tag clsTag = AnnotatedElementUtils.getMergedAnnotation(beanType, Tag.class);
+                final SimpleRes res = MapUtils.getAndAutoPut(cacheMap, key, null, () -> new SimpleRes()
+                        .setDomain(fieldResAuthorize.domain())
+                        .setType(fieldResAuthorize.type())
+                        .setId(fieldResAuthorize.res())
+                        .setActionList(new ArrayList<>(10)));
 
-                    //获取类注解
-                    final ResAuthorize classResAuthorize = AnnotatedElementUtils.getMergedAnnotation(beanType, ResAuthorize.class);
+                //加入操作列表
+                res.getActionList().add(SimpleResAction.newAction(fieldResAuthorize).setRemark(fieldResAuthorize.remark()));
 
-                    //final RequestMapping classRequestMapping = AnnotatedElementUtils.getMergedAnnotation(beanType, RequestMapping.class);
+            });
 
-                    final Map<String, Object> classResAuthorizeAttrs = classResAuthorize != null ? AnnotationUtils.getAnnotationAttributes(classResAuthorize) : Collections.emptyMap();
-
-                    final String tagName = clsTag != null ? clsTag.name() : beanType.getSimpleName();
-
-                    //获取方法上的注解描述
-                    for (Method method : beanType.getMethods()) {
-
-                        //如果没有请求注解，将忽略
-                        if (AnnotatedElementUtils.getMergedAnnotation(method, RequestMapping.class) == null) {
-                            continue;
-                        }
-
-                        //获取方法注解
-                        ResAuthorize fieldResAuthorize = AnnotatedElementUtils.getMergedAnnotation(method, ResAuthorize.class);
-
-                        if (classResAuthorize == null && fieldResAuthorize == null) {
-                            log.warn("控制器方法 {} 没有可用的[ResAuthorize]注解，将不进行鉴权", method);
-                            continue;
-                        }
-
-                        Operation operation = method.getAnnotation(Operation.class);
-
-                        Assert.notNull(operation, "需要鉴权的控制器方法必须定义[Operation]注解，控制器方法：" + method);
-                        Assert.isTrue(StringUtils.hasText(operation.summary()), "需要鉴权的控制器方法[Operation]注解的summary属性需要指定，控制器方法：" + method);
-
-                        String[] tags = operation.tags();
-
-                        if (tags == null || tags.length == 0) {
-                            if (clsTag != null && StringUtils.hasText(clsTag.name())) {
-                                tags = new String[]{clsTag.name()};
-                            }
-                        }
-
-                        Assert.isTrue(Arrays.stream(tags).anyMatch(StringUtils::hasText), "需要鉴权的控制器方法[Operation]注解的tags属性需要指定，控制器方法：" + method);
-
-                        //资源标识, 2023 优化表达式结构
-                        final String resId = StringUtils.hasText(fieldResAuthorize.res()) ? fieldResAuthorize.res() : "";// Arrays.stream(tags).filter(StringUtils::hasText).findFirst().orElse(beanType.getSimpleName());
-
-                        String actionName = StringUtils.hasText(operation.summary()) ? operation.summary() : null;
-
-                        if (!StringUtils.hasText(actionName)) {
-                            log.warn("控制器方法 {} 没有 Operation注解或是Operation注解的summary属性没有定义.", method);
-                            actionName = method.getName();
-                        } else if (actionName.endsWith(resId)) {
-                            //权限名称，去除实体名称，如：新建用户 变为 新建
-                            actionName = actionName.substring(0, actionName.length() - resId.length());
-                        }
-
-                        //复制父类
-                        final Map<String, Object> fieldResAuthorizeAttrs = new LinkedHashMap<>(classResAuthorizeAttrs);
-
-                        //设置操作名称
-                        fieldResAuthorizeAttrs.put(ResPermission.Fields.action, actionName);
-                        fieldResAuthorizeAttrs.put(ResPermission.Fields.res, resId);
-
-                        Map<String, Object> tempAttrs = AnnotationUtils.getAnnotationAttributes(classResAuthorize);
-                        tempAttrs.forEach((k, v) -> {
-                            //只有 domain  type   res  action
-                            if (v == null
-                                    //空数组不覆盖
-                                    || (v.getClass().isArray() && Array.getLength(v) == 0)
-                                    //空字符串不覆盖，注意，字符串里面有空格不算
-                                    || ((v instanceof CharSequence) && ((CharSequence) v).length() == 0)) {
-                                //nothing to do
-                            } else {
-                                //其它情况都覆盖
-                                fieldResAuthorizeAttrs.put(k, v);
-                            }
-                        });
-
-
-                        //重新定义
-                        fieldResAuthorize = AnnotationUtils.synthesizeAnnotation(fieldResAuthorizeAttrs, ResAuthorize.class, null);
-
-                        if (fieldResAuthorize.ignored()) {
-                            continue;
-                        }
-
-                        Assert.hasText(fieldResAuthorize.domain(), "需要鉴权的控制器方法[ResAuthorize]注解" + SimpleRes.Fields.domain + "属性未设置，方法：" + method);
-
-                        //Assert.hasText(fieldResAuthorize.type(), "需要鉴权的控制器方法[ResAuthorize]注解" + SimpleRes.Fields.type + "属性未设置，方法：" + method);
-
-                        Assert.notNull(fieldResAuthorize.res(), "需要鉴权的控制器方法[ResAuthorize]注解res属性未设置，方法：" + method);
-
-
-                        final ResAuthorize tempResAuthorize = fieldResAuthorize;
-
-                        //设置权限
-                        String resType = tempResAuthorize != null ? tempResAuthorize.type() : "";
-
-                        //如果以-结尾，则加上tagName名称
-                        if (StringUtils.hasText(resType)
-                                && resType.endsWith("-")) {
-                            resType += tagName;
-                        } else if (!StringUtils.hasText(resType)) {
-                            resType = tagName;
-                        }
-
-                        final String tempResType = resType;
-
-                        final String key = fieldResAuthorize.domain() + resType + fieldResAuthorize.res();
-
-                        final SimpleRes res = MapUtils.getAndAutoPut(cacheMap, key, null, () -> new SimpleRes()
-                                .setDomain(tempResAuthorize.domain())
-                                .setType(tempResType)
-                                .setId(tempResAuthorize.res())
-                                .setActionList(new ArrayList<>(10)));
-
-                        //加入操作列表
-                        res.getActionList().add(SimpleResAction.newAction(fieldResAuthorize).setRemark(operation.description()));
-                    }
-                });
+        });
 
         //加入缓存
         cacheMap.forEach((k, v) -> {
@@ -275,7 +321,8 @@ public abstract class RbacUtils {
      * @param <M>
      * @return
      */
-    public static <M extends MenuItem> List<M> getMenuItemByController(ApplicationContext context, @NonNull final String packageName, @NonNull final String actionName) {
+    public static <M extends MenuItem> List<M> getMenuItemByController(ApplicationContext context,
+                                                                       @NonNull final String packageName, @NonNull final String actionName) {
 
         List<MenuItem> menuItems = menuCache.get(packageName);
 
@@ -300,6 +347,7 @@ public abstract class RbacUtils {
                 }
 
                 MenuResTag menuResTag = AnnotatedElementUtils.getMergedAnnotation(type, MenuResTag.class);
+                Tag tag = AnnotatedElementUtils.getMergedAnnotation(type, Tag.class);
 
                 if (menuResTag == null || !menuResTag.value()) {
                     //忽略非菜单资源标记的控制器
@@ -307,51 +355,42 @@ public abstract class RbacUtils {
                 }
 
                 RequestMapping mapping = AnnotatedElementUtils.getMergedAnnotation(type, RequestMapping.class);
-                Tag tag = AnnotatedElementUtils.getMergedAnnotation(type, Tag.class);
-                ResAuthorize resAuthorize = AnnotatedElementUtils.getMergedAnnotation(type, ResAuthorize.class);
 
-//            if (mapping == null
-//                    || tag == null
-//                    || resAuthorize == null) {
-//
-//                continue;
-//            }
+                if (mapping == null) {
+                    continue;
+                }
 
                 SimpleMenu menuRes = new SimpleMenu();
 
-                final String tagName = tag != null ? tag.name() : defaultName;
+                //查找任意一个方法的权限
+                ResAuthorize resAuthorize = getClassResAuthorizeFormCache(type).values().stream()
+                        .filter(r -> actionName.equalsIgnoreCase(r.action()))
+                        .findFirst()
+                        .orElse(null);
 
-                //设置权限
-                String resType = resAuthorize != null ? resAuthorize.type() : "";
+                ResPermission permission = resAuthorize == null ? null :
+                        new ResPermission()
+                                .setDomain(packageName)
+                                .setType(resAuthorize.type())
 
-                //如果以-结尾，则加上tagName名称
-                if (StringUtils.hasText(resType)
-                        && resType.endsWith("-")) {
-                    resType += tagName;
-                } else if (!StringUtils.hasText(resType)) {
-                    resType = tagName;
-                }
+                                //.setRes(tagName)
+                                //不标识具体的资源
+                                .setRes(StringUtils.hasText(resAuthorize.res()) ? resAuthorize.res() : "")
 
-                ResPermission permission = new ResPermission()
-                        .setDomain(packageName)
-                        .setType(resType)
-
-                        //.setRes(tagName)
-                        //不标识具体的资源
-                        .setRes(StringUtils.hasText(resAuthorize.res()) ? resAuthorize.res() : "")
-
-                        .setAction(actionName);
+                                .setAction(actionName);
                 //@todo 设置权限
 
                 //设置默认权限
-                menuRes.setRequireAuthorizations(JsonStrArrayUtils.toStrArrayJson(permission))
+                menuRes.setRequireAuthorizations(permission == null ? null : JsonStrArrayUtils.toStrArrayJson(permission))
                         .setDomain(packageName)
                         //设置路径
                         .setPath(Arrays.asList(mapping != null ? mapping.path() : new String[0]).stream().filter(StringUtils::hasText).findFirst().orElse(defaultName))
                         //设置菜单名称
                         .setName(Arrays.asList(tag != null ? tag.description() : null).stream().filter(StringUtils::hasText).findFirst().orElse(defaultName))
                 ;
+
                 menuItems.add(menuRes);
+
             }
 
             menuCache.put(packageName, menuItems);

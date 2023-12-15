@@ -46,7 +46,6 @@ public @interface ResAuthorize {
      */
     boolean onlyRequireAuthenticated() default false;
 
-
     /**
      * 权限，角色和表达式3个条件是否都必须满足，否则任意一个满足即视为验证通过
      * <p>
@@ -89,8 +88,6 @@ public @interface ResAuthorize {
      */
     String action() default "";
 
-    ////////////////////////////////////////////////////////////////
-
     /**
      * 需要的角色，任意一个满足都视为验证通过
      *
@@ -108,4 +105,10 @@ public @interface ResAuthorize {
      */
     String verifyExpression() default "";
 
+    /**
+     * 备注
+     *
+     * @return
+     */
+    String remark() default "";
 }

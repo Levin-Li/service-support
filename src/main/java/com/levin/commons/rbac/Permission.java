@@ -45,4 +45,10 @@ public interface Permission {
      */
     <A extends Serializable> A getAction();
 
+    /**
+     * 备注
+     *
+     * @return
+     */
+    String getRemark();
 }
