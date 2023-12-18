@@ -32,32 +32,26 @@ public class SignatureReq
     private static final long serialVersionUID = -944707546677849710L;
 
     @Schema(title = "应用标识")
-    @Ignore
     @NotBlank
     String appId;
 
     @Schema(title = "应用密钥")
-    @Ignore
     @NotBlank
     String appSecret;
 
     @Schema(title = "一次使用临时字符串")
-    @Ignore
     @NotBlank
     String nonceStr;
 
     @Schema(title = "时间串")
-    @Ignore
     @NotBlank
     String timeStamp;
 
     @Schema(title = "渠道编码")
-    @Ignore
     @NotBlank
     String channelCode;
 
     @Schema(title = "签名串")
-    @Ignore
     @NotBlank
     String sign;
 
