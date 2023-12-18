@@ -1,4 +1,4 @@
-package com.levin.commons.rbac;
+package com.levin.commons.dao.domain;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -11,7 +11,7 @@ import java.util.Collections;
  * @param <CHILD>
  * @author llw
  */
-public interface TreeObject<PARENT, CHILD> {
+public interface BaseTreeObject<PARENT, CHILD> {
 
     /**
      * 获取节点数据

@@ -3,7 +3,6 @@ package com.levin.commons.dao.domain;
 import com.levin.commons.service.domain.Identifiable;
 
 import java.io.Serializable;
-import java.util.Set;
 
 
 /**
@@ -13,7 +12,7 @@ import java.util.Set;
  * @author llw
  */
 public interface TreeObject<P, C>
-        extends com.levin.commons.rbac.TreeObject<P, C>, Identifiable {
+        extends BaseTreeObject<P, C>, Identifiable {
 
     /**
      * 获取父结点id

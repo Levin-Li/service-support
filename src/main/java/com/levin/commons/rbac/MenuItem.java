@@ -1,5 +1,6 @@
 package com.levin.commons.rbac;
 
+import com.levin.commons.dao.domain.BaseTreeObject;
 import com.levin.commons.service.domain.EnumDesc;
 import com.levin.commons.service.domain.SimpleIdentifiable;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,7 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @Schema(title = "抽象菜单项")
 public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
-        extends TreeObject<PARENT, CHILD>, AuthorizedObject, SimpleIdentifiable {
+        extends BaseTreeObject<PARENT, CHILD>, AuthorizedObject, SimpleIdentifiable {
 
     @Schema(title = "动作类型")
     enum ActionType implements EnumDesc {

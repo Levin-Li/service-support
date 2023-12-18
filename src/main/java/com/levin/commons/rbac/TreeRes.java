@@ -1,6 +1,7 @@
 package com.levin.commons.rbac;
 
 
+import com.levin.commons.dao.domain.BaseTreeObject;
 import com.levin.commons.plugin.Res;
 
 /**
@@ -10,5 +11,5 @@ import com.levin.commons.plugin.Res;
  * @param <CHILD>
  */
 public interface TreeRes<PARENT, CHILD>
-        extends Res, TreeObject<PARENT, CHILD> {
+        extends Res, BaseTreeObject<PARENT, CHILD> {
 }
