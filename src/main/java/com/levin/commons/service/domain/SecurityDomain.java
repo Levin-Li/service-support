@@ -16,6 +16,7 @@ import java.lang.annotation.*;
  * @author lilw
  *
  */
+@Deprecated
 public @interface SecurityDomain {
 
     /**

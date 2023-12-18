@@ -19,7 +19,6 @@ import java.util.List;
 public interface Interaction
         extends Serializable {
 
-
     interface Action {
 
         enum Cmd implements EnumDesc {
@@ -39,6 +38,7 @@ public interface Interaction
             requestApi,
 
             ;
+
             @Override
             public String toString() {
                 return nameAndDesc();

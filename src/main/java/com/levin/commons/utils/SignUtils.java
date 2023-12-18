@@ -1,6 +1,6 @@
 package com.levin.commons.utils;
 
-import com.levin.commons.service.domain.ClientAccessRequest;
+import com.levin.commons.service.domain.SignReq;
 import com.levin.commons.service.domain.Sign;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -22,7 +22,7 @@ public abstract class SignUtils {
      * @param overrideConfigs
      * @return
      */
-    public static boolean verifySign(ClientAccessRequest data, String clientSecret, Map<String, String>... overrideConfigs) {
+    public static boolean verifySign(SignReq data, String clientSecret, Map<String, String>... overrideConfigs) {
         return sign(data, clientSecret, overrideConfigs).equals(data.getSign());
     }
 
@@ -33,7 +33,7 @@ public abstract class SignUtils {
      * @param clientSecret
      * @return
      */
-    public static String sign(ClientAccessRequest data, String clientSecret, Map<String, String>... overrideConfigs) {
+    public static String sign(SignReq data, String clientSecret, Map<String, String>... overrideConfigs) {
 
         Map<String, String> signFields = getSignMap(data, clientSecret, overrideConfigs);
 
@@ -45,7 +45,7 @@ public abstract class SignUtils {
     }
 
 
-    public static Map<String, String> getSignMap(ClientAccessRequest data, String clientSecret, Map<String, String>... overrideConfigs) {
+    public static Map<String, String> getSignMap(SignReq data, String clientSecret, Map<String, String>... overrideConfigs) {
 
         Map<String, String> signFields = SignUtils.getAndSortSignFields(data);
 
