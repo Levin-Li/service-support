@@ -13,7 +13,7 @@ import java.util.Set;
  * @author llw
  */
 public interface TreeObject<P, C>
-        extends Identifiable {
+        extends com.levin.commons.rbac.TreeObject<P, C>, Identifiable {
 
     /**
      * 获取父结点id
@@ -21,19 +21,5 @@ public interface TreeObject<P, C>
      * @return parentId
      */
     <ID extends Serializable> ID getParentId();
-
-    /**
-     * 获取父对象
-     *
-     * @return parent
-     */
-    P getParent();
-
-    /**
-     * 获取所有的孩子对象
-     *
-     * @return children
-     */
-    Set<C> getChildren();
 
 }

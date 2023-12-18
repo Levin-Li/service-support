@@ -14,6 +14,16 @@ import java.util.Collections;
 public interface TreeObject<PARENT, CHILD> {
 
     /**
+     * 获取节点数据
+     * 默认返回自己
+     *
+     * @return
+     */
+    default <D> D getNodeData() {
+        return (D) this;
+    }
+
+    /**
      * 获取父节点
      *
      * @return
@@ -28,7 +38,7 @@ public interface TreeObject<PARENT, CHILD> {
      * @return 返回 null，表示未知，true 表示有孩子节点，false 表示没有
      */
     default Boolean hasChildren() {
-        return null;
+        return getChildren() != null && !getChildren().isEmpty();
     }
 
     /**
