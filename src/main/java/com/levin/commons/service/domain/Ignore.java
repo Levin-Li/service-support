@@ -15,8 +15,6 @@ import java.lang.annotation.*;
  *
  * @author echo
  *
- *
- *
  */
 public @interface Ignore {
 
@@ -27,6 +25,12 @@ public @interface Ignore {
      */
     String[] value() default {};
 
+    /**
+     * 业务类型
+     *
+     * @return
+     */
+    String bizType();
 
     /**
      * 忽略的条件
