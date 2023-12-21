@@ -20,7 +20,7 @@ public interface BaseTreeObject<PARENT, CHILD> {
      * @return
      */
     default <D> D getNodeData() {
-        return (D) this;
+        return null;
     }
 
     /**
