@@ -13,12 +13,6 @@ public interface InjectConst {
 
     String IS_ALL_ORG_SCOPE = "isAllOrgScope";
 
-    String NOT_SUPER_ADMIN = " !(#" + IS_SUPER_ADMIN + ") ";
-
-    String NOT_TENANT_ADMIN = " !(#" + IS_TENANT_ADMIN + ") ";
-
-    String NOT_SUPER_ADMIN_AND_NOT_TENANT_ADMIN = " (" + NOT_SUPER_ADMIN + " && " + NOT_TENANT_ADMIN + ") ";
-
     String ACCESS_TOKEN = "accessToken";
 
     /**
