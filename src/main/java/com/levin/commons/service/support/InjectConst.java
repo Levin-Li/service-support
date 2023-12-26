@@ -11,6 +11,8 @@ public interface InjectConst {
 
     String IS_TENANT_ADMIN = "isTenantAdmin";
 
+    String IS_ALL_ORG_SCOPE = "isAllOrgScope";
+
     String NOT_SUPER_ADMIN = " !(#" + IS_SUPER_ADMIN + ") ";
 
     String NOT_TENANT_ADMIN = " !(#" + IS_TENANT_ADMIN + ") ";
