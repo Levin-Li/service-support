@@ -208,8 +208,11 @@ public abstract class ExpressionUtils {
                 }
 
                 if (value == null) {
-                    //线程变量
-                    value = VariableInjector.eval(name, null, false, currentThreadVariableResolvers.get());
+                    List<VariableResolver> variableResolvers = currentThreadVariableResolvers.get();
+                    if (variableResolvers != null && !variableResolvers.isEmpty()) {
+                        //线程变量
+                        value = VariableInjector.eval(name, null, false, variableResolvers);
+                    }
                 }
 
                 return value;
