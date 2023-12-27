@@ -9,12 +9,12 @@ package com.levin.commons.dao.domain;
  * @Author levin li
  * @Since 2.2.23
  */
-public interface MultiTenantShareableObject extends MultiTenantObject {
+public interface MultiTenantSharedObject extends MultiTenantObject {
 
     /**
      * 是否可共享
      *
      * @return
      */
-    boolean isShareable();
+    boolean isTenantShared();
 }
