@@ -199,7 +199,7 @@ public abstract class ExpressionUtils {
 
                 //如果有这个变量名称，不管什么值，都直接返回
                 if (variableNames.containsKey(name)) {
-                    return super.lookupVariable(name);
+                    return value;
                 }
 
                 if (value == null && variableResolver != null
