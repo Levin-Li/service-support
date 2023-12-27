@@ -13,9 +13,11 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.lang.Nullable;
 import org.springframework.scripting.groovy.GroovyScriptEvaluator;
 import org.springframework.scripting.support.StaticScriptSource;
+import org.springframework.util.ReflectionUtils;
 
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -181,12 +183,26 @@ public abstract class ExpressionUtils {
      */
     public static <T> T evalSpEL(Object rootObject, VariableResolver variableResolver, String expression, List<Map<String, Object>> contexts, Consumer<StandardEvaluationContext>... consumers) {
         final StandardEvaluationContext ctx = new StandardEvaluationContext(rootObject) {
+
+            Map<String, Object> variableNames = new HashMap<>();
+
+            @Override
+            public void setVariable(String name, Object value) {
+                super.setVariable(name, value);
+                variableNames.put(name, true);
+            }
+
             @Override
             public Object lookupVariable(String name) {
 
-                Object value = super.lookupVariable(name);
+                //如果有这个变量名称，不管什么值，都直接返回
+                if (variableNames.containsKey(name)) {
+                    return super.lookupVariable(name);
+                }
 
-                if (value == null && variableResolver != null
+                Object value = null;
+
+                if (variableResolver != null
                         && variableResolver.isSupported(name)) {
                     value = variableResolver.resolve(name, false, null);
                 }
@@ -209,7 +225,7 @@ public abstract class ExpressionUtils {
                 maps ->
                         maps.stream()
                                 .filter(Objects::nonNull)
-                                .map(map -> (Map<String, Object>) map)
+                                //   .map(map -> (Map<String, Object>) map)
                                 .forEachOrdered(ctx::setVariables)
         );
 
