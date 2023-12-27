@@ -195,14 +195,14 @@ public abstract class ExpressionUtils {
             @Override
             public Object lookupVariable(String name) {
 
+                Object value = super.lookupVariable(name);
+
                 //如果有这个变量名称，不管什么值，都直接返回
                 if (variableNames.containsKey(name)) {
                     return super.lookupVariable(name);
                 }
 
-                Object value = null;
-
-                if (variableResolver != null
+                if (value == null && variableResolver != null
                         && variableResolver.isSupported(name)) {
                     value = variableResolver.resolve(name, false, null);
                 }
