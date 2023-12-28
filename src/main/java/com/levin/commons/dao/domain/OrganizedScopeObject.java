@@ -1,7 +1,7 @@
 package com.levin.commons.dao.domain;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * 限定范围的组织对象
@@ -16,5 +16,5 @@ public interface OrganizedScopeObject {
      * @param <ORG_ID>
      * @return
      */
-    <ORG_ID extends Serializable> List<ORG_ID> getOrgIdList();
+    <ORG_ID extends Serializable> Collection<ORG_ID> getOrgIdList();
 }
