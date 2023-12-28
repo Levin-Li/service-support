@@ -14,15 +14,13 @@ import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.Assert;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
+import org.springframework.util.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -166,10 +164,13 @@ public abstract class RbacUtils {
         final String tagName = clsTag != null ? clsTag.name() : beanType.getSimpleName();
 
         //获取方法上的注解描述
-        for (Method method : beanType.getMethods()) {
+        for (Method method : ReflectionUtils.getAllDeclaredMethods(beanType)) {
 
             //如果没有请求注解，将忽略
-            if (AnnotatedElementUtils.getMergedAnnotation(method, RequestMapping.class) == null) {
+            if (!Modifier.isPublic(method.getModifiers())
+             //       || Modifier.isStatic(method.getModifiers())
+                    || ReflectionUtils.isObjectMethod(method)
+                    || AnnotatedElementUtils.getMergedAnnotation(method, RequestMapping.class) == null) {
                 continue;
             }
 
@@ -343,7 +344,7 @@ public abstract class RbacUtils {
                 String defaultName = type.getSimpleName();
 
                 if (defaultName.endsWith("Controller")) {
-                    defaultName = defaultName.toLowerCase().substring(0, defaultName.length() - "Controller".length());
+                    defaultName = defaultName.substring(0, defaultName.length() - "Controller".length());
                 }
 
                 MenuResTag menuResTag = AnnotatedElementUtils.getMergedAnnotation(type, MenuResTag.class);
