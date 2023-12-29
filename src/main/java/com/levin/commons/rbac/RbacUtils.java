@@ -154,35 +154,40 @@ public abstract class RbacUtils {
 
         Map<Method, ResAuthorize> methodResAuthorizeMap = new ConcurrentHashMap<>();
 
-        Tag clsTag = AnnotatedElementUtils.getMergedAnnotation(beanType, Tag.class);
+        Tag clsTag = AnnotatedElementUtils.findMergedAnnotation(beanType, Tag.class);
 
         //获取类注解
-        final ResAuthorize classResAuthorize = AnnotatedElementUtils.getMergedAnnotation(beanType, ResAuthorize.class);
+        final ResAuthorize classResAuthorize = AnnotatedElementUtils.findMergedAnnotation(beanType, ResAuthorize.class);
 
         final Map<String, Object> classResAuthorizeAttrs = classResAuthorize != null ? AnnotationUtils.getAnnotationAttributes(classResAuthorize) : Collections.emptyMap();
 
         final String tagName = clsTag != null ? clsTag.name() : beanType.getSimpleName();
 
-        //获取方法上的注解描述
-        for (Method method : ReflectionUtils.getAllDeclaredMethods(beanType)) {
+        //获取方法上的注解描述，自动去除重复的方法
+        for (Method method : ReflectionUtils.getUniqueDeclaredMethods(beanType,
+                m -> Modifier.isPublic(m.getModifiers())
+                        && !ReflectionUtils.isObjectMethod(m)
+                        && !Modifier.isStatic(m.getModifiers())
+                        && AnnotatedElementUtils.hasAnnotation(m, RequestMapping.class)
+        )) {
 
             //如果没有请求注解，将忽略
-            if (!Modifier.isPublic(method.getModifiers())
-             //       || Modifier.isStatic(method.getModifiers())
-                    || ReflectionUtils.isObjectMethod(method)
-                    || AnnotatedElementUtils.getMergedAnnotation(method, RequestMapping.class) == null) {
-                continue;
-            }
+//            if (!Modifier.isPublic(method.getModifiers())
+//                    //       || Modifier.isStatic(method.getModifiers())
+//                    || ReflectionUtils.isObjectMethod(method)
+//                    || !AnnotatedElementUtils.hasAnnotation(method, RequestMapping.class)) {
+//                continue;
+//            }
 
             //获取方法注解
-            ResAuthorize fieldResAuthorize = AnnotatedElementUtils.getMergedAnnotation(method, ResAuthorize.class);
+            ResAuthorize fieldResAuthorize = AnnotatedElementUtils.findMergedAnnotation(method, ResAuthorize.class);
 
             if (classResAuthorize == null && fieldResAuthorize == null) {
                 log.warn("控制器方法 {} 没有可用的[ResAuthorize]注解，将不进行鉴权", method);
                 continue;
             }
 
-            Operation operation = method.getAnnotation(Operation.class);
+            Operation operation = AnnotatedElementUtils.findMergedAnnotation(method,Operation.class);
 
             Assert.notNull(operation, "需要鉴权的控制器方法必须定义[Operation]注解，控制器方法：" + method);
             Assert.isTrue(StringUtils.hasText(operation.summary()), "需要鉴权的控制器方法[Operation]注解的summary属性需要指定，控制器方法：" + method);
@@ -347,15 +352,15 @@ public abstract class RbacUtils {
                     defaultName = defaultName.substring(0, defaultName.length() - "Controller".length());
                 }
 
-                MenuResTag menuResTag = AnnotatedElementUtils.getMergedAnnotation(type, MenuResTag.class);
-                Tag tag = AnnotatedElementUtils.getMergedAnnotation(type, Tag.class);
+                MenuResTag menuResTag = AnnotatedElementUtils.findMergedAnnotation(type, MenuResTag.class);
+                Tag tag = AnnotatedElementUtils.findMergedAnnotation(type, Tag.class);
 
                 if (menuResTag == null || !menuResTag.value()) {
                     //忽略非菜单资源标记的控制器
                     continue;
                 }
 
-                RequestMapping mapping = AnnotatedElementUtils.getMergedAnnotation(type, RequestMapping.class);
+                RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(type, RequestMapping.class);
 
                 if (mapping == null) {
                     continue;
