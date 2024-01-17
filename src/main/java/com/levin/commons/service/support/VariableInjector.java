@@ -455,7 +455,6 @@ public interface VariableInjector {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
     /**
      * 获取注解上声明的类型
      *
@@ -479,7 +478,6 @@ public interface VariableInjector {
                 : ResolvableType.forClass(expectBaseType);
 
     }
-
 
     /**
      * @param variableResolvers

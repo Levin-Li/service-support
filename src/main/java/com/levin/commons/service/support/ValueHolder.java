@@ -40,7 +40,6 @@ public class ValueHolder<T> implements Supplier<T> {
                 .setValueNotFoundCause(valueNotFoundCause);
     }
 
-
     /**
      * @param <T>
      * @return

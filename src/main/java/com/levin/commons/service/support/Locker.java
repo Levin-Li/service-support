@@ -39,7 +39,6 @@ public abstract class Locker {
     private Locker() {
     }
 
-
     /**
      * 清楚锁
      *

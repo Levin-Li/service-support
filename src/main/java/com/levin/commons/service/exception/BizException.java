@@ -19,7 +19,6 @@ public class BizException
 
     private static final long serialVersionUID = -677894470754649710L;
 
-
     public BizException(String friendlyTips) {
         super(friendlyTips);
     }
