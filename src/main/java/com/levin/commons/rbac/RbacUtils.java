@@ -129,17 +129,14 @@ public abstract class RbacUtils {
         return getClassResAuthorizeFormCache(beanType).get(targetMethod);
     }
 
-    public static Map<Method, ResAuthorize> getClassResAuthorizeFormCache(Object beanOrType) {
-        return getClassResAuthorizeFormCache(beanOrType, false);
-    }
 
-    public static Map<Method, ResAuthorize> getClassResAuthorizeFormCache(Object beanOrType, boolean loadAllMethod) {
+    public static Map<Method, ResAuthorize> getClassResAuthorizeFormCache(Object beanOrType) {
 
         Assert.notNull(beanOrType, "beanOrType 参数不能为空");
 
         Class<?> beanType = (beanOrType instanceof Class) ? (Class<?>) beanOrType : AopProxyUtils.ultimateTargetClass(beanOrType);
 
-        return resAuthorizeCache.computeIfAbsent(beanType, (type) -> loadClassResAuthorize(type, loadAllMethod));
+        return resAuthorizeCache.computeIfAbsent(beanType, RbacUtils::loadClassResAuthorize);
 
     }
 
