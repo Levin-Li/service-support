@@ -129,15 +129,26 @@ public abstract class RbacUtils {
         return getClassResAuthorizeFormCache(beanType).get(targetMethod);
     }
 
-
     public static Map<Method, ResAuthorize> getClassResAuthorizeFormCache(Object beanOrType) {
+        return getClassResAuthorizeFormCache(beanOrType, false);
+    }
+
+    public static Map<Method, ResAuthorize> getClassResAuthorizeFormCache(Object beanOrType, boolean loadAllMethod) {
 
         Assert.notNull(beanOrType, "beanOrType 参数不能为空");
 
         Class<?> beanType = (beanOrType instanceof Class) ? (Class<?>) beanOrType : AopProxyUtils.ultimateTargetClass(beanOrType);
 
-        return resAuthorizeCache.computeIfAbsent(beanType, (type) -> loadClassResAuthorize(type));
+        return resAuthorizeCache.computeIfAbsent(beanType, (type) -> loadClassResAuthorize(type, loadAllMethod));
 
+    }
+
+    /**
+     * @param beanOrType
+     * @return
+     */
+    public static Map<Method, ResAuthorize> loadClassResAuthorize(Object beanOrType) {
+        return loadClassResAuthorize(beanOrType, false);
     }
 
     /**
@@ -146,7 +157,7 @@ public abstract class RbacUtils {
      * @param beanOrType
      * @return
      */
-    public static Map<Method, ResAuthorize> loadClassResAuthorize(Object beanOrType) {
+    public static Map<Method, ResAuthorize> loadClassResAuthorize(Object beanOrType, boolean loadAllMethod) {
 
         Assert.notNull(beanOrType, "beanOrType 参数不能为空");
 
@@ -183,11 +194,17 @@ public abstract class RbacUtils {
             ResAuthorize fieldResAuthorize = AnnotatedElementUtils.findMergedAnnotation(method, ResAuthorize.class);
 
             if (classResAuthorize == null && fieldResAuthorize == null) {
+
                 log.warn("控制器方法 {} 没有可用的[ResAuthorize]注解，将不进行鉴权", method);
+
+                if (loadAllMethod) {
+                    methodResAuthorizeMap.put(method, null);
+                }
+
                 continue;
             }
 
-            Operation operation = AnnotatedElementUtils.findMergedAnnotation(method,Operation.class);
+            Operation operation = AnnotatedElementUtils.findMergedAnnotation(method, Operation.class);
 
             Assert.notNull(operation, "需要鉴权的控制器方法必须定义[Operation]注解，控制器方法：" + method);
             Assert.isTrue(StringUtils.hasText(operation.summary()), "需要鉴权的控制器方法[Operation]注解的summary属性需要指定，控制器方法：" + method);
@@ -258,7 +275,8 @@ public abstract class RbacUtils {
             //重新定义
             fieldResAuthorize = AnnotationUtils.synthesizeAnnotation(fieldResAuthorizeAttrs, ResAuthorize.class, null);
 
-            if (fieldResAuthorize.ignored()) {
+            if (fieldResAuthorize.ignored()
+                    && !loadAllMethod) {
                 continue;
             }
 
