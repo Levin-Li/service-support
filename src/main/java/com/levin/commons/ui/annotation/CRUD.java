@@ -15,6 +15,27 @@ import java.lang.annotation.*;
 @Inherited
 public @interface CRUD {
 
+    /**
+     * 列表名称
+     *
+     * @return
+     */
+    String name() default "default";
+
+    /**
+     * 显示名称
+     *
+     * @return
+     */
+    String label() default "";
+
+    /**
+     * 列表描述
+     *
+     * @return
+     */
+    String desc() default "";
+
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
@@ -25,7 +46,7 @@ public @interface CRUD {
          *
          * @return
          */
-        String value() default "default";
+        String name() default "default";
 
         /**
          * 列表显示条件
@@ -35,6 +56,13 @@ public @interface CRUD {
          * @return
          */
         String visibleOn() default "";
+
+        /**
+         * 显示名称
+         *
+         * @return
+         */
+        String label() default "";
 
         /**
          * 列表描述
@@ -65,7 +93,14 @@ public @interface CRUD {
          *
          * @return
          */
-        String value() default "";
+        String name() default "";
+
+        /**
+         * 操作按钮的显示名称
+         *
+         * @return
+         */
+        String label() default "";
 
         /**
          * 操作按钮的显示条件
@@ -104,12 +139,5 @@ public @interface CRUD {
          */
         String desc() default "";
     }
-
-    /**
-     * 标题或是名称
-     *
-     * @return
-     */
-    String value() default "";
 
 }
