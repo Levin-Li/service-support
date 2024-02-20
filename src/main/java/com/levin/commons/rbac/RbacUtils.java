@@ -272,20 +272,22 @@ public abstract class RbacUtils {
             //重新定义
             fieldResAuthorize = AnnotationUtils.synthesizeAnnotation(fieldResAuthorizeAttrs, ResAuthorize.class, null);
 
-            if (fieldResAuthorize.ignored()
-                    && !loadAllMethod) {
+            //如果没有忽略
+            if (!fieldResAuthorize.ignored()) {
+
+                Assert.hasText(fieldResAuthorize.domain(), "需要鉴权的控制器方法[ResAuthorize]注解" + ResPermission.Fields.domain + "属性未设置，方法：" + method);
+
+                Assert.hasText(fieldResAuthorize.type(), "需要鉴权的控制器方法[ResAuthorize]注解" + ResPermission.Fields.type + "属性未设置，方法：" + method);
+
+                Assert.hasText(fieldResAuthorize.action(), "需要鉴权的控制器方法[ResAuthorize]注解" + ResPermission.Fields.action + "属性未设置，方法：" + method);
+
+                //Assert.notNull(fieldResAuthorize.res(), "需要鉴权的控制器方法[ResAuthorize]注解res属性未设置，方法：" + method);
+            } else if (!loadAllMethod) {
                 continue;
             }
 
-            Assert.hasText(fieldResAuthorize.domain(), "需要鉴权的控制器方法[ResAuthorize]注解" + ResPermission.Fields.domain + "属性未设置，方法：" + method);
-
-            Assert.hasText(fieldResAuthorize.type(), "需要鉴权的控制器方法[ResAuthorize]注解" + ResPermission.Fields.type + "属性未设置，方法：" + method);
-
-            Assert.hasText(fieldResAuthorize.action(), "需要鉴权的控制器方法[ResAuthorize]注解" + ResPermission.Fields.action + "属性未设置，方法：" + method);
-
-            //Assert.notNull(fieldResAuthorize.res(), "需要鉴权的控制器方法[ResAuthorize]注解res属性未设置，方法：" + method);
-
             methodResAuthorizeMap.put(method, fieldResAuthorize);
+
         }
 
         return methodResAuthorizeMap;
