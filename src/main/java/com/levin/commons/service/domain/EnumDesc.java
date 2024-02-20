@@ -193,7 +193,8 @@ public interface EnumDesc {
         nameOrCode = nameOrCode.trim();
 
         for (Enum<?> value : type.getEnumConstants()) {
-            if (nameOrCode.equals(value.name())) {
+            //忽略大小写
+            if (nameOrCode.equalsIgnoreCase(value.name())) {
                 return (E) value;
             }
         }
