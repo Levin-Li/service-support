@@ -49,9 +49,10 @@ public class DefaultJsonConverter implements GenericConverter {
             }
 
             if (source instanceof JsonElement
-                    || source instanceof cn.hutool.json.JSONObject
                     || source instanceof com.alibaba.fastjson2.JSONObject
-                    || source instanceof com.alibaba.fastjson.JSON) {
+                    || source instanceof com.alibaba.fastjson.JSON
+                    || source instanceof cn.hutool.json.JSONObject
+            ) {
                 return source.toString();
             }
 
@@ -111,13 +112,15 @@ public class DefaultJsonConverter implements GenericConverter {
             }
 
             if (type instanceof Class) {
-                if (cn.hutool.json.JSON.class.isAssignableFrom((Class<?>) type)) {
-                    return cn.hutool.json.JSONUtil.parse(json);
-                } else if (type == com.alibaba.fastjson2.JSONObject.class) {
+
+                if (type == com.alibaba.fastjson2.JSONObject.class) {
                     return com.alibaba.fastjson2.JSONObject.parse(json);
                 } else if (com.alibaba.fastjson.JSON.class.isAssignableFrom((Class<?>) type)) {
                     return com.alibaba.fastjson.JSONObject.parseObject(json);
+                } else if (cn.hutool.json.JSON.class.isAssignableFrom((Class<?>) type)) {
+                    return cn.hutool.json.JSONUtil.parse(json);
                 }
+
             }
 
             return gson.fromJson(json, type);
