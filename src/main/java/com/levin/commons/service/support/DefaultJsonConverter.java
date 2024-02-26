@@ -44,21 +44,20 @@ public class DefaultJsonConverter implements GenericConverter {
 
         if (isToCharSequence) {
 
-            if (source instanceof CharSequence) {
-                return source;
-            }
-
-            if (source instanceof JsonElement
+            //如果原来就是json对象
+            if (source instanceof CharSequence
+                    || source instanceof JsonElement
                     || source instanceof com.alibaba.fastjson2.JSONObject
                     || source instanceof com.alibaba.fastjson.JSON
-                    || source instanceof cn.hutool.json.JSONObject
-            ) {
+                    || source instanceof cn.hutool.json.JSONObject) {
                 return source.toString();
             }
 
             return gson.toJson(source);
 
         } else if ((source instanceof CharSequence)) {
+
+            //如果源对象的字符串，且目标是对象
 
             if (!StringUtils.hasText((CharSequence) source)) {
                 return null;
@@ -91,7 +90,6 @@ public class DefaultJsonConverter implements GenericConverter {
             }
 
             //自动补全JSON格式塔
-
             //数组，集合
             if (rt.isArray()
                     || (rt.resolve() != null && Collection.class.isAssignableFrom(rt.resolve()))) {
@@ -113,7 +111,9 @@ public class DefaultJsonConverter implements GenericConverter {
 
             if (type instanceof Class) {
 
-                if (type == com.alibaba.fastjson2.JSONObject.class) {
+                if (JsonElement.class.isAssignableFrom((Class<?>) type)) {
+                    return gson.toJsonTree(source);
+                } else if (type == com.alibaba.fastjson2.JSONObject.class) {
                     return com.alibaba.fastjson2.JSONObject.parse(json);
                 } else if (com.alibaba.fastjson.JSON.class.isAssignableFrom((Class<?>) type)) {
                     return com.alibaba.fastjson.JSONObject.parseObject(json);
