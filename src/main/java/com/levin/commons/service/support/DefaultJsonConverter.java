@@ -1,7 +1,9 @@
 package com.levin.commons.service.support;
 
 import cn.hutool.core.lang.Assert;
+import com.alibaba.fastjson2.JSON;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
@@ -44,6 +46,13 @@ public class DefaultJsonConverter implements GenericConverter {
 
             if (source instanceof CharSequence) {
                 return source;
+            }
+
+            if (source instanceof JsonElement
+                    || source instanceof cn.hutool.json.JSONObject
+                    || source instanceof com.alibaba.fastjson2.JSONObject
+                    || source instanceof com.alibaba.fastjson.JSON) {
+                return source.toString();
             }
 
             return gson.toJson(source);
@@ -101,8 +110,20 @@ public class DefaultJsonConverter implements GenericConverter {
                 }
             }
 
+            if (type instanceof Class) {
+                if (cn.hutool.json.JSON.class.isAssignableFrom((Class<?>) type)) {
+                    return cn.hutool.json.JSONUtil.parse(json);
+                } else if (type == com.alibaba.fastjson2.JSONObject.class) {
+                    return com.alibaba.fastjson2.JSONObject.parse(json);
+                } else if (com.alibaba.fastjson.JSON.class.isAssignableFrom((Class<?>) type)) {
+                    return com.alibaba.fastjson.JSONObject.parseObject(json);
+                }
+            }
 
             return gson.fromJson(json, type);
+
+        } else if (source instanceof JsonElement) {
+            return gson.fromJson((JsonElement) source, targetType.getType());
         }
 
         return source;
