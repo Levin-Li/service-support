@@ -228,6 +228,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 codeBlock.append("    String ALIAS_2 = \"").append(getAlias(simpleClassName) + "_2").append("\"; // 别名2 \n\n");
                 codeBlock.append("    String ALIAS_3 = \"").append(getAlias(simpleClassName) + "_3").append("\"; // 别名3 \n\n");
 
+                codeBlock.append("    String ALIAS_P = \"").append("\" + ALIAS + \".\"; //  字段别名前缀 \n\n");
                 codeBlock.append("    String F_ALIAS_P = \"").append("F$:").append("\" + ALIAS + \".\"; //  字段别名前缀 \n\n");
             }
 

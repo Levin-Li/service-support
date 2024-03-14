@@ -96,6 +96,12 @@ public interface InjectConst {
      */
     String TENANT_ID = "tenantId";
 
+
+    /**
+     * 模块ID
+     */
+    String MODULE_ID = "moduleId";
+
     /**
      * 租户名称
      */
@@ -126,15 +132,26 @@ public interface InjectConst {
      */
     String IP_ADDR = "ipAddr";
 
+
+    /**
+     * 客户端 IP 地址 城市
+     */
+    String IP_ADDR_CITY = "ipAddrCity";
+
     /**
      * 客户端 user agent
      */
     String USER_AGENT = "userAgent";
 
     /**
-     * 域名或是服务器
+     * URL 包含参数
      */
     String URL = "url";
+
+    /**
+     * URL 路径，只是路径，不包含域名和参数
+     */
+    String URL_PATH = "urlPath";
 
     /**
      * http or https  协议
@@ -144,6 +161,6 @@ public interface InjectConst {
     /**
      * 服务器名称，通常是域名
      */
-    String URL_SERVERNAME = "urlServerName";
+    String DOMAIN = "domain";
 
 }

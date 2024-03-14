@@ -31,23 +31,31 @@ public class HttpRequestInfoResolver implements VariableResolver {
 //            request.getContextPath()/jqueryLearn
 //            request.getServletPath()/resources/request.jsp
 
-        if (InjectConsts.IP_ADDR.equalsIgnoreCase(name)) {
+        if (InjectConst.IP_ADDR.equalsIgnoreCase(name)) {
 
             value = IPAddrUtils.try2GetUserRealIPAddr(request, false);
 
-        } else if (InjectConsts.URL_SERVERNAME.equalsIgnoreCase(name)) {
+        } else if (InjectConst.IP_ADDR_CITY.equalsIgnoreCase(name)) {
+
+            value = IPAddrUtils.searchIpRegion(IPAddrUtils.try2GetUserRealIPAddr(request, false));
+
+        } else if (InjectConst.DOMAIN.equalsIgnoreCase(name)) {
 
             value = request.getServerName();
 
-        } else if (InjectConsts.USER_AGENT.equalsIgnoreCase(name)) {
+        } else if (InjectConst.USER_AGENT.equalsIgnoreCase(name)) {
 
             value = request.getHeader("user-agent");
 
-        } else if (InjectConsts.URL.equalsIgnoreCase(name)) {
+        } else if (InjectConst.URL.equalsIgnoreCase(name)) {
 
             value = request.getRequestURL().toString();
 
-        } else if (InjectConsts.URL_SCHEME.equalsIgnoreCase(name)) {
+        } else if (InjectConst.URL_PATH.equalsIgnoreCase(name)) {
+
+            value = request.getRequestURI();
+
+        } else if (InjectConst.URL_SCHEME.equalsIgnoreCase(name)) {
 
             value = request.getScheme();
 
