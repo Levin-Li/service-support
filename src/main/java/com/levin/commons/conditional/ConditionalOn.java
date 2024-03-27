@@ -1,6 +1,5 @@
 package com.levin.commons.conditional;
 
-
 import org.springframework.context.annotation.Conditional;
 
 import java.lang.annotation.*;
@@ -18,6 +17,7 @@ public @interface ConditionalOn {
         OnClass,
         OnMissingClass,
         OnProperty,
+
         OnMissingProperty,
         //  OnExpr,
     }
