@@ -26,9 +26,7 @@ import java.util.List;
 @Configuration
 @Slf4j
 
-@ConditionalOnList({
-        @ConditionalOn(action = ConditionalOn.Action.OnProperty, value = "com.levin.commons.service.support.EnumJacksonConfiguration!=disable")
-})
+@ConditionalOn(action = ConditionalOn.Action.OnProperty, value = "com.levin.commons.service.support.EnumJacksonConfiguration!=disable")
 public class EnumJacksonConfiguration implements WebMvcConfigurer {
 
     @PostConstruct

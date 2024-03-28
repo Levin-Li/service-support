@@ -18,6 +18,7 @@ import static org.springframework.beans.factory.config.BeanDefinition.ROLE_SUPPO
 @Slf4j
 @ConditionalOnList({
         @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = VariableResolverManager.class),
+        @ConditionalOn(action = ConditionalOn.Action.OnProperty, value = "com.levin.commons.service.support.VariableResolverConfiguration != disable")
 })
 public class VariableResolverConfiguration {
 

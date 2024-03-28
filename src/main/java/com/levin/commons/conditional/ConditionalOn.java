@@ -9,6 +9,7 @@ import java.lang.annotation.*;
 @Documented
 @Inherited
 @Conditional(SimpleOnCondition.class)
+@Repeatable(ConditionalOnList.class)
 public @interface ConditionalOn {
 
     enum Action {

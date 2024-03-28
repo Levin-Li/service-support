@@ -14,6 +14,7 @@ import static org.springframework.beans.factory.config.BeanDefinition.ROLE_SUPPO
 @Configuration
 @Slf4j
 @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = PluginManager.class)
+@ConditionalOn(action = ConditionalOn.Action.OnProperty, value = "com.levin.commons.plugin.support.PluginConfiguration != disable")
 public class PluginConfiguration {
 
     @PostConstruct
