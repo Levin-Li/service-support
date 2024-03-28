@@ -39,7 +39,7 @@ public class VariableResolverConfiguration {
     @Bean
     @Role(ROLE_SUPPORT)
     @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = VariableInjector.class)
-    VariableInjector variableInjector(@Autowired VariableResolverManager vrm) {
+    VariableInjector defaultVariableInjector(@Autowired VariableResolverManager vrm) {
 
         log.debug("*** init default variable injector ...");
 
