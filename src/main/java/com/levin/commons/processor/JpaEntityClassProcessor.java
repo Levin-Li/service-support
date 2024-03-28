@@ -201,7 +201,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
                     .append("    String CACHE_KEY_PREFIX  = \"CK_\" + CLASS_NAME + \"_\"; // 缓存Key前缀 \n\n")
 
-                    .append("    String CACHE_KEY_PREFIX_EXPR  = \"\\\"CK_\" + CLASS_NAME + \"_\\\" + \"; // 缓存Key前缀 SPEL 表达式 \n\n")
+                    .append("    String CACHE_KEY_PREFIX_EXPR  = \"'\" + CACHE_KEY_PREFIX + \"' + \"; // 缓存Key前缀 SPEL 表达式 \n\n")
 
             //    String CACHE_KEY_PREFIX = "\"PK_" + E_FXMember.CLASS_NAME + "_\" + ";
 
