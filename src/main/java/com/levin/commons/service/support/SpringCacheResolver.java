@@ -1,5 +1,6 @@
 package com.levin.commons.service.support;
 
+import com.levin.commons.service.CacheService;
 import com.levin.commons.service.support.SpringCacheEventListener.Action;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
  * @author Auto gen by simple-dao-codegen, @time: 2024年3月28日 下午3:22:51, 代码生成哈希校验码：[8664d3a69ac95a9c04740d66183a645d]，请不要修改和删除此行内容。
  */
 @Slf4j
-public class SpringCacheResolver implements CacheResolver, InitializingBean, ApplicationListener<ContextRefreshedEvent> {
+public class SpringCacheResolver implements CacheService, CacheResolver, InitializingBean, ApplicationListener<ContextRefreshedEvent> {
 
     @Autowired
     CacheManager cacheManager;
@@ -146,6 +147,52 @@ public class SpringCacheResolver implements CacheResolver, InitializingBean, App
         }
     }
 
+
+    /**
+     * 放入
+     *
+     * @param cacheName
+     * @param key
+     * @param value
+     */
+    @Override
+    public void put(String cacheName, String key, Object value) {
+        getCache(cacheName).put(key, value);
+    }
+
+    /**
+     * 获取
+     *
+     * @param cacheName
+     * @param key
+     * @return
+     */
+    @Override
+    public <T> T get(String cacheName, String key) {
+        return (T) getCache(cacheName).get(key);
+    }
+
+    /**
+     * 删除
+     *
+     * @param cacheName
+     * @param key
+     */
+    @Override
+    public void evict(String cacheName, String key) {
+        getCache(cacheName).evict(key);
+    }
+
+    /**
+     * 清空
+     *
+     * @param cacheName
+     */
+    @Override
+    public void clear(String cacheName) {
+        getCache(cacheName).clear();
+    }
+
     /**
      * 获取监听器
      *
@@ -155,8 +202,34 @@ public class SpringCacheResolver implements CacheResolver, InitializingBean, App
         return SpringCacheEventListener.eventListeners;
     }
 
+    /**
+     * 获取缓存
+     *
+     * @return
+     */
     protected Map<String, Cache> getCacheMap() {
         return SpringCacheEventListener.cacheMap;
+    }
+
+    /**
+     * 获取缓存
+     *
+     * @param cacheName
+     * @return
+     */
+    public Cache getCache(String cacheName) {
+
+        return getCacheMap().computeIfAbsent(cacheName, key -> {
+
+            Cache cache = getCacheManager().getCache(cacheName);
+
+            if (cache == null) {
+                throw new IllegalArgumentException("Cannot find cache named '" + cacheName + "'");
+            }
+
+            return new CacheProxy(cache, this::getCacheEventListeners);
+
+        });
     }
 
     /**
@@ -174,22 +247,7 @@ public class SpringCacheResolver implements CacheResolver, InitializingBean, App
 
         invocationContext.set(context);
 
-        return cacheNames.stream().map(cacheName ->
-
-                getCacheMap().computeIfAbsent(cacheName, key -> {
-
-                    Cache cache = getCacheManager().getCache(cacheName);
-
-                    if (cache == null) {
-                        throw new IllegalArgumentException("Cannot find cache named '" + cacheName + "' for " + context.getOperation());
-                    }
-
-                    return new CacheProxy(cache, this::getCacheEventListeners);
-
-                })
-
-        ).collect(Collectors.toList());
-
+        return cacheNames.stream().map(this::getCache).collect(Collectors.toList());
     }
 
 }
