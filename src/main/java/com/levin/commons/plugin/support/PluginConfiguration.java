@@ -13,7 +13,7 @@ import static org.springframework.beans.factory.config.BeanDefinition.ROLE_SUPPO
 
 @Configuration
 @Slf4j
-@ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = PluginConfiguration.class)
+@ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = PluginManager.class)
 public class PluginConfiguration {
 
     @PostConstruct
@@ -24,7 +24,7 @@ public class PluginConfiguration {
     @Bean
     @Role(ROLE_SUPPORT)
     @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = PluginManager.class)
-    PluginManager pluginManager() {
+    PluginManager defaultPluginManager() {
 
         log.debug("*** init default plugin manager ...");
 

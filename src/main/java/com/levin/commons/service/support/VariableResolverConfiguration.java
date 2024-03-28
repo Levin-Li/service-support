@@ -17,7 +17,7 @@ import static org.springframework.beans.factory.config.BeanDefinition.ROLE_SUPPO
 @Configuration
 @Slf4j
 @ConditionalOnList({
-        @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = VariableResolverConfiguration.class),
+        @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = VariableResolverManager.class),
 })
 public class VariableResolverConfiguration {
 
@@ -29,7 +29,7 @@ public class VariableResolverConfiguration {
     @Bean
     @Role(ROLE_SUPPORT)
     @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = VariableResolverManager.class)
-    VariableResolverManager variableResolverManager() {
+    VariableResolverManager defaultVariableResolverManager() {
 
         log.debug("*** init default variable resolver manager ...");
 

@@ -107,8 +107,10 @@ public class PluginManagerImpl implements PluginManager,
 
         if (this.applicationContext == null) {
             // Not running in an ApplicationContext -> register tasks early...
-            finishRegistration();
+            //  finishRegistration();
         }
+
+        log.info("PluginManager afterSingletonsInstantiated , {}", applicationContext);
     }
 
     @Override
@@ -129,6 +131,7 @@ public class PluginManagerImpl implements PluginManager,
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         if (event.getApplicationContext() == this.applicationContext) {
+            log.info("PluginManager onContextRefreshedEvent , {}", event);
             this.finishRegistration();
         }
     }
