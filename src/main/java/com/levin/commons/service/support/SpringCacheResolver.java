@@ -217,7 +217,62 @@ public class SpringCacheResolver implements CacheService, CacheResolver, Initial
      * @param cacheName
      * @return
      */
-    public Cache getCache(String cacheName) {
+    @Override
+    public ICache getCache(String cacheName) {
+
+        Assert.hasText(cacheName, "Cache name must not be null");
+        return new ICache() {
+
+            Cache springCache = getSpringCache(cacheName);
+
+            @Override
+            public void put(String key, Object value) {
+                springCache.put(key, value);
+            }
+
+            /**
+             * 获取
+             *
+             * @param key
+             * @return
+             */
+            @Override
+            public <T> T get(String key) {
+                return (T) springCache.get(key).get();
+            }
+
+            /**
+             * 默认从缓存加载，如果不存在则从loader中加载
+             * 同时，如果加载不为空，则放入缓存
+             *
+             * @param key
+             * @param valueLoader
+             * @return
+             */
+            @Override
+            public <T> T get(String key, Callable<T> valueLoader) {
+                return springCache.get(key, valueLoader);
+            }
+
+            @Override
+            public void evict(String key) {
+                springCache.evict(key);
+            }
+
+            @Override
+            public void clear() {
+                springCache.clear();
+            }
+        };
+    }
+
+    /**
+     * 获取缓存
+     *
+     * @param cacheName
+     * @return
+     */
+    public Cache getSpringCache(String cacheName) {
 
         return getCacheMap().computeIfAbsent(cacheName, key -> {
 
@@ -247,7 +302,7 @@ public class SpringCacheResolver implements CacheService, CacheResolver, Initial
 
         invocationContext.set(context);
 
-        return cacheNames.stream().map(this::getCache).collect(Collectors.toList());
+        return cacheNames.stream().map(this::getSpringCache).collect(Collectors.toList());
     }
 
 }
