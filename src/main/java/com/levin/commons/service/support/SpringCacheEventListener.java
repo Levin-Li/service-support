@@ -75,6 +75,17 @@ public interface SpringCacheEventListener {
     }
 
     /**
+     * 缓存变更事件
+     *
+     * @param cacheNamePattern
+     * @param keyPattern
+     * @param listener
+     */
+    static void addForUpdateEvent(String cacheNamePattern, String keyPattern, SpringCacheEventListener listener) {
+        add(listener, cacheNamePattern, keyPattern, Action.Put, Action.Evict, Action.Clear);
+    }
+
+    /**
      * 增加监听器
      *
      * @param listeners
