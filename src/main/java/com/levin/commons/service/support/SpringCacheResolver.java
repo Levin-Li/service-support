@@ -222,7 +222,6 @@ public class SpringCacheResolver implements CacheService, CacheResolver, Initial
 
         Assert.hasText(cacheName, "Cache name must not be null");
         return new ICache() {
-
             final Cache springCache = getSpringCache(cacheName);
 
             @Override

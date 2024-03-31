@@ -49,7 +49,6 @@ public interface SpringCacheEventListener {
 
         @Override
         public void onCacheEvent(CacheOperationInvocationContext<?> cacheOperationInvocationContext, Cache cache, Action action, Object key, Object value) {
-
             if (cacheNamePattern == null || PatternMatchUtils.simpleMatch(cacheNamePattern, cache.getName())) {
                 if (keyPattern == null || (key instanceof CharSequence && PatternMatchUtils.simpleMatch(keyPattern, key.toString()))) {
                     if (actions == null || actions.contains(action)) {
@@ -75,24 +74,12 @@ public interface SpringCacheEventListener {
     }
 
     /**
-     * 缓存变更事件
-     *
-     * @param cacheNamePattern
-     * @param keyPattern
-     * @param listener
-     */
-    static void addForUpdateEvent(String cacheNamePattern, String keyPattern, SpringCacheEventListener listener) {
-        add(listener, cacheNamePattern, keyPattern, Action.Put, Action.Evict, Action.Clear);
-    }
-
-    /**
      * 增加监听器
      *
      * @param listeners
      * @return
      */
     static void add(SpringCacheEventListener... listeners) {
-
         if (listeners != null) {
             for (SpringCacheEventListener listener : listeners) {
                 if (listener != null) {
