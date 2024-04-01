@@ -19,6 +19,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.levin.commons.utils.CpuUtils.sleepIfCpuLoadOverThreshold;
+
 
 @Schema(title = "分布式定时任务")
 @Slf4j
@@ -190,6 +192,15 @@ public abstract class AbstractDistributionJob<T> {
     }
 
     /**
+     * 定时任务处理时间,超过最大CPU占用率时，将会被主动降低处理速度
+     *
+     * @return
+     */
+    protected int getMaxCpuRatio() {
+        return 85;
+    }
+
+    /**
      * 没批次处理完成后的睡眠时间
      * <p>
      * 防止资源过度使用
@@ -268,6 +279,8 @@ public abstract class AbstractDistributionJob<T> {
                                             isStop.set(isTerminateOnException());
                                             log.error(getName() + "处理单条数据<<<" + getDataDesc(data) + ">>>时发生异常" + e.getMessage(), e);
                                         }
+
+                                        sleepIfCpuLoadOverThreshold(getMaxCpuRatio(), getSleepByPerRecord());
                                     });
 
                                     if (!hasLock
