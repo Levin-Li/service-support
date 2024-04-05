@@ -13,6 +13,6 @@ public interface BaseObject
         Identifiable,
         EnableObject,
         EditableObject,
-        OrderableObject {
+        SortableObject {
 
 }

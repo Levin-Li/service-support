@@ -6,7 +6,7 @@ package com.levin.commons.dao.domain;
  *
  * @author llw
  */
-public interface OrderableObject extends Comparable<OrderableObject> {
+public interface SortableObject extends Comparable<SortableObject> {
 
     /**
      * 排序代码
@@ -18,19 +18,19 @@ public interface OrderableObject extends Comparable<OrderableObject> {
     /**
      * 比较大小
      *
-     * @param o
+     * @param obj
      * @return
      */
     @Override
-    default int compareTo(OrderableObject o) {
+    default int compareTo(SortableObject obj) {
 
-        if (o == null) {
+        if (obj == null) {
             return 1;
         }
 
         Comparable<?> thisOrderCode = getOrderCode();
 
-        if (o.getOrderCode() == null) {
+        if (obj.getOrderCode() == null) {
             return (thisOrderCode == null) ? 0 : 1;
         }
 
@@ -38,6 +38,6 @@ public interface OrderableObject extends Comparable<OrderableObject> {
             return -1;
         }
 
-        return thisOrderCode.compareTo(o.getOrderCode());
+        return thisOrderCode.compareTo(obj.getOrderCode());
     }
 }

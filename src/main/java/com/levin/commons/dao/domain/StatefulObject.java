@@ -16,5 +16,4 @@ public interface StatefulObject {
      * @return
      */
     <STATE extends Serializable> STATE getState();
-
 }

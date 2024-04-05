@@ -14,5 +14,4 @@ public interface TagsObject {
      * @return
      */
     String getTags();
-
 }

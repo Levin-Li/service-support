@@ -3,14 +3,14 @@ package com.levin.commons.service.domain;
 
 import com.levin.commons.dao.domain.EnableObject;
 import com.levin.commons.dao.domain.NamedObject;
-import com.levin.commons.dao.domain.OrderableObject;
+import com.levin.commons.dao.domain.SortableObject;
 
 /**
  * 可标识的对象
  *
  * @author levin
  */
-public interface SimpleIdentifiable extends Identifiable, EnableObject, NamedObject, OrderableObject {
+public interface SimpleIdentifiable extends Identifiable, EnableObject, NamedObject, SortableObject {
 
     /**
      * 名称

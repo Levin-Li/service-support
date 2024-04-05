@@ -20,5 +20,4 @@ public interface TreeObject<P, C>
      * @return parentId
      */
     <ID extends Serializable> ID getParentId();
-
 }
