@@ -3,7 +3,7 @@ package com.levin.commons.dao.domain;
 import java.io.Serializable;
 
 /**
- * 对象
+ * 个人私有数据对象
  *
  * @author llw
  */
