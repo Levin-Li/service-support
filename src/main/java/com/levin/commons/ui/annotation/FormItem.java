@@ -71,8 +71,9 @@ public @interface FormItem {
 
     /**
      * 值选项
+     *
+     *
      * <p>
-     * 通常都是只定义一个，为了解决空值，故意设置成数组
      *
      * @return
      */

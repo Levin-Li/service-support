@@ -44,7 +44,7 @@ public @interface Form {
      *
      * @return
      */
-    String initApi() default "";
+    String loadApi() default "";
 
     /**
      * 表单组合校验规则
@@ -68,7 +68,7 @@ public @interface Form {
      * @return
      */
     FormAction[] actions() default {
-            @FormAction(name = "提交", beforeConfirmInfo = "确认提交？", api = "${API}"),
+            @FormAction(name = "提交", beforeConfirmInfo = "确认提交？", api = "${api}"),
             @FormAction(name = "取消", beforeConfirmInfo = "确认取消？", expr = "cancel"),
     };
 

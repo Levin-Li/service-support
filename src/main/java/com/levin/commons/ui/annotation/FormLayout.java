@@ -19,7 +19,7 @@ public @interface FormLayout {
     enum Type implements EnumDesc {
 
         @Schema(title = "行布局")
-        hbox,
+        vbox,
 
         @Schema(title = "面板布局")
         panel,
@@ -60,7 +60,7 @@ public @interface FormLayout {
      *
      * @return
      */
-    Type type() default Type.hbox;
+    Type type() default Type.vbox;
 
     /**
      * 布局样式

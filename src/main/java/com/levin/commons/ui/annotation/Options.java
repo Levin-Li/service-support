@@ -13,13 +13,6 @@ import java.lang.annotation.*;
  * 4、查询对象
  * 5、支持系统的字典编码
  * <p>
- * 支持自动完成 autoCompleteSearchParamName
- * <p>
- * <p>
- * 可以单独存在，支持amis CRUD 组件
- *
- *
- * <p>
  *
  * @author llw
  */
@@ -29,38 +22,17 @@ import java.lang.annotation.*;
 @Inherited
 public @interface Options {
 
-    @Target({ElementType.FIELD, ElementType.METHOD})
-    @Retention(RetentionPolicy.RUNTIME)
-    @Documented
-    @Inherited
-    @interface Item {
-        /**
-         * 值
-         *
-         * @return
-         */
-        String value();
-
-        /**
-         * 标签
-         *
-         * @return
-         */
-        String label() default "";
-
-        /**
-         * 动作描述
-         *
-         * @return
-         */
-        String desc() default "";
-
-    }
-
     /**
      * 是否 多选/多值
      */
-    boolean multiValue() default false;
+    boolean multiSelect() default false;
+
+    /**
+     * 样式
+     *
+     * @return
+     */
+    String style() default "";
 
     /**
      * 未选择是的默认值
@@ -71,10 +43,52 @@ public @interface Options {
 
     /**
      * 固定选项列表
+     * 每一个选项支持 3个属性，value, label, desc ，其中value是必须的，属性之间用||分隔
+     * 如 Man||男||成年男性
      *
      * @return
      */
-    Item[] items() default {};
+    String[] items() default {};
+
+
+    /**
+     * 系统的字典编码
+     * <p>
+     *
+     * @return
+     */
+    String dictCode() default "";
+
+    /**
+     * 列映射表达式
+     * <p>
+     * 每一个选项支持 3个属性，value, label, desc
+     * <p>
+     * 本方法的返回值中：
+     * <p>
+     * 第一列为value对应的列名
+     * 第二列为label对应的列名
+     * 第三列为desc对应的列名
+     * <p>
+     * 如果都不配置，则默认为value, label
+     *
+     * @return
+     */
+    String[] columnMapExpr() default {"value", "label", "desc"};
+
+    /**
+     * Dao查询类或是枚举类
+     *
+     * @return
+     */
+    Class<?> queryObjectOrEnumClass() default Void.class;
+
+    /**
+     * API接口
+     *
+     * @return
+     */
+    String api() default "";
 
     /**
      * 是否可以搜索
@@ -84,38 +98,15 @@ public @interface Options {
     boolean searchable() default true;
 
     /**
-     * 地址
-     * 格式返回必须是对象，并且至少具备value属性
-     *
-     * @return
-     */
-    String api() default "";
-
-    /**
-     * 系统的字典编码
+     * 查询参数，URL字符串参数
      * <p>
-     * 一个字典编码-有一到多个选项
-     *
-     * @return
-     */
-    String[] dictCodes() default {};
-
-    /**
-     * 查询类或是枚举类
-     *
-     * @return
-     */
-    Class<?> queryObjectOrEnumClass() default Void.class;
-
-    /**
-     * 自动补全搜索参数名称，主要搜索服务端
+     * 包含自动补全搜索参数名称，主要搜索服务端，输入框的参数名称：searchKeywords
      * <p>
-     * 目前建议只针对查询对象和API接口
      * <p>
-     * 默认不搜索
+     * 支持百度Amis的变量
      *
      * @return
      */
-    String autoCompleteSearchParamName() default "";
+    String searchParams() default "";
 
 }
