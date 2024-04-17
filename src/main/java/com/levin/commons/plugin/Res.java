@@ -113,7 +113,7 @@ public interface Res extends SimpleIdentifiable {
          *
          * @return
          */
-        default List<String> getAnyRoles() {
+        default Collection<String> getAnyRoles() {
             return Collections.EMPTY_LIST;
         }
 

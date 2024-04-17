@@ -3,6 +3,7 @@ package com.levin.commons.plugin;
 
 import com.levin.commons.service.domain.SimpleIdentifiable;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -53,6 +54,6 @@ public interface PluginManager extends SimpleIdentifiable {
      *
      * @return
      */
-    List<Plugin> getInstalledPlugins();
+    Collection<Plugin> getInstalledPlugins();
 
 }

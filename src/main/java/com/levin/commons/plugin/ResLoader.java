@@ -19,7 +19,7 @@ public interface ResLoader {
      *
      * @return
      */
-    List<SimpleIdentifiable> getResTypes();
+    Collection<SimpleIdentifiable> getResTypes();
 
     /**
      * 插件拥有的数据资源

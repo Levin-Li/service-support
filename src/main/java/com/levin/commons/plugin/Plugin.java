@@ -4,6 +4,7 @@ package com.levin.commons.plugin;
 import com.levin.commons.rbac.MenuItem;
 import com.levin.commons.service.domain.SimpleIdentifiable;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,7 @@ public interface Plugin extends SimpleIdentifiable {
      *
      * @return
      */
-    default <M extends MenuItem> List<M> getMenuList() {
+    default <M extends MenuItem> Collection<M> getMenuList() {
         return Collections.emptyList();
     }
 
