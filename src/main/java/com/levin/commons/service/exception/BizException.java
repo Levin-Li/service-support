@@ -1,6 +1,5 @@
 package com.levin.commons.service.exception;
 
-import com.levin.commons.service.domain.ApiResp;
 import com.levin.commons.service.domain.ServiceResp;
 import io.swagger.v3.oas.annotations.media.Schema;
 

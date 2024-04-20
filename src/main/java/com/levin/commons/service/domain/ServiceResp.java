@@ -96,8 +96,11 @@ public interface ServiceResp<T>
         @Schema(title = "业务异常")
         BizError(10000),
 
-        @Schema(title = "鉴权异常")
+        @Schema(title = "认证异常")
         AuthenticationError(20000),
+
+        @Schema(title = "鉴权异常")
+        AuthorizationError(25000),
 
         @Schema(title = "资源异常")
         ResourceError(30000),
@@ -143,8 +146,10 @@ public interface ServiceResp<T>
                 return BizWarning;
             } else if (errorCode < AuthenticationError.baseErrorCode) {
                 return BizError;
-            } else if (errorCode < ResourceError.baseErrorCode) {
+            } else if (errorCode < AuthorizationError.baseErrorCode) {
                 return AuthenticationError;
+            } else if (errorCode < ResourceError.baseErrorCode) {
+                return AuthorizationError;
             } else if (errorCode < SystemInnerError.baseErrorCode) {
                 return ResourceError;
             } else if (errorCode < UnknownError.baseErrorCode) {

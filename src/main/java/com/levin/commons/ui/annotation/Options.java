@@ -27,6 +27,7 @@ public @interface Options {
      */
     boolean multiSelect() default false;
 
+
     /**
      * 样式
      *
@@ -76,6 +77,16 @@ public @interface Options {
      */
     String[] columnMapExpr() default {"value", "label", "desc"};
 
+
+    /**
+     * 级联下拉列表时，其他属性变更时，需要重新加载
+     * <p>
+     * 只正对API或是查询对象有效
+     *
+     * @return
+     */
+    String reloadOnAttr() default "";
+
     /**
      * Dao查询类或是枚举类
      *
@@ -85,6 +96,8 @@ public @interface Options {
 
     /**
      * API接口
+     *
+     * 建议通过权限标识来控制权限和匹配URL
      *
      * @return
      */
