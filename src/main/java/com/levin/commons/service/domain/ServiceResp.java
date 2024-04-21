@@ -30,7 +30,7 @@ public interface ServiceResp<T>
      *
      * @return
      */
-    @Schema(title = "请求是否成功，等同于code == 0")
+    @Schema(title = "请求是否成功", description = "请求是否成功，等同于code == 0")
     default boolean isSuccessful() {
         return getCode() == 0;
     }
@@ -41,12 +41,12 @@ public interface ServiceResp<T>
      *
      * @return
      */
-    @Schema(title = "获取异常类型，如果没有异常则返回null")
+    @Schema(title = "异常类型", description = "异常类型，如果没有异常则返回null")
     default ErrorType getErrorType() {
         return ErrorType.getErrorType(getCode());
     }
 
-    @Schema(title = "错误发生时，是否为业务异常")
+    @Schema(title = "是否业务异常", description = "错误发生时，是否为业务异常")
     default boolean isBizError() {
         return !isSuccessful() && getCode() < ErrorType.AuthenticationError.baseErrorCode;
     }
