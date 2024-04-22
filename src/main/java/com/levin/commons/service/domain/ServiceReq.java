@@ -16,6 +16,16 @@ import java.io.Serializable;
 public interface ServiceReq
         extends Serializable {
 
+    @Schema(title = "是否超级管理员", hidden = true)
+    default boolean isSuperAdmin() {
+        return false;
+    }
+
+    @Schema(title = "是否租户管理员", hidden = true)
+    default boolean isTenantAdmin() {
+        return false;
+    }
+
     @Schema(title = "是否需要签名验证")
     default boolean requireSignVerification() {
         return false;
