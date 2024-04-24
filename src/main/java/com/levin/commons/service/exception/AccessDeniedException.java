@@ -26,6 +26,6 @@ public class AccessDeniedException
 
     @Override
     protected int getBaseCode() {
-        return ServiceResp.ErrorType.AuthenticationError.code();
+        return ServiceResp.ErrorType.ResourceError.code();
     }
 }
