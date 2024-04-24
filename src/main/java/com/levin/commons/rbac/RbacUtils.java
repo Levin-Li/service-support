@@ -42,7 +42,7 @@ public abstract class RbacUtils {
      * @param pkgName
      * @return
      */
-    public static Set<SimpleIdentifiable> loadResTypeFromSpringCtx(@NotNull ApplicationContext context, @NotNull String pkgName, Function<String, String> nameMapper) {
+    public static List<SimpleIdentifiable> loadResTypeFromSpringCtx(@NotNull ApplicationContext context, @NotNull String pkgName, Function<String, String> nameMapper) {
 //        return
 //                //获取 bean 清单
 //                context.getBeansWithAnnotation(ResAuthorize.class)
@@ -71,7 +71,7 @@ public abstract class RbacUtils {
                         .setId(res.getType())
                         //设置名称，试图映射名称
                         .setName(nameMapper != null ? nameMapper.apply(res.getType()) : res.getType()))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
     }
 
@@ -160,7 +160,7 @@ public abstract class RbacUtils {
 
         final Class<?> beanType = (beanOrType instanceof Class) ? (Class<?>) beanOrType : AopProxyUtils.ultimateTargetClass(beanOrType);
 
-        Map<Method, ResAuthorize> methodResAuthorizeMap = new ConcurrentHashMap<>();
+        final Map<Method, ResAuthorize> methodResAuthorizeMap = new LinkedHashMap<>();
 
         Tag clsTag = AnnotatedElementUtils.findMergedAnnotation(beanType, Tag.class);
 
