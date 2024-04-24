@@ -23,6 +23,15 @@ public @interface DisableApiOperation {
     String[] value() default {};
 
     /**
+     * 排除的接口
+     * <p>
+     * 方法签名 或是方法名称，或是swagger Operation注解的方法名称，summary 属性值
+     *
+     * @return
+     */
+    String[] excludes() default {};
+
+    /**
      * 备注
      *
      * @return
