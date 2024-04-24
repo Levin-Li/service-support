@@ -53,6 +53,8 @@ public @interface FormItem {
 
         HTML,
 
+        CSS,
+
         //开发语言前缀
         LANG_
 

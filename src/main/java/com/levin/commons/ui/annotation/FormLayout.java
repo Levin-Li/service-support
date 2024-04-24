@@ -36,9 +36,8 @@ public @interface FormLayout {
 
         //参考：https://aisuda.bce.baidu.com/amis/examples/form/anchor-nav
         @Schema(title = "左侧锚点布局")
-        anchor
+        anchor;
 
-        ;
         @Override
         public String toString() {
             return nameAndDesc();
@@ -61,6 +60,13 @@ public @interface FormLayout {
      * @return
      */
     Type type() default Type.vbox;
+
+    /**
+     * 布局参数
+     * 如表格，[2,3], 横纵向，最大多少列，
+     * @return
+     */
+    String layoutParams() default "";
 
     /**
      * 布局样式

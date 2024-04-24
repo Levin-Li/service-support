@@ -82,10 +82,12 @@ public @interface Options {
      * 级联下拉列表时，其他属性变更时，需要重新加载
      * <p>
      * 只正对API或是查询对象有效
+     * <p>
+     * 如果不为空，则表示默认不加载内容
      *
      * @return
      */
-    String reloadOnAttr() default "";
+    String reloadOnAttrChanged() default "";
 
     /**
      * Dao查询类或是枚举类
@@ -96,8 +98,10 @@ public @interface Options {
 
     /**
      * API接口
-     *
+     * <p>
      * 建议通过权限标识来控制权限和匹配URL
+     *
+     * 不建议使用通用的API接口，所有的API接口都通过控制器来定义。
      *
      * @return
      */
