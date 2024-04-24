@@ -6,4 +6,5 @@ com.levin.commons.service.support.SpringContextHolder
 
 com.levin.commons.service.support.VariableResolverConfiguration
 
-com.levin.commons.service.support.EnumJacksonConfiguration
+com.levin.commons.service.support.DefaultSpringMvcDateFormatterConfiguration
+com.levin.commons.service.support.DefaultSpringMvcEnumFormatterConfiguration

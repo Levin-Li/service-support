@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.levin.commons.conditional.ConditionalOn;
-import com.levin.commons.conditional.ConditionalOnList;
 import com.levin.commons.service.domain.EnumDesc;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +25,12 @@ import java.util.List;
 @Configuration
 @Slf4j
 
-@ConditionalOn(action = ConditionalOn.Action.OnProperty, value = "com.levin.commons.service.support.EnumJacksonConfiguration!=disable")
-public class EnumJacksonConfiguration implements WebMvcConfigurer {
+@ConditionalOn(action = ConditionalOn.Action.OnProperty, value = "com.levin.commons.service.support.DefaultSpringMvcEnumFormatterConfiguration!=disable")
+public class DefaultSpringMvcEnumFormatterConfiguration implements WebMvcConfigurer {
 
     @PostConstruct
     public void init() {
-        log.info("*** Spring mvc 枚举值转换配置已经启用，可以使用 " + EnumJacksonConfiguration.class.getName() + "=disable 禁用");
+        log.info("*** Spring mvc 枚举值转换配置已经启用，可以使用 " + DefaultSpringMvcEnumFormatterConfiguration.class.getName() + "=disable 禁用");
     }
 
     @Override
