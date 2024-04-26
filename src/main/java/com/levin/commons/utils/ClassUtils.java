@@ -5,11 +5,13 @@ import com.levin.commons.service.support.Locker;
 import com.levin.commons.service.support.ValueHolder;
 import lombok.SneakyThrows;
 import org.springframework.core.ResolvableType;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.PostConstruct;
 import java.lang.annotation.Annotation;
@@ -88,9 +90,13 @@ public final class ClassUtils {
         if (methods == null
                 && !postConstructMethodCaches.containsKey(key)) {
 
-            methods = Arrays.stream(ReflectionUtils.getAllDeclaredMethods(beanType))
-                    .filter(method -> method.isAnnotationPresent(annotationType))
-                    .collect(Collectors.toList());
+//            methods = Arrays.stream(ReflectionUtils.getAllDeclaredMethods(beanType))
+//                    .filter(method -> method.isAnnotationPresent(annotationType))
+//                    .collect(Collectors.toList());
+
+            methods = Arrays.asList(ReflectionUtils.getUniqueDeclaredMethods(beanType,
+                    m -> AnnotatedElementUtils.findMergedAnnotation(m, annotationType) != null
+            ));
 
             //空值也存入，避免下次还去查找方法
             postConstructMethodCaches.put(key, methods);
