@@ -8,4 +8,10 @@ package com.levin.commons.dao.domain;
  * @Since 2.2.23
  */
 public interface MultiTenantPublicObject extends MultiTenantObject {
+    /**
+     * 是否包含公共数据
+     *
+     * @return
+     */
+    boolean isContainsPublicData();
 }

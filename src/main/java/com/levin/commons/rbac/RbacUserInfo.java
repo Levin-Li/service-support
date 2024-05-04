@@ -1,9 +1,11 @@
 package com.levin.commons.rbac;
 
+import java.io.Serializable;
+
 /**
  * 用户基本信息
  */
-public interface RbacUserInfo<ROLE> extends RbacUserObject<ROLE> {
+public interface RbacUserInfo<ROLE extends Serializable> extends RbacUserObject<ROLE> {
 
     /**
      * 昵称

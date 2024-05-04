@@ -1,7 +1,6 @@
 package com.levin.commons.rbac;
 
 
-import com.levin.commons.dao.domain.MultiTenantObject;
 import com.levin.commons.dao.domain.NamedObject;
 import com.levin.commons.service.domain.Identifiable;
 
@@ -11,7 +10,7 @@ import java.util.Collections;
 /**
  * 角色对象
  */
-public interface RbacRoleObject<P> extends MultiTenantObject, Identifiable, NamedObject {
+public interface RbacRoleObject<P> extends Identifiable, NamedObject {
 
     String ROLE_PREFIX = "R_";
 

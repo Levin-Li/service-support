@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * 用户基本信息
  */
-public interface RbacUserObject<ROLE> extends Serializable, MultiTenantObject, OrganizedObject, Identifiable, NamedObject {
+public interface RbacUserObject<ROLE extends Serializable> extends Serializable, MultiTenantObject, OrganizedObject, Identifiable, NamedObject {
 
     /**
      * 是否超级用户
@@ -22,7 +22,7 @@ public interface RbacUserObject<ROLE> extends Serializable, MultiTenantObject, O
      * @return
      */
     default boolean isSuperAdmin() {
-        return getRoleList() != null && getRoleList().contains(RbacRoleObject.SA_ROLE);
+        return hasRole((ROLE) RbacRoleObject.SA_ROLE);
     }
 
     /**
@@ -31,7 +31,11 @@ public interface RbacUserObject<ROLE> extends Serializable, MultiTenantObject, O
      * @return
      */
     default boolean isTenantAdmin() {
-        return getRoleList() != null && getRoleList().contains(RbacRoleObject.ADMIN_ROLE);
+        return hasRole((ROLE) RbacRoleObject.ADMIN_ROLE);
+    }
+
+    default boolean hasRole(ROLE role) {
+        return getRoleList() != null && getRoleList().contains(role);
     }
 
     /**
