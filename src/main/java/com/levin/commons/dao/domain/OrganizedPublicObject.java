@@ -6,11 +6,4 @@ package com.levin.commons.dao.domain;
  * @author llw
  */
 public interface OrganizedPublicObject extends OrganizedObject {
-
-    /**
-     * 是否包含组织公共数据
-     *
-     * @return
-     */
-    boolean isContainsOrgPublicData();
 }
