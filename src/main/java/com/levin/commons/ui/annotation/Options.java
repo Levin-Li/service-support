@@ -27,7 +27,6 @@ public @interface Options {
      */
     boolean multiSelect() default false;
 
-
     /**
      * 样式
      *
@@ -50,7 +49,6 @@ public @interface Options {
      * @return
      */
     String[] items() default {};
-
 
     /**
      * 系统的字典编码
@@ -100,7 +98,7 @@ public @interface Options {
      * API接口
      * <p>
      * 建议通过权限标识来控制权限和匹配URL
-     *
+     * <p>
      * 不建议使用通用的API接口，所有的API接口都通过控制器来定义。
      *
      * @return
