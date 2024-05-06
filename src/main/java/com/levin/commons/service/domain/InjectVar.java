@@ -60,6 +60,14 @@ public @interface InjectVar {
     String value() default "";
 
     /**
+     * 目标字段名称
+     * 默认为被注解字段名称
+     *
+     * @return
+     */
+    String injectTargetAttrName() default "";
+
+    /**
      * 输出的变量名字，默认为 value()
      *
      * @return
