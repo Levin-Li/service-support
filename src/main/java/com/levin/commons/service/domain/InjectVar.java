@@ -50,6 +50,15 @@ public @interface InjectVar {
      */
     String[] domain() default "default";
 
+
+    /**
+     * 目标字段名称
+     * 默认为被注解字段名称
+     *
+     * @return
+     */
+    String injectTargetFieldName() default "";
+
     /**
      * 变量名称或是表达式
      * <p>
@@ -58,14 +67,6 @@ public @interface InjectVar {
      * @return
      */
     String value() default "";
-
-    /**
-     * 目标字段名称
-     * 默认为被注解字段名称
-     *
-     * @return
-     */
-    String injectTargetAttrName() default "";
 
     /**
      * 输出的变量名字，默认为 value()

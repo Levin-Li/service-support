@@ -1,24 +1,17 @@
 package com.levin.commons.service.support;
 
-import cn.hutool.core.util.TypeUtil;
-import com.levin.commons.service.domain.EnumDesc;
 import com.levin.commons.service.domain.InjectVar;
 import com.levin.commons.utils.ClassUtils;
 import lombok.SneakyThrows;
 import org.springframework.core.ResolvableType;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
-import org.springframework.core.convert.support.ConfigurableConversionService;
-import org.springframework.format.support.DefaultFormattingConversionService;
-import org.springframework.lang.Nullable;
 import org.springframework.util.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
@@ -167,12 +160,12 @@ public interface SimpleVariableInjector extends VariableInjector {
         //  final Class<?> fieldType = forField.resolve(annoField.getType());
 
 
-        if (StringUtils.hasText(injectVar.injectTargetAttrName())) {
+        if (StringUtils.hasText(injectVar.injectTargetFieldName())) {
             try {
                 //如果不是当前字段
-                injectTargetField = targetBean.getClass().getField(injectVar.injectTargetAttrName());
+                injectTargetField = targetBean.getClass().getField(injectVar.injectTargetFieldName());
             } catch (NoSuchFieldException e) {
-                throw new VariableInjectException("injectTargetAttrName " + injectVar.injectTargetAttrName() + " not found", e);
+                throw new VariableInjectException("injectTargetAttrName " + injectVar.injectTargetFieldName() + " not found", e);
             }
         }
 
