@@ -60,7 +60,7 @@ public @interface InjectVar {
     String injectTargetFieldName() default "";
 
     /**
-     * 变量名称或是表达式
+     * 要从环境中读取的变量名称或是表达式
      * <p>
      * 默认取值字段名称
      *
