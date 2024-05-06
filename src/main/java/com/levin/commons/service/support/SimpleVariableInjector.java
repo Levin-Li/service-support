@@ -165,7 +165,7 @@ public interface SimpleVariableInjector extends VariableInjector {
                 //如果不是当前字段
                 injectTargetField = targetBean.getClass().getField(injectVar.injectTargetFieldName());
             } catch (NoSuchFieldException e) {
-                throw new VariableInjectException("injectTargetAttrName " + injectVar.injectTargetFieldName() + " not found", e);
+                throw new VariableInjectException("injectTargetFieldName " + injectVar.injectTargetFieldName() + " not found", e);
             }
         }
 
