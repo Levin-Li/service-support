@@ -3,11 +3,13 @@ package com.levin.commons.service.support;
 import com.levin.commons.service.domain.InjectVar;
 import com.levin.commons.utils.ClassUtils;
 import lombok.SneakyThrows;
+import org.springframework.beans.BeanUtils;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.util.*;
 
+import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -156,18 +158,17 @@ public interface SimpleVariableInjector extends VariableInjector {
             return null;
         }
 
-        //1、获取字段类型
-        //  final Class<?> fieldType = forField.resolve(annoField.getType());
-
+        final String beanClassName = targetBean.getClass().getName();
 
         if (StringUtils.hasText(injectVar.injectTargetFieldName())) {
-            try {
-                //如果不是当前字段
-                injectTargetField = targetBean.getClass().getField(injectVar.injectTargetFieldName());
-            } catch (NoSuchFieldException e) {
-                throw new VariableInjectException(targetBean.getClass() + " injectTargetFieldName " + injectVar.injectTargetFieldName() + " not found", e);
-            }
+            injectTargetField = ReflectionUtils.findField(targetBean.getClass(), injectVar.injectTargetFieldName());
         }
+
+        if (injectTargetField == null) {
+            throw new VariableInjectException(beanClassName + "." + injectVar.injectTargetFieldName() + " not found");
+        }
+
+        final String attrName = injectTargetField.getName();
 
         injectTargetField.setAccessible(true);
 
@@ -178,8 +179,8 @@ public interface SimpleVariableInjector extends VariableInjector {
             //2、获取原字段值
             originalValue = injectTargetField.get(targetBean);
         } catch (IllegalAccessException e) {
-            throw new VariableInjectException(injectTargetField.getDeclaringClass().getName()
-                    + "." + injectTargetField.getName() + " can't get originalValue ," + injectVar.remark(), e);
+            throw new VariableInjectException(beanClassName
+                    + "." + attrName + " can't get originalValue ," + injectVar.remark(), e);
         }
 
         /////////////////////////////////解析器列表/////////////////////////////////////////
@@ -206,23 +207,23 @@ public interface SimpleVariableInjector extends VariableInjector {
         ValueHolder<Boolean> isOverride = getBooleanValueHolder(variableResolvers, injectVar.isOverride());
 
         if (!isOverride.hasValue()) {
-            throw new VariableInjectException(injectTargetField.getDeclaringClass().getName()
-                    + "." + injectTargetField.getName() + " annotation  InjectVar.isOverride [" + injectVar.isOverride() + "] can't eval", isOverride.getValueNotFoundCause());
+            throw new VariableInjectException(beanClassName
+                    + "." + attrName + " annotation  InjectVar.isOverride [" + injectVar.isOverride() + "] can't eval", isOverride.getValueNotFoundCause());
         }
 
         //如果没有值或是 true，都认为是 true
         ValueHolder<Boolean> isRequired = getBooleanValueHolder(variableResolvers, injectVar.isRequired());
 
         if (!isRequired.hasValue()) {
-            throw new VariableInjectException(injectTargetField.getDeclaringClass().getName()
-                    + "." + injectTargetField.getName() + " annotation  InjectVar.isRequired [" + injectVar.isRequired() + "] can't eval", isRequired.getValueNotFoundCause());
+            throw new VariableInjectException(beanClassName
+                    + "." + attrName + " annotation  InjectVar.isRequired [" + injectVar.isRequired() + "] can't eval", isRequired.getValueNotFoundCause());
         }
 
         if (!isOverride.get()
                 && (originalValue != null || !isRequired.get())) {
             //如果不要求覆盖原值，并且 存在原值 或是 值不是必须的
             //跳过这个字段
-            return ValueHolder.notValue(injectTargetField.getName());
+            return ValueHolder.notValue(attrName);
         }
 
         /////////////////////////////////////////////////////
@@ -232,7 +233,7 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         //默认等于变量名称
         if (!StringUtils.hasText(varName)) {
-            varName = injectTargetField.getName();
+            varName = attrName;
         }
 
         //获取类型
@@ -256,8 +257,8 @@ public interface SimpleVariableInjector extends VariableInjector {
         }
 
         if (expectResolvableType == null) {
-            throw new VariableInjectException(injectVar.remark() + "," + injectTargetField.getDeclaringClass().getName()
-                    + "." + injectTargetField.getName() + " inject annotation expectBaseType attribute is miss " + injectVar.expectBaseType());
+            throw new VariableInjectException(injectVar.remark() + "," + beanClassName
+                    + "." + attrName + " inject annotation expectBaseType attribute is miss " + injectVar.expectBaseType());
         }
 
         if (resolvableTypeRoot == null) {
@@ -313,16 +314,16 @@ public interface SimpleVariableInjector extends VariableInjector {
                 valueHolder.setValue(newValue);
 
             } catch (Exception e) {
-                throw new VariableInjectException(injectTargetField.getDeclaringClass().getName()
-                        + "." + injectTargetField.getName() + " inject var [" + varName + "] can't inject," + injectVar.remark(), e);
+                throw new VariableInjectException(beanClassName
+                        + "." + attrName + " inject var [" + varName + "] can't inject," + injectVar.remark(), e);
             }
         }
 
         //如果不允许为 null 值，则抛出异常
         if (isRequired.get() && !valueHolder.hasValue()) {
             //如果变量是必须的，则抛出异常
-            throw new VariableNotFoundException(injectVar.remark() + " --> " + injectTargetField.getDeclaringClass().getName()
-                    + "." + injectTargetField.getName() + " inject var [" + varName + "] is required , but can't resolve", valueHolder.getValueNotFoundCause());
+            throw new VariableNotFoundException(injectVar.remark() + " --> " + beanClassName
+                    + "." + attrName + " inject var [" + varName + "] is required , but can't resolve", valueHolder.getValueNotFoundCause());
         }
 
         //输出的名字
