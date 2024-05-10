@@ -1,5 +1,7 @@
 package com.levin.commons.ui.annotation;
 
+import com.levin.commons.service.domain.EnumDesc;
+
 import java.lang.annotation.*;
 
 /**
@@ -16,8 +18,7 @@ import java.lang.annotation.*;
 @Inherited
 public @interface FormItem {
 
-
-    enum Type {
+    enum DataType implements EnumDesc {
 
         DEFAULT,
 
@@ -25,18 +26,31 @@ public @interface FormItem {
         DATE,
         TIME,
 
-        INPUT_TEXT,
-        INPUT_URL,
-        INPUT_EMAIL,
-        INPUT_PHONE,
-        INPUT_INTEGER,
-        INPUT_FLOAT,
+        DATE_TIME_RANGE,
+        DATE_RANGE,
+        TIME_RANGE,
+
+        TEXT,
+
+        URL,
+
+        EMAIL,
+
+        PHONE,
+
+        INTEGER,
+
+        FLOAT,
 
         UPLOAD_IMG,
+
         UPLOAD_FILE,
 
         //开关
         SWITCH,
+
+        //进度条
+        PROGRESS,
 
         //默认是下拉展示
         OPTIONS_DROP_DOWN,
@@ -49,20 +63,16 @@ public @interface FormItem {
 
         COLOR,
 
-        JSON,
-
         HTML,
 
-        CSS,
-
-        //开发语言前缀
-        LANG_
+        CODE
 
     }
 
+
     /**
      * 分组
-     * 名称相同会放在一起
+     * 名称相同的项展示时会放在一起
      * <p>
      * 默认为无分分组，也是空分组
      * <p>
@@ -81,14 +91,37 @@ public @interface FormItem {
     Options[] options() default {};
 
     /**
-     * 值类型
+     * 表单的输入方式
      * <p>
      * 默认自动根据字段类型，如整形，字符串，日期，时间等
      * 对应 Type
      *
      * @return
      */
-    Type inputType() default Type.DEFAULT;
+    DataType dataType() default DataType.DEFAULT;
+
+
+    /**
+     * 表单的输入方式
+     *
+     * @return
+     */
+    String inputType() default "";
+
+    /**
+     * 编辑器
+     * 默认由表单的输入方式决定
+     *
+     * @return
+     */
+    String editor() default "";
+
+    /**
+     * 表单的展示方式
+     *
+     * @return
+     */
+    String viewType() default "";
 
     /**
      * 参数默认值
