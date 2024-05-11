@@ -286,12 +286,25 @@ public abstract class RbacUtils {
                 continue;
             }
 
-            methodResAuthorizeMap.put(method, fieldResAuthorize);
+            //检查特殊字符
+            checkAllowChar(fieldResAuthorize.domain(), ResPermission.Fields.domain, method);
+            checkAllowChar(fieldResAuthorize.type(), ResPermission.Fields.type, method);
+            checkAllowChar(fieldResAuthorize.res(), ResPermission.Fields.res, method);
+            checkAllowChar(fieldResAuthorize.action(), ResPermission.Fields.action, method);
 
+
+            methodResAuthorizeMap.put(method, fieldResAuthorize);
         }
 
         return methodResAuthorizeMap;
 
+    }
+
+    private static void checkAllowChar(String txt, String section, Method method) {
+        if (StringUtils.hasText(txt)
+                && (txt.contains(Permission.OR_DELIMITER) || txt.contains(Permission.DELIMITER))) {
+            throw new IllegalArgumentException(String.format("ResAuthorize注解的[%s]属性不能包含[%s%s]字符，关联方法：%s", section, Permission.OR_DELIMITER, Permission.DELIMITER, method));
+        }
     }
 
     private static void initBeanResCache(ApplicationContext context) {

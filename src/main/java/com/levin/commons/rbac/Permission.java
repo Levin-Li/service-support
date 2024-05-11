@@ -1,9 +1,7 @@
 package com.levin.commons.rbac;
 
-import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
-import java.util.regex.Pattern;
 
 
 /**
@@ -16,6 +14,11 @@ public interface Permission {
      * 字段分隔符
      */
     String DELIMITER = ":";
+
+    /**
+     * 逻辑或分隔符
+     */
+    String OR_DELIMITER = "|";
 
     /**
      * 资源域
