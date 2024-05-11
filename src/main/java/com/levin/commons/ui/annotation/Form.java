@@ -33,7 +33,7 @@ public @interface Form {
     String desc() default "";
 
     /**
-     * 布局样式
+     * 表单样式
      *
      * @return
      */
@@ -56,7 +56,7 @@ public @interface Form {
     /**
      * 表单布局
      * <p>
-     * 可以通过布局分组实现布局嵌套
+     * 一个表单有多个布局器，多个布局器通过布局分组实现布局嵌套
      *
      * @return
      */
@@ -67,9 +67,9 @@ public @interface Form {
      *
      * @return
      */
-    FormAction[] actions() default {
-            @FormAction(name = "提交", beforeConfirmInfo = "确认提交？", api = "${api}"),
-            @FormAction(name = "取消", beforeConfirmInfo = "确认取消？", expr = "cancel"),
+    Action[] actions() default {
+            @Action(name = "提交", beforeConfirmInfo = "确认提交？", api = "${api}"),
+            @Action(name = "取消", beforeConfirmInfo = "确认取消？", expr = "cancel"),
     };
 
 }
