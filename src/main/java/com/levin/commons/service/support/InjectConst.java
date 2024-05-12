@@ -11,6 +11,8 @@ public interface InjectConst {
 
     String IS_SAAS_ADMIN = "isSaasAdmin";
 
+    String IS_SAAS_USER = "isSaasUser";
+
     String IS_TENANT_ADMIN = "isTenantAdmin";
 
     String IS_ALL_ORG_SCOPE = "isAllOrgScope";
