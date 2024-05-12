@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * 简单资源
  */
-@Schema(title = "资源")
+@Schema(title = "简单资源", description = "简单资源定义")
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(of = {"domain", "type", "id"})

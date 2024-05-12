@@ -10,12 +10,18 @@ import java.util.Collections;
 /**
  * 角色对象
  */
-public interface RbacRoleObject<P> extends Identifiable, NamedObject {
+public interface RbacRoleObject<P> extends Identifiable {
 
     String ROLE_PREFIX = "R_";
 
     //超级管理员
     String SA_ROLE = ROLE_PREFIX + "SA";
+
+    //SAAS角色前缀
+    String SAAS_ROLE_PREFIX = ROLE_PREFIX + "SAAS_";
+
+    //SAAS管理员
+    String SAAS_ADMIN = SAAS_ROLE_PREFIX + "ADMIN";
 
     //系统管理员，通常是一个租户的管理员
     String ADMIN_ROLE = ROLE_PREFIX + "ADMIN";
