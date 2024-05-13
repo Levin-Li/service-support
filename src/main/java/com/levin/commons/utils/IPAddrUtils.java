@@ -11,6 +11,7 @@ import org.springframework.util.ResourceUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,9 +46,6 @@ public class IPAddrUtils {
 
     private static final Object lock = new Object();
 
-    private static Resource ip2regionRes = null;
-
-    private static final ResourceLoader resourceLoader = new DefaultResourceLoader();
 
     /**
      * 查找IP的地区
@@ -65,7 +63,7 @@ public class IPAddrUtils {
                     if (searcher == null) {
 
                         //立刻处理防止
-                        String fn = "ip2region.xdb";
+                        final String fn = "ip2region.xdb";
 
                         File file = null;
 
@@ -78,16 +76,13 @@ public class IPAddrUtils {
 
                             file = null;
 
-                            if (ip2regionRes == null) {
-                                ip2regionRes = resourceLoader.getResource(ResourceLoader.CLASSPATH_URL_PREFIX + fn);
+                            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+                            if (classLoader == null) {
+                                classLoader = IPAddrUtils.class.getClassLoader();
                             }
 
-                            if (ip2regionRes.isReadable()) {
-                                searcher = Searcher.newWithBuffer(IoUtil.readBytes(ip2regionRes.getInputStream(), true));
-                            } else {
-                                log.debug("资源[{}]不可读：{}", ip2regionRes.getDescription(), ip2regionRes.getFilename());
-                            }
-
+                            searcher = Searcher.newWithBuffer(IoUtil.readBytes(classLoader.getResourceAsStream(fn), true));
                         }
 
                         if (searcher == null && file != null && file.exists()) {
