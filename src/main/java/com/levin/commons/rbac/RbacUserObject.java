@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 
 /**
@@ -42,11 +43,10 @@ public interface RbacUserObject<ROLE extends Serializable>
      * @return
      */
     default boolean isSaasUser() {
-        return getRoleList() != null
-                && getRoleList().stream()
-                .filter(Objects::nonNull)
-                .anyMatch(r -> r.toString().startsWith(RbacRoleObject.SAAS_ROLE_PREFIX));
+        //租户ID为空
+        return getTenantId() == null || getTenantId().toString().trim().isEmpty();
     }
+
 
     /**
      * 是否是租户管理员
@@ -65,6 +65,16 @@ public interface RbacUserObject<ROLE extends Serializable>
      */
     default boolean hasRole(ROLE role) {
         return getRoleList() != null && getRoleList().contains(role);
+    }
+
+    /**
+     * 是否拥有指定角色
+     *
+     * @param rolePredicate
+     * @return
+     */
+    default boolean hasRole(Predicate<ROLE> rolePredicate) {
+        return getRoleList() != null && getRoleList().stream().anyMatch(rolePredicate);
     }
 
     /**
