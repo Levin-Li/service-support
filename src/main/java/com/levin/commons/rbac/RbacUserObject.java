@@ -83,7 +83,7 @@ public interface RbacUserObject<ROLE extends Serializable>
      * @return
      */
     default boolean hasRole(ROLE role) {
-        return getRoleList() != null && getRoleList().contains(role);
+        return role != null && getRoleList() != null && getRoleList().contains(role);
     }
 
     /**
@@ -93,7 +93,7 @@ public interface RbacUserObject<ROLE extends Serializable>
      * @return
      */
     default boolean hasRole(Predicate<ROLE> rolePredicate) {
-        return getRoleList() != null && getRoleList().stream().anyMatch(rolePredicate);
+        return getRoleList() != null && getRoleList().stream().filter(Objects::nonNull).anyMatch(rolePredicate);
     }
 
     /**
