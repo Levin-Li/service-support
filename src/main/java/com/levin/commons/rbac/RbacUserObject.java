@@ -58,6 +58,25 @@ public interface RbacUserObject<ROLE extends Serializable>
     }
 
     /**
+     * 是否是租户管理员、SAAS管理员和超级管理员中的任意一个
+     *
+     * @return
+     */
+    default boolean isAdmin() {
+        return isSuperAdmin() || isSaasAdmin() || isTenantAdmin();
+    }
+
+    /**
+     * 是否是管理员或者自己
+     *
+     * @param target
+     * @return
+     */
+    default boolean isAdminOrSelf(RbacUserObject<?> target) {
+        return isAdmin() || Objects.equals(getId(), target.getId());
+    }
+
+    /**
      * 是否拥有指定角色
      *
      * @param role
