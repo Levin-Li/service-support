@@ -69,11 +69,11 @@ public interface RbacUserObject<ROLE extends Serializable>
     /**
      * 是否是管理员或者自己
      *
-     * @param target
+     * @param userOrId user对象或是userId
      * @return
      */
-    default boolean isAdminOrSelf(RbacUserObject<?> target) {
-        return isAdmin() || Objects.equals(getId(), target.getId());
+    default boolean isAdminOrSelf(Serializable userOrId) {
+        return isAdmin() || Objects.equals(getId(), (userOrId instanceof RbacUserInfo) ? ((RbacUserInfo) userOrId).getId() : userOrId);
     }
 
     /**
