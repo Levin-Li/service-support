@@ -3,9 +3,8 @@ package com.levin.commons.utils;
 import lombok.SneakyThrows;
 import org.redisson.api.RLock;
 
-import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 
 /**
@@ -13,22 +12,20 @@ import java.util.stream.Stream;
  */
 public abstract class RedissonLockUtils {
 
-
     /**
-     * 尝试获取锁，并且执行任务
+     * 锁定并执行任务, 如果任务没有执行，返回 null
      *
      * @param lock
      * @param maxTimeout
-     * @param tasks
-     * @return
+     * @param task
+     * @param <R>
+     * @return 如果没有执行，返回 null
+     * @throws Exception
      */
-    @SneakyThrows
-    public static boolean tryLockAndDoTask(RLock lock, long maxTimeout, Runnable... tasks) {
+    public static <R> R tryLockAndDoTask(RLock lock, long maxTimeout, Callable<R> task) throws Exception {
 
-        if (tasks == null
-                || tasks.length < 1
-                || Stream.of(tasks).noneMatch(Objects::nonNull)) {
-            return false;
+        if (task == null) {
+            return null;
         }
 
         //Redisson 自动续租看门狗机制
@@ -51,19 +48,17 @@ public abstract class RedissonLockUtils {
         } else {
             //尝试获取锁
             if (!lock.tryLock()) {
-                return false;
+                return null;
             }
         }
 
         //如果还是没有获取到锁
         if (!lock.isHeldByCurrentThread()) {
-            return false;
+            return null;
         }
 
         try {
-            Stream.of(tasks)
-                    .filter(Objects::nonNull)
-                    .forEachOrdered(Runnable::run);
+            return task.call();
         } finally {
             //  为了安全，会先校验是否持有锁再释放，防止
             //  业务执行还没执行完，锁到期了。（此时没占用锁，再unlock就会报错）
@@ -73,8 +68,6 @@ public abstract class RedissonLockUtils {
                 lock.unlock();
             }
         }
-
-        return true;
     }
 
     /**
@@ -83,12 +76,15 @@ public abstract class RedissonLockUtils {
      * 如果没有得到锁则立刻返回，放弃执行任务
      *
      * @param lock
-     * @param tasks
+     * @param task
      * @return boolean true 表示获锁并执行任务
      */
     @SneakyThrows
-    public static boolean tryLockAndDoTask(final RLock lock, Runnable... tasks) {
-        return tryLockAndDoTask(lock, 0, tasks);
+    public static boolean tryLockAndDoTask(final RLock lock, Runnable task) {
+        return tryLockAndDoTask(lock, 0, () -> {
+            task.run();
+            return true;
+        }) != null;
     }
 
 }

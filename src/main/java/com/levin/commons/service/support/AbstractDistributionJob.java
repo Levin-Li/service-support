@@ -88,19 +88,17 @@ public abstract class AbstractDistributionJob<T> {
      * 尝试锁定并执行任务
      *
      * @param lockKey 如果参数值为空，则认为不需要锁定
-     * @param tasks   任务
+     * @param task    任务
      * @return
      */
-    protected boolean tryLockAndDoTask(String lockKey, Runnable... tasks) {
+    protected boolean tryLockAndDoTask(String lockKey, Runnable task) {
 
-        Assert.notEmpty(tasks, "not tasks to do");
+        Assert.notNull(task, "not tasks to do");
 
         if (StringUtils.hasText(lockKey)) {
-            return RedissonLockUtils.tryLockAndDoTask(redissonClient.getLock(lockKey), tasks);
+            return RedissonLockUtils.tryLockAndDoTask(redissonClient.getLock(lockKey), task);
         } else {
-            for (Runnable task : tasks) {
-                task.run();
-            }
+            task.run();
             return true;
         }
     }
