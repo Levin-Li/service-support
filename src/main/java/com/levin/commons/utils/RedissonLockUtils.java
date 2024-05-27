@@ -70,6 +70,10 @@ public abstract class RedissonLockUtils {
         }
     }
 
+    public static <R> R tryLockAndDoTask(final RLock lock, Callable<R> task) throws Exception {
+        return tryLockAndDoTask(lock, 0, task);
+    }
+
     /**
      * 尝试锁定并执行任务
      * <p>
@@ -81,7 +85,7 @@ public abstract class RedissonLockUtils {
      */
     @SneakyThrows
     public static boolean tryLockAndDoTask(final RLock lock, Runnable task) {
-        return tryLockAndDoTask(lock, 0, () -> {
+        return tryLockAndDoTask(lock, () -> {
             task.run();
             return true;
         }) != null;
