@@ -39,13 +39,12 @@ public abstract class DisableApiOperationUtils {
             final Operation operation = AnnotatedElementUtils.findMergedAnnotation(method, Operation.class);
             final RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
 
-
             Predicate<String[]> predicate = patterns -> Stream.of(patterns).filter(StringUtils::hasText).map(String::trim).anyMatch(
 
                     txt -> txt.equals(method.toGenericString())
                             //方法名，匹配
-                            || txt.toLowerCase().startsWith("method:") && PatternMatchUtils.simpleMatch(txt.substring("method:".length()), method.getName())
                             || PatternMatchUtils.simpleMatch(txt, operation != null ? operation.summary() : null)
+                            || txt.toLowerCase().startsWith("method:") && PatternMatchUtils.simpleMatch(txt.substring("method:".length()), method.getName())
                             || txt.toLowerCase().startsWith("path:") && requestMapping != null && Stream.of(requestMapping.value()).filter(StringUtils::hasText).anyMatch(path -> PatternMatchUtils.simpleMatch(txt.substring("path:".length()), path))
             );
 

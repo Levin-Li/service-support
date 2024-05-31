@@ -108,6 +108,15 @@ public class SpringContextHolder implements EnvironmentAware,
     }
 
 
+    /**
+     * 查找bean
+     * @param context
+     * @param type
+     * @param isMatchPackageNamePrefix
+     * @param prefixList
+     * @return
+     * @param <T>
+     */
     private static <T> List<T> findBeans(ApplicationContext context, @NonNull Type type, boolean isMatchPackageNamePrefix, String... prefixList) {
 
         if (context == null) {
