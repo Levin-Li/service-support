@@ -1,239 +1,224 @@
 package com.levin.commons.ui.annotation;
 
-import com.levin.commons.annotation.GenNameConstant;
-import com.levin.commons.service.domain.EnumDesc;
-
-@GenNameConstant
-public enum AmisUiType implements EnumDesc {
-    FORM,
-    ALERT,
-    APP,
-    AUDIO,
-    AVATAR,
-    BUTTON_GROUP,
-    BREADCRUMB,
-    CARD,
-    CARD2,
-    CARDS,
-    CAROUSEL,
-    CHART,
-    CALENDAR,
-    COLLAPSE,
-    COLLAPSE_GROUP,
-    COLOR,
-    CRUD,
-    CRUD2,
-    CUSTOM,
-    DATE,
-    STATIC_DATE,
-    DATETIME,
-    STATIC_DATETIME,
-    TIME,
-    STATIC_TIME,
-    MONTH,
-    STATIC_MONTH,
-    DATE_RANGE,
-    DIALOG,
-    SPINNER,
-    DIVIDER,
-    DROPDOWN_BUTTON,
-    DRAWER,
-    EACH,
-    FLEX,
-    FLEX_ITEM,
-    GRID_2D,
-    ICON,
-    IFRAME,
-    IMAGE,
-    STATIC_IMAGE,
-    IMAGES,
-    STATIC_IMAGES,
-    JSON_SCHEMA,
-    JSON_SCHEMA_EDITOR,
-    JSON,
-    STATIC_JSON,
-    LINK,
-    LIST,
-    LOG,
-    STATIC_LIST,
-    MAP,
-    MAPPING,
-    MARKDOWN,
-    NAV,
-    NUMBER,
-    PAGE,
-    PAGINATION,
-    PAGINATION_WRAPPER,
-    PROPERTY,
-    OPERATION,
-    PLAIN,
-    TEXT,
-    PROGRESS,
-    QRCODE,
-    QR_CODE,
-    BARCODE,
-    REMARK,
-    SEARCH_BOX,
-    SPARKLINE,
-    STATUS,
-    TABLE,
-    STATIC_TABLE,
-    TABLE2,
-    HTML,
-    TPL,
-    TASKS,
-    VBOX,
-    VIDEO,
-    WIZARD,
-    WRAPPER,
-    WEB_COMPONENT,
-    ANCHOR_NAV,
-    STEPS,
-    Timeline,
-    CONTROL,
-    INPUT_ARRAY,
-    BUTTON,
-    SUBMIT,
-    RESET,
-    BUTTON_GROUP_SELECT,
-    BUTTON_TOOLBAR,
-    CHAINED_SELECT,
-    CHART_RADIOS,
-    CHECKBOX,
-    CHECKBOXES,
-    INPUT_CITY,
-    INPUT_COLOR,
-    COMBO,
-    CONDITION_BUILDER,
-    CONTAINER,
-    SWITCH_CONTAINER,
-    INPUT_DATE,
-    INPUT_DATETIME,
-    INPUT_TIME,
-    INPUT_QUARTER,
-    INPUT_YEAR,
-    INPUT_MONTH,
-    INPUT_DATE_RANGE,
-    INPUT_TIME_RANGE,
-    INPUT_DATETIME_RANGE,
-    INPUT_EXCEL,
-    INPUT_FORMULA,
-    DIFF_EDITOR,
-    OFFICE_VIEWER,
-    PDF_VIEWER,
-    INPUT_SIGNATURE,
-    EDITOR,
-    BAT_EDITOR,
-    C_EDITOR,
-    COFFEESCRIPT_EDITOR,
-    CPP_EDITOR,
-    CSHARP_EDITOR,
-    CSS_EDITOR,
-    DOCKERFILE_EDITOR,
-    FSHARP_EDITOR,
-    GO_EDITOR,
-    HANDLEBARS_EDITOR,
-    HTML_EDITOR,
-    INI_EDITOR,
-    JAVA_EDITOR,
-    JAVASCRIPT_EDITOR,
-    JSON_EDITOR,
-    LESS_EDITOR,
-    LUA_EDITOR,
-    MARKDOWN_EDITOR,
-    MSDAX_EDITOR,
-    OBJECTIVE_C_EDITOR,
-    PHP_EDITOR,
-    PLAINTEXT_EDITOR,
-    POSTIATS_EDITOR,
-    POWERSHELL_EDITOR,
-    PUG_EDITOR,
-    PYTHON_EDITOR,
-    R_EDITOR,
-    RAZOR_EDITOR,
-    RUBY_EDITOR,
-    SB_EDITOR,
-    SCSS_EDITOR,
-    SOL_EDITOR,
-    SQL_EDITOR,
-    SWIFT_EDITOR,
-    TYPESCRIPT_EDITOR,
-    VB_EDITOR,
-    XML_EDITOR,
-    YAML_EDITOR,
-    FIELDSET,
-    FIELD_SET,
-    INPUT_FILE,
-    FORMULA,
-    GRID,
-    GROUP,
-    HBOX,
-    HIDDEN,
-    ICON_PICKER,
-    ICON_SELECT,
-    INPUT_IMAGE,
-    INPUT_GROUP,
-    LIST_SELECT,
-    LOCATION_PICKER,
-    MATRIX_CHECKBOXES,
-    INPUT_MONTH_RANGE,
-    INPUT_QUARTER_RANGE,
-    NESTED_SELECT,
-    INPUT_NUMBER,
-    PANEL,
-    PICKER,
-    RADIO,
-    RADIOS,
-    INPUT_RANGE,
-    INPUT_RATING,
-    INPUT_REPEAT,
-    INPUT_RICH_TEXT,
-    SELECT,
-    SERVICE,
-    STATIC,
-    INPUT_SUB_FORM,
-    SWITCH,
-    INPUT_TABLE,
-    TABS,
-    TABS_TRANSFER,
-    INPUT_TAG,
-    INPUT_TEXT,
-    INPUT_PASSWORD,
-    INPUT_EMAIL,
-    INPUT_URL,
-    UUID,
-    MULTI_SELECT,
-    TEXTAREA,
-    TRANSFER,
-    TRANSFER_PICKER,
-    TABS_TRANSFER_PICKER,
-    INPUT_TREE,
-    TREE_SELECT,
-    TABLE_VIEW,
-    PORTLET,
-    GRID_NAV,
-    USERS_SELECT,
-    TAG,
-    TAGS,
-    WORDS,
-    PASSWORD,
-    MULTILINE_TEXT,
-    AMIS,
-    NATIVE_DATE,
-    NATIVE_TIME,
-    NATIVE_NUMBER,
-    CODE,
-    TOOLTIP_WRAPPER;
-
-    // 如果需要为每个枚举常量添加额外的属性或方法，可以在这里继续添加
-
-    /**
-     * 枚举常量的别名
-     *
-     * @return
-     */
-    public String getAlias() {
-        return name().toLowerCase().replace('_', '-');
-    }
+public interface AmisUiType {
+    String FORM = "form";
+    String ALERT = "alert";
+    String APP = "app";
+    String AUDIO = "audio";
+    String AVATAR = "avatar";
+    String BUTTON_GROUP = "button-group";
+    String BREADCRUMB = "breadcrumb";
+    String CARD = "card";
+    String CARD2 = "card2";
+    String CARDS = "cards";
+    String CAROUSEL = "carousel";
+    String CHART = "chart";
+    String CALENDAR = "calendar";
+    String COLLAPSE = "collapse";
+    String COLLAPSE_GROUP = "collapse-group";
+    String COLOR = "color";
+    String CRUD = "crud";
+    String CRUD2 = "crud2";
+    String CUSTOM = "custom";
+    String DATE = "date";
+    String STATIC_DATE = "static-date";
+    String DATETIME = "datetime";
+    String STATIC_DATETIME = "static-datetime";
+    String TIME = "time";
+    String STATIC_TIME = "static-time";
+    String MONTH = "month";
+    String STATIC_MONTH = "static-month";
+    String DATE_RANGE = "date-range";
+    String DIALOG = "dialog";
+    String SPINNER = "spinner";
+    String DIVIDER = "divider";
+    String DROPDOWN_BUTTON = "dropdown-button";
+    String DRAWER = "drawer";
+    String EACH = "each";
+    String FLEX = "flex";
+    String FLEX_ITEM = "flex-item";
+    String GRID_2D = "grid-2d";
+    String ICON = "icon";
+    String IFRAME = "iframe";
+    String IMAGE = "image";
+    String STATIC_IMAGE = "static-image";
+    String IMAGES = "images";
+    String STATIC_IMAGES = "static-images";
+    String JSON_SCHEMA = "json-schema";
+    String JSON_SCHEMA_EDITOR = "json-schema-editor";
+    String JSON = "json";
+    String STATIC_JSON = "static-json";
+    String LINK = "link";
+    String LIST = "list";
+    String LOG = "log";
+    String STATIC_LIST = "static-list";
+    String MAP = "map";
+    String MAPPING = "mapping";
+    String MARKDOWN = "markdown";
+    String NAV = "nav";
+    String NUMBER = "number";
+    String PAGE = "page";
+    String PAGINATION = "pagination";
+    String PAGINATION_WRAPPER = "pagination-wrapper";
+    String PROPERTY = "property";
+    String OPERATION = "operation";
+    String PLAIN = "plain";
+    String TEXT = "text";
+    String PROGRESS = "progress";
+    String QRCODE = "qrcode";
+    String QR_CODE = "qr-code";
+    String BARCODE = "barcode";
+    String REMARK = "remark";
+    String SEARCH_BOX = "search-box";
+    String SPARKLINE = "sparkline";
+    String STATUS = "status";
+    String TABLE = "table";
+    String STATIC_TABLE = "static-table";
+    String TABLE2 = "table2";
+    String HTML = "html";
+    String TPL = "tpl";
+    String TASKS = "tasks";
+    String VBOX = "vbox";
+    String VIDEO = "video";
+    String WIZARD = "wizard";
+    String WRAPPER = "wrapper";
+    String WEB_COMPONENT = "web-component";
+    String ANCHOR_NAV = "anchor-nav";
+    String STEPS = "steps";
+    String Timeline = "timeline";
+    String CONTROL = "control";
+    String INPUT_ARRAY = "input-array";
+    String BUTTON = "button";
+    String SUBMIT = "submit";
+    String RESET = "reset";
+    String BUTTON_GROUP_SELECT = "button-group-select";
+    String BUTTON_TOOLBAR = "button-toolbar";
+    String CHAINED_SELECT = "chained-select";
+    String CHART_RADIOS = "chart-radios";
+    String CHECKBOX = "checkbox";
+    String CHECKBOXES = "checkboxes";
+    String INPUT_CITY = "input-city";
+    String INPUT_COLOR = "input-color";
+    String COMBO = "combo";
+    String CONDITION_BUILDER = "condition-builder";
+    String CONTAINER = "container";
+    String SWITCH_CONTAINER = "switch-container";
+    String INPUT_DATE = "input-date";
+    String INPUT_DATETIME = "input-datetime";
+    String INPUT_TIME = "input-time";
+    String INPUT_QUARTER = "input-quarter";
+    String INPUT_YEAR = "input-year";
+    String INPUT_MONTH = "input-month";
+    String INPUT_DATE_RANGE = "input-date-range";
+    String INPUT_TIME_RANGE = "input-time-range";
+    String INPUT_DATETIME_RANGE = "input-datetime-range";
+    String INPUT_EXCEL = "input-excel";
+    String INPUT_FORMULA = "input-formula";
+    String DIFF_EDITOR = "diff-editor";
+    String OFFICE_VIEWER = "office-viewer";
+    String PDF_VIEWER = "pdf-viewer";
+    String INPUT_SIGNATURE = "input-signature";
+    String EDITOR = "editor";
+    String BAT_EDITOR = "bat-editor";
+    String C_EDITOR = "c-editor";
+    String COFFEESCRIPT_EDITOR = "coffeescript-editor";
+    String CPP_EDITOR = "cpp-editor";
+    String CSHARP_EDITOR = "csharp-editor";
+    String CSS_EDITOR = "css-editor";
+    String DOCKERFILE_EDITOR = "dockerfile-editor";
+    String FSHARP_EDITOR = "fsharp-editor";
+    String GO_EDITOR = "go-editor";
+    String HANDLEBARS_EDITOR = "handlebars-editor";
+    String HTML_EDITOR = "html-editor";
+    String INI_EDITOR = "ini-editor";
+    String JAVA_EDITOR = "java-editor";
+    String JAVASCRIPT_EDITOR = "javascript-editor";
+    String JSON_EDITOR = "json-editor";
+    String LESS_EDITOR = "less-editor";
+    String LUA_EDITOR = "lua-editor";
+    String MARKDOWN_EDITOR = "markdown-editor";
+    String MSDAX_EDITOR = "msdax-editor";
+    String OBJECTIVE_C_EDITOR = "objective-c-editor";
+    String PHP_EDITOR = "php-editor";
+    String PLAINTEXT_EDITOR = "plaintext-editor";
+    String POSTIATS_EDITOR = "postiats-editor";
+    String POWERSHELL_EDITOR = "powershell-editor";
+    String PUG_EDITOR = "pug-editor";
+    String PYTHON_EDITOR = "python-editor";
+    String R_EDITOR = "r-editor";
+    String RAZOR_EDITOR = "razor-editor";
+    String RUBY_EDITOR = "ruby-editor";
+    String SB_EDITOR = "sb-editor";
+    String SCSS_EDITOR = "scss-editor";
+    String SOL_EDITOR = "sol-editor";
+    String SQL_EDITOR = "sql-editor";
+    String SWIFT_EDITOR = "swift-editor";
+    String TYPESCRIPT_EDITOR = "typescript-editor";
+    String VB_EDITOR = "vb-editor";
+    String XML_EDITOR = "xml-editor";
+    String YAML_EDITOR = "yaml-editor";
+    String FIELDSET = "fieldset";
+    String FIELD_SET = "fieldSet";
+    String INPUT_FILE = "input-file";
+    String FORMULA = "formula";
+    String GRID = "grid";
+    String GROUP = "group";
+    String HBOX = "hbox";
+    String HIDDEN = "hidden";
+    String ICON_PICKER = "icon-picker";
+    String ICON_SELECT = "icon-select";
+    String INPUT_IMAGE = "input-image";
+    String INPUT_GROUP = "input-group";
+    String LIST_SELECT = "list-select";
+    String LOCATION_PICKER = "location-picker";
+    String MATRIX_CHECKBOXES = "matrix-checkboxes";
+    String INPUT_MONTH_RANGE = "input-month-range";
+    String INPUT_QUARTER_RANGE = "input-quarter-range";
+    String NESTED_SELECT = "nested-select";
+    String INPUT_NUMBER = "input-number";
+    String PANEL = "panel";
+    String PICKER = "picker";
+    String RADIO = "radio";
+    String RADIOS = "radios";
+    String INPUT_RANGE = "input-range";
+    String INPUT_RATING = "input-rating";
+    String INPUT_REPEAT = "input-repeat";
+    String INPUT_RICH_TEXT = "input-rich-text";
+    String SELECT = "select";
+    String SERVICE = "service";
+    String STATIC = "static";
+    String INPUT_SUB_FORM = "input-sub-form";
+    String SWITCH = "switch";
+    String INPUT_TABLE = "input-table";
+    String TABS = "tabs";
+    String TABS_TRANSFER = "tabs-transfer";
+    String INPUT_TAG = "input-tag";
+    String INPUT_TEXT = "input-text";
+    String INPUT_PASSWORD = "input-password";
+    String INPUT_EMAIL = "input-email";
+    String INPUT_URL = "input-url";
+    String UUID = "uuid";
+    String MULTI_SELECT = "multi-select";
+    String TEXTAREA = "textarea";
+    String TRANSFER = "transfer";
+    String TRANSFER_PICKER = "transfer-picker";
+    String TABS_TRANSFER_PICKER = "tabs-transfer-picker";
+    String INPUT_TREE = "input-tree";
+    String TREE_SELECT = "tree-select";
+    String TABLE_VIEW = "table-view";
+    String PORTLET = "portlet";
+    String GRID_NAV = "grid-nav";
+    String USERS_SELECT = "users-select";
+    String TAG = "tag";
+    String TAGS = "tags";
+    String WORDS = "words";
+    String PASSWORD = "password";
+    String MULTILINE_TEXT = "multiline-text";
+    String AMIS = "amis";
+    String NATIVE_DATE = "native-date";
+    String NATIVE_TIME = "native-time";
+    String NATIVE_NUMBER = "native-number";
+    String CODE = "code";
+    String TOOLTIP_WRAPPER = "tooltip-wrapper";
 
 }
