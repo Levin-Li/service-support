@@ -22,13 +22,9 @@ public @interface FormItem {
 
         DEFAULT,
 
-        DATE_TIME,
-        DATE,
-        TIME,
+        DATE_TIME, DATE, TIME,
 
-        DATE_TIME_RANGE,
-        DATE_RANGE,
-        TIME_RANGE,
+        DATE_TIME_RANGE, DATE_RANGE, TIME_RANGE,
 
         TEXT,
 

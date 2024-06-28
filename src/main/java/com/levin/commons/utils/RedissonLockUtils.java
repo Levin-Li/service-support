@@ -81,14 +81,13 @@ public abstract class RedissonLockUtils {
      *
      * @param lock
      * @param task
-     * @return boolean true 表示获锁并执行任务
+     * @return Boolean true 表示获锁并执行任务, false 或是 null 表示没有获锁
      */
     @SneakyThrows
-    public static boolean tryLockAndDoTask(final RLock lock, Runnable task) {
+    public static Boolean tryLockAndDoTask(final RLock lock, Runnable task) {
         return tryLockAndDoTask(lock, () -> {
             task.run();
             return true;
-        }) != null;
+        });
     }
-
 }
