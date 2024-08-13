@@ -74,12 +74,11 @@ public class CpuUtils {
     public static int sleepIfCpuLoadOverThreshold(int cpuThreshold, long sleepMs) {
 
         statHelper.onAlarm(15, 50, 0
-                , (growthRatio, lastRatio) -> log.warn("*** CPU负载 {} > {}，处理速率：{}，环比变化率：{}", getCpuLoad(), cpuThreshold, lastRatio, growthRatio));
+                , (growthRatio, lastRatio) -> log.warn("*** 当前CPU负载：{}, 阈值：{}，处理速率：{}，环比变化率：{}", getCpuLoad(), cpuThreshold, lastRatio, growthRatio));
 
         if (getCpuLoad() >= cpuThreshold) {
             try {
                 Thread.sleep(sleepMs);
-
             } catch (InterruptedException e) {
                 return getCpuLoad();
             }
