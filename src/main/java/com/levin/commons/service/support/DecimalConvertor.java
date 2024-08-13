@@ -42,7 +42,7 @@ public class DecimalConvertor {
      * @param hasNum
      * @return
      */
-    public static DecimalConvertor default62(boolean hasLower, boolean hasUpper, boolean hasNum, char... excludes) {
+    public static DecimalConvertor new62DecimalConvertor(boolean hasLower, boolean hasUpper, boolean hasNum, char... excludes) {
 
         List<Character> characterList = new ArrayList<>(62);
 
@@ -181,7 +181,7 @@ public class DecimalConvertor {
 
     public static void main(String[] args) {
 
-        DecimalConvertor convertor = default62(true, true, true);
+        DecimalConvertor convertor = new62DecimalConvertor(true, true, true);
 
         String decimal = "1234567890987654321";
 

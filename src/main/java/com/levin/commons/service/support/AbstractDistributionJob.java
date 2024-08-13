@@ -249,7 +249,7 @@ public abstract class AbstractDistributionJob<T> {
             for (T data : dataList) {
 
                 if (isStop.get()) {
-                    log.error("[ {} ] 第[ {} ]次批任务终止执行", getName(), counter.get());
+                    log.error("[ {} ] 第[ {} ]次批任务主动终止执行", getName(), counter.get());
                     return;
                 }
 
