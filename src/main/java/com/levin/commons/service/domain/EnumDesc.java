@@ -111,7 +111,7 @@ public interface EnumDesc {
      * @return
      */
     default String enumToString() {
-        return code() + "-" + getDesc();
+        return codeAndNameAndDesc();
     }
 
     /**
