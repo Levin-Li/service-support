@@ -3,6 +3,7 @@ package com.levin.commons.rbac;
 import com.levin.commons.plugin.Res;
 import com.levin.commons.service.domain.SimpleIdentifiable;
 import com.levin.commons.service.support.SpringContextHolder;
+import com.levin.commons.utils.DisableApiOperationUtils;
 import com.levin.commons.utils.JsonStrArrayUtils;
 import com.levin.commons.utils.MapUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -177,6 +178,9 @@ public abstract class RbacUtils {
                         && !ReflectionUtils.isObjectMethod(m)
                         && !Modifier.isStatic(m.getModifiers())
                         && AnnotatedElementUtils.hasAnnotation(m, RequestMapping.class)
+
+                        //没有被禁止
+                        && DisableApiOperationUtils.isApiEnable(beanType, m)
         )) {
 
             //如果没有请求注解，将忽略
@@ -404,7 +408,12 @@ public abstract class RbacUtils {
                         .findFirst()
                         .orElse(null);
 
-                ResPermission permission = resAuthorize == null ? null :
+                //@todo 思考如果是不要权限的菜单呢？自答不要权限的菜单也必须标注不要权限，这样 resAuthorize 变量就不会为 null
+                if (resAuthorize == null) {
+                    continue;
+                }
+
+                final ResPermission permission = resAuthorize == null ? null :
                         new ResPermission()
                                 .setDomain(packageName)
                                 .setType(resAuthorize.type())

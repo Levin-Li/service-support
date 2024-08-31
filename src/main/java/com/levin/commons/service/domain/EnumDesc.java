@@ -120,7 +120,7 @@ public interface EnumDesc {
      * @return
      */
     default String nameAndDesc() {
-        return name() + "-" + getDesc();
+        return String.join("-", name(), getDesc());
     }
 
     /**
@@ -129,7 +129,7 @@ public interface EnumDesc {
      * @return
      */
     default String codeAndNameAndDesc() {
-        return code() + "-" + name() + "-" + getDesc();
+        return String.join("-", code() + "", name(), getDesc());
     }
 
 
@@ -164,8 +164,9 @@ public interface EnumDesc {
 
     static <E extends Enum<?>> E parse(Class<E> type, Integer code) {
 
-        if (code == null)
+        if (code == null) {
             return null;
+        }
 
         for (Enum<?> value : type.getEnumConstants()) {
             if (code == ((value instanceof EnumDesc)
@@ -187,8 +188,9 @@ public interface EnumDesc {
 
     static <E extends Enum<?>> E parse(Class<E> type, String nameOrCode) {
 
-        if (StrUtil.isBlank(nameOrCode))
+        if (StrUtil.isBlank(nameOrCode)) {
             return null;
+        }
 
         nameOrCode = nameOrCode.trim();
 
@@ -242,24 +244,26 @@ public interface EnumDesc {
             try {
                 schema = anEnum.getDeclaringClass().getField(anEnum.name()).getAnnotation(Schema.class);
             } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException("枚举类 " + anEnum.getDeclaringClass().getName() + "." + anEnum.name() + " 未定义 Schema 注解");
             }
 
             if (schema != null) {
 
-                info = schema.description();
+                info = schema.title();
 
                 if (info == null || info.trim().length() == 0) {
-                    info = schema.title();
+                    //获取描述
+                    info = schema.description();
+                } else if (schema.description() != null && schema.description().trim().length() > 0) {
+                    info = info.trim() + "(" + schema.description().trim() + ")";
                 }
             }
 
             if (info == null || info.trim().length() == 0) {
-                info = anEnum.name();
+                // info = anEnum.name();
             }
 
             cacheNames.put(anEnum, info);
-
         }
 
         return info;
