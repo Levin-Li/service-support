@@ -4,7 +4,7 @@ package com.levin.commons.service.domain;
 import java.lang.annotation.*;
 
 /**
- * 类，方法，参数，字段的描述注解
+ * 类，方法，参数，字段的扩展描述注解
  *
  * @author Laishr
  * @version 1.0, 2015/11/06
@@ -25,6 +25,34 @@ public @interface Desc {
      */
     String value() default "";
 
+    /**
+     * 字典代码
+     * 用于可选择值
+     *
+     * @return int
+     */
+    String dictCode() default "";
+
+    /**
+     * 选项,逗号隔开，格式为：值:名称,例如：1:男,2:女
+     *
+     * @return
+     */
+    String options() default "";
+
+    /**
+     * UI 表单输入类型
+     *
+     * @return
+     */
+    String uiInputType() default "";
+
+    /**
+     * UI 显示类型
+     *
+     * @return
+     */
+    String uiShowType() default "";
 
     /**
      * 标识或代码
@@ -40,7 +68,6 @@ public @interface Desc {
      * @return
      */
     String name() default "";
-
 
     /**
      * 分组名称
@@ -61,14 +88,12 @@ public @interface Desc {
      */
     String detail() default "";
 
-
     /**
      * 是否做为文档内容
      *
      * @return
      */
     boolean toDoc() default true;
-
 
     /**
      * 隐藏的
