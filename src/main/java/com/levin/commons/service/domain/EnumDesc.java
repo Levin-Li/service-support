@@ -260,7 +260,8 @@ public interface EnumDesc {
             }
 
             if (info == null || info.trim().length() == 0) {
-                // info = anEnum.name();
+                //获取枚举名
+                info = anEnum.name();
             }
 
             cacheNames.put(anEnum, info);

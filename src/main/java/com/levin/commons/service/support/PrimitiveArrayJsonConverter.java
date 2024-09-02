@@ -11,6 +11,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Set;
 
