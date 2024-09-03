@@ -15,6 +15,7 @@ import java.util.Set;
  * <p>
  * 基于Spring 转化器
  */
+@Deprecated
 public class EnumDescConverter implements GenericConverter {
 
     /**

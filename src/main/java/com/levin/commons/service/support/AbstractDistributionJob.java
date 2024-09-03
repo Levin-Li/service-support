@@ -302,7 +302,7 @@ public abstract class AbstractDistributionJob<T> {
 
                 //如果已经超时，退出循环
                 if ((System.currentTimeMillis() - startTime) > timeoutMs) {
-                    log.warn("*** [ {} ] 第[ {} ]次批任务执行超时，退出执行", getName(), counter.get());
+                    log.warn("*** [ {} ] 第[ {} ]次批任务执行超时，退出执行。", getName(), counter.get());
                     return;
                 }
             }
@@ -322,7 +322,7 @@ public abstract class AbstractDistributionJob<T> {
 
         } while (!isRunOnce && dataList.size() >= 1);
 
-        log.info("[ {} ] 第[ {} ]次批任务执行完成", getName(), counter.get());
+        log.info("[ {} ] 第[ {} ]次批任务执行完成。", getName(), counter.get());
     }
 
 }
