@@ -28,6 +28,7 @@ public @interface Desc {
     /**
      * 字典代码
      * 用于可选择值
+     * 特殊值 $@ 表示被注解字段的类名+"."+字段名，例如 User.type
      *
      * @return int
      */
