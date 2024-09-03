@@ -29,7 +29,7 @@ public class DefaultSpringMvcJsonDeserializerConfiguration implements WebMvcConf
 
     @PostConstruct
     public void init() {
-        log.info("*** Spring mvc 枚举值转换配置已经启用，可以使用 " + DefaultSpringMvcJsonDeserializerConfiguration.class.getName() + "=disable 禁用");
+        log.info("*** Spring mvc [字符串转JSONObject] 配置已经启用，可以使用 " + DefaultSpringMvcJsonDeserializerConfiguration.class.getName() + "=disable 禁用");
     }
 
 
@@ -64,7 +64,7 @@ public class DefaultSpringMvcJsonDeserializerConfiguration implements WebMvcConf
 
         @Override
         public String getModuleName() {
-            return "String2JsonObjectModule";
+            return String2JsonObjectModule.class.getName();
         }
 
         @Override
@@ -75,6 +75,25 @@ public class DefaultSpringMvcJsonDeserializerConfiguration implements WebMvcConf
         @Override
         public void setupModule(SetupContext context) {
             context.addDeserializers(new Deserializers.Base() {
+
+
+                @Override
+                public JsonDeserializer<?> findBeanDeserializer(JavaType type, DeserializationConfig config, BeanDescription beanDesc) throws JsonMappingException {
+
+                    //如果不是字符串类型，则不进行转换
+                    if (type.isTypeOrSubTypeOf(JsonElement.class)) {
+                        return googleJson;
+                    } else if (type.isTypeOrSubTypeOf(JSONObject.class)) {
+                        return fastJson2;
+                    } else if (type.isTypeOrSubTypeOf(com.alibaba.fastjson.JSONObject.class)) {
+                        return fastJson1;
+                    }else if (type.isTypeOrSubTypeOf(Map.class)) {
+                        return fastJson2;
+                    }
+
+                    return null;
+                }
+
                 final JsonDeserializer<JsonElement> googleJson = new JsonDeserializer<JsonElement>() {
                     @Override
                     public JsonElement deserialize(com.fasterxml.jackson.core.JsonParser p, DeserializationContext deserializationContext) throws IOException {
@@ -107,21 +126,6 @@ public class DefaultSpringMvcJsonDeserializerConfiguration implements WebMvcConf
                         return com.alibaba.fastjson.JSONObject.parseObject(p.getText());
                     }
                 };
-
-                @Override
-                public JsonDeserializer<?> findBeanDeserializer(JavaType type, DeserializationConfig config, BeanDescription beanDesc) throws JsonMappingException {
-
-                    //如果不是字符串类型，则不进行转换
-                    if (type.isTypeOrSubTypeOf(JsonElement.class)) {
-                        return googleJson;
-                    } else if (type.isTypeOrSubTypeOf(JSONObject.class)
-                            || type.isTypeOrSubTypeOf(Map.class)) {
-                        return fastJson2;
-                    } else if (type.isTypeOrSubTypeOf(com.alibaba.fastjson.JSONObject.class)) {
-                        return fastJson1;
-                    }
-                    return null;
-                }
             });
         }
     }
