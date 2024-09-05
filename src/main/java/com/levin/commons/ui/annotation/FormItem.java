@@ -29,7 +29,7 @@ public @interface FormItem {
     String[] groups() default "";
 
     /**
-     * 参数名称
+     * 表单项名称
      * 对应查询对象的字段名称，或是API接口的URL参数名称
      * <p>
      * "name": "${name}",
@@ -40,6 +40,13 @@ public @interface FormItem {
      * @return
      */
     String name() default "";
+
+    /**
+     * 表单填写描述
+     *
+     * @return
+     */
+    String desc() default "";
 
     /**
      * 值选项
@@ -118,12 +125,6 @@ public @interface FormItem {
      */
     String style() default "";
 
-    /**
-     * 表单填写描述
-     *
-     * @return
-     */
-    String desc() default "";
 
     /**
      * 创建的UI类型

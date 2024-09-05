@@ -23,7 +23,7 @@ public @interface Form {
      *
      * @return
      */
-    String title() default "";
+    String name() default "";
 
     /**
      * 描述

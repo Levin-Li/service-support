@@ -23,6 +23,20 @@ import java.lang.annotation.*;
 public @interface Options {
 
     /**
+     * 选项名称
+     *
+     * @return
+     */
+    String name() default "";
+
+    /**
+     * 选项描述
+     *
+     * @return
+     */
+    String desc() default "";
+
+    /**
      * 是否 多选/多值
      */
     boolean multiSelect() default false;

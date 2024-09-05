@@ -45,6 +45,20 @@ public @interface FormLayout {
     }
 
     /**
+     * 名称
+     *
+     * @return
+     */
+    String name() default "";
+
+    /**
+     * 描述
+     *
+     * @return
+     */
+    String desc() default "";
+
+    /**
      * 要布局的分组
      * 默认为空分组，即无分组的表单项
      * <p>
@@ -76,17 +90,4 @@ public @interface FormLayout {
      */
     String style() default "";
 
-    /**
-     * 标题
-     *
-     * @return
-     */
-    String title() default "";
-
-    /**
-     * 描述
-     *
-     * @return
-     */
-    String desc() default "";
 }
