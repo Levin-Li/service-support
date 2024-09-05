@@ -18,54 +18,6 @@ import java.lang.annotation.*;
 @Inherited
 public @interface FormItem {
 
-    enum DataType implements EnumDesc {
-
-        DEFAULT,
-
-        DATE_TIME, DATE, TIME,
-
-        DATE_TIME_RANGE, DATE_RANGE, TIME_RANGE,
-
-        TEXT,
-
-        URL,
-
-        EMAIL,
-
-        PHONE,
-
-        INTEGER,
-
-        FLOAT,
-
-        UPLOAD_IMG,
-
-        UPLOAD_FILE,
-
-        //开关
-        SWITCH,
-
-        //进度条
-        PROGRESS,
-
-        //默认是下拉展示
-        OPTIONS_DROP_DOWN,
-
-        //横向展示
-        OPTIONS_H,
-
-        //纵向展示
-        OPTIONS_V,
-
-        COLOR,
-
-        HTML,
-
-        CODE
-
-    }
-
-
     /**
      * 分组
      * 名称相同的项展示时会放在一起
@@ -75,57 +27,6 @@ public @interface FormItem {
      * 一个表单项可以属于多个分组
      */
     String[] groups() default "";
-
-    /**
-     * 值选项
-     *
-     *
-     * <p>
-     *
-     * @return
-     */
-    Options[] options() default {};
-
-    /**
-     * 表单的输入方式
-     * <p>
-     * 默认自动根据字段类型，如整形，字符串，日期，时间等
-     * 对应 Type
-     *
-     * @return
-     */
-    DataType dataType() default DataType.DEFAULT;
-
-
-    /**
-     * 表单的输入方式
-     *
-     * @return
-     */
-    String inputType() default "";
-
-    /**
-     * 编辑器
-     * 默认由表单的输入方式决定
-     *
-     * @return
-     */
-    String editor() default "";
-
-    /**
-     * 表单的展示方式
-     *
-     * @return
-     */
-    String viewType() default "";
-
-    /**
-     * 参数默认值
-     * 自动填入
-     *
-     * @return
-     */
-    String defaultValue() default "";
 
     /**
      * 参数名称
@@ -141,6 +42,24 @@ public @interface FormItem {
     String name() default "";
 
     /**
+     * 值选项
+     * <p>
+     * 正常只支持一个Options对象
+     * <p>
+     *
+     * @return
+     */
+    Options[] options() default {};
+
+    /**
+     * 参数默认值
+     * 自动填入
+     *
+     * @return
+     */
+    String defaultValue() default "";
+
+    /**
      * 数据校验表达式
      * <p>
      * 对填入的数据数据校验表达式
@@ -148,7 +67,7 @@ public @interface FormItem {
      *
      * @return
      */
-    String verifyRules() default "";
+    String[] verifyRules() default {};
 
     /**
      * 求值过滤器
@@ -158,7 +77,7 @@ public @interface FormItem {
      *
      * @return
      */
-    String dataToUiConvertors() default "";
+    String[] dataToUiConvertors() default {};
 
     /**
      * 求值过滤器
@@ -168,7 +87,7 @@ public @interface FormItem {
      *
      * @return
      */
-    String uiToDataConvertors() default "";
+    String[] uiToDataConvertors() default {};
 
     /**
      * 表单尾部提示
@@ -205,5 +124,26 @@ public @interface FormItem {
      * @return
      */
     String desc() default "";
+
+    /**
+     * 创建的UI类型
+     *
+     * @return
+     */
+    String createUiType() default "";
+
+    /**
+     * 修改时的UI类型
+     *
+     * @return
+     */
+    String updateUiType() default "";
+
+    /**
+     * 查看时的UI类型
+     *
+     * @return
+     */
+    String viewUiType() default "";
 
 }

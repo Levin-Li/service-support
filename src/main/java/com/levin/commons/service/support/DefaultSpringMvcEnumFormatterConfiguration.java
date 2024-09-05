@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -50,8 +51,9 @@ public class DefaultSpringMvcEnumFormatterConfiguration implements WebMvcConfigu
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         for (HttpMessageConverter<?> converter : converters) {
-            if (converter instanceof MappingJackson2HttpMessageConverter) {
-                ObjectMapper o = ((MappingJackson2HttpMessageConverter) converter).getObjectMapper();
+            if (converter instanceof AbstractJackson2HttpMessageConverter) {
+                ObjectMapper o = ((AbstractJackson2HttpMessageConverter) converter).getObjectMapper();
+                log.info("*** 注册枚举值转换器({})到 Jackson ObjectMapper", EnumModule.class.getName());
                 o.registerModule(new EnumModule());
             }
         }
