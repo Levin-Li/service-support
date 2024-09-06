@@ -11,10 +11,10 @@ import com.google.gson.JsonParser;
 import com.levin.commons.conditional.ConditionalOn;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.annotation.PostConstruct;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 @Configuration
 @Slf4j
-
+@Order
 @ConditionalOn(action = ConditionalOn.Action.OnProperty, value = "com.levin.commons.service.support.DefaultSpringMvcJsonDeserializerConfiguration!=disable")
 public class DefaultSpringMvcJsonDeserializerConfiguration implements WebMvcConfigurer {
 
@@ -49,6 +49,9 @@ public class DefaultSpringMvcJsonDeserializerConfiguration implements WebMvcConf
 
         //字符串到Map的转换
         registry.addConverter(String.class, Map.class, JSONObject::parse);
+
+        log.info("*** 注册[字符串到JSONObject]转换器({}) -> Spring mvc", DefaultSpringMvcJsonDeserializerConfiguration.class.getName());
+
     }
 
     @Override
@@ -57,7 +60,7 @@ public class DefaultSpringMvcJsonDeserializerConfiguration implements WebMvcConf
             if (converter instanceof AbstractJackson2HttpMessageConverter) {
                 ObjectMapper o = ((AbstractJackson2HttpMessageConverter) converter).getObjectMapper();
 
-                log.info("*** 注册[字符串到JsonObject]转换器({})到 Jackson ObjectMapper", String2JsonObjectModule.class.getName());
+                log.info("*** 注册[字符串到JsonObject]转换器({}) -> Jackson ObjectMapper", String2JsonObjectModule.class.getName());
                 o.registerModule(new String2JsonObjectModule());
             }
         }
@@ -89,7 +92,7 @@ public class DefaultSpringMvcJsonDeserializerConfiguration implements WebMvcConf
                         return fastJson2;
                     } else if (type.isTypeOrSubTypeOf(com.alibaba.fastjson.JSONObject.class)) {
                         return fastJson1;
-                    }else if (type.isTypeOrSubTypeOf(Map.class)) {
+                    } else if (type.isTypeOrSubTypeOf(Map.class)) {
                         return fastJson2;
                     }
 

@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -30,7 +31,7 @@ import java.util.List;
 
 @Configuration
 @Slf4j
-
+@Order
 @ConditionalOn(action = ConditionalOn.Action.OnProperty, value = "com.levin.commons.service.support.DefaultSpringMvcDateFormatterConfiguration!=disable")
 public class DefaultSpringMvcDateFormatterConfiguration implements WebMvcConfigurer {
 
@@ -51,6 +52,8 @@ public class DefaultSpringMvcDateFormatterConfiguration implements WebMvcConfigu
         //Spring MVC默认的日期转换器，请求参数转换为日期类型
 
         registry.addFormatter(dateFormat);
+
+        log.info("*** 注册日期值转换器({}) -> Spring mvc", DefaultDateFormat.class.getName());
     }
 
     @Override

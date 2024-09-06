@@ -13,6 +13,7 @@ import com.levin.commons.service.domain.EnumDesc;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
@@ -25,7 +26,7 @@ import java.util.List;
 
 @Configuration
 @Slf4j
-
+@Order
 @ConditionalOn(action = ConditionalOn.Action.OnProperty, value = "com.levin.commons.service.support.DefaultSpringMvcEnumFormatterConfiguration!=disable")
 public class DefaultSpringMvcEnumFormatterConfiguration implements WebMvcConfigurer {
 
@@ -46,6 +47,7 @@ public class DefaultSpringMvcEnumFormatterConfiguration implements WebMvcConfigu
         registry.addConverterFactory(EnumDesc.string2EnumFactory);
         registry.addConverterFactory(EnumDesc.number2EnumFactory);
 
+        log.info("*** 注册枚举值转换器({}) -> Spring mvc", EnumDesc.class.getName());
     }
 
     @Override
@@ -53,7 +55,7 @@ public class DefaultSpringMvcEnumFormatterConfiguration implements WebMvcConfigu
         for (HttpMessageConverter<?> converter : converters) {
             if (converter instanceof AbstractJackson2HttpMessageConverter) {
                 ObjectMapper o = ((AbstractJackson2HttpMessageConverter) converter).getObjectMapper();
-                log.info("*** 注册枚举值转换器({})到 Jackson ObjectMapper", EnumModule.class.getName());
+                log.info("*** 注册枚举值转换器({}) -> Jackson ObjectMapper", EnumModule.class.getName());
                 o.registerModule(new EnumModule());
             }
         }
