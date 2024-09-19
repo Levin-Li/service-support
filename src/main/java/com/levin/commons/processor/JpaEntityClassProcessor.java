@@ -493,7 +493,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 "\n" +
                 "        final boolean isNativeQL;\n" +
                 "\n" +
-                "        Collection<String> fields = new LinkedHashSet<String>();\n" +
+                "        Set<String> fields = new LinkedHashSet<String>();\n" +
                 "\n" +
                 "        protected FieldBuilder() {\n" +
                 "            this.isNativeQL = false;\n" +
@@ -508,7 +508,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 "            return this;\n" +
                 "        }\n" +
                 "\n" +
-                "        public Collection<String> build() {\n" +
+                "        public Set<String> build() {\n" +
                 "            return fields;\n" +
                 "        }\n");
 
