@@ -339,6 +339,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
         final Map<String, String> fieldMap = new LinkedHashMap<>();
 
+        List<String> classFields = new ArrayList<>();
 
         for (Element subEle : (hasParent && useExtends) ? typeElement.getEnclosedElements() : elementUtils.getAllMembers(typeElement)) {
 
@@ -379,7 +380,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 } else if (StringUtils.hasText(schema.description())) {
                     //
                     fieldDesc = LangUtils.splitDesc(schema.description());
-                    if(!StringUtils.hasText(fieldDesc[1])){
+                    if (!StringUtils.hasText(fieldDesc[1])) {
                         fieldDesc[1] = fieldDesc[0];
                     }
                 }
@@ -400,6 +401,8 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             if (!fieldName.equals(name)) {
                 fieldMap.put(fieldName, "\n\n    String " + fieldName + " = \"" + fieldName + "\"; //类字段名  \n");
+
+                classFields.add(fieldName);
             }
 
             String fieldTableColName = "T_" + fieldName;
@@ -474,8 +477,50 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                     .append("    default boolean isUnique(String field) {\n")
                     .append("        return uniqueFields.contains(field);\n")
                     .append("    }\n");
-
         }
+
+        //生成字段构建器
+        codeBlock.append(
+                "    public static FieldBuilder newFieldBuilder() {\n" +
+                "        return new FieldBuilder();\n" +
+                "    }\n" +
+                "\n" +
+                "    public static FieldBuilder newNativeQLFieldBuilder() {\n" +
+                "        return new FieldBuilder(true);\n" +
+                "    }\n" +
+                "\n" +
+                "    public static class FieldBuilder {\n" +
+                "\n" +
+                "        final boolean isNativeQL;\n" +
+                "\n" +
+                "        Collection<String> fields = new LinkedHashSet<String>();\n" +
+                "\n" +
+                "        protected FieldBuilder() {\n" +
+                "            this.isNativeQL = false;\n" +
+                "        }\n" +
+                "\n" +
+                "        protected FieldBuilder(boolean isNativeQL) {\n" +
+                "            this.isNativeQL = isNativeQL;\n" +
+                "        }\n" +
+                "\n" +
+                "        protected FieldBuilder add(String field) {\n" +
+                "            fields.add(field);\n" +
+                "            return this;\n" +
+                "        }\n" +
+                "\n" +
+                "        public Collection<String> build() {\n" +
+                "            return fields;\n" +
+                "        }\n");
+
+
+        for (String fieldName : classFields) {
+            codeBlock.append("        public FieldBuilder " + fieldName + "() {\n" +
+                    "            return add(this.isNativeQL?F_" + fieldName + ":" + fieldName + ");\n" +
+                    "        }\n");
+        }
+
+        codeBlock.append("  }\n");
+
     }
 
     private String replaceText(String name) {
