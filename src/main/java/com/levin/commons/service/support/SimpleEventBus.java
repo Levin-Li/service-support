@@ -1,11 +1,9 @@
 package com.levin.commons.service.support;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Setter;
-import lombok.SneakyThrows;
+import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.util.*;
 
 import java.io.Serializable;
@@ -19,10 +17,11 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @Slf4j
-@Data
 @Accessors(chain = true)
 public class SimpleEventBus implements EventBus {
 
+    @Setter
+    @Getter
     @Data
     @Accessors(chain = true)
     @AllArgsConstructor
@@ -34,7 +33,8 @@ public class SimpleEventBus implements EventBus {
         T data;
     }
 
-    @Data
+    @Setter
+    @Getter
     @Accessors(chain = true)
     @AllArgsConstructor
     static class EventConsumer<T> implements Serializable {
@@ -56,6 +56,8 @@ public class SimpleEventBus implements EventBus {
 
     private final AtomicBoolean working = new AtomicBoolean(false);
 
+    @Setter
+    @Getter
     Executor executor;
 
     public SimpleEventBus() {
@@ -139,7 +141,7 @@ public class SimpleEventBus implements EventBus {
 
             //如果指定了事件类型，但事件类型不匹配，则跳过
             if (consumer.expectEventTypes != null
-                    && Stream.of(consumer.expectEventTypes).noneMatch(et -> TypeUtils.isAssignableBound(et, event.getData().getClass()))) {
+                    && Stream.of(consumer.expectEventTypes).noneMatch(et -> TypeUtils.isAssignableBound(et, AopProxyUtils.ultimateTargetClass(event.getData())))) {
                 //指定了事件类型，但事件类型不匹配
                 continue;
             }

@@ -1,6 +1,5 @@
 package com.levin.commons.service.support;
 
-import org.springframework.lang.NonNull;
 
 import java.lang.reflect.Type;
 import java.util.function.Consumer;
