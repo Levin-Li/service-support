@@ -18,7 +18,7 @@ public interface EventBus {
     /**
      * 发送事件
      *
-     * @param topic
+     * @param topic 
      * @param event
      */
     default void sendEvent(String topic, Object event) {
@@ -49,24 +49,24 @@ public interface EventBus {
     /**
      * 增加事件处理器
      *
-     * @param topicExpr       ant path 匹配
+     * @param topicPattern    AntPathMatcher 匹配
      * @param eventConsumer   事件处理器, @NonNull
      * @param expectEventType
      * @return 处理器
      */
-    default <T> void addEventConsumer(String topicExpr, Class<T> expectEventType, Consumer<T> eventConsumer) {
-        addEventConsumer(topicExpr, eventConsumer, expectEventType);
+    default <T> void addEventConsumer(String topicPattern, Class<T> expectEventType, Consumer<T> eventConsumer) {
+        addEventConsumer(topicPattern, eventConsumer, expectEventType);
     }
 
     /**
      * 增加事件处理器
      *
-     * @param topicExpr        ant path 匹配
+     * @param topicPattern        AntPathMatcher 匹配
      * @param eventConsumer    事件处理器, @NonNull
      * @param expectEventTypes
      * @return 处理器
      */
-    <T> void addEventConsumer(String topicExpr, Consumer<T> eventConsumer, Type... expectEventTypes);
+    <T> void addEventConsumer(String topicPattern, Consumer<T> eventConsumer, Type... expectEventTypes);
 
     /**
      * 移除消费者

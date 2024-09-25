@@ -5,6 +5,9 @@ import org.springframework.context.annotation.Conditional;
 
 import java.lang.annotation.*;
 
+/**
+ * @author lilw
+ */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

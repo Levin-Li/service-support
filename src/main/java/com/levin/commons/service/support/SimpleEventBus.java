@@ -39,7 +39,7 @@ public class SimpleEventBus implements EventBus {
     @AllArgsConstructor
     static class EventConsumer<T> implements Serializable {
 
-        String topicExpr;
+        String topicPattern;
 
         Type[] expectEventTypes;
 
@@ -134,8 +134,8 @@ public class SimpleEventBus implements EventBus {
         for (EventConsumer consumer : consumerQueue) {
 
             //如果有topic表达式，但是topic不匹配，则跳过
-            if (StringUtils.hasText(consumer.topicExpr)
-                    && !matcher.match(consumer.topicExpr, event.getTopic())) {
+            if (StringUtils.hasText(consumer.topicPattern)
+                    && !matcher.match(consumer.topicPattern, event.getTopic())) {
                 continue;
             }
 
@@ -195,21 +195,21 @@ public class SimpleEventBus implements EventBus {
     /**
      * 增加事件处理器
      *
-     * @param topicExpr        ant path 匹配
+     * @param topicPattern        ant path 匹配
      * @param eventConsumer
      * @param expectEventTypes
      * @return 处理器
      */
     @SneakyThrows
     @Override
-    public <T> void addEventConsumer(String topicExpr, Consumer<T> eventConsumer, Type... expectEventTypes) {
+    public <T> void addEventConsumer(String topicPattern, Consumer<T> eventConsumer, Type... expectEventTypes) {
 
         checkStatus();
 
-        //Assert.hasText(topicExpr, "事件主题匹配表达式为空");
+        //Assert.hasText(topicPattern, "事件主题匹配表达式为空");
         Assert.notNull(eventConsumer, "事件处理器为空");
 
-        boolean ok = consumerQueue.offer(new EventConsumer(topicExpr, expectEventTypes, eventConsumer), 3, TimeUnit.SECONDS);
+        boolean ok = consumerQueue.offer(new EventConsumer(topicPattern, expectEventTypes, eventConsumer), 3, TimeUnit.SECONDS);
 
         Assert.isTrue(ok, "增加事件处理器失败");
     }
