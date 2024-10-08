@@ -78,7 +78,7 @@ public class CpuUtils {
 
         if (getCpuLoad() >= cpuThreshold) {
             try {
-                Thread.sleep(sleepMs);
+                Thread.sleep(sleepMs < 1 ? 1 : sleepMs);
             } catch (InterruptedException e) {
                 return getCpuLoad();
             }
