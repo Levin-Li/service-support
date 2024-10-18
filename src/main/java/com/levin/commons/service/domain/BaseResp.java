@@ -44,6 +44,9 @@ public class BaseResp<T>
     @NotNull
     protected int code = 0;
 
+    @Schema(title = "追踪标识", description = "请求唯一标识，用于链路追踪")
+    protected String traceId;
+
     @Schema(title = "信息摘要", description = "信息摘要，可用于界面展示")
     protected String msg;
 

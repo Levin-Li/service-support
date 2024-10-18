@@ -1,5 +1,6 @@
 package com.levin.commons.service.domain;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
@@ -18,29 +19,29 @@ import java.util.List;
 public interface ServiceResp<T>
         extends Serializable {
 
-    /**
-     * 获取响应码，非零表示有错误或异常
-     *
-     * @return
-     */
+    @Schema(title = "响应码", description = "响应码，非零表示有错误或异常")
     int getCode();
 
-    /**
-     * 是否成功
-     *
-     * @return
-     */
     @Schema(title = "请求是否成功", description = "请求是否成功，等同于code == 0")
     default boolean isSuccessful() {
         return getCode() == 0;
     }
 
-    /**
-     * 获取异常类型
-     * 如果没有异常则返回null
-     *
-     * @return
-     */
+    @Schema(title = "追踪标识", description = "一般用于追踪错误信息")
+    String getTraceId();
+
+    @Schema(title = "可展示信息", description = "一般是错误信息")
+    String getMsg();
+
+    @Schema(title = "详细信息", description = "错误详细信息，如：堆栈信息")
+    String getDetailMsg();
+
+    @Operation(summary = "交互信息", description = "交互信息，如：跳转地址，重定向地址等")
+    List<Interaction> getInteractions();
+
+    @Schema(title = "业务数据")
+    T getData();
+
     @Schema(title = "异常类型", description = "异常类型，如果没有异常则返回null")
     default ErrorType getErrorType() {
         return ErrorType.getErrorType(getCode());
@@ -51,33 +52,11 @@ public interface ServiceResp<T>
         return !isSuccessful() && getCode() < ErrorType.AuthenticationError.baseErrorCode;
     }
 
-    /**
-     * 获取信息
-     *
-     * @return
-     */
-    String getMsg();
 
-    /**
-     * 获取详细信息
-     *
-     * @return
-     */
-    String getDetailMsg();
-
-    /**
-     * 服务交互
-     *
-     * @return
-     */
-    List<Interaction> getInteractions();
-
-    /**
-     * 业务数据
-     *
-     * @return
-     */
-    T getData();
+    @Operation(summary = "类型强转")
+    default <E extends ServiceResp<T>> E cast() {
+        return (E) this;
+    }
 
     @Schema(title = "错误类型")
     enum ErrorType implements EnumDesc {
