@@ -10,6 +10,7 @@ import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
 import javax.validation.constraints.NotBlank;
+import java.util.UUID;
 
 /**
  * API 签名对象
@@ -26,10 +27,12 @@ import javax.validation.constraints.NotBlank;
 @Data
 @Accessors(chain = true)
 @Schema(title = "签名对象")
-public class DefaultSignatureReq
-        implements SignReq {
+public class DefaultSignatureReq implements SignReq {
 
     private static final long serialVersionUID = -944707546677849710L;
+
+    @Schema(title = "请求标识", description = "请求标识，用于跟踪请求，便于调试")
+    String traceId = UUID.randomUUID().toString().replace("-", "");
 
     @Schema(title = "应用标识")
     @NotBlank

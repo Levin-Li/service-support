@@ -36,10 +36,10 @@ public class ApiResp<T>
 
     private static final long serialVersionUID = -944707546677849710L;
 
-    @Schema(title = "HTTP状态码",description = "HTTP状态码，默认为0，表示忽略，以http请求为准")
+    @Schema(title = "HTTP状态码", description = "HTTP状态码，默认为0，表示忽略，以http请求为准")
     protected int httpStatusCode;
 
-    @Schema(title = "签名验证",description = "响应消息的签名验证，防止响应消息被拦截篡改")
+    @Schema(title = "签名验证", description = "响应消息的签名验证，防止响应消息被拦截篡改")
     protected String sign;
 
     public ApiResp(T data) {

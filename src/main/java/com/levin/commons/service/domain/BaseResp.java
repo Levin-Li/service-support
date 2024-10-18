@@ -9,6 +9,7 @@ import lombok.experimental.FieldNameConstants;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 服务响应类
@@ -44,8 +45,8 @@ public class BaseResp<T>
     @NotNull
     protected int code = 0;
 
-    @Schema(title = "追踪标识", description = "请求唯一标识，用于链路追踪")
-    protected String traceId;
+    @Schema(title = "响应标识", description = "一般用于追踪信息")
+    protected String traceId = UUID.randomUUID().toString().replace("-", "");
 
     @Schema(title = "信息摘要", description = "信息摘要，可用于界面展示")
     protected String msg;

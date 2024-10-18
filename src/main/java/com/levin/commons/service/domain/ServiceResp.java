@@ -17,7 +17,7 @@ import java.util.List;
 
 @Schema(title = "服务响应")
 public interface ServiceResp<T>
-        extends Serializable {
+        extends Traceable, Serializable {
 
     @Schema(title = "响应码", description = "响应码，非零表示有错误或异常")
     int getCode();
@@ -26,9 +26,6 @@ public interface ServiceResp<T>
     default boolean isSuccessful() {
         return getCode() == 0;
     }
-
-    @Schema(title = "追踪标识", description = "一般用于追踪错误信息")
-    String getTraceId();
 
     @Schema(title = "可展示信息", description = "一般是错误信息")
     String getMsg();

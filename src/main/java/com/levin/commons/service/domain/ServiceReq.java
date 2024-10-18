@@ -15,12 +15,7 @@ import java.io.Serializable;
 
 @Schema(title = "服务请求类")
 public interface ServiceReq
-        extends Serializable {
-
-    @Schema(title = "请求ID", description = "请求ID，用于跟踪请求，便于调试")
-    default String getRequestId() {
-        return null;
-    }
+        extends Traceable, Serializable {
 
     @Schema(title = "是否超级管理员", hidden = true)
     default boolean isSuperAdmin() {
