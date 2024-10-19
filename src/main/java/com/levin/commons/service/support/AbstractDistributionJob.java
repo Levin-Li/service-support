@@ -279,7 +279,7 @@ public abstract class AbstractDistributionJob<T> {
 
                                         try {
                                             com.levin.commons.utils.CpuUtils.sleepIfCpuLoadOverThreshold(getMaxCpuRatio(), getSleepByPerRecord());
-                                        } catch (Exception e) {
+                                        } catch (Throwable e) {
                                             try {
                                                 Thread.sleep(1);
                                             } catch (InterruptedException ex) {
