@@ -19,7 +19,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.levin.commons.utils.CpuUtils.sleepIfCpuLoadOverThreshold;
 
 
 @Schema(title = "分布式定时任务")
@@ -278,7 +277,15 @@ public abstract class AbstractDistributionJob<T> {
                                             log.error(getName() + "处理单条数据<<<" + getDataDesc(data) + ">>>时发生异常" + e.getMessage(), e);
                                         }
 
-                                        sleepIfCpuLoadOverThreshold(getMaxCpuRatio(), getSleepByPerRecord());
+                                        try {
+                                            com.levin.commons.utils.CpuUtils.sleepIfCpuLoadOverThreshold(getMaxCpuRatio(), getSleepByPerRecord());
+                                        } catch (Exception e) {
+                                            try {
+                                                Thread.sleep(1);
+                                            } catch (InterruptedException ex) {
+                                            }
+                                        }
+
                                     });
 
                                     if (!hasLock
