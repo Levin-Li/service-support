@@ -78,10 +78,11 @@ public class SimpleEventBus implements EventBus {
         }
 
         executor.execute(() -> {
+
+            log.info("事件总线工作中...");
+
             try {
                 working.set(true);
-
-                log.info("事件总线工作中...");
 
                 while (!Thread.currentThread().isInterrupted()) {
 
@@ -95,26 +96,27 @@ public class SimpleEventBus implements EventBus {
 
                     if (event == null) {
                         //没有事件，退出线程
-                        return;
-                    }
+                        // working.set(false);
+                        //  return;
+                    } else {
 
-                    //异步处理事件
-                    processEvent(event);
+                        //异步处理事件
+                        processEvent(event);
+                    }
 
                 }
 
                 //如果线程被中断，停止工作，则清除所有的数据
-
                 stop.set(true);
 
                 //清除所有的数据
-                eventQueue.clear();
-
-                log.info("事件总线停止");
+                //eventQueue.clear();
 
             } finally {
                 working.set(false);
             }
+
+            log.info("事件总线停止");
 
         });
     }
@@ -195,7 +197,7 @@ public class SimpleEventBus implements EventBus {
     /**
      * 增加事件处理器
      *
-     * @param topicPattern        ant path 匹配
+     * @param topicPattern     ant path 匹配
      * @param eventConsumer
      * @param expectEventTypes
      * @return 处理器
