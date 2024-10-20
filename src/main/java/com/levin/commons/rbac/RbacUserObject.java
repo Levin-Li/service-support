@@ -20,24 +20,6 @@ public interface RbacUserObject<ROLE extends Serializable>
         extends Serializable, MultiTenantObject, OrganizedObject, Identifiable, NamedObject {
 
     /**
-     * 是否超级用户
-     *
-     * @return
-     */
-    default boolean isSuperAdmin() {
-        return hasRole((ROLE) RbacRoleObject.SA_ROLE);
-    }
-
-    /**
-     * 是否是SAAS管理员
-     *
-     * @return
-     */
-    default boolean isSaasAdmin() {
-        return hasRole((ROLE) RbacRoleObject.SAAS_ADMIN);
-    }
-
-    /**
      * 是否SAAS用户
      *
      * @return
@@ -47,6 +29,24 @@ public interface RbacUserObject<ROLE extends Serializable>
         return getTenantId() == null || getTenantId().toString().trim().isEmpty();
     }
 
+    /**
+     * 是否超级用户
+     *
+     * @return
+     */
+    default boolean isSuperAdmin() {
+        return isSaasUser() && hasRole((ROLE) RbacRoleObject.SA_ROLE);
+    }
+
+    /**
+     * 是否是SAAS管理员
+     *
+     * @return
+     */
+    default boolean isSaasAdmin() {
+        return isSaasUser() && hasRole((ROLE) RbacRoleObject.SAAS_ADMIN);
+    }
+
 
     /**
      * 是否是租户管理员
@@ -54,7 +54,7 @@ public interface RbacUserObject<ROLE extends Serializable>
      * @return
      */
     default boolean isTenantAdmin() {
-        return hasRole((ROLE) RbacRoleObject.ADMIN_ROLE);
+        return !isSaasUser() && hasRole((ROLE) RbacRoleObject.ADMIN_ROLE);
     }
 
     /**
