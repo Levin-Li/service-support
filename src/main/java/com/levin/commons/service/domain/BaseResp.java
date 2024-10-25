@@ -1,9 +1,7 @@
 package com.levin.commons.service.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
@@ -24,7 +22,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 //@Builder
-@Data
+@Getter
+@Setter
+@ToString
 @Accessors(chain = true)
 @Schema(title = "服务响应对象")
 @FieldNameConstants
