@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 
-
 @Schema(title = "分布式定时任务")
 @Slf4j
 public abstract class AbstractDistributionJob<T> {
@@ -50,6 +49,7 @@ public abstract class AbstractDistributionJob<T> {
      */
     protected final StatHelper statHelper = new StatHelper();
 
+    private boolean controlCpuUsage = true;
 
     @PostConstruct
     public void init() {
@@ -194,7 +194,7 @@ public abstract class AbstractDistributionJob<T> {
      * @return
      */
     protected int getMaxCpuRatio() {
-        return 85;
+        return 75;
     }
 
     /**
@@ -206,6 +206,29 @@ public abstract class AbstractDistributionJob<T> {
      */
     protected long getSleepByPerBatch() {
         return 1;
+    }
+
+
+    /**
+     * 自动控制CPU使用率
+     */
+    protected void autoControlCpuUsage() {
+
+        if (!controlCpuUsage) {
+            return;
+        }
+
+        try {
+            com.levin.commons.utils.CpuUtils.sleepIfCpuLoadOverThreshold(getMaxCpuRatio(), getSleepByPerRecord());
+        } catch (Error e) {
+            //如果发生错误，则等待1毫秒
+            controlCpuUsage = false;
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException ex) {
+            }
+        }
+
     }
 
     /**
@@ -277,14 +300,7 @@ public abstract class AbstractDistributionJob<T> {
                                             log.error(getName() + "处理单条数据<<<" + getDataDesc(data) + ">>>时发生异常" + e.getMessage(), e);
                                         }
 
-                                        try {
-                                            com.levin.commons.utils.CpuUtils.sleepIfCpuLoadOverThreshold(getMaxCpuRatio(), getSleepByPerRecord());
-                                        } catch (Throwable e) {
-                                            try {
-                                                Thread.sleep(1);
-                                            } catch (InterruptedException ex) {
-                                            }
-                                        }
+                                        autoControlCpuUsage();
 
                                     });
 
@@ -331,5 +347,6 @@ public abstract class AbstractDistributionJob<T> {
 
         log.info("[ {} ] 第[ {} ]次批任务执行完成。", getName(), counter.get());
     }
+
 
 }
