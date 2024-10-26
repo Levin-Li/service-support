@@ -214,21 +214,20 @@ public abstract class AbstractDistributionJob<T> {
      */
     protected void autoControlCpuUsage() {
 
-        if (!controlCpuUsage) {
-            return;
-        }
-
-        try {
-            com.levin.commons.utils.CpuUtils.sleepIfCpuLoadOverThreshold(getMaxCpuRatio(), getSleepByPerRecord());
-        } catch (Error e) {
-            //如果发生错误，则等待1毫秒
-            controlCpuUsage = false;
+        if (controlCpuUsage) {
+            try {
+                com.levin.commons.utils.CpuUtils.sleepIfCpuLoadOverThreshold(getMaxCpuRatio(), getSleepByPerRecord());
+            } catch (Error e) {
+                //如果发生错误，则等待1毫秒
+                controlCpuUsage = false;
+                log.error("自动控制CPU使用率发生错误，将不再执行, {}", e.getMessage(), e);
+            }
+        } else {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException ex) {
             }
         }
-
     }
 
     /**
