@@ -30,7 +30,7 @@ import java.util.UUID;
 @FieldNameConstants
 //@Builder
 public class BaseResp<T>
-        implements ServiceResp<T> {
+        implements ServiceResp<T>, Cloneable {
 
     private static final long serialVersionUID = -944707546677849710L;
 
@@ -101,6 +101,11 @@ public class BaseResp<T>
 
     public static <T> BaseResp<T> ok() {
         return new BaseResp<>();
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
 }
