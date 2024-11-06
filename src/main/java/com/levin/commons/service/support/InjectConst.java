@@ -132,6 +132,7 @@ public interface InjectConst {
     ////////////////////////////////////////////////////////////////
 
     String HTTP_HEADER_PREFIX = "_HH_";
+    String HTTP_PARAM_PREFIX = "_HP_";
 
     /**
      * 客户端 IP 地址

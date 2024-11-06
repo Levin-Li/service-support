@@ -59,6 +59,22 @@ public class HttpRequestInfoResolver implements VariableResolver {
 
             value = request.getScheme();
 
+        } else if (name.startsWith(InjectConst.HTTP_HEADER_PREFIX)) {
+
+            value = request.getHeader(name.substring(InjectConst.HTTP_HEADER_PREFIX.length()));
+
+            if (value == null) {
+                return ValueHolder.notValue(name);
+            }
+
+        } else if (name.startsWith(InjectConst.HTTP_PARAM_PREFIX)) {
+
+            value = request.getParameter(name.substring(InjectConst.HTTP_PARAM_PREFIX.length()));
+
+            if (value == null) {
+                return ValueHolder.notValue(name);
+            }
+
         } else {
             return ValueHolder.notValue(name);
         }
