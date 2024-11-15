@@ -1,6 +1,7 @@
 package com.levin.commons.service.support;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.TypeUtil;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
@@ -10,8 +11,10 @@ import com.alibaba.fastjson2.JSONReader;
 import com.alibaba.fastjson2.PropertyNamingStrategy;
 import com.alibaba.fastjson2.writer.ObjectWriterProvider;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 
 import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -123,10 +126,11 @@ public abstract class BaseHttpRequestSupport {
             if (contentType == ContentType.JSON) {
                 httpRequest.body(showText = isUnderlineNaming ? JSON.toJSONString(requestParam, JSONFactory.createWriteContext(new ObjectWriterProvider(PropertyNamingStrategy.SnakeCase)))
                         : JSON.toJSONString(requestParam)); //
-            } else if (contentType == ContentType.MULTIPART) {
-                httpRequest.form(BeanUtil.beanToMap(requestParam, isUnderlineNaming, true));
-            } else if (contentType == ContentType.FORM_URLENCODED) {
-                httpRequest.form(BeanUtil.beanToMap(requestParam, isUnderlineNaming, true));
+            } else if (contentType == ContentType.MULTIPART
+                    || contentType == ContentType.FORM_URLENCODED) {
+
+                httpRequest.form(filterValue(contentType, BeanUtil.beanToMap(requestParam, isUnderlineNaming, true)));
+
             } else if (contentType == ContentType.OCTET_STREAM) {
                 httpRequest.body((byte[]) requestParam);
             } else {
@@ -153,6 +157,27 @@ public abstract class BaseHttpRequestSupport {
 
         return JSON.parseObject(respBody, respneseType, getParseFeatures());
 
+    }
+
+    protected boolean isToJsonStr(ContentType contentType, Object value) {
+
+        if (value == null) {
+            return false;
+        }
+
+        if (contentType == ContentType.MULTIPART
+                || contentType == ContentType.FORM_URLENCODED) {
+            return !BeanUtils.isSimpleProperty(value.getClass());
+        }
+
+        return false;
+    }
+
+    protected Map<String, Object> filterValue(ContentType contentType, Map<String, Object> bean) {
+
+        bean.replaceAll((k, v) -> isToJsonStr(contentType, v) ? JSON.toJSONString(v) : v);
+
+        return bean;
     }
 
     protected String sampleText(String text) {
