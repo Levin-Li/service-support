@@ -1,7 +1,6 @@
 package com.levin.commons.service.support;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.TypeUtil;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
@@ -18,14 +17,16 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 @Slf4j
-public abstract class BaseHttpRequestSupport {
+public class BaseHttpRequestSupport {
 
     /**
      * 获取请求地址
      *
      * @return
      */
-    protected abstract String getBaseUrl();
+    protected String getBaseUrl() {
+        return "";
+    }
 
 
     /**
@@ -33,7 +34,8 @@ public abstract class BaseHttpRequestSupport {
      *
      * @param httpRequest
      */
-    protected abstract void initHttpRequest(HttpRequest httpRequest);
+    protected void initHttpRequest(HttpRequest httpRequest) {
+    }
 
     /**
      * Json解析配置
