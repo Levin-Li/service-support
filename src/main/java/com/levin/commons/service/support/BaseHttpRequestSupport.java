@@ -121,13 +121,11 @@ public class BaseHttpRequestSupport {
                 .setFollowRedirects(true)
                 .contentType(contentType.getValue());
 
-
         String showText = null;
 
         if (requestParam != null) {
             if (contentType == ContentType.JSON) {
-                httpRequest.body(showText = isUnderlineNaming ? JSON.toJSONString(requestParam, JSONFactory.createWriteContext(new ObjectWriterProvider(PropertyNamingStrategy.SnakeCase)))
-                        : JSON.toJSONString(requestParam)); //
+                httpRequest.body(showText = toJsonStr(isUnderlineNaming, requestParam)); //
             } else if (contentType == ContentType.MULTIPART
                     || contentType == ContentType.FORM_URLENCODED) {
 
@@ -161,6 +159,15 @@ public class BaseHttpRequestSupport {
 
     }
 
+    protected String toJsonStr(Object requestParam) {
+        return toJsonStr(isUnderlineNaming(), requestParam);
+    }
+
+    protected String toJsonStr(boolean isUnderlineNaming, Object requestParam) {
+        return isUnderlineNaming ? JSON.toJSONString(requestParam, JSONFactory.createWriteContext(new ObjectWriterProvider(PropertyNamingStrategy.SnakeCase)))
+                : JSON.toJSONString(requestParam);
+    }
+
     protected boolean isToJsonStr(ContentType contentType, Object value) {
 
         if (value == null) {
@@ -177,7 +184,7 @@ public class BaseHttpRequestSupport {
 
     protected Map<String, Object> filterValue(ContentType contentType, Map<String, Object> bean) {
 
-        bean.replaceAll((k, v) -> isToJsonStr(contentType, v) ? JSON.toJSONString(v) : v);
+        bean.replaceAll((k, v) -> isToJsonStr(contentType, v) ? toJsonStr(v) : v);
 
         return bean;
     }
