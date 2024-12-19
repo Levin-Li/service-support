@@ -71,6 +71,9 @@ public abstract class AbstractDistributionJob<T> {
         //本地不可重入
         if (running.compareAndSet(false, true)) {
             try {
+
+                Thread.currentThread().setName(getName());
+
                 if (standalone) {
                     batchProcess(timeoutMs, runOnce, batchSize);
                 } else {
@@ -296,7 +299,7 @@ public abstract class AbstractDistributionJob<T> {
                                             }
                                         } catch (Exception e) {
                                             isStop.set(isTerminateOnException());
-                                            log.error(getName() + "处理单条数据<<<" + getDataDesc(data) + ">>>时发生异常" + e.getMessage(), e);
+                                            log.error(getName() + "处理单条数据<<<" + getDataDesc(data) + ">>>时发生异常，" + e.getMessage(), e);
                                         }
 
                                         autoControlCpuUsage();
