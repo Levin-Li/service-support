@@ -68,11 +68,14 @@ public abstract class AbstractDistributionJob<T> {
         if (pause) {
             return;
         }
+
+        final String threadName = Thread.currentThread().getName();
+
         //本地不可重入
         if (running.compareAndSet(false, true)) {
             try {
 
-                Thread.currentThread().setName(getName());
+                setThreadName(getName());
 
                 if (standalone) {
                     batchProcess(timeoutMs, runOnce, batchSize);
@@ -80,10 +83,19 @@ public abstract class AbstractDistributionJob<T> {
                     tryLockAndDoTask(getJobLockKey(), () -> batchProcess(timeoutMs, runOnce, batchSize));
                 }
             } finally {
+                setThreadName(threadName);
                 running.set(false);
             }
         }
 
+    }
+
+
+    protected void setThreadName(String name) {
+        try {
+            Thread.currentThread().setName(name);
+        } catch (Exception e) {
+        }
     }
 
     /**
@@ -291,6 +303,7 @@ public abstract class AbstractDistributionJob<T> {
                                 {
                                     boolean hasLock = tryLockAndDoTask(getDataLockKey(data), () -> {
                                         try {
+
                                             //执行
                                             isStop.set(!processData(data));
 
@@ -300,8 +313,8 @@ public abstract class AbstractDistributionJob<T> {
                                         } catch (Exception e) {
                                             isStop.set(isTerminateOnException());
                                             log.error(getName() + "处理单条数据<<<" + getDataDesc(data) + ">>>时发生异常，" + e.getMessage(), e);
+                                        } finally {
                                         }
-
                                         autoControlCpuUsage();
 
                                     });
