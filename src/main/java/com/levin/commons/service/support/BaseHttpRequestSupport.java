@@ -54,28 +54,28 @@ public class BaseHttpRequestSupport {
         return false;
     }
 
-    public <T> T get(String title, String url, Object requestParam, Type respneseType) {
-        return get(title, url, requestParam, respneseType, this::initHttpRequest);
+    public <T> T get(String title, String url, Object requestParam, Type responseType) {
+        return get(title, url, requestParam, responseType, this::initHttpRequest);
     }
 
-    public <T> T postJson(String title, String url, Object requestParam, Type respneseType) {
-        return postJson(title, url, requestParam, respneseType, this::initHttpRequest);
+    public <T> T postJson(String title, String url, Object requestParam, Type responseType) {
+        return postJson(title, url, requestParam, responseType, this::initHttpRequest);
     }
 
-    public <T> T postMultipart(String title, String url, Object requestParam, Type respneseType) {
-        return postMultipart(title, url, respneseType, requestParam, this::initHttpRequest);
+    public <T> T postMultipart(String title, String url, Object requestParam, Type responseType) {
+        return postMultipart(title, url, responseType, requestParam, this::initHttpRequest);
     }
 
-    public <T> T get(String title, String url, Object requestParam, Type respneseType, Consumer<HttpRequest> requestConsumer) {
-        return doHttpRequest(title, "get", url, ContentType.FORM_URLENCODED, isUnderlineNaming(), requestParam, respneseType, requestConsumer);
+    public <T> T get(String title, String url, Object requestParam, Type responseType, Consumer<HttpRequest> requestConsumer) {
+        return doHttpRequest(title, "get", url, ContentType.FORM_URLENCODED, isUnderlineNaming(), requestParam, responseType, requestConsumer);
     }
 
-    public <T> T postJson(String title, String url, Object requestParam, Type respneseType, Consumer<HttpRequest> requestConsumer) {
-        return doHttpRequest(title, "post", url, ContentType.JSON, isUnderlineNaming(), requestParam, respneseType, requestConsumer);
+    public <T> T postJson(String title, String url, Object requestParam, Type responseType, Consumer<HttpRequest> requestConsumer) {
+        return doHttpRequest(title, "post", url, ContentType.JSON, isUnderlineNaming(), requestParam, responseType, requestConsumer);
     }
 
-    public <T> T postMultipart(String title, String url, Type respneseType, Object requestParam, Consumer<HttpRequest> requestConsumer) {
-        return doHttpRequest(title, "post", url, ContentType.MULTIPART, isUnderlineNaming(), requestParam, respneseType, requestConsumer);
+    public <T> T postMultipart(String title, String url, Type responseType, Object requestParam, Consumer<HttpRequest> requestConsumer) {
+        return doHttpRequest(title, "post", url, ContentType.MULTIPART, isUnderlineNaming(), requestParam, responseType, requestConsumer);
     }
 
     /**
@@ -83,13 +83,13 @@ public class BaseHttpRequestSupport {
      *
      * @param title
      * @param url
-     * @param respneseType
+     * @param responseType
      * @param requestParam
      * @param requestConsumer
      * @param <T>
      * @return
      */
-    public <T> T doHttpRequest(String title, String httpMethod, String url, ContentType contentType, boolean isUnderlineNaming, Object requestParam, Type respneseType, Consumer<HttpRequest> requestConsumer) {
+    public <T> T doHttpRequest(String title, String httpMethod, String url, ContentType contentType, boolean isUnderlineNaming, Object requestParam, Type responseType, Consumer<HttpRequest> requestConsumer) {
 
         if (!url.toLowerCase().startsWith("https://")
                 && !url.toLowerCase().startsWith("http://")) {
@@ -150,12 +150,15 @@ public class BaseHttpRequestSupport {
 
         HttpResponse response = httpRequest.execute();
 
-
         String respBody = response.body();
 
         log.info(title + "-响应 URL：{} status:{} 响应结果：{}", httpRequest.getUrl(), response.getStatus(), sampleText(respBody));
 
-        return JSON.parseObject(respBody, respneseType, getParseFeatures());
+        if(responseType == null || responseType == String.class || responseType == CharSequence.class){
+            return (T) respBody;
+        }
+        
+        return JSON.parseObject(respBody, responseType, getParseFeatures());
 
     }
 

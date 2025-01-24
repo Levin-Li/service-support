@@ -33,6 +33,8 @@ public @interface DataMasking {
      */
     ResAuthorize showAuthorize() default @ResAuthorize(ignored = true);
 
+
+
     /**
      * 原始数据脱敏编码器
      *
