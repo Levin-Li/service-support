@@ -2,10 +2,9 @@ package com.levin.commons.service.domain;
 
 
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
+import com.levin.commons.rbac.RbacRoleObject;
 import com.levin.commons.rbac.ResAuthorize;
-import com.levin.commons.service.support.VariableInjector;
 import org.springframework.core.convert.converter.GenericConverter;
-import org.springframework.util.PatternMatchUtils;
 
 import java.lang.annotation.*;
 
@@ -33,7 +32,12 @@ public @interface DataMasking {
      */
     ResAuthorize showAuthorize() default @ResAuthorize(ignored = true);
 
-
+    /**
+     * 不脱敏需要的授权
+     *
+     * @return
+     */
+    ResAuthorize noMaskingAuthorize() default @ResAuthorize(anyRoles = RbacRoleObject.SA_ROLE);
 
     /**
      * 原始数据脱敏编码器
