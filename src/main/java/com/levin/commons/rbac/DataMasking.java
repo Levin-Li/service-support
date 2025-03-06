@@ -30,7 +30,7 @@ public @interface DataMasking {
      *
      * @return
      */
-    ResAuthorize showAuthorize() default @ResAuthorize(onlyRequireAuthenticated = true);
+    ResAuthorize showAuthorize() default @ResAuthorize(ignored = true);
 
     /**
      * 不脱敏需要的权限要求
