@@ -16,7 +16,8 @@ public class DefaultDataMasker implements DataMasker {
 
     protected String getConfuseInfo(DataMasking masking, AnnotatedElement annotatedElement, Supplier<String> dynamicConfuseInfoSupplier) {
 
-        String confuseInfo = null2Empty(masking.fixedConfuseInfo()) + null2Empty(dynamicConfuseInfoSupplier != null ? dynamicConfuseInfoSupplier.get() : null);
+        String confuseInfo = null2Empty(masking.fixedConfuseInfo())
+                + null2Empty(dynamicConfuseInfoSupplier != null ? dynamicConfuseInfoSupplier.get() : null);
 
         if (annotatedElement instanceof Field) {
             confuseInfo += ((Field) annotatedElement).getName() + "@" + ((Field) annotatedElement).getDeclaringClass().getName();
