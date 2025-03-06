@@ -4,12 +4,29 @@ import cn.hutool.core.lang.Assert;
 import com.levin.commons.utils.DataMaskingUtils;
 
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
 public class DefaultDataMasker implements DataMasker {
 
     private String null2Empty(String str) {
         return str == null ? "" : str;
+    }
+
+    protected String getConfuseInfo(DataMasking masking, AnnotatedElement annotatedElement, Supplier<String> dynamicConfuseInfoSupplier) {
+
+        String confuseInfo = null2Empty(masking.fixedConfuseInfo()) + null2Empty(dynamicConfuseInfoSupplier != null ? dynamicConfuseInfoSupplier.get() : null);
+
+        if (annotatedElement instanceof Field) {
+            confuseInfo += ((Field) annotatedElement).getName() + "@" + ((Field) annotatedElement).getDeclaringClass().getName();
+        } else if (annotatedElement instanceof Method) {
+            confuseInfo += ((Method) annotatedElement).getName() + "@" + ((Method) annotatedElement).getDeclaringClass().getName();
+        }
+
+        //只取 hashcode 进行混淆, 避免过长的混淆信息导致性能问题
+
+        return confuseInfo.hashCode() + "";
     }
 
     /**
@@ -31,9 +48,7 @@ public class DefaultDataMasker implements DataMasker {
 
         Assert.isTrue(rawData instanceof CharSequence, "rawData must be CharSequence");
 
-        String confuseInfo = null2Empty(masking.fixedConfuseInfo()) + null2Empty(dynamicConfuseInfoSupplier != null ? dynamicConfuseInfoSupplier.get() : null);
-
-        return (T) DataMaskingUtils.simpleMergeEncode(confuseInfo, rawData.toString());
+        return (T) DataMaskingUtils.simpleMergeEncode(getConfuseInfo(masking, annotatedElement, dynamicConfuseInfoSupplier), rawData.toString());
     }
 
     /**
@@ -55,9 +70,7 @@ public class DefaultDataMasker implements DataMasker {
 
         Assert.isTrue(markingData instanceof CharSequence, "markingData must be CharSequence");
 
-        String confuseInfo = null2Empty(masking.fixedConfuseInfo()) + null2Empty(dynamicConfuseInfoSupplier != null ? dynamicConfuseInfoSupplier.get() : null);
-
-        return (T) DataMaskingUtils.simpleMergeDecode(confuseInfo, markingData.toString());
+        return (T) DataMaskingUtils.simpleMergeDecode(getConfuseInfo(masking, annotatedElement, dynamicConfuseInfoSupplier), markingData.toString());
     }
 
 }
