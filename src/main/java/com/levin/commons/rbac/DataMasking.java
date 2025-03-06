@@ -1,4 +1,4 @@
-package com.levin.commons.service.domain;
+package com.levin.commons.rbac;
 
 
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
@@ -23,35 +23,37 @@ import java.lang.annotation.*;
 public @interface DataMasking {
 
     /**
-     * 数据显示授权要求
+     * 数据显示的权限要求
      * <p>
      * 根据当前的用户权限，动态处理
-     * 默认不需要任何权限
+     * 默认需要登录
      *
      * @return
      */
-    ResAuthorize showAuthorize() default @ResAuthorize(ignored = true);
+    ResAuthorize showAuthorize() default @ResAuthorize(onlyRequireAuthenticated = true);
 
     /**
-     * 不脱敏需要的授权
+     * 不脱敏需要的权限要求
+     * <p>
+     * 默认为超级管理员才不用脱敏数据
      *
      * @return
      */
     ResAuthorize noMaskingAuthorize() default @ResAuthorize(anyRoles = RbacRoleObject.SA_ROLE);
 
     /**
-     * 原始数据脱敏编码器
+     * 固定的混淆信息
      *
      * @return
      */
-    Class<? extends GenericConverter> maskingEncoder() default GenericConverter.class;
+    String fixedConfuseInfo() default "******";
 
     /**
-     * 数据数据解码器
+     * 数据脱敏编解码器
      *
      * @return
      */
-    Class<? extends GenericConverter> maskingDecoder() default GenericConverter.class;
+    Class<? extends DataMasker> dataMasker() default DefaultDataMasker.class;
 
     /**
      * 备注
@@ -60,5 +62,4 @@ public @interface DataMasking {
      * @return
      */
     String remark() default "";
-
 }
