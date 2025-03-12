@@ -21,16 +21,16 @@ import java.util.List;
 public class SimpleRes
         implements Res {
 
-    @Schema(title = "资源域", required = true)
+    @Schema(title = "资源域", description = "支持*通配符，支持|或选择符")
     protected String domain;
 
-    @Schema(title = "类型", required = true)
+    @Schema(title = "类型", description = "支持*通配符，支持|或选择符")
     protected String type;
 
-    @Schema(title = "ID", required = true)
+    @Schema(title = "ID", description = "支持*通配符，支持|或选择符")
     protected String id;
 
-    @Schema(title = "名称", required = true)
+    @Schema(title = "名称")
     protected String name;
 
     @Schema(title = "是否启用")
@@ -48,7 +48,7 @@ public class SimpleRes
     @Schema(title = "是否总是显示")
     protected boolean alwaysShow;
 
-    @Schema(title = "操作列表")
+    @Schema(title = "操作列表", description = "支持*通配符，支持|或选择符")
     protected List<Res.Action> actionList;
 
     @Override

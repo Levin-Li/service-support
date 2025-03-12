@@ -25,7 +25,7 @@ import java.util.List;
 public class SimpleResAction
         implements Res.Action {
 
-    @Schema(title = "ID", required = true)
+    @Schema(title = "ID")
     protected String id;
 
     ///////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ public class SimpleResAction
     protected boolean isAndMode;
     /////////////////////////////////////////////////////
 
-    @Schema(title = "名称", required = true)
+    @Schema(title = "名称")
     protected String name;
 
     @Schema(title = "是否启用")

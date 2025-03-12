@@ -60,7 +60,7 @@ public @interface ResAuthorize {
     /**
      * 资源域
      * 可从父对象获取
-     *
+     *  支持 * 通配符，支持|或选择符
      * @return
      */
     String domain() default "";
@@ -68,7 +68,7 @@ public @interface ResAuthorize {
     /**
      * 资源类型
      * 可从父对象获取
-     *
+     * 支持 * 通配符，支持|或选择符
      * @return
      */
     String type() default "";
@@ -76,20 +76,21 @@ public @interface ResAuthorize {
     /**
      * 资源
      * 可从父对象获取
-     *
+     * 支持 * 通配符，支持|或选择符
      * @return
      */
     String res() default "";
 
     /**
      * 授权的操作
-     *
+     * 支持 * 通配符，支持|或选择符
      * @return
      */
     String action() default "";
 
     /**
      * 需要的角色，任意一个满足都视为验证通过
+     * 角色支持 * 通配符，支持|或选择符
      *
      * @return
      */
@@ -110,5 +111,5 @@ public @interface ResAuthorize {
      *
      * @return
      */
-    String remark() default "";
+    String remark() default "角色支持 * 通配符";
 }
