@@ -49,7 +49,7 @@ public class DefaultDataMasker implements DataMasker {
 
         Assert.isTrue(rawData instanceof CharSequence, "rawData must be CharSequence");
 
-        return (T) DataMaskingUtils.simpleMergeEncode(getConfuseInfo(masking, annotatedElement, dynamicConfuseInfoSupplier), rawData.toString());
+        return (T) encode(getConfuseInfo(masking, annotatedElement, dynamicConfuseInfoSupplier), rawData.toString());
     }
 
     /**
@@ -71,7 +71,15 @@ public class DefaultDataMasker implements DataMasker {
 
         Assert.isTrue(markingData instanceof CharSequence, "markingData must be CharSequence");
 
-        return (T) DataMaskingUtils.simpleMergeDecode(getConfuseInfo(masking, annotatedElement, dynamicConfuseInfoSupplier), markingData.toString());
+        return (T) decode(getConfuseInfo(masking, annotatedElement, dynamicConfuseInfoSupplier), markingData.toString());
+    }
+
+    protected String encode(String confuseInfo, String rawData) {
+        return DataMaskingUtils.simpleMergeEncode(confuseInfo, rawData);
+    }
+
+    protected String decode(String confuseInfo, String markingData) {
+        return DataMaskingUtils.simpleMergeDecode(confuseInfo, markingData);
     }
 
 }

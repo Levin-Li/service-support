@@ -1,10 +1,15 @@
 package com.levin.commons.utils;
 
 import cn.hutool.core.util.StrUtil;
+import org.springframework.util.Base64Utils;
+
+import java.nio.charset.StandardCharsets;
 
 public abstract class DataMaskingUtils {
 
     /**
+     * 简单的数据编码
+     *
      * @return
      */
     public static String simpleMergeEncode(String key, String data) {
@@ -40,15 +45,22 @@ public abstract class DataMaskingUtils {
             i++;
         }
 
-        return result.toString();
+        return Base64Utils.encodeToUrlSafeString(result.toString().getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * 用字符加减实现
+     *
+     * @param a
+     * @param b
+     * @return
+     */
     private static char add(char a, int b) {
         return (b < 0 && a < Math.abs(b)) ? a : (char) (a + b);
     }
 
     /**
-     * 合并解码
+     * 数据解码
      *
      * @param key
      * @param data
@@ -59,6 +71,8 @@ public abstract class DataMaskingUtils {
         if (StrUtil.isBlank(key) || StrUtil.isBlank(data)) {
             return data;
         }
+
+        data = new String(Base64Utils.decodeFromUrlSafeString(data), StandardCharsets.UTF_8);
 
         StringBuilder result = new StringBuilder();
 
