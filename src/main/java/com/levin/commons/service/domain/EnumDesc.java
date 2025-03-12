@@ -12,6 +12,7 @@ import org.springframework.core.convert.converter.ConverterFactory;
 import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.util.StringUtils;
 import org.springframework.util.TypeUtils;
 
 import java.lang.reflect.Type;
@@ -20,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 /**
  * 获取 Schema 注解的名称描述
@@ -29,7 +31,7 @@ public interface EnumDesc {
     /**
      *
      */
-    Map<Enum<?>, String> cacheNames = new ConcurrentHashMap<>();
+    Map<Enum<?>, Schema> cacheNames = new ConcurrentHashMap<>();
 
     /**
      * 已枚举索引为key 获取枚举描述
@@ -215,8 +217,51 @@ public interface EnumDesc {
      *
      * @return
      */
+    default String getTitle() {
+
+        Schema schema = getSchema((Enum<?>) this);
+
+        return schema == null ? name() : Stream.of(schema.title(), schema.description(), schema.name()).filter(StringUtils::hasText).findFirst().orElse(name());
+    }
+
+    /**
+     * 获取描述
+     * 该方法可以覆盖
+     *
+     * @return
+     */
     default String getDesc() {
         return getDesc((Enum<?>) this);
+    }
+
+
+    static Schema getSchema(Enum<?> anEnum) {
+
+        if (anEnum == null) {
+            return null;
+        }
+
+        Schema schema = cacheNames.get(anEnum);
+
+        if (schema != null) {
+            return schema;
+        }
+
+        synchronized (anEnum) {
+
+            try {
+                schema = anEnum.getDeclaringClass().getField(anEnum.name()).getAnnotation(Schema.class);
+            } catch (NoSuchFieldException e) {
+                throw new IllegalStateException("枚举类 " + anEnum.getDeclaringClass().getName() + "." + anEnum.name() + " 未定义 Schema 注解");
+            }
+
+            if (schema != null) {
+                cacheNames.put(anEnum, schema);
+            }
+
+        }
+
+        return schema;
     }
 
     /**
@@ -227,44 +272,25 @@ public interface EnumDesc {
      */
     static String getDesc(Enum<?> anEnum) {
 
-        if (anEnum == null) {
-            return null;
-        }
+        Schema schema = getSchema(anEnum);
 
-        String info = cacheNames.get(anEnum);
+        String info = null;
 
-        if (info != null) {
-            return info;
-        }
+        if (schema != null) {
 
-        synchronized (anEnum) {
-
-            Schema schema = null;
-
-            try {
-                schema = anEnum.getDeclaringClass().getField(anEnum.name()).getAnnotation(Schema.class);
-            } catch (NoSuchFieldException e) {
-                throw new IllegalStateException("枚举类 " + anEnum.getDeclaringClass().getName() + "." + anEnum.name() + " 未定义 Schema 注解");
-            }
-
-            if (schema != null) {
-
-                info = schema.title();
-
-                if (info == null || info.trim().length() == 0) {
-                    //获取描述
-                    info = schema.description();
-                } else if (schema.description() != null && schema.description().trim().length() > 0) {
-                    info = info.trim() + "(" + schema.description().trim() + ")";
-                }
-            }
+            info = schema.title();
 
             if (info == null || info.trim().length() == 0) {
-                //获取枚举名
-                info = anEnum.name();
+                //获取描述
+                info = schema.description();
+            } else if (schema.description() != null && schema.description().trim().length() > 0) {
+                info = info.trim() + "(" + schema.description().trim() + ")";
             }
+        }
 
-            cacheNames.put(anEnum, info);
+        if (info == null || info.trim().length() == 0) {
+            //获取枚举名
+            info = anEnum.name();
         }
 
         return info;
