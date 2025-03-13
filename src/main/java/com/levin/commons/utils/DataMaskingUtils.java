@@ -1,5 +1,6 @@
 package com.levin.commons.utils;
 
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import org.springframework.util.Base64Utils;
 
@@ -77,6 +78,8 @@ public abstract class DataMaskingUtils {
         StringBuilder result = new StringBuilder();
 
         int dataLen = data.length() - key.length();
+
+        Assert.isTrue(dataLen > 0, "解码失败0");
 
         int end = Math.min(dataLen, key.length()) * 2;
 
