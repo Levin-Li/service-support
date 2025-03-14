@@ -120,13 +120,13 @@ public abstract class DataMaskingUtils {
 
         int indexOf = data.indexOf("@");
 
-        Assert.isTrue(indexOf > 0, "解码失败1");
+        Assert.isTrue(indexOf > 0 && data.length() > indexOf + 1, "解码验证失败2");
 
-        String hashCode = data.substring(0, indexOf);
+        final String hashCodeStr = data.substring(0, indexOf);
 
         data = data.substring(indexOf + 1);
 
-        Assert.isTrue(data.hashCode() == Integer.parseInt(hashCode), "解码失败3");
+        Assert.isTrue(hashCodeStr.equals("" + data.hashCode()), "解码验证失败3");
 
         return data;
     }
