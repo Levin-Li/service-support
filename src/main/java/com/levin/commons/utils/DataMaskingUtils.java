@@ -19,6 +19,9 @@ public abstract class DataMaskingUtils {
             return data;
         }
 
+        //加上校验信息
+        data = data.hashCode() + "@" + data;
+
         StringBuilder result = new StringBuilder();
 
         String maxStr = data.length() > key.length() ? data : key;
@@ -112,7 +115,20 @@ public abstract class DataMaskingUtils {
             result.append(add(data.charAt(i), mode));
         }
 
-        return result.toString();
+        //
+        data = result.toString();
+
+        int indexOf = data.indexOf("@");
+
+        Assert.isTrue(indexOf > 0, "解码失败1");
+
+        String hashCode = data.substring(0, indexOf);
+
+        data = data.substring(indexOf + 1);
+
+        Assert.isTrue(data.hashCode() == Integer.parseInt(hashCode), "解码失败3");
+
+        return data;
     }
 
 }
