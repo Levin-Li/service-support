@@ -2,10 +2,6 @@ package com.levin.commons.rbac;
 
 
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
-import com.levin.commons.rbac.RbacRoleObject;
-import com.levin.commons.rbac.ResAuthorize;
-import org.springframework.core.convert.converter.GenericConverter;
-
 import java.lang.annotation.*;
 
 /**
