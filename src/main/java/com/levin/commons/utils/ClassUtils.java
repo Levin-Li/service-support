@@ -68,9 +68,9 @@ public final class ClassUtils {
         Class<? extends Annotation> anType;
 
         @Getter
-        List<String> importList = new ArrayList<>();
+        Set<String> importList = new LinkedHashSet<>();
 
-        List<Attr> attrs = new ArrayList<>();
+        final List<Attr> attrs = new ArrayList<>();
 
         @Data
         @Accessors(fluent = true, chain = true)
@@ -104,7 +104,7 @@ public final class ClassUtils {
                 }
             } else if (value instanceof CharSequence) {
                 value = "\"" + value.toString().replace("\"", "\\\"") + "\"";
-            }else {
+            } else {
                 addImport(value.getClass().getName());
             }
 
@@ -118,7 +118,6 @@ public final class ClassUtils {
 
             // 导入类型
             String cls = descriptor.substring(1, descriptor.length() - 1).replace("/", ".");
-
 
             try {
                 Class<?> aClass = loadClass(cls);
@@ -163,15 +162,16 @@ public final class ClassUtils {
 
             String cls = descriptor.substring(1, descriptor.length() - 1).replace("/", ".");
 
-            Class<? extends Annotation> anType = (Class<? extends Annotation>) loadClass(cls);
+            return newAvAndAdd((Class<? extends Annotation>) loadClass(cls), this.anType, name, false);
+        }
 
-            //
-            addImport(anType.getName());
+        protected AV newAvAndAdd(Class<? extends Annotation> anType, Class<? extends Annotation> parentType, String name, boolean isArray) {
 
             AV sub = new AV(anType, this.api, this.av);
 
             sub.importList = this.importList;
-            sub.parentType = this.anType;
+            sub.parentType = this.parentType;
+            sub.isArray = isArray;
 
             //加入子属性
             this.attrs.add(new Attr().name(name).value(sub));
@@ -179,22 +179,14 @@ public final class ClassUtils {
             return sub;
         }
 
+
         protected Class<?> loadClass(String cls) throws ClassNotFoundException {
             return Stream.of(this.anType, this.parentType, getClass()).filter(Objects::nonNull).findFirst().get().getClassLoader().loadClass(cls);
         }
 
         @Override
         public AnnotationVisitor visitArray(String name) {
-
-            AV sub = new AV(null, this.api, this.av);
-
-            sub.isArray = true;
-            sub.importList = this.importList;
-            sub.parentType = this.anType;
-
-            this.attrs.add(new Attr().name(name).value(sub));
-
-            return sub;
+            return newAvAndAdd(null, this.anType, name, true);
         }
 
         String toStr = null;
@@ -206,6 +198,10 @@ public final class ClassUtils {
         public void visitEnd() {
 
             super.visitEnd();
+
+            if (anType != null) {
+                addImport(anType.getName());
+            }
 
             if (anType != null) {
                 toStr = "@" + anType.getSimpleName();
@@ -232,7 +228,6 @@ public final class ClassUtils {
     private static void readClassFieldAnnotation(Field field) {
 
         final Class<?> type = field.getDeclaringClass();
-
 
         ClassVisitor classVisitor = new ClassVisitor(Opcodes.ASM7) {
             @Override
