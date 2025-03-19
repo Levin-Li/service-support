@@ -97,7 +97,7 @@ public final class ClassUtils {
                 String cls = ((Type) value).getClassName();
                 try {
                     Class<?> aClass = loadClass(cls);
-                    importList.add(cls);
+                    addImport(cls);
                     value = aClass.getSimpleName() + ".class";
                 } catch (ClassNotFoundException e) {
                     log.warn("加载类失败：原定义{} , 预期的类名：{}", value.toString(), cls);
@@ -134,7 +134,7 @@ public final class ClassUtils {
                     clsName = aClass.getSimpleName() + "." + clsName;
                 }
 
-                importList.add(topClass.getName());
+                addImport(topClass.getName());
 
                 value = clsName + "." + value;
 
@@ -144,6 +144,13 @@ public final class ClassUtils {
 
             this.attrs.add(new Attr().name(name).value(value));
 
+        }
+
+        public void addImport(String importStr) {
+
+            if (!importStr.trim().startsWith("java.lang.")) {
+                this.importList.add(importStr);
+            }
         }
 
         @SneakyThrows
