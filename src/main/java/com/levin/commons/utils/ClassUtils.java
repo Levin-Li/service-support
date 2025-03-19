@@ -104,6 +104,8 @@ public final class ClassUtils {
                 }
             } else if (value instanceof CharSequence) {
                 value = "\"" + value.toString().replace("\"", "\\\"") + "\"";
+            }else {
+                addImport(value.getClass().getName());
             }
 
             this.attrs.add(new Attr().name(name).value(value));
@@ -162,6 +164,9 @@ public final class ClassUtils {
             String cls = descriptor.substring(1, descriptor.length() - 1).replace("/", ".");
 
             Class<? extends Annotation> anType = (Class<? extends Annotation>) loadClass(cls);
+
+            //
+            addImport(anType.getName());
 
             AV sub = new AV(anType, this.api, this.av);
 
