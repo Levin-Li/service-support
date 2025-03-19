@@ -56,7 +56,7 @@ public final class ClassUtils {
 
     private static final Map<String, Map<String, Method>> annotationMethodCaches = new ConcurrentReferenceHashMap<>();
 
-    private static final Map<String, List<String>> fieldAnnotationCaches = new ConcurrentReferenceHashMap<>();
+    private static final Map<String, Set<String>> fieldAnnotationCaches = new ConcurrentReferenceHashMap<>();
 
     @Slf4j
     static class AV extends AnnotationVisitor {
@@ -250,11 +250,11 @@ public final class ClassUtils {
                         String key = type.getName() + "." + fieldName;
 
                         list.stream().map(AV::toString).filter(StrUtil::isNotBlank).forEachOrdered(
-                                fieldAnnotationCaches.computeIfAbsent(key, (k) -> new ArrayList<>())::add
+                                fieldAnnotationCaches.computeIfAbsent(key, (k) -> new LinkedHashSet<>())::add
                         );
 
                         list.stream().map(AV::getImportList).forEachOrdered(
-                                fieldAnnotationCaches.computeIfAbsent(key + "_importList", (k) -> new ArrayList<>())::addAll
+                                fieldAnnotationCaches.computeIfAbsent(key + "_importList", (k) -> new LinkedHashSet<>())::addAll
                         );
 
                     }
@@ -281,11 +281,10 @@ public final class ClassUtils {
 
 
     /**
-     *
      * @param field
      * @return
      */
-    public static List<String> getFieldAnnotationImportList(Field field) {
+    public static Set<String> getFieldAnnotationImportList(Field field) {
 
         final Class<?> type = field.getDeclaringClass();
 
@@ -299,7 +298,7 @@ public final class ClassUtils {
             }
         }
 
-        return fieldAnnotationCaches.computeIfAbsent(key, (k) -> Collections.emptyList());
+        return fieldAnnotationCaches.computeIfAbsent(key, (k) -> Collections.emptySet());
     }
 
     /**
@@ -308,7 +307,7 @@ public final class ClassUtils {
      * @param field
      * @return
      */
-    public static List<String> getFieldAnnotationList(Field field) {
+    public static Set<String> getFieldAnnotationList(Field field) {
 
         final Class<?> type = field.getDeclaringClass();
 
@@ -322,7 +321,7 @@ public final class ClassUtils {
             }
         }
 
-        return fieldAnnotationCaches.computeIfAbsent(key, (k) -> Collections.emptyList());
+        return fieldAnnotationCaches.computeIfAbsent(key, (k) -> Collections.emptySet());
     }
 
     public static boolean invokeFirstPostConstructMethod(Object bean) {
