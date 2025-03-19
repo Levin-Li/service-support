@@ -112,6 +112,8 @@ public class SimpleEventBus implements EventBus {
                 //清除所有的数据
                 //eventQueue.clear();
 
+            } catch (Exception e) {
+                log.error("事件总线处理事件异常", e);
             } finally {
                 working.set(false);
             }

@@ -1,9 +1,16 @@
 package com.levin.commons.utils;
 
 
+import cn.hutool.core.util.StrUtil;
 import com.levin.commons.service.support.Locker;
 import com.levin.commons.service.support.ValueHolder;
+import lombok.Data;
+import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.asm.*;
+import org.springframework.asm.Type;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -11,9 +18,10 @@ import org.springframework.util.Assert;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
@@ -48,6 +56,274 @@ public final class ClassUtils {
 
     private static final Map<String, Map<String, Method>> annotationMethodCaches = new ConcurrentReferenceHashMap<>();
 
+    private static final Map<String, List<String>> fieldAnnotationCaches = new ConcurrentReferenceHashMap<>();
+
+    @Slf4j
+    static class AV extends AnnotationVisitor {
+
+        boolean isArray = false;
+
+        Class<? extends Annotation> parentType;
+
+        Class<? extends Annotation> anType;
+
+        @Getter
+        List<String> importList = new ArrayList<>();
+
+        List<Attr> attrs = new ArrayList<>();
+
+        @Data
+        @Accessors(fluent = true, chain = true)
+        static class Attr {
+            private String name;
+            private Object value;
+
+            public String toString() {
+                return (name != null ? name + " = " : "") + value.toString();
+            }
+        }
+
+        public AV(Class<? extends Annotation> anType, int op, AnnotationVisitor av) {
+            super(op, av);
+            this.anType = anType;
+        }
+
+        @Override
+        public void visit(String name, Object value) {
+
+            super.visit(name, value);
+
+            if (value instanceof org.springframework.asm.Type) {
+                String cls = ((Type) value).getClassName();
+                try {
+                    Class<?> aClass = loadClass(cls);
+                    importList.add(cls);
+                    value = aClass.getSimpleName() + ".class";
+                } catch (ClassNotFoundException e) {
+                    log.warn("加载类失败：原定义{} , 预期的类名：{}", value.toString(), cls);
+                }
+            } else if (value instanceof CharSequence) {
+                value = "\"" + value.toString().replace("\"", "\\\"") + "\"";
+            }
+
+            this.attrs.add(new Attr().name(name).value(value));
+        }
+
+        @Override
+        public void visitEnum(String name, String descriptor, String value) {
+
+            super.visitEnum(name, descriptor, value);
+
+            // 导入类型
+            String cls = descriptor.substring(1, descriptor.length() - 1).replace("/", ".");
+
+
+            try {
+                Class<?> aClass = loadClass(cls);
+
+                String clsName = aClass.getSimpleName();
+
+                Class<?> topClass = aClass;
+
+                while (aClass.getEnclosingClass() != null) {
+
+                    aClass = aClass.getEnclosingClass();
+
+                    topClass = aClass;
+
+                    clsName = aClass.getSimpleName() + "." + clsName;
+                }
+
+                importList.add(topClass.getName());
+
+                value = clsName + "." + value;
+
+            } catch (ClassNotFoundException e) {
+                log.warn("加载类失败：原定义{} , 预期的类名：{}", value.toString(), cls);
+            }
+
+            this.attrs.add(new Attr().name(name).value(value));
+
+        }
+
+        @SneakyThrows
+        @Override
+        public AnnotationVisitor visitAnnotation(String name, String descriptor) {
+
+            super.visitAnnotation(name, descriptor);
+
+            String cls = descriptor.substring(1, descriptor.length() - 1).replace("/", ".");
+
+            Class<? extends Annotation> anType = (Class<? extends Annotation>) loadClass(cls);
+
+            AV sub = new AV(anType, this.api, this.av);
+
+            sub.importList = this.importList;
+            sub.parentType = this.anType;
+
+            //加入子属性
+            this.attrs.add(new Attr().name(name).value(sub));
+
+            return sub;
+        }
+
+        protected Class<?> loadClass(String cls) throws ClassNotFoundException {
+            return Stream.of(this.anType, this.parentType, getClass()).filter(Objects::nonNull).findFirst().get().getClassLoader().loadClass(cls);
+        }
+
+        @Override
+        public AnnotationVisitor visitArray(String name) {
+
+            AV sub = new AV(null, this.api, this.av);
+
+            sub.isArray = true;
+            sub.importList = this.importList;
+            sub.parentType = this.anType;
+
+            this.attrs.add(new Attr().name(name).value(sub));
+
+            return sub;
+        }
+
+        String toStr = null;
+
+        /**
+         * Visits the end of the annotation.
+         */
+        @Override
+        public void visitEnd() {
+
+            super.visitEnd();
+
+            if (anType != null) {
+                toStr = "@" + anType.getSimpleName();
+            } else {
+                toStr = "";
+            }
+
+            if (!attrs.isEmpty() || isArray) {
+                toStr += attrs.stream().map(Attr::toString).collect(Collectors.joining(", ", isArray ? (attrs.size() == 1 ? "" : "{") : "(", isArray ? (attrs.size() == 1 ? "" : "}") : ")"));
+            }
+        }
+
+        public String toString() {
+
+            if (toStr == null) {
+                visitEnd();
+            }
+
+            return toStr;
+        }
+    }
+
+
+    private static void readClassFieldAnnotation(Field field) {
+
+        final Class<?> type = field.getDeclaringClass();
+
+
+        ClassVisitor classVisitor = new ClassVisitor(Opcodes.ASM7) {
+            @Override
+            public FieldVisitor visitField(int access, String fieldName, String descriptor, String signature, Object value) {
+
+                return new FieldVisitor(this.api) {
+                    List<AV> list = new ArrayList<>();
+
+                    @SneakyThrows
+                    @Override
+                    public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+
+                        Class<? extends Annotation> anType = (Class<? extends Annotation>) type.getClassLoader().loadClass(descriptor.substring(1, descriptor.length() - 1).replace("/", "."));
+
+                        AV av = new AV(anType, this.api, null);
+
+                        list.add(av);
+
+                        return av;
+                    }
+
+                    @Override
+                    public void visitEnd() {
+
+                        super.visitEnd();
+
+                        String key = type.getName() + "." + fieldName;
+
+                        list.stream().map(AV::toString).filter(StrUtil::isNotBlank).forEachOrdered(
+                                fieldAnnotationCaches.computeIfAbsent(key, (k) -> new ArrayList<>())::add
+                        );
+
+                        list.stream().map(AV::getImportList).forEachOrdered(
+                                fieldAnnotationCaches.computeIfAbsent(key + "_importList", (k) -> new ArrayList<>())::addAll
+                        );
+
+                    }
+                };
+
+            }
+
+        };
+
+        InputStream inputStream = type.getResourceAsStream("/" + type.getName().replace('.', '/') + ".class");
+
+        try {
+            new ClassReader(inputStream).accept(classVisitor, 0);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+            }
+        }
+
+    }
+
+
+    /**
+     *
+     * @param field
+     * @return
+     */
+    public static List<String> getFieldAnnotationImportList(Field field) {
+
+        final Class<?> type = field.getDeclaringClass();
+
+        final String key = type.getName() + "." + field.getName() + "_importList";
+
+        if (!fieldAnnotationCaches.containsKey(key)) {
+            synchronized (type) {
+                if (!fieldAnnotationCaches.containsKey(key)) {
+                    readClassFieldAnnotation(field);
+                }
+            }
+        }
+
+        return fieldAnnotationCaches.computeIfAbsent(key, (k) -> Collections.emptyList());
+    }
+
+    /**
+     * 还原注解定义
+     *
+     * @param field
+     * @return
+     */
+    public static List<String> getFieldAnnotationList(Field field) {
+
+        final Class<?> type = field.getDeclaringClass();
+
+        final String key = type.getName() + "." + field.getName();
+
+        if (!fieldAnnotationCaches.containsKey(key)) {
+            synchronized (type) {
+                if (!fieldAnnotationCaches.containsKey(key)) {
+                    readClassFieldAnnotation(field);
+                }
+            }
+        }
+
+        return fieldAnnotationCaches.computeIfAbsent(key, (k) -> Collections.emptyList());
+    }
 
     public static boolean invokeFirstPostConstructMethod(Object bean) {
         return invokeMethodByAnnotationTag(bean, true, PostConstruct.class);
@@ -55,6 +331,16 @@ public final class ClassUtils {
 
     public static boolean invokePostConstructMethod(Object bean, Object... args) {
         return invokeMethodByAnnotationTag(bean, false, PostConstruct.class, args);
+    }
+
+
+    public static String revertAnnotation(Field target, Annotation annotation) {
+
+        Class<?> declaringClass = target.getDeclaringClass();
+
+        //annotation.
+
+        return null;
     }
 
 
@@ -675,10 +961,11 @@ public final class ClassUtils {
                 if (method != null) {
                     try {
                         //如果参数数量大于一，且值是数组，则以多参数的方式执行
-                        if (value != null && value.getClass().isArray() && method.getParameterTypes().length > 1)
+                        if (value != null && value.getClass().isArray() && method.getParameterTypes().length > 1) {
                             method.invoke(target, (Object[]) value);
-                        else
+                        } else {
                             method.invoke(target, value);
+                        }
                     } catch (Exception e) {
                         noSetValues.put(name, value);
                         logger.warning("copyValue [" + name + "] error, " + e);
