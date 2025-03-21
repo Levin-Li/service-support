@@ -1,6 +1,7 @@
 package com.levin.commons.rbac;
 
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.StrUtil;
 import com.levin.commons.utils.DataMaskingUtils;
 
 import java.lang.reflect.AnnotatedElement;
@@ -10,14 +11,14 @@ import java.util.function.Supplier;
 
 public class DefaultDataMasker implements DataMasker {
 
-    private String null2Empty(String str) {
-        return str == null ? "" : str;
+    private String null2Empty(String str, String defaultValue) {
+        return StrUtil.isBlank(str) ? defaultValue : str;
     }
 
     protected String getConfuseInfo(DataMasking masking, AnnotatedElement annotatedElement, Supplier<String> dynamicConfuseInfoSupplier) {
 
-        String confuseInfo = null2Empty(masking.fixedConfuseInfo())
-                + null2Empty(dynamicConfuseInfoSupplier != null ? dynamicConfuseInfoSupplier.get() : null);
+        String confuseInfo = null2Empty(masking.fixedConfuseInfo(), "XXX")
+                + null2Empty(dynamicConfuseInfoSupplier != null ? dynamicConfuseInfoSupplier.get() : null, "xxx");
 
         if (annotatedElement instanceof Field) {
             confuseInfo += ((Field) annotatedElement).getName() + "@" + ((Field) annotatedElement).getDeclaringClass().getName();
