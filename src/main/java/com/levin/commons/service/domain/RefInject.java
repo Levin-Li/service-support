@@ -25,7 +25,7 @@ public @interface RefInject {
      *
      * @return
      */
-    Class<?> refEntity();
+    Class<?> refEntityClass();
 
     /**
      * 关联实体Id的字段名
