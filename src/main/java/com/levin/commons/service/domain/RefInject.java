@@ -16,6 +16,11 @@ import java.lang.annotation.*;
 public @interface RefInject {
 
     /**
+     * spring el 表达式前缀
+     */
+    String SPEL_PREFIX = "#!spel:";
+
+    /**
      * 关联的实体类
      *
      * @return
@@ -28,6 +33,15 @@ public @interface RefInject {
      * @return
      */
     String refEntityIdFieldName();
+
+    /**
+     * 注入表达式
+     * 默认是属性名称
+     * 也可以是表达式，如： SPEL_PREFIX 前缀
+     *
+     * @return
+     */
+    String injectExpr();
 
     /**
      * 目标字段名称
@@ -43,6 +57,6 @@ public @interface RefInject {
      *
      * @return
      */
-    String remark() default "";
+    String remark() default "关联注入";
 
 }
