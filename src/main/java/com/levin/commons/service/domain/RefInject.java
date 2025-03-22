@@ -42,7 +42,7 @@ public @interface RefInject {
      *
      * @return
      */
-    @Schema(title = "取值表达式", description = "可以是加载的实体数据的多级属性值(用.向下索引)，如addr.ip，同时可以用|分隔多个属性")
+    @Schema(title = "取值表达式", description = "可以是加载的实体数据的多级属性值(用.向下索引)，如addr.ip，同时可以用|分隔多个优先级属性")
     String valueExpr();
 
     /**
