@@ -2,7 +2,6 @@ package com.levin.commons.service.domain;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.lang.annotation.*;
 
 @Target({ElementType.FIELD, ElementType.PARAMETER})
@@ -22,6 +21,11 @@ public @interface RefInject {
      */
     String SPEL_PREFIX = "#!spel:";
 
+    /**
+     * 关联对象的类型
+     *
+     * @return
+     */
     @Schema(title = "关联对象类型", description = "通常是类名，或是自定义的名称")
     String refObjectType();
 
