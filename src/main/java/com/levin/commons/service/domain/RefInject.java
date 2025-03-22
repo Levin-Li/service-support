@@ -1,6 +1,8 @@
 package com.levin.commons.service.domain;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.lang.annotation.*;
 
 @Target({ElementType.FIELD, ElementType.PARAMETER})
@@ -35,13 +37,13 @@ public @interface RefInject {
     String refEntityIdFieldName();
 
     /**
-     * 注入表达式
-     * 默认是属性名称
+     * <p>
      * 也可以是表达式，如： SPEL_PREFIX 前缀
      *
      * @return
      */
-    String injectExpr();
+    @Schema(title = "取值表达式", description = "可以是加载的实体数据的多级属性值(用.向下索引)，如addr.ip，同时可以用|分隔多个属性")
+    String valueExpr();
 
     /**
      * 目标字段名称
@@ -49,7 +51,7 @@ public @interface RefInject {
      *
      * @return
      */
-    String injectTargetFieldName() default "";
+    String targetFieldName() default "";
 
     /**
      * 备注
