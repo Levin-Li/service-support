@@ -22,19 +22,16 @@ public @interface RefInject {
      */
     String SPEL_PREFIX = "#!spel:";
 
-    /**
-     * 关联的实体类
-     *
-     * @return
-     */
-    Class<?> refEntityClass();
+    @Schema(title = "关联对象类型", description = "通常是类名，或是自定义的名称")
+    String refObjectType();
 
     /**
-     * 关联实体Id的字段名
+     * 获取关联对象的标识表达式
      *
      * @return
      */
-    String refEntityIdFieldName();
+    @Schema(title = "获取关联对象标识的表达式", description = "可以是加载的实体数据的多级属性值(用.向下索引)，如addr.ip，同时可以用|分隔多个优先级属性，也可以是spel(以SPEL_PREFIX:为前缀)")
+    String idExpr();
 
     /**
      * <p>
@@ -42,7 +39,7 @@ public @interface RefInject {
      *
      * @return
      */
-    @Schema(title = "取值表达式", description = "可以是加载的实体数据的多级属性值(用.向下索引)，如addr.ip，同时可以用|分隔多个优先级属性")
+    @Schema(title = "获取注入值的表达式", description = "可以是加载的实体数据的多级属性值(用.向下索引)，如addr.ip，同时可以用|分隔多个优先级属性，也可以是spel(以SPEL_PREFIX:为前缀)")
     String valueExpr();
 
     /**
