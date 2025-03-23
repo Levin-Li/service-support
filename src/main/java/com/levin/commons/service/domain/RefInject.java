@@ -2,6 +2,7 @@ package com.levin.commons.service.domain;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.lang.annotation.*;
 
 @Target({ElementType.FIELD, ElementType.PARAMETER})
@@ -26,8 +27,14 @@ public @interface RefInject {
      *
      * @return
      */
-    @Schema(title = "关联对象类型", description = "通常是类名，或是自定义的名称")
-    String refObjectType();
+    @Schema(title = "关联对象类型", description = "关联对象类型、关联对象服务类2选1, 必须设置一个")
+    String refObjectType() default "";
+
+    @Schema(title = "关联对象服务类", description = "关联对象类型、关联对象服务类2选1, 必须设置一个")
+    Class<?> refObjectServiceClass() default Void.class;
+
+    @Schema(title = "关联对象服务方法")
+    String refObjectServiceMethod() default "findById";
 
     /**
      * 获取关联对象的标识表达式
