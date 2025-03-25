@@ -9,7 +9,7 @@ import com.levin.commons.ui.annotation.*;
  *
  * 
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:02
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:50
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -18,6 +18,16 @@ import com.levin.commons.ui.annotation.*;
 @Schema(title = "CRUDTable")
 public @interface CRUDTable {
 ///////////////////////////////////////////
+
+	//table layout
+	enum TableLayout{
+		fixed,
+		auto,
+		;
+
+		@Override
+		public String toString() { return super.toString().replace('_', '-'); }
+	}
 
 	//默认排序方向
 	enum OrderDir{
@@ -58,6 +68,21 @@ public @interface CRUDTable {
     
     @Schema(title = "是否固定表头")
     boolean affixHeader() default false;
+
+    /**
+     * 是否固底
+     *
+     * 参考定义: {"type":"boolean","description":"是否固底"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "是否固底")
+    boolean affixFooter() default false;
 
     /**
      * 表格的列信息
@@ -111,7 +136,7 @@ public @interface CRUDTable {
      *
      * 
      *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
@@ -126,7 +151,7 @@ public @interface CRUDTable {
      *
      * 
      *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
@@ -148,21 +173,6 @@ public @interface CRUDTable {
     
     @Schema(title = "占位符")
     String placeholder() default "	";
-
-    /**
-     * 无数据展示 icon
-     *
-     * 参考定义: {"anyOf":[{"type":"string"},{"$ref":"#/definitions/SchemaIcon"}],"description":"无数据展示 icon"}
-     *
-     * [{"type":"string"},{"$ref":"#/definitions/SchemaIcon"}]
-     *
-     * 
-     *
-     * @see 
-     */
-    
-    @Schema(title = "无数据展示 icon")
-    String emptyIcon() default "	";
 
     /**
      * 是否显示底部
@@ -216,7 +226,7 @@ public @interface CRUDTable {
      *
      * 
      *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
@@ -246,7 +256,7 @@ public @interface CRUDTable {
      *
      * 
      *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
@@ -257,9 +267,9 @@ public @interface CRUDTable {
     /**
      * 合并单元格配置，配置数字表示从左到右的多少列自动合并单元格。
      *
-     * 参考定义: {"type":"number","description":"合并单元格配置，配置数字表示从左到右的多少列自动合并单元格。"}
+     * 参考定义: {"anyOf":[{"type":"number"},{"$ref":"#/definitions/SchemaExpression"}],"description":"合并单元格配置，配置数字表示从左到右的多少列自动合并单元格。"}
      *
-     * 
+     * [{"type":"number"},{"$ref":"#/definitions/SchemaExpression"}]
      *
      * 
      *
@@ -267,7 +277,7 @@ public @interface CRUDTable {
      */
     
     @Schema(title = "合并单元格配置，配置数字表示从左到右的多少列自动合并单元格。")
-    double combineNum() default 0;
+    String combineNum() default "	";
 
     /**
      * 合并单元格配置，配置从第几列开始合并。
@@ -347,22 +357,37 @@ public @interface CRUDTable {
     /**
      * 行角标
      *
-     * 参考定义: "#/definitions/BadgeSchema"
+     * 参考定义: "#/definitions/BadgeObject"
      *
      * 
      *
      * 
      *
-     * @see Badge
+     * @see BadgeObject
      */
     
     @Schema(title = "行角标")
-    Badge itemBadge() ;
+    BadgeObject itemBadge() ;
 
     /**
      * 开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单
      *
-     * 参考定义: {"type":"boolean","description":"开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单"}
+     * 参考定义: {"anyOf":[{"$ref":"#/definitions/AutoGenerateFilterObject"},{"type":"boolean"}],"description":"开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单"}
+     *
+     * [{"$ref":"#/definitions/AutoGenerateFilterObject"},{"type":"boolean"}]
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单")
+    String autoGenerateFilter() default "	";
+
+    /**
+     * 表格是否可以获取父级数据域值，默认为false
+     *
+     * 参考定义: {"type":"boolean","description":"表格是否可以获取父级数据域值，默认为false"}
      *
      * 
      *
@@ -371,8 +396,83 @@ public @interface CRUDTable {
      * @see 
      */
     
-    @Schema(title = "开启查询区域，会根据列元素的searchable属性值，自动生成查询条件表单")
-    boolean autoGenerateFilter() default false;
+    @Schema(title = "表格是否可以获取父级数据域值，默认为false")
+    boolean canAccessSuperData() default false;
+
+    /**
+     * 内容区域占满屏幕剩余空间
+     *
+     * 参考定义: {"anyOf":[{"type":"boolean"},{"type":"object","properties":{"height":{"type":"number"},"maxHeight":{"type":"number"}},"required":["height","maxHeight"],"additionalProperties":false}],"description":"内容区域占满屏幕剩余空间"}
+     *
+     * [{"type":"boolean"},{"type":"object","properties":{"height":{"type":"number"},"maxHeight":{"type":"number"}},"required":["height","maxHeight"],"additionalProperties":false}]
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "内容区域占满屏幕剩余空间")
+    String autoFillHeight() default "	";
+
+    /**
+     * table layout
+     *
+     * 参考定义: {"type":"string","enum":["fixed","auto"],"description":"table layout"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "table layout")
+    TableLayout tableLayout() ;
+
+    /**
+     * 懒加载 API，当行数据中用 defer: true 标记了，则其孩子节点将会用这个 API 来拉取数据。
+     *
+     * 参考定义: "#/definitions/SchemaApi"
+     *
+     * 
+     *
+     * [{"type":"string"},{"$ref":"#/definitions/SchemaApiObject"}]
+     *
+     * @see Api
+     */
+    
+    @Schema(title = "懒加载 API，当行数据中用 defer: true 标记了，则其孩子节点将会用这个 API 来拉取数据。")
+    String deferApi() default "	";
+
+    /**
+     * testid
+     *
+     * 参考定义: {"type":"string"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "testid")
+    String testid() default "	";
+
+    /**
+     * 组件唯一 id，主要用于页面设计器中定位 json 节点
+     *
+     * 参考定义: {"type":"string","description":"组件唯一 id，主要用于页面设计器中定位 json 节点"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "组件唯一 id，主要用于页面设计器中定位 json 节点")
+    String $$id() default "	";
 
     /**
      * 容器 css 类名
@@ -381,7 +481,7 @@ public @interface CRUDTable {
      *
      * 
      *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
@@ -497,7 +597,7 @@ public @interface CRUDTable {
     /**
      * 事件动作配置
      *
-     * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
+     * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}},"debounce":{"$ref":"#/definitions/debounceConfig"},"track":{"$ref":"#/definitions/trackConfig"}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
      * 
      *
@@ -508,6 +608,156 @@ public @interface CRUDTable {
     
     @Schema(title = "事件动作配置")
     String onEvent() default "	";
+
+    /**
+     * 是否静态展示
+     *
+     * 参考定义: {}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "是否静态展示")
+    String _static() default "	";
+
+    /**
+     * 是否静态展示表达式
+     *
+     * 参考定义: "#/definitions/SchemaExpression"
+     *
+     * 
+     *
+     * 
+     *
+     * @see Expression
+     */
+    
+    @Schema(title = "是否静态展示表达式")
+    String staticOn() default "	";
+
+    /**
+     * 静态展示空值占位
+     *
+     * 参考定义: {"type":"string","description":"静态展示空值占位"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "静态展示空值占位")
+    String staticPlaceholder() default "	";
+
+    /**
+     * 静态展示表单项类名
+     *
+     * 参考定义: "#/definitions/SchemaClassName"
+     *
+     * 
+     *
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
+     *
+     * @see ClassName
+     */
+    
+    @Schema(title = "静态展示表单项类名")
+    String staticClassName() default "	";
+
+    /**
+     * 静态展示表单项Label类名
+     *
+     * 参考定义: "#/definitions/SchemaClassName"
+     *
+     * 
+     *
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
+     *
+     * @see ClassName
+     */
+    
+    @Schema(title = "静态展示表单项Label类名")
+    String staticLabelClassName() default "	";
+
+    /**
+     * 静态展示表单项Value类名
+     *
+     * 参考定义: "#/definitions/SchemaClassName"
+     *
+     * 
+     *
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
+     *
+     * @see ClassName
+     */
+    
+    @Schema(title = "静态展示表单项Value类名")
+    String staticInputClassName() default "	";
+
+    /**
+     * 组件样式
+     *
+     * 参考定义: {"type":"object","description":"组件样式"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "组件样式")
+    String style() default "	";
+
+    /**
+     * 编辑器配置，运行时可以忽略
+     *
+     * 参考定义: {"type":"object","properties":{"behavior":{"type":"string","description":"组件行为、用途，如 create、update、remove"},"displayName":{"type":"string","description":"组件名称，通常是业务名称方便定位"},"mock":{"description":"编辑器假数据，方便展示"}},"description":"编辑器配置，运行时可以忽略"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "编辑器配置，运行时可以忽略")
+    String editorSetting() default "	";
+
+    /**
+     * 可以组件级别用来关闭移动端样式
+     *
+     * 参考定义: {"type":"boolean","description":"可以组件级别用来关闭移动端样式"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "可以组件级别用来关闭移动端样式")
+    boolean useMobileUI() default false;
+
+    /**
+     * testIdBuilder
+     *
+     * 参考定义: "#/definitions/TestIdBuilder"
+     *
+     * 
+     *
+     * 
+     *
+     * @see TestIdBuilder
+     */
+    
+    @Schema(title = "testIdBuilder")
+    TestIdBuilder testIdBuilder() ;
 
     /**
      * 指定内容区的展示模式。
@@ -523,6 +773,21 @@ public @interface CRUDTable {
     
     @Schema(title = "指定内容区的展示模式。")
     String mode() default "table";
+
+    /**
+     * loadingConfig
+     *
+     * 参考定义: {"type":"object","properties":{"root":{"type":"string"},"show":{"type":"boolean"}},"additionalProperties":false}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "loadingConfig")
+    String loadingConfig() default "	";
 
     /**
      * 指定为 CRUD 渲染器。
@@ -741,7 +1006,7 @@ public @interface CRUDTable {
      *
      * 
      *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
@@ -810,6 +1075,21 @@ public @interface CRUDTable {
     String perPageField() default "	";
 
     /**
+     * 设置分页方向的字段名。单位简单分页时清楚时向前还是向后翻页。
+     *
+     * 参考定义: {"type":"string","description":"设置分页方向的字段名。单位简单分页时清楚时向前还是向后翻页。"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "设置分页方向的字段名。单位简单分页时清楚时向前还是向后翻页。")
+    String pageDirectionField() default "	";
+
+    /**
      * 快速编辑后用来批量保存的 API
      *
      * 参考定义: "#/definitions/SchemaApi"
@@ -872,7 +1152,7 @@ public @interface CRUDTable {
     /**
      * 顶部工具栏
      *
-     * 参考定义: {"type":"array","items":{"anyOf":[{"allOf":[{"$ref":"#/definitions/SchemaObject","patternProperties":{"^(align)$":{}}},{"type":"object","additionalProperties":true,"properties":{"align":{"type":"string","enum":["left","right"],"description":"对齐方式"}}}]},{"type":"object","additionalProperties":false,"properties":{"align":{"type":"string","enum":["left","right"],"description":"对齐方式"},"className":{"$ref":"#/definitions/SchemaClassName","description":"容器 css 类名"},"$ref":{"type":"string","description":"配合 definitions 一起使用，可以实现无限循环的渲染器。"},"disabled":{"type":"boolean","description":"是否禁用"},"disabledOn":{"$ref":"#/definitions/SchemaExpression","description":"是否禁用表达式"},"hidden":{"type":"boolean","description":"是否隐藏"},"hiddenOn":{"$ref":"#/definitions/SchemaExpression","description":"是否隐藏表达式"},"visible":{"type":"boolean","description":"是否显示"},"visibleOn":{"$ref":"#/definitions/SchemaExpression","description":"是否显示表达式"},"id":{"type":"string","description":"组件唯一 id，主要用于日志采集"},"onEvent":{"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"},"type":{"$ref":"#/definitions/CRUDBultinToolbarType"}},"required":["type"]},{"$ref":"#/definitions/CRUDBultinToolbarType"}]},"description":"顶部工具栏"}
+     * 参考定义: {"type":"array","items":{"anyOf":[{"allOf":[{"$ref":"#/definitions/SchemaObject","patternProperties":{"^(align)$":{}}},{"type":"object","additionalProperties":true,"properties":{"align":{"type":"string","enum":["left","right"],"description":"对齐方式"}}}]},{"type":"object","additionalProperties":false,"properties":{"align":{"type":"string","enum":["left","right"],"description":"对齐方式"},"testid":{"type":"string"},"$$id":{"type":"string","description":"组件唯一 id，主要用于页面设计器中定位 json 节点"},"className":{"$ref":"#/definitions/SchemaClassName","description":"容器 css 类名"},"$ref":{"type":"string","description":"配合 definitions 一起使用，可以实现无限循环的渲染器。"},"disabled":{"type":"boolean","description":"是否禁用"},"disabledOn":{"$ref":"#/definitions/SchemaExpression","description":"是否禁用表达式"},"hidden":{"type":"boolean","description":"是否隐藏"},"hiddenOn":{"$ref":"#/definitions/SchemaExpression","description":"是否隐藏表达式"},"visible":{"type":"boolean","description":"是否显示"},"visibleOn":{"$ref":"#/definitions/SchemaExpression","description":"是否显示表达式"},"id":{"type":"string","description":"组件唯一 id，主要用于日志采集"},"onEvent":{"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}},"debounce":{"$ref":"#/definitions/debounceConfig"},"track":{"$ref":"#/definitions/trackConfig"}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"},"static":{"type":"boolean","description":"是否静态展示"},"staticOn":{"$ref":"#/definitions/SchemaExpression","description":"是否静态展示表达式"},"staticPlaceholder":{"type":"string","description":"静态展示空值占位"},"staticClassName":{"$ref":"#/definitions/SchemaClassName","description":"静态展示表单项类名"},"staticLabelClassName":{"$ref":"#/definitions/SchemaClassName","description":"静态展示表单项Label类名"},"staticInputClassName":{"$ref":"#/definitions/SchemaClassName","description":"静态展示表单项Value类名"},"staticSchema":{},"style":{"type":"object","description":"组件样式"},"editorSetting":{"type":"object","properties":{"behavior":{"type":"string","description":"组件行为、用途，如 create、update、remove"},"displayName":{"type":"string","description":"组件名称，通常是业务名称方便定位"},"mock":{"description":"编辑器假数据，方便展示"}},"description":"编辑器配置，运行时可以忽略"},"useMobileUI":{"type":"boolean","description":"可以组件级别用来关闭移动端样式"},"testIdBuilder":{"$ref":"#/definitions/TestIdBuilder"},"type":{"$ref":"#/definitions/CRUDBultinToolbarType"}},"required":["type"]},{"$ref":"#/definitions/CRUDBultinToolbarType"}]},"description":"顶部工具栏"}
      *
      * 
      *
@@ -887,7 +1167,7 @@ public @interface CRUDTable {
     /**
      * 底部工具栏
      *
-     * 参考定义: {"type":"array","items":{"anyOf":[{"allOf":[{"$ref":"#/definitions/SchemaObject","patternProperties":{"^(align)$":{}}},{"type":"object","additionalProperties":true,"properties":{"align":{"type":"string","enum":["left","right"],"description":"对齐方式"}}}]},{"type":"object","additionalProperties":false,"properties":{"align":{"type":"string","enum":["left","right"],"description":"对齐方式"},"className":{"$ref":"#/definitions/SchemaClassName","description":"容器 css 类名"},"$ref":{"type":"string","description":"配合 definitions 一起使用，可以实现无限循环的渲染器。"},"disabled":{"type":"boolean","description":"是否禁用"},"disabledOn":{"$ref":"#/definitions/SchemaExpression","description":"是否禁用表达式"},"hidden":{"type":"boolean","description":"是否隐藏"},"hiddenOn":{"$ref":"#/definitions/SchemaExpression","description":"是否隐藏表达式"},"visible":{"type":"boolean","description":"是否显示"},"visibleOn":{"$ref":"#/definitions/SchemaExpression","description":"是否显示表达式"},"id":{"type":"string","description":"组件唯一 id，主要用于日志采集"},"onEvent":{"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"},"type":{"$ref":"#/definitions/CRUDBultinToolbarType"}},"required":["type"]},{"$ref":"#/definitions/CRUDBultinToolbarType"}]},"description":"底部工具栏"}
+     * 参考定义: {"type":"array","items":{"anyOf":[{"allOf":[{"$ref":"#/definitions/SchemaObject","patternProperties":{"^(align)$":{}}},{"type":"object","additionalProperties":true,"properties":{"align":{"type":"string","enum":["left","right"],"description":"对齐方式"}}}]},{"type":"object","additionalProperties":false,"properties":{"align":{"type":"string","enum":["left","right"],"description":"对齐方式"},"testid":{"type":"string"},"$$id":{"type":"string","description":"组件唯一 id，主要用于页面设计器中定位 json 节点"},"className":{"$ref":"#/definitions/SchemaClassName","description":"容器 css 类名"},"$ref":{"type":"string","description":"配合 definitions 一起使用，可以实现无限循环的渲染器。"},"disabled":{"type":"boolean","description":"是否禁用"},"disabledOn":{"$ref":"#/definitions/SchemaExpression","description":"是否禁用表达式"},"hidden":{"type":"boolean","description":"是否隐藏"},"hiddenOn":{"$ref":"#/definitions/SchemaExpression","description":"是否隐藏表达式"},"visible":{"type":"boolean","description":"是否显示"},"visibleOn":{"$ref":"#/definitions/SchemaExpression","description":"是否显示表达式"},"id":{"type":"string","description":"组件唯一 id，主要用于日志采集"},"onEvent":{"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}},"debounce":{"$ref":"#/definitions/debounceConfig"},"track":{"$ref":"#/definitions/trackConfig"}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"},"static":{"type":"boolean","description":"是否静态展示"},"staticOn":{"$ref":"#/definitions/SchemaExpression","description":"是否静态展示表达式"},"staticPlaceholder":{"type":"string","description":"静态展示空值占位"},"staticClassName":{"$ref":"#/definitions/SchemaClassName","description":"静态展示表单项类名"},"staticLabelClassName":{"$ref":"#/definitions/SchemaClassName","description":"静态展示表单项Label类名"},"staticInputClassName":{"$ref":"#/definitions/SchemaClassName","description":"静态展示表单项Value类名"},"staticSchema":{},"style":{"type":"object","description":"组件样式"},"editorSetting":{"type":"object","properties":{"behavior":{"type":"string","description":"组件行为、用途，如 create、update、remove"},"displayName":{"type":"string","description":"组件名称，通常是业务名称方便定位"},"mock":{"description":"编辑器假数据，方便展示"}},"description":"编辑器配置，运行时可以忽略"},"useMobileUI":{"type":"boolean","description":"可以组件级别用来关闭移动端样式"},"testIdBuilder":{"$ref":"#/definitions/TestIdBuilder"},"type":{"$ref":"#/definitions/CRUDBultinToolbarType"}},"required":["type"]},{"$ref":"#/definitions/CRUDBultinToolbarType"}]},"description":"底部工具栏"}
      *
      * 
      *
@@ -1007,9 +1287,9 @@ public @interface CRUDTable {
     /**
      * filterTogglable
      *
-     * 参考定义: {"type":"boolean"}
+     * 参考定义: {"anyOf":[{"type":"boolean"},{"type":"object","properties":{"label":{"type":"string"},"activeLabel":{"type":"string"},"icon":{"type":"string"},"activeIcon":{"type":"string"}},"additionalProperties":false}]}
      *
-     * 
+     * [{"type":"boolean"},{"type":"object","properties":{"label":{"type":"string"},"activeLabel":{"type":"string"},"icon":{"type":"string"},"activeIcon":{"type":"string"}},"additionalProperties":false}]
      *
      * 
      *
@@ -1017,7 +1297,7 @@ public @interface CRUDTable {
      */
     
     @Schema(title = "filterTogglable")
-    boolean filterTogglable() default false;
+    String filterTogglable() default "	";
 
     /**
      * filterDefaultVisible
@@ -1095,9 +1375,9 @@ public @interface CRUDTable {
     boolean loadDataOnce() default false;
 
     /**
-     * 在开启loadDataOnce时，filter时是否去重新请求api
+     * 在开启loadDataOnce时，当修改过滤条件时是否重新请求api\n\n如果没有配置，当查询条件表单触发的会重新请求 api，当是列过滤或者是 search-box 触发的则不重新请求 api 如果配置为 true，则不管是什么触发都会重新请求 api 如果配置为 false 则不管是什么触发都不会重新请求 api
      *
-     * 参考定义: {"type":"boolean","description":"在开启loadDataOnce时，filter时是否去重新请求api"}
+     * 参考定义: {"type":"boolean","description":"在开启loadDataOnce时，当修改过滤条件时是否重新请求api\n\n如果没有配置，当查询条件表单触发的会重新请求 api，当是列过滤或者是 search-box 触发的则不重新请求 api 如果配置为 true，则不管是什么触发都会重新请求 api 如果配置为 false 则不管是什么触发都不会重新请求 api"}
      *
      * 
      *
@@ -1106,8 +1386,23 @@ public @interface CRUDTable {
      * @see 
      */
     
-    @Schema(title = "在开启loadDataOnce时，filter时是否去重新请求api")
+    @Schema(title = "在开启loadDataOnce时，当修改过滤条件时是否重新请求api\n\n如果没有配置，当查询条件表单触发的会重新请求 api，当是列过滤或者是 search-box 触发的则不重新请求 api 如果配置为 true，则不管是什么触发都会重新请求 api 如果配置为 false 则不管是什么触发都不会重新请求 api")
     boolean loadDataOnceFetchOnFilter() default false;
+
+    /**
+     * 自定义搜索匹配函数，当开启loadDataOnce时，会基于该函数计算的匹配结果进行过滤，主要用于处理列字段类型较为复杂或者字段值格式和后端返回不一致的场景
+     *
+     * 参考定义: {"anyOf":[{"type":"string"},{}],"description":"自定义搜索匹配函数，当开启loadDataOnce时，会基于该函数计算的匹配结果进行过滤，主要用于处理列字段类型较为复杂或者字段值格式和后端返回不一致的场景"}
+     *
+     * [{"type":"string"},{}]
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "自定义搜索匹配函数，当开启loadDataOnce时，会基于该函数计算的匹配结果进行过滤，主要用于处理列字段类型较为复杂或者字段值格式和后端返回不一致的场景")
+    String matchFunc() default "	";
 
     /**
      * 如果时内嵌模式，可以通过这个来配置默认的展开选项。
@@ -1140,18 +1435,18 @@ public @interface CRUDTable {
     boolean alwaysShowPagination() default false;
 
     /**
-     * 内容区域占满屏幕剩余空间
+     * 是否开启Query信息转换，开启后将会对url中的Query进行转换，默认开启，默认仅转化布尔值
      *
-     * 参考定义: {"type":"boolean","description":"内容区域占满屏幕剩余空间"}
+     * 参考定义: {"anyOf":[{"type":"object","properties":{"enable":{"type":"boolean"},"types":{"type":"array","items":{"type":"string","enum":["boolean","number"]}}},"required":["enable"],"additionalProperties":false},{"type":"boolean"}],"description":"是否开启Query信息转换，开启后将会对url中的Query进行转换，默认开启，默认仅转化布尔值"}
      *
-     * 
+     * [{"type":"object","properties":{"enable":{"type":"boolean"},"types":{"type":"array","items":{"type":"string","enum":["boolean","number"]}}},"required":["enable"],"additionalProperties":false},{"type":"boolean"}]
      *
      * 
      *
      * @see 
      */
     
-    @Schema(title = "内容区域占满屏幕剩余空间")
-    boolean autoFillHeight() default false;
+    @Schema(title = "是否开启Query信息转换，开启后将会对url中的Query进行转换，默认开启，默认仅转化布尔值")
+    String parsePrimitiveQuery() default "	";
 
 }

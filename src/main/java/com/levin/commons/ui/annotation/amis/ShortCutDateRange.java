@@ -7,9 +7,9 @@ import com.levin.commons.ui.annotation.*;
 /**
  * ShortCutDateRange
  *
- *
+ * 
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:03
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:51
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -23,7 +23,7 @@ public @interface ShortCutDateRange {
 
   /**
    * Any Of
-   *
+   * 
    *
    *
    */
@@ -39,44 +39,44 @@ public @interface ShortCutDateRange {
      *
      * 参考定义: {"type":"string"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "label")
     String label() default "	";
 
     /**
      * startDate
      *
-     * 参考定义: "#/definitions/moment.Moment"
+     * 参考定义: {"anyOf":[{"$ref":"#/definitions/moment.Moment"},{"type":"string"}]}
      *
+     * [{"$ref":"#/definitions/moment.Moment"},{"type":"string"}]
      *
+     * 
      *
-     *
-     *
-     * @see Moment_Moment
+     * @see 
      */
-
+    
     @Schema(title = "startDate")
-    String startDate() ;
+    String startDate() default "	";
 
     /**
      * endDate
      *
-     * 参考定义: "#/definitions/moment.Moment"
+     * 参考定义: {"anyOf":[{"$ref":"#/definitions/moment.Moment"},{"type":"string"}]}
      *
+     * [{"$ref":"#/definitions/moment.Moment"},{"type":"string"}]
      *
+     * 
      *
-     *
-     *
-     * @see Moment_Moment
+     * @see 
      */
-
+    
     @Schema(title = "endDate")
-    String endDate() ;
+    String endDate() default "	";
 
 }

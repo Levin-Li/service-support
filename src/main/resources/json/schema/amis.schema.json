@@ -11046,7 +11046,7 @@
               "$ref": "#/definitions/SchemaClassName"
             },
             "subTitle": {
-              "$ref": "#/definitions/SchemaTpl",
+              "$ref": "#/definitions/SchemaCollection",
               "description": "副标题"
             },
             "subTitleClassName": {
@@ -11664,7 +11664,7 @@
                       "$ref": "#/definitions/SchemaClassName"
                     },
                     "subTitle": {
-                      "$ref": "#/definitions/SchemaTpl",
+                      "$ref": "#/definitions/SchemaCollection",
                       "description": "副标题"
                     },
                     "subTitleClassName": {
@@ -12649,7 +12649,7 @@
         "type"
       ],
       "additionalProperties": false,
-      "description": "Chart 图表渲染器。 文档：https://aisuda.bce.baidu.com/amis/zh-CN/components/carousel"
+      "description": "Chart 图表渲染器。 文档：https://aisuda.bce.baidu.com/amis/zh-CN/components/chart"
     },
     "SchemaFunction": {
       "anyOf": [
@@ -13832,7 +13832,7 @@
                       "$ref": "#/definitions/SchemaClassName"
                     },
                     "subTitle": {
-                      "$ref": "#/definitions/SchemaTpl",
+                      "$ref": "#/definitions/SchemaCollection",
                       "description": "副标题"
                     },
                     "subTitleClassName": {
@@ -17483,7 +17483,7 @@
                       "$ref": "#/definitions/SchemaClassName"
                     },
                     "subTitle": {
-                      "$ref": "#/definitions/SchemaTpl",
+                      "$ref": "#/definitions/SchemaCollection",
                       "description": "副标题"
                     },
                     "subTitleClassName": {
@@ -59455,6 +59455,9 @@
           ],
           "additionalProperties": false,
           "description": "将字段输入控件变成公式编辑器。"
+        },
+        "formulaForIf": {
+          "description": "if 里面公式编辑器配置"
         }
       },
       "required": [
@@ -61267,6 +61270,10 @@
         "maxDate": {
           "type": "string",
           "description": "限制最大日期"
+        },
+        "popOverContainerSelector": {
+          "type": "string",
+          "description": "弹窗容器选择器"
         }
       },
       "required": [
@@ -66052,6 +66059,10 @@
         "transform": {
           "type": "string",
           "description": "日期数据处理函数，用来处理选择日期之后的的值\n\n(value: moment.Moment, config: {type: 'start' | 'end'; originValue: moment.Moment, timeFormat: string}, props: any, data: any, moment: moment) => moment.Moment;"
+        },
+        "popOverContainerSelector": {
+          "type": "string",
+          "description": "弹窗容器选择器"
         }
       },
       "required": [
@@ -78517,6 +78528,10 @@
           "type": "string",
           "description": "日期数据处理函数，用来处理选择日期之后的的值\n\n(value: moment.Moment, config: {type: 'start' | 'end'; originValue: moment.Moment, timeFormat: string}, props: any, data: any, moment: moment) => moment.Moment;"
         },
+        "popOverContainerSelector": {
+          "type": "string",
+          "description": "弹窗容器选择器"
+        },
         "remark": {
           "$ref": "#/definitions/SchemaRemark",
           "description": "显示一个小图标, 鼠标放上去的时候显示提示内容"
@@ -79324,6 +79339,10 @@
         "transform": {
           "type": "string",
           "description": "日期数据处理函数，用来处理选择日期之后的的值\n\n(value: moment.Moment, config: {type: 'start' | 'end'; originValue: moment.Moment, timeFormat: string}, props: any, data: any, moment: moment) => moment.Moment;"
+        },
+        "popOverContainerSelector": {
+          "type": "string",
+          "description": "弹窗容器选择器"
         },
         "remark": {
           "$ref": "#/definitions/SchemaRemark",
@@ -106596,14 +106615,14 @@
           "$ref": "#/definitions/ConditionBuilderControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|embed|pickerIcon|funcs|fields|config|source|builderMode|showANDOR|draggable|addBtnVisibleOn|addGroupBtnVisibleOn|formula|popOver|quickEdit|copyable)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|embed|pickerIcon|funcs|fields|config|source|builderMode|showANDOR|draggable|addBtnVisibleOn|addGroupBtnVisibleOn|formula|formulaForIf|popOver|quickEdit|copyable)$": {}
           }
         },
         {
           "$ref": "#/definitions/DateControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|clearable|format|valueFormat|inputFormat|displayFormat|utc|emebed|borderMode|shortcuts|disabledDate|closeOnSelect|minDate|maxDate|popOver|quickEdit|copyable)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|clearable|format|valueFormat|inputFormat|displayFormat|utc|emebed|borderMode|shortcuts|disabledDate|closeOnSelect|minDate|maxDate|popOverContainerSelector|popOver|quickEdit|copyable)$": {}
           }
         },
         {
@@ -106645,7 +106664,7 @@
           "$ref": "#/definitions/DateRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOver|quickEdit|copyable)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|popOver|quickEdit|copyable)$": {}
           }
         },
         {
@@ -106764,14 +106783,14 @@
           "$ref": "#/definitions/MonthRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|popOver|quickEdit|copyable)$": {}
+            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|popOver|quickEdit|copyable)$": {}
           }
         },
         {
           "$ref": "#/definitions/QuarterRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|popOver|quickEdit|copyable)$": {}
+            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|popOver|quickEdit|copyable)$": {}
           }
         },
         {
@@ -107491,14 +107510,14 @@
           "$ref": "#/definitions/ConditionBuilderControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|embed|pickerIcon|funcs|fields|config|source|builderMode|showANDOR|draggable|addBtnVisibleOn|addGroupBtnVisibleOn|formula|innerClassName|popOver|quickEdit|copyable)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|embed|pickerIcon|funcs|fields|config|source|builderMode|showANDOR|draggable|addBtnVisibleOn|addGroupBtnVisibleOn|formula|formulaForIf|innerClassName|popOver|quickEdit|copyable)$": {}
           }
         },
         {
           "$ref": "#/definitions/DateControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|clearable|format|valueFormat|inputFormat|displayFormat|utc|emebed|borderMode|shortcuts|disabledDate|closeOnSelect|minDate|maxDate|innerClassName|popOver|quickEdit|copyable)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|clearable|format|valueFormat|inputFormat|displayFormat|utc|emebed|borderMode|shortcuts|disabledDate|closeOnSelect|minDate|maxDate|popOverContainerSelector|innerClassName|popOver|quickEdit|copyable)$": {}
           }
         },
         {
@@ -107540,7 +107559,7 @@
           "$ref": "#/definitions/DateRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|innerClassName|popOver|quickEdit|copyable)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|innerClassName|popOver|quickEdit|copyable)$": {}
           }
         },
         {
@@ -107659,14 +107678,14 @@
           "$ref": "#/definitions/MonthRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|innerClassName|popOver|quickEdit|copyable)$": {}
+            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|innerClassName|popOver|quickEdit|copyable)$": {}
           }
         },
         {
           "$ref": "#/definitions/QuarterRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|innerClassName|popOver|quickEdit|copyable)$": {}
+            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|innerClassName|popOver|quickEdit|copyable)$": {}
           }
         },
         {
@@ -108386,14 +108405,14 @@
           "$ref": "#/definitions/ConditionBuilderControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|embed|pickerIcon|funcs|fields|config|source|builderMode|showANDOR|draggable|addBtnVisibleOn|addGroupBtnVisibleOn|formula|fixed|popOver|quickEdit|quickEditOnUpdate|copyable|sortable|searchable|toggled|width|align|classNameExpr|filterable|breakpoint|unique|canAccessSuperData|lazyRenderAfter|innerStyle)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|embed|pickerIcon|funcs|fields|config|source|builderMode|showANDOR|draggable|addBtnVisibleOn|addGroupBtnVisibleOn|formula|formulaForIf|fixed|popOver|quickEdit|quickEditOnUpdate|copyable|sortable|searchable|toggled|width|align|classNameExpr|filterable|breakpoint|unique|canAccessSuperData|lazyRenderAfter|innerStyle)$": {}
           }
         },
         {
           "$ref": "#/definitions/DateControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|clearable|format|valueFormat|inputFormat|displayFormat|utc|emebed|borderMode|shortcuts|disabledDate|closeOnSelect|minDate|maxDate|fixed|popOver|quickEdit|quickEditOnUpdate|copyable|sortable|searchable|toggled|width|align|classNameExpr|filterable|breakpoint|unique|canAccessSuperData|lazyRenderAfter|innerStyle)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|clearable|format|valueFormat|inputFormat|displayFormat|utc|emebed|borderMode|shortcuts|disabledDate|closeOnSelect|minDate|maxDate|popOverContainerSelector|fixed|popOver|quickEdit|quickEditOnUpdate|copyable|sortable|searchable|toggled|width|align|classNameExpr|filterable|breakpoint|unique|canAccessSuperData|lazyRenderAfter|innerStyle)$": {}
           }
         },
         {
@@ -108435,7 +108454,7 @@
           "$ref": "#/definitions/DateRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|fixed|popOver|quickEdit|quickEditOnUpdate|copyable|sortable|searchable|toggled|width|align|classNameExpr|filterable|breakpoint|unique|canAccessSuperData|lazyRenderAfter|innerStyle)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|fixed|popOver|quickEdit|quickEditOnUpdate|copyable|sortable|searchable|toggled|width|align|classNameExpr|filterable|breakpoint|unique|canAccessSuperData|lazyRenderAfter|innerStyle)$": {}
           }
         },
         {
@@ -108554,14 +108573,14 @@
           "$ref": "#/definitions/MonthRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|fixed|popOver|quickEdit|quickEditOnUpdate|copyable|sortable|searchable|toggled|width|align|classNameExpr|filterable|breakpoint|unique|canAccessSuperData|lazyRenderAfter|innerStyle)$": {}
+            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|fixed|popOver|quickEdit|quickEditOnUpdate|copyable|sortable|searchable|toggled|width|align|classNameExpr|filterable|breakpoint|unique|canAccessSuperData|lazyRenderAfter|innerStyle)$": {}
           }
         },
         {
           "$ref": "#/definitions/QuarterRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|fixed|popOver|quickEdit|quickEditOnUpdate|copyable|sortable|searchable|toggled|width|align|classNameExpr|filterable|breakpoint|unique|canAccessSuperData|lazyRenderAfter|innerStyle)$": {}
+            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|fixed|popOver|quickEdit|quickEditOnUpdate|copyable|sortable|searchable|toggled|width|align|classNameExpr|filterable|breakpoint|unique|canAccessSuperData|lazyRenderAfter|innerStyle)$": {}
           }
         },
         {
@@ -109281,14 +109300,14 @@
           "$ref": "#/definitions/ConditionBuilderControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|embed|pickerIcon|funcs|fields|config|source|builderMode|showANDOR|draggable|addBtnVisibleOn|addGroupBtnVisibleOn|formula|x|y|w|h|width|height|align|valign|gridClassName)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|embed|pickerIcon|funcs|fields|config|source|builderMode|showANDOR|draggable|addBtnVisibleOn|addGroupBtnVisibleOn|formula|formulaForIf|x|y|w|h|width|height|align|valign|gridClassName)$": {}
           }
         },
         {
           "$ref": "#/definitions/DateControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|clearable|format|valueFormat|inputFormat|displayFormat|utc|emebed|borderMode|shortcuts|disabledDate|closeOnSelect|minDate|maxDate|x|y|w|h|width|height|align|valign|gridClassName)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|clearable|format|valueFormat|inputFormat|displayFormat|utc|emebed|borderMode|shortcuts|disabledDate|closeOnSelect|minDate|maxDate|popOverContainerSelector|x|y|w|h|width|height|align|valign|gridClassName)$": {}
           }
         },
         {
@@ -109330,7 +109349,7 @@
           "$ref": "#/definitions/DateRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|x|y|w|h|width|height|align|valign|gridClassName)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|x|y|w|h|width|height|align|valign|gridClassName)$": {}
           }
         },
         {
@@ -109449,14 +109468,14 @@
           "$ref": "#/definitions/MonthRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|x|y|w|h|width|height|align|valign|gridClassName)$": {}
+            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|x|y|w|h|width|height|align|valign|gridClassName)$": {}
           }
         },
         {
           "$ref": "#/definitions/QuarterRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|x|y|w|h|width|height|align|valign|gridClassName)$": {}
+            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|x|y|w|h|width|height|align|valign|gridClassName)$": {}
           }
         },
         {
@@ -110176,14 +110195,14 @@
           "$ref": "#/definitions/ConditionBuilderControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|embed|pickerIcon|funcs|fields|config|source|builderMode|showANDOR|draggable|addBtnVisibleOn|addGroupBtnVisibleOn|formula|rowClassName|cellClassName)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|embed|pickerIcon|funcs|fields|config|source|builderMode|showANDOR|draggable|addBtnVisibleOn|addGroupBtnVisibleOn|formula|formulaForIf|rowClassName|cellClassName)$": {}
           }
         },
         {
           "$ref": "#/definitions/DateControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|clearable|format|valueFormat|inputFormat|displayFormat|utc|emebed|borderMode|shortcuts|disabledDate|closeOnSelect|minDate|maxDate|rowClassName|cellClassName)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|clearable|format|valueFormat|inputFormat|displayFormat|utc|emebed|borderMode|shortcuts|disabledDate|closeOnSelect|minDate|maxDate|popOverContainerSelector|rowClassName|cellClassName)$": {}
           }
         },
         {
@@ -110225,7 +110244,7 @@
           "$ref": "#/definitions/DateRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|rowClassName|cellClassName)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|rowClassName|cellClassName)$": {}
           }
         },
         {
@@ -110344,14 +110363,14 @@
           "$ref": "#/definitions/MonthRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|rowClassName|cellClassName)$": {}
+            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|rowClassName|cellClassName)$": {}
           }
         },
         {
           "$ref": "#/definitions/QuarterRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|rowClassName|cellClassName)$": {}
+            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|rowClassName|cellClassName)$": {}
           }
         },
         {
@@ -111071,14 +111090,14 @@
           "$ref": "#/definitions/ConditionBuilderControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|embed|pickerIcon|funcs|fields|config|source|builderMode|showANDOR|draggable|addBtnVisibleOn|addGroupBtnVisibleOn|formula|unique|columnClassName|testid)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|embed|pickerIcon|funcs|fields|config|source|builderMode|showANDOR|draggable|addBtnVisibleOn|addGroupBtnVisibleOn|formula|formulaForIf|unique|columnClassName|testid)$": {}
           }
         },
         {
           "$ref": "#/definitions/DateControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|clearable|format|valueFormat|inputFormat|displayFormat|utc|emebed|borderMode|shortcuts|disabledDate|closeOnSelect|minDate|maxDate|unique|columnClassName|testid)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|clearable|format|valueFormat|inputFormat|displayFormat|utc|emebed|borderMode|shortcuts|disabledDate|closeOnSelect|minDate|maxDate|popOverContainerSelector|unique|columnClassName|testid)$": {}
           }
         },
         {
@@ -111120,7 +111139,7 @@
           "$ref": "#/definitions/DateRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|unique|columnClassName|testid)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|unique|columnClassName|testid)$": {}
           }
         },
         {
@@ -111239,14 +111258,14 @@
           "$ref": "#/definitions/MonthRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|unique|columnClassName|testid)$": {}
+            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|unique|columnClassName|testid)$": {}
           }
         },
         {
           "$ref": "#/definitions/QuarterRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|unique|columnClassName|testid)$": {}
+            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|unique|columnClassName|testid)$": {}
           }
         },
         {
@@ -111966,14 +111985,14 @@
           "$ref": "#/definitions/ConditionBuilderControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|embed|pickerIcon|funcs|fields|config|source|builderMode|showANDOR|draggable|addBtnVisibleOn|addGroupBtnVisibleOn|formula|columnClassName|columnRatio)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|embed|pickerIcon|funcs|fields|config|source|builderMode|showANDOR|draggable|addBtnVisibleOn|addGroupBtnVisibleOn|formula|formulaForIf|columnClassName|columnRatio)$": {}
           }
         },
         {
           "$ref": "#/definitions/DateControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|clearable|format|valueFormat|inputFormat|displayFormat|utc|emebed|borderMode|shortcuts|disabledDate|closeOnSelect|minDate|maxDate|columnClassName|columnRatio)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|clearable|format|valueFormat|inputFormat|displayFormat|utc|emebed|borderMode|shortcuts|disabledDate|closeOnSelect|minDate|maxDate|popOverContainerSelector|columnClassName|columnRatio)$": {}
           }
         },
         {
@@ -112015,7 +112034,7 @@
           "$ref": "#/definitions/DateRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|columnClassName|columnRatio)$": {}
+            "^($$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|size|label|labelAlign|labelWidth|labelClassName|name|extraName|remark|labelRemark|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|value|clearValueOnHidden|validateApi|autoFill|initAutoFill|type|delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|columnClassName|columnRatio)$": {}
           }
         },
         {
@@ -112134,14 +112153,14 @@
           "$ref": "#/definitions/MonthRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|columnClassName|columnRatio)$": {}
+            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|columnClassName|columnRatio)$": {}
           }
         },
         {
           "$ref": "#/definitions/QuarterRangeControlSchema",
           "additionalProperties": false,
           "patternProperties": {
-            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|columnClassName|columnRatio)$": {}
+            "^(delimiter|format|valueFormat|inputFormat|displayFormat|joinValues|maxDate|minDate|maxDuration|minDuration|value|borderMode|embed|ranges|shortcuts|startPlaceholder|endPlaceholder|animation|transform|popOverContainerSelector|remark|labelRemark|size|label|labelAlign|labelWidth|labelClassName|name|extraName|hint|submitOnChange|readOnly|readOnlyOn|validateOnChange|description|desc|descriptionClassName|mode|horizontal|inline|inputClassName|placeholder|required|validationErrors|validations|clearValueOnHidden|validateApi|autoFill|initAutoFill|$$id|className|$ref|disabled|disabledOn|hidden|hiddenOn|visible|visibleOn|id|onEvent|static|staticOn|staticPlaceholder|staticClassName|staticLabelClassName|staticInputClassName|staticSchema|style|editorSetting|useMobileUI|testIdBuilder|type|columnClassName|columnRatio)$": {}
           }
         },
         {

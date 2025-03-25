@@ -5,9 +5,9 @@ import java.lang.annotation.*;
 /**
  * DataType_DeprecatedSystemColor
  *
- *
+ * 
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:02
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:50
  */
 @Schema(title = "DataType_DeprecatedSystemColor")
 public enum DataType_DeprecatedSystemColor {

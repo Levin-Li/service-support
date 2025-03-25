@@ -7,9 +7,9 @@ import com.levin.commons.ui.annotation.*;
 /**
  * FormHorizontal
  *
- *
+ * 
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:02
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:50
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -33,7 +33,7 @@ public @interface FormHorizontal {
 
   /**
    * Any Of
-   *
+   * 
    *
    *
    */
@@ -49,13 +49,13 @@ public @interface FormHorizontal {
      *
      * 参考定义: {"type":"number"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "left")
     double left() default 0;
 
@@ -64,13 +64,13 @@ public @interface FormHorizontal {
      *
      * 参考定义: {"type":"number"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "right")
     double right() default 0;
 
@@ -81,11 +81,11 @@ public @interface FormHorizontal {
      *
      * [{"type":"boolean"},{"type":"number"},{"type":"string","const":"xs"},{"type":"string","const":"sm"},{"type":"string","const":"md"},{"type":"string","const":"lg"}]
      *
+     * 
      *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "leftFixed")
     String leftFixed() default "	";
 
@@ -94,13 +94,13 @@ public @interface FormHorizontal {
      *
      * 参考定义: {"type":"boolean"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "justify")
     boolean justify() default false;
 
@@ -109,14 +109,29 @@ public @interface FormHorizontal {
      *
      * 参考定义: {"type":"string","enum":["left","right"]}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "labelAlign")
     LabelAlign labelAlign() ;
+
+    /**
+     * label自定义宽度，默认单位为px
+     *
+     * 参考定义: {"type":["number","string"],"description":"label自定义宽度，默认单位为px"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "label自定义宽度，默认单位为px")
+    String labelWidth() default "	";
 
 }

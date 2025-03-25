@@ -7,15 +7,15 @@ import com.levin.commons.ui.annotation.*;
 /**
  * Value
  *
- * Range 文档：https://baidu.gitee.io/amis/docs/components/form/range
+ * Range 文档：https://aisuda.bce.baidu.com/amis/zh-CN/components/form/range
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:03
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:51
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(title = "Range 文档：https://baidu.gitee.io/amis/docs/components/form/range")
+@Schema(title = "Range 文档：https://aisuda.bce.baidu.com/amis/zh-CN/components/form/range")
 public @interface Value {
 ///////////////////////////////////////////
 

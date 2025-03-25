@@ -7,9 +7,9 @@ import com.levin.commons.ui.annotation.*;
 /**
  * Property_OffsetPath
  *
- *
+ * 
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:03
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:51
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -23,7 +23,7 @@ public @interface Property_OffsetPath {
 
   /**
    * Any Of
-   * [{"$ref":"#/definitions/Globals"},{"$ref":"#/definitions/DataType.GeometryBox"},{"type":"string","const":"none"},{"type":"string"}]
+   * [{"$ref":"#/definitions/Globals"},{"type":"string","const":"none"},{"type":"string"}]
    *
    *
    */

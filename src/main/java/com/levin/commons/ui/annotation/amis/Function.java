@@ -7,9 +7,9 @@ import com.levin.commons.ui.annotation.*;
 /**
  * Function
  *
- *
+ * 
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:02
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:50
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -23,7 +23,7 @@ public @interface Function {
 
   /**
    * Any Of
-   * [{"type":"string"},{"type":"object","properties":{"prototype":{},"length":{"type":"number"},"arguments":{},"caller":{"$ref":"#/definitions/interface-2073358172-9821-11285-2073358172-0-212510"}},"required":["prototype","length","arguments","caller"],"additionalProperties":false}]
+   * [{"type":"string"},{"type":"object","properties":{"prototype":{},"length":{"type":"number"},"arguments":{},"caller":{"$ref":"#/definitions/interface-1922134811-9821-11285-1922134811-0-212510"}},"required":["prototype","length","arguments","caller"],"additionalProperties":false}]
    *
    *
    */

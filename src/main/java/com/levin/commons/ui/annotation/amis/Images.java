@@ -7,15 +7,15 @@ import com.levin.commons.ui.annotation.*;
 /**
  * Images
  *
- * 图片集展示控件。 文档：https://baidu.gitee.io/amis/docs/components/images
+ * 图片集展示控件。 文档：https://aisuda.bce.baidu.com/amis/zh-CN/components/images
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:02
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:50
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(title = "图片集展示控件。 文档：https://baidu.gitee.io/amis/docs/components/images")
+@Schema(title = "图片集展示控件。 文档：https://aisuda.bce.baidu.com/amis/zh-CN/components/images")
 public @interface Images {
 ///////////////////////////////////////////
 
@@ -53,7 +53,7 @@ public @interface Images {
 
   /**
    * Any Of
-   *
+   * 
    *
    *
    */
@@ -61,32 +61,32 @@ public @interface Images {
 //////////////////////////////////////////////
 
     /**
-     * 指定为图片集渲染器
+     * 组件唯一 id，主要用于页面设计器中定位 json 节点
      *
-     * 参考定义: {"type":"string","enum":["images","static-images"],"description":"指定为图片集渲染器"}
+     * 参考定义: {"type":"string","description":"组件唯一 id，主要用于页面设计器中定位 json 节点"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
-    @Schema(title = "指定为图片集渲染器")
-    Type type() ;
+    
+    @Schema(title = "组件唯一 id，主要用于页面设计器中定位 json 节点")
+    String $$id() default "	";
 
     /**
      * 外层 CSS 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
+     * 
      *
-     *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
-
+    
     @Schema(title = "外层 CSS 类名")
     String className() default "	";
 
@@ -95,13 +95,13 @@ public @interface Images {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "是否禁用")
     boolean disabled() default false;
 
@@ -110,13 +110,13 @@ public @interface Images {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
+     * 
      *
-     *
-     *
+     * 
      *
      * @see Expression
      */
-
+    
     @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
@@ -125,13 +125,13 @@ public @interface Images {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
@@ -140,13 +140,13 @@ public @interface Images {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
+     * 
      *
-     *
-     *
+     * 
      *
      * @see Expression
      */
-
+    
     @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
@@ -155,13 +155,13 @@ public @interface Images {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "是否显示")
     boolean visible() default false;
 
@@ -170,13 +170,13 @@ public @interface Images {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
+     * 
      *
-     *
-     *
+     * 
      *
      * @see Expression
      */
-
+    
     @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
@@ -185,43 +185,223 @@ public @interface Images {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
      * 事件动作配置
      *
-     * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
+     * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}},"debounce":{"$ref":"#/definitions/debounceConfig"},"track":{"$ref":"#/definitions/trackConfig"}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "事件动作配置")
     String onEvent() default "	";
+
+    /**
+     * 是否静态展示
+     *
+     * 参考定义: {}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "是否静态展示")
+    String _static() default "	";
+
+    /**
+     * 是否静态展示表达式
+     *
+     * 参考定义: "#/definitions/SchemaExpression"
+     *
+     * 
+     *
+     * 
+     *
+     * @see Expression
+     */
+    
+    @Schema(title = "是否静态展示表达式")
+    String staticOn() default "	";
+
+    /**
+     * 静态展示空值占位
+     *
+     * 参考定义: {"type":"string","description":"静态展示空值占位"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "静态展示空值占位")
+    String staticPlaceholder() default "	";
+
+    /**
+     * 静态展示表单项类名
+     *
+     * 参考定义: "#/definitions/SchemaClassName"
+     *
+     * 
+     *
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
+     *
+     * @see ClassName
+     */
+    
+    @Schema(title = "静态展示表单项类名")
+    String staticClassName() default "	";
+
+    /**
+     * 静态展示表单项Label类名
+     *
+     * 参考定义: "#/definitions/SchemaClassName"
+     *
+     * 
+     *
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
+     *
+     * @see ClassName
+     */
+    
+    @Schema(title = "静态展示表单项Label类名")
+    String staticLabelClassName() default "	";
+
+    /**
+     * 静态展示表单项Value类名
+     *
+     * 参考定义: "#/definitions/SchemaClassName"
+     *
+     * 
+     *
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
+     *
+     * @see ClassName
+     */
+    
+    @Schema(title = "静态展示表单项Value类名")
+    String staticInputClassName() default "	";
+
+    /**
+     * 组件样式
+     *
+     * 参考定义: {"type":"object","description":"组件样式"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "组件样式")
+    String style() default "	";
+
+    /**
+     * 编辑器配置，运行时可以忽略
+     *
+     * 参考定义: {"type":"object","properties":{"behavior":{"type":"string","description":"组件行为、用途，如 create、update、remove"},"displayName":{"type":"string","description":"组件名称，通常是业务名称方便定位"},"mock":{"description":"编辑器假数据，方便展示"}},"description":"编辑器配置，运行时可以忽略"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "编辑器配置，运行时可以忽略")
+    String editorSetting() default "	";
+
+    /**
+     * 可以组件级别用来关闭移动端样式
+     *
+     * 参考定义: {"type":"boolean","description":"可以组件级别用来关闭移动端样式"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "可以组件级别用来关闭移动端样式")
+    boolean useMobileUI() default false;
+
+    /**
+     * testIdBuilder
+     *
+     * 参考定义: "#/definitions/TestIdBuilder"
+     *
+     * 
+     *
+     * 
+     *
+     * @see TestIdBuilder
+     */
+    
+    @Schema(title = "testIdBuilder")
+    TestIdBuilder testIdBuilder() ;
+
+    /**
+     * 指定为图片集渲染器
+     *
+     * 参考定义: {"type":"string","enum":["images","static-images"],"description":"指定为图片集渲染器"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "指定为图片集渲染器")
+    Type type() ;
+
+    /**
+     * testid
+     *
+     * 参考定义: {"type":"string"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "testid")
+    String testid() default "	";
 
     /**
      * 默认图片地址
      *
      * 参考定义: "#/definitions/SchemaUrlPath"
      *
+     * 
      *
-     *
-     *
+     * 
      *
      * @see UrlPath
      */
-
+    
     @Schema(title = "默认图片地址")
     String defaultImage() default "	";
 
@@ -230,13 +410,13 @@ public @interface Images {
      *
      * 参考定义: {"type":"string","description":"列表为空时显示"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "列表为空时显示")
     String placeholder() default "	";
 
@@ -245,13 +425,13 @@ public @interface Images {
      *
      * 参考定义: {"type":"string","description":"配置值的连接符"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "配置值的连接符")
     String delimiter() default "	";
 
@@ -260,13 +440,13 @@ public @interface Images {
      *
      * 参考定义: {"type":"string","enum":["w-full","h-full","contain","cover"],"description":"预览图模式"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "预览图模式")
     ThumbMode thumbMode() ;
 
@@ -275,13 +455,13 @@ public @interface Images {
      *
      * 参考定义: {"type":"string","enum":["1:1","4:3","16:9"],"description":"预览图比率"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "预览图比率")
     ThumbRatio thumbRatio() ;
 
@@ -290,13 +470,13 @@ public @interface Images {
      *
      * 参考定义: {"type":"string","description":"关联字段名，也可以直接配置 src"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "关联字段名，也可以直接配置 src")
     String name() default "	";
 
@@ -305,13 +485,13 @@ public @interface Images {
      *
      * 参考定义: {}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "value")
     String value() default "	";
 
@@ -320,13 +500,13 @@ public @interface Images {
      *
      * 参考定义: {"type":"string"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "source")
     String source() default "	";
 
@@ -335,13 +515,13 @@ public @interface Images {
      *
      * 参考定义: {"type":"array","items":{}}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "options")
     String[] options() default "	";
 
@@ -350,13 +530,13 @@ public @interface Images {
      *
      * 参考定义: {"type":"string","description":"图片地址，默认读取数据中的 image 属性，如果不是请配置 ,如  ${imageUrl}"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "图片地址，默认读取数据中的 image 属性，如果不是请配置 ,如  ${imageUrl}")
     String src() default "	";
 
@@ -365,13 +545,13 @@ public @interface Images {
      *
      * 参考定义: {"type":"string","description":"大图地址，不设置用 src 属性，如果不是请配置，如：${imageOriginUrl}"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "大图地址，不设置用 src 属性，如果不是请配置，如：${imageOriginUrl}")
     String originalSrc() default "	";
 
@@ -380,28 +560,43 @@ public @interface Images {
      *
      * 参考定义: {"type":"boolean","description":"是否启动放大功能。"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "是否启动放大功能。")
     boolean enlargeAble() default false;
+
+    /**
+     * 放大时是否显示图片集
+     *
+     * 参考定义: {"type":"boolean","description":"放大时是否显示图片集"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "放大时是否显示图片集")
+    boolean enlargetWithImages() default false;
 
     /**
      * 是否显示尺寸。
      *
      * 参考定义: {"type":"boolean","description":"是否显示尺寸。"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "是否显示尺寸。")
     boolean showDimensions() default false;
 
@@ -410,14 +605,59 @@ public @interface Images {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
+     * 
      *
-     *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
-
+    
     @Schema(title = "列表 CSS 类名")
     String listClassName() default "	";
+
+    /**
+     * 放大详情图 CSS 类名
+     *
+     * 参考定义: "#/definitions/SchemaClassName"
+     *
+     * 
+     *
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
+     *
+     * @see ClassName
+     */
+    
+    @Schema(title = "放大详情图 CSS 类名")
+    String imageGallaryClassName() default "	";
+
+    /**
+     * 是否展示图片工具栏
+     *
+     * 参考定义: {"type":"boolean","description":"是否展示图片工具栏"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "是否展示图片工具栏")
+    boolean showToolbar() default false;
+
+    /**
+     * 工具栏配置
+     *
+     * 参考定义: "#/definitions/ImageToolbarAction"
+     *
+     * 
+     *
+     * 
+     *
+     * @see ImageToolbarAction
+     */
+    
+    @Schema(title = "工具栏配置")
+    ImageToolbarAction[] toolbarActions() ;
 
 }

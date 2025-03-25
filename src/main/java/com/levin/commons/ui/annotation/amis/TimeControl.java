@@ -7,15 +7,15 @@ import com.levin.commons.ui.annotation.*;
 /**
  * TimeControl
  *
- * Time 时间选择控件 文档：https://baidu.gitee.io/amis/docs/components/form/time
+ * Time 时间选择控件 文档：https://aisuda.bce.baidu.com/amis/zh-CN/components/form/time
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:03
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:51
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(title = "Time 时间选择控件 文档：https://baidu.gitee.io/amis/docs/components/form/time")
+@Schema(title = "Time 时间选择控件 文档：https://aisuda.bce.baidu.com/amis/zh-CN/components/form/time")
 public @interface TimeControl {
 ///////////////////////////////////////////
 
@@ -66,13 +66,28 @@ public @interface TimeControl {
 //////////////////////////////////////////////
 
     /**
+     * 组件唯一 id，主要用于页面设计器中定位 json 节点
+     *
+     * 参考定义: {"type":"string","description":"组件唯一 id，主要用于页面设计器中定位 json 节点"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "组件唯一 id，主要用于页面设计器中定位 json 节点")
+    String $$id() default "	";
+
+    /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
      * 
      *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
@@ -188,7 +203,7 @@ public @interface TimeControl {
     /**
      * 事件动作配置
      *
-     * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
+     * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}},"debounce":{"$ref":"#/definitions/debounceConfig"},"track":{"$ref":"#/definitions/trackConfig"}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
      * 
      *
@@ -201,9 +216,9 @@ public @interface TimeControl {
     String onEvent() default "	";
 
     /**
-     * 指定为日期时间选择控件
+     * 是否静态展示
      *
-     * 参考定义: {"type":"string","const":"input-time","description":"指定为日期时间选择控件"}
+     * 参考定义: {}
      *
      * 
      *
@@ -212,8 +227,143 @@ public @interface TimeControl {
      * @see 
      */
     
-    @Schema(title = "指定为日期时间选择控件")
-    String type() default "input-time";
+    @Schema(title = "是否静态展示")
+    String _static() default "	";
+
+    /**
+     * 是否静态展示表达式
+     *
+     * 参考定义: "#/definitions/SchemaExpression"
+     *
+     * 
+     *
+     * 
+     *
+     * @see Expression
+     */
+    
+    @Schema(title = "是否静态展示表达式")
+    String staticOn() default "	";
+
+    /**
+     * 静态展示空值占位
+     *
+     * 参考定义: {"type":"string","description":"静态展示空值占位"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "静态展示空值占位")
+    String staticPlaceholder() default "	";
+
+    /**
+     * 静态展示表单项类名
+     *
+     * 参考定义: "#/definitions/SchemaClassName"
+     *
+     * 
+     *
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
+     *
+     * @see ClassName
+     */
+    
+    @Schema(title = "静态展示表单项类名")
+    String staticClassName() default "	";
+
+    /**
+     * 静态展示表单项Label类名
+     *
+     * 参考定义: "#/definitions/SchemaClassName"
+     *
+     * 
+     *
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
+     *
+     * @see ClassName
+     */
+    
+    @Schema(title = "静态展示表单项Label类名")
+    String staticLabelClassName() default "	";
+
+    /**
+     * 静态展示表单项Value类名
+     *
+     * 参考定义: "#/definitions/SchemaClassName"
+     *
+     * 
+     *
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
+     *
+     * @see ClassName
+     */
+    
+    @Schema(title = "静态展示表单项Value类名")
+    String staticInputClassName() default "	";
+
+    /**
+     * 组件样式
+     *
+     * 参考定义: {"type":"object","description":"组件样式"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "组件样式")
+    String style() default "	";
+
+    /**
+     * 编辑器配置，运行时可以忽略
+     *
+     * 参考定义: {"type":"object","properties":{"behavior":{"type":"string","description":"组件行为、用途，如 create、update、remove"},"displayName":{"type":"string","description":"组件名称，通常是业务名称方便定位"},"mock":{"description":"编辑器假数据，方便展示"}},"description":"编辑器配置，运行时可以忽略"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "编辑器配置，运行时可以忽略")
+    String editorSetting() default "	";
+
+    /**
+     * 可以组件级别用来关闭移动端样式
+     *
+     * 参考定义: {"type":"boolean","description":"可以组件级别用来关闭移动端样式"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "可以组件级别用来关闭移动端样式")
+    boolean useMobileUI() default false;
+
+    /**
+     * testIdBuilder
+     *
+     * 参考定义: "#/definitions/TestIdBuilder"
+     *
+     * 
+     *
+     * 
+     *
+     * @see TestIdBuilder
+     */
+    
+    @Schema(title = "testIdBuilder")
+    TestIdBuilder testIdBuilder() ;
 
     /**
      * 表单项大小
@@ -261,15 +411,30 @@ public @interface TimeControl {
     String labelAlign() default "	";
 
     /**
-     * 配置 label className
+     * label自定义宽度，默认单位为px
      *
-     * 参考定义: "#/definitions/SchemaClassName"
+     * 参考定义: {"type":["number","string"],"description":"label自定义宽度，默认单位为px"}
      *
      * 
      *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * 
      *
-     * @see ClassName
+     * @see 
+     */
+    
+    @Schema(title = "label自定义宽度，默认单位为px")
+    String labelWidth() default "	";
+
+    /**
+     * 配置 label className
+     *
+     * 参考定义: {"type":"string","description":"配置 label className"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
      */
     
     @Schema(title = "配置 label className")
@@ -289,6 +454,21 @@ public @interface TimeControl {
     
     @Schema(title = "字段名，表单提交时的 key，支持多层级，用.连接，如： a.b.c")
     String name() default "	";
+
+    /**
+     * 额外的字段名，当为范围组件时可以用来将另外一个值打平出来
+     *
+     * 参考定义: {"type":"string","description":"额外的字段名，当为范围组件时可以用来将另外一个值打平出来"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "额外的字段名，当为范围组件时可以用来将另外一个值打平出来")
+    String extraName() default "	";
 
     /**
      * 显示一个小图标, 鼠标放上去的时候显示提示内容
@@ -368,13 +548,13 @@ public @interface TimeControl {
     /**
      * 只读条件
      *
-     * 参考定义: "#/definitions/SchemaExpression"
+     * 参考定义: {"type":"string","description":"只读条件"}
      *
      * 
      *
      * 
      *
-     * @see Expression
+     * @see 
      */
     
     @Schema(title = "只读条件")
@@ -428,11 +608,11 @@ public @interface TimeControl {
     /**
      * 配置描述上的 className
      *
-     * 参考定义: "#/definitions/SchemaClassName"
+     * 参考定义: "#/definitions/ClassName"
      *
      * 
      *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
@@ -458,7 +638,7 @@ public @interface TimeControl {
     /**
      * 当配置为水平布局的时候，用来配置具体的左右分配。
      *
-     * 参考定义: "#/definitions/FormSchemaHorizontal"
+     * 参考定义: "#/definitions/FormHorizontal"
      *
      * 
      *
@@ -488,11 +668,11 @@ public @interface TimeControl {
     /**
      * 配置 input className
      *
-     * 参考定义: "#/definitions/SchemaClassName"
+     * 参考定义: "#/definitions/ClassName"
      *
      * 
      *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
@@ -533,7 +713,7 @@ public @interface TimeControl {
     /**
      * 验证失败的提示信息
      *
-     * 参考定义: {"type":"object","properties":{"isAlpha":{"type":"string"},"isAlphanumeric":{"type":"string"},"isEmail":{"type":"string"},"isFloat":{"type":"string"},"isInt":{"type":"string"},"isJson":{"type":"string"},"isLength":{"type":"string"},"isNumeric":{"type":"string"},"isRequired":{"type":"string"},"isUrl":{"type":"string"},"matchRegexp":{"type":"string"},"matchRegexp2":{"type":"string"},"matchRegexp3":{"type":"string"},"matchRegexp4":{"type":"string"},"matchRegexp5":{"type":"string"},"maxLength":{"type":"string"},"maximum":{"type":"string"},"minLength":{"type":"string"},"minimum":{"type":"string"}},"description":"验证失败的提示信息"}
+     * 参考定义: {"type":"object","properties":{"isAlpha":{"type":"string"},"isAlphanumeric":{"type":"string"},"isEmail":{"type":"string"},"isFloat":{"type":"string"},"isInt":{"type":"string"},"isJson":{"type":"string"},"isLength":{"type":"string"},"isNumeric":{"type":"string"},"isRequired":{"type":"string"},"isUrl":{"type":"string"},"matchRegexp":{"type":"string"},"matchRegexp2":{"type":"string"},"matchRegexp3":{"type":"string"},"matchRegexp4":{"type":"string"},"matchRegexp5":{"type":"string"},"maxLength":{"type":"string"},"maximum":{"type":"string"},"minLength":{"type":"string"},"minimum":{"type":"string"},"isDateTimeSame":{"type":"string"},"isDateTimeBefore":{"type":"string"},"isDateTimeAfter":{"type":"string"},"isDateTimeSameOrBefore":{"type":"string"},"isDateTimeSameOrAfter":{"type":"string"},"isDateTimeBetween":{"type":"string"},"isTimeSame":{"type":"string"},"isTimeBefore":{"type":"string"},"isTimeAfter":{"type":"string"},"isTimeSameOrBefore":{"type":"string"},"isTimeSameOrAfter":{"type":"string"},"isTimeBetween":{"type":"string"}},"description":"验证失败的提示信息"}
      *
      * 
      *
@@ -548,9 +728,9 @@ public @interface TimeControl {
     /**
      * validations
      *
-     * 参考定义: {"anyOf":[{"type":"string"},{"type":"object","properties":{"isAlpha":{"type":"boolean","description":"是否是字母"},"isAlphanumeric":{"type":"boolean","description":"是否为字母数字"},"isEmail":{"type":"boolean","description":"是否为邮箱地址"},"isFloat":{"type":"boolean","description":"是否为浮点型"},"isInt":{"type":"boolean","description":"是否为整型"},"isJson":{"type":"boolean","description":"是否为 json"},"isLength":{"type":"number","description":"长度等于指定值"},"isNumeric":{"type":"boolean","description":"是否为数字"},"isRequired":{"type":"boolean","description":"是否为必填"},"isUrl":{"type":"boolean","description":"是否为 URL 地址"},"matchRegexp":{"type":"string","description":"内容命中指定正则"},"matchRegexp1":{"type":"string","description":"内容命中指定正则"},"matchRegexp2":{"type":"string","description":"内容命中指定正则"},"matchRegexp3":{"type":"string","description":"内容命中指定正则"},"matchRegexp4":{"type":"string","description":"内容命中指定正则"},"matchRegexp5":{"type":"string","description":"内容命中指定正则"},"maxLength":{"type":"number","description":"最大长度为指定值"},"maximum":{"type":"number","description":"最大值为指定值"},"minLength":{"type":"number","description":"最小长度为指定值"},"minimum":{"type":"number","description":"最小值为指定值"}}}]}
+     * 参考定义: {"anyOf":[{"type":"string"},{"type":"object","properties":{"isAlpha":{"type":"boolean","description":"是否是字母"},"isAlphanumeric":{"type":"boolean","description":"是否为字母数字"},"isEmail":{"type":"boolean","description":"是否为邮箱地址"},"isFloat":{"type":"boolean","description":"是否为浮点型"},"isInt":{"type":"boolean","description":"是否为整型"},"isJson":{"type":"boolean","description":"是否为 json"},"isLength":{"type":"number","description":"长度等于指定值"},"isNumeric":{"type":"boolean","description":"是否为数字"},"isRequired":{"type":"boolean","description":"是否为必填"},"isUrl":{"type":"boolean","description":"是否为 URL 地址"},"matchRegexp":{"type":"string","description":"内容命中指定正则"},"matchRegexp1":{"type":"string","description":"内容命中指定正则"},"matchRegexp2":{"type":"string","description":"内容命中指定正则"},"matchRegexp3":{"type":"string","description":"内容命中指定正则"},"matchRegexp4":{"type":"string","description":"内容命中指定正则"},"matchRegexp5":{"type":"string","description":"内容命中指定正则"},"maxLength":{"type":"number","description":"最大长度为指定值"},"maximum":{"type":"number","description":"最大值为指定值"},"minLength":{"type":"number","description":"最小长度为指定值"},"minimum":{"type":"number","description":"最小值为指定值"},"isDateTimeSame":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"和目标日期相同，支持指定粒度，默认到毫秒"},"isDateTimeBefore":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"早于目标日期，支持指定粒度，默认到毫秒"},"isDateTimeAfter":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"晚于目标日期，支持指定粒度，默认到毫秒"},"isDateTimeSameOrBefore":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"早于目标日期或和目标日期相同，支持指定粒度，默认到毫秒"},"isDateTimeSameOrAfter":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"晚于目标日期或和目标日期相同，支持指定粒度，默认到毫秒"},"isDateTimeBetween":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"日期处于目标日期范围，支持指定粒度和区间的开闭形式，默认到毫秒, 左右开区间"},"isTimeSame":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"和目标时间相同，支持指定粒度，默认到毫秒"},"isTimeBefore":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"早于目标时间，支持指定粒度，默认到毫秒"},"isTimeAfter":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"晚于目标时间，支持指定粒度，默认到毫秒"},"isTimeSameOrBefore":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"早于目标时间或和目标时间相同，支持指定粒度，默认到毫秒"},"isTimeSameOrAfter":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"晚于目标时间或和目标时间相同，支持指定粒度，默认到毫秒"},"isTimeBetween":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"时间处于目标时间范围，支持指定粒度和区间的开闭形式，默认到毫秒, 左右开区间"}}}]}
      *
-     * [{"type":"string"},{"type":"object","properties":{"isAlpha":{"type":"boolean","description":"是否是字母"},"isAlphanumeric":{"type":"boolean","description":"是否为字母数字"},"isEmail":{"type":"boolean","description":"是否为邮箱地址"},"isFloat":{"type":"boolean","description":"是否为浮点型"},"isInt":{"type":"boolean","description":"是否为整型"},"isJson":{"type":"boolean","description":"是否为 json"},"isLength":{"type":"number","description":"长度等于指定值"},"isNumeric":{"type":"boolean","description":"是否为数字"},"isRequired":{"type":"boolean","description":"是否为必填"},"isUrl":{"type":"boolean","description":"是否为 URL 地址"},"matchRegexp":{"type":"string","description":"内容命中指定正则"},"matchRegexp1":{"type":"string","description":"内容命中指定正则"},"matchRegexp2":{"type":"string","description":"内容命中指定正则"},"matchRegexp3":{"type":"string","description":"内容命中指定正则"},"matchRegexp4":{"type":"string","description":"内容命中指定正则"},"matchRegexp5":{"type":"string","description":"内容命中指定正则"},"maxLength":{"type":"number","description":"最大长度为指定值"},"maximum":{"type":"number","description":"最大值为指定值"},"minLength":{"type":"number","description":"最小长度为指定值"},"minimum":{"type":"number","description":"最小值为指定值"}}}]
+     * [{"type":"string"},{"type":"object","properties":{"isAlpha":{"type":"boolean","description":"是否是字母"},"isAlphanumeric":{"type":"boolean","description":"是否为字母数字"},"isEmail":{"type":"boolean","description":"是否为邮箱地址"},"isFloat":{"type":"boolean","description":"是否为浮点型"},"isInt":{"type":"boolean","description":"是否为整型"},"isJson":{"type":"boolean","description":"是否为 json"},"isLength":{"type":"number","description":"长度等于指定值"},"isNumeric":{"type":"boolean","description":"是否为数字"},"isRequired":{"type":"boolean","description":"是否为必填"},"isUrl":{"type":"boolean","description":"是否为 URL 地址"},"matchRegexp":{"type":"string","description":"内容命中指定正则"},"matchRegexp1":{"type":"string","description":"内容命中指定正则"},"matchRegexp2":{"type":"string","description":"内容命中指定正则"},"matchRegexp3":{"type":"string","description":"内容命中指定正则"},"matchRegexp4":{"type":"string","description":"内容命中指定正则"},"matchRegexp5":{"type":"string","description":"内容命中指定正则"},"maxLength":{"type":"number","description":"最大长度为指定值"},"maximum":{"type":"number","description":"最大值为指定值"},"minLength":{"type":"number","description":"最小长度为指定值"},"minimum":{"type":"number","description":"最小值为指定值"},"isDateTimeSame":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"和目标日期相同，支持指定粒度，默认到毫秒"},"isDateTimeBefore":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"早于目标日期，支持指定粒度，默认到毫秒"},"isDateTimeAfter":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"晚于目标日期，支持指定粒度，默认到毫秒"},"isDateTimeSameOrBefore":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"早于目标日期或和目标日期相同，支持指定粒度，默认到毫秒"},"isDateTimeSameOrAfter":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"晚于目标日期或和目标日期相同，支持指定粒度，默认到毫秒"},"isDateTimeBetween":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"日期处于目标日期范围，支持指定粒度和区间的开闭形式，默认到毫秒, 左右开区间"},"isTimeSame":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"和目标时间相同，支持指定粒度，默认到毫秒"},"isTimeBefore":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"早于目标时间，支持指定粒度，默认到毫秒"},"isTimeAfter":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"晚于目标时间，支持指定粒度，默认到毫秒"},"isTimeSameOrBefore":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"早于目标时间或和目标时间相同，支持指定粒度，默认到毫秒"},"isTimeSameOrAfter":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"晚于目标时间或和目标时间相同，支持指定粒度，默认到毫秒"},"isTimeBetween":{"anyOf":[{"type":"string"},{"type":"array","items":{"type":"string"}}],"description":"时间处于目标时间范围，支持指定粒度和区间的开闭形式，默认到毫秒, 左右开区间"}}}]
      *
      * 
      *
@@ -593,17 +773,62 @@ public @interface TimeControl {
     /**
      * 远端校验表单项接口
      *
-     * 参考定义: "#/definitions/SchemaApi"
+     * 参考定义: {"anyOf":[{"type":"string"},{"$ref":"#/definitions/BaseApiObject"}],"description":"远端校验表单项接口"}
+     *
+     * [{"type":"string"},{"$ref":"#/definitions/BaseApiObject"}]
      *
      * 
      *
-     * [{"type":"string"},{"$ref":"#/definitions/SchemaApiObject"}]
-     *
-     * @see Api
+     * @see 
      */
     
     @Schema(title = "远端校验表单项接口")
     String validateApi() default "	";
+
+    /**
+     * 自动填充，当选项被选择的时候，将选项中的其他值同步设置到表单内。
+     *
+     * 参考定义: {"anyOf":[{"type":"object","additionalProperties":{"type":"string"}},{"type":"object","properties":{"showSuggestion":{"type":"boolean","description":"是否为参照录入模式，参照录入会展示候选值供用户选择，而不是直接填充。"},"api":{"anyOf":[{"$ref":"#/definitions/BaseApiObject"},{"type":"string"}],"description":"自动填充 api"},"silent":{"type":"boolean","description":"是否展示数据格式错误提示，默认为不展示","default":true},"fillMappinng":{"type":"object","description":"填充时的数据映射"},"trigger":{"type":"string","enum":["change","foucs"],"description":"触发条件，默认为 change"},"mode":{"type":"string","enum":["popOver","dialog","drawer"],"description":"弹窗方式，当为参照录入时用可以配置"},"position":{"type":"string","description":"当参照录入为抽屉时可以配置弹出位置"},"size":{"type":"string","description":"当为参照录入时可以配置弹出容器的大小"},"columns":{"type":"array","items":{},"description":"参照录入展示的项"},"filter":{"description":"参照录入时的过滤条件"}},"additionalProperties":false}],"description":"自动填充，当选项被选择的时候，将选项中的其他值同步设置到表单内。"}
+     *
+     * [{"type":"object","additionalProperties":{"type":"string"}},{"type":"object","properties":{"showSuggestion":{"type":"boolean","description":"是否为参照录入模式，参照录入会展示候选值供用户选择，而不是直接填充。"},"api":{"anyOf":[{"$ref":"#/definitions/BaseApiObject"},{"type":"string"}],"description":"自动填充 api"},"silent":{"type":"boolean","description":"是否展示数据格式错误提示，默认为不展示","default":true},"fillMappinng":{"type":"object","description":"填充时的数据映射"},"trigger":{"type":"string","enum":["change","foucs"],"description":"触发条件，默认为 change"},"mode":{"type":"string","enum":["popOver","dialog","drawer"],"description":"弹窗方式，当为参照录入时用可以配置"},"position":{"type":"string","description":"当参照录入为抽屉时可以配置弹出位置"},"size":{"type":"string","description":"当为参照录入时可以配置弹出容器的大小"},"columns":{"type":"array","items":{},"description":"参照录入展示的项"},"filter":{"description":"参照录入时的过滤条件"}},"additionalProperties":false}]
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "自动填充，当选项被选择的时候，将选项中的其他值同步设置到表单内。")
+    String autoFill() default "	";
+
+    /**
+     * initAutoFill
+     *
+     * 参考定义: {"anyOf":[{"type":"boolean"},{"type":"string","const":"fillIfNotSet"}]}
+     *
+     * [{"type":"boolean"},{"type":"string","const":"fillIfNotSet"}]
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "initAutoFill")
+    String initAutoFill() default "	";
+
+    /**
+     * 指定为日期时间选择控件
+     *
+     * 参考定义: {"type":"string","const":"input-time","description":"指定为日期时间选择控件"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "指定为日期时间选择控件")
+    String type() default "input-time";
 
     /**
      * 是否显示清除按钮
@@ -636,6 +861,21 @@ public @interface TimeControl {
     String format() default "	";
 
     /**
+     * 替代format
+     *
+     * 参考定义: {"type":"string","description":"替代format"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "替代format")
+    String valueFormat() default "	";
+
+    /**
      * 日期展示格式
      *
      * 参考定义: {"type":"string","description":"日期展示格式"}
@@ -649,6 +889,21 @@ public @interface TimeControl {
     
     @Schema(title = "日期展示格式")
     String inputFormat() default "	";
+
+    /**
+     * 日期展示格式(新：替代inputFormat)
+     *
+     * 参考定义: {"type":"string","description":"日期展示格式(新：替代inputFormat)"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "日期展示格式(新：替代inputFormat)")
+    String displayFormat() default "	";
 
     /**
      * 设定是否存储 utc 时间。
@@ -694,6 +949,36 @@ public @interface TimeControl {
     
     @Schema(title = "边框模式，全边框，还是半边框，或者没边框。")
     BorderMode borderMode() ;
+
+    /**
+     * 日期快捷键
+     *
+     * 参考定义: {"anyOf":[{"type":"string"},{"type":"array","items":{"$ref":"#/definitions/ShortCuts"}}],"description":"日期快捷键"}
+     *
+     * [{"type":"string"},{"type":"array","items":{"$ref":"#/definitions/ShortCuts"}}]
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "日期快捷键")
+    String shortcuts() default "	";
+
+    /**
+     * 字符串函数，用来决定是否禁用某个日期。\n\n(currentDate: moment.Moment, props: any) => boolean;
+     *
+     * 参考定义: {"type":"string","description":"字符串函数，用来决定是否禁用某个日期。\n\n(currentDate: moment.Moment, props: any) => boolean;"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "字符串函数，用来决定是否禁用某个日期。\n\n(currentDate: moment.Moment, props: any) => boolean;")
+    String disabledDate() default "	";
 
     /**
      * 时间的格式。

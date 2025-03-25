@@ -7,9 +7,9 @@ import com.levin.commons.ui.annotation.*;
 /**
  * ShortCutDate
  *
- *
+ * 
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:03
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:51
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -23,7 +23,7 @@ public @interface ShortCutDate {
 
   /**
    * Any Of
-   *
+   * 
    *
    *
    */
@@ -39,29 +39,29 @@ public @interface ShortCutDate {
      *
      * 参考定义: {"type":"string"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "label")
     String label() default "	";
 
     /**
-     * date
+     * 支持表达式
      *
-     * 参考定义: "#/definitions/moment.Moment"
+     * 参考定义: {"anyOf":[{"$ref":"#/definitions/moment.Moment"},{"type":"string"}],"description":"支持表达式"}
      *
+     * [{"$ref":"#/definitions/moment.Moment"},{"type":"string"}]
      *
+     * 
      *
-     *
-     *
-     * @see Moment_Moment
+     * @see 
      */
-
-    @Schema(title = "date")
-    String date() ;
+    
+    @Schema(title = "支持表达式")
+    String date() default "	";
 
 }

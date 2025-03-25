@@ -7,9 +7,9 @@ import com.levin.commons.ui.annotation.*;
 /**
  * PopOverObject
  *
- *
+ * 
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:02
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:50
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -110,7 +110,7 @@ public @interface PopOverObject {
 
   /**
    * Any Of
-   *
+   * 
    *
    *
    */
@@ -126,13 +126,13 @@ public @interface PopOverObject {
      *
      * 参考定义: {"type":"string","description":"类名"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "类名")
     String className() default "	";
 
@@ -141,13 +141,13 @@ public @interface PopOverObject {
      *
      * 参考定义: {"type":"string","description":"弹框外层类名"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "弹框外层类名")
     String popOverClassName() default "	";
 
@@ -156,13 +156,13 @@ public @interface PopOverObject {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
+     * 
      *
-     *
-     *
+     * 
      *
      * @see Expression
      */
-
+    
     @Schema(title = "配置当前行是否启动，要用表达式")
     String popOverEnableOn() default "	";
 
@@ -171,13 +171,13 @@ public @interface PopOverObject {
      *
      * 参考定义: {"type":"string","enum":["dialog","drawer","popOver"],"description":"弹出模式"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "弹出模式")
     Mode mode() ;
 
@@ -186,13 +186,13 @@ public @interface PopOverObject {
      *
      * 参考定义: {"type":"string","enum":["sm","md","lg","xl"],"description":"是弹窗形式的时候有用。"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "是弹窗形式的时候有用。")
     Size size() ;
 
@@ -201,13 +201,13 @@ public @interface PopOverObject {
      *
      * 参考定义: {"type":"string","enum":["center","left-top","left-top-left-top","left-top-left-center","left-top-left-bottom","left-top-center-top","left-top-center-center","left-top-center-bottom","left-top-right-top","left-top-right-center","left-top-right-bottom","right-top","right-top-left-top","right-top-left-center","right-top-left-bottom","right-top-center-top","right-top-center-center","right-top-center-bottom","right-top-right-top","right-top-right-center","right-top-right-bottom","left-bottom","left-bottom-left-top","left-bottom-left-center","left-bottom-left-bottom","left-bottom-center-top","left-bottom-center-center","left-bottom-center-bottom","left-bottom-right-top","left-bottom-right-center","left-bottom-right-bottom","right-bottom","right-bottom-left-top","right-bottom-left-center","right-bottom-left-bottom","right-bottom-center-top","right-bottom-center-center","right-bottom-center-bottom","right-bottom-right-top","right-bottom-right-center","right-bottom-right-bottom","fixed-center","fixed-left-top","fixed-right-top","fixed-left-bottom","fixed-right-bottom"],"description":"弹出位置"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "弹出位置")
     Position position() ;
 
@@ -216,13 +216,13 @@ public @interface PopOverObject {
      *
      * 参考定义: {"type":"string","enum":["click","hover"],"description":"触发条件，默认是 click"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "触发条件，默认是 click")
     Trigger trigger() ;
 
@@ -231,13 +231,13 @@ public @interface PopOverObject {
      *
      * 参考定义: {"type":"boolean","description":"是否显示查看更多的 icon，通常是放大图标。"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "是否显示查看更多的 icon，通常是放大图标。")
     boolean showIcon() default false;
 
@@ -246,13 +246,13 @@ public @interface PopOverObject {
      *
      * 参考定义: {"type":"object","properties":{"top":{"type":"number"},"left":{"type":"number"}},"additionalProperties":false,"description":"偏移量"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "偏移量")
     String offset() default "	";
 
@@ -261,13 +261,13 @@ public @interface PopOverObject {
      *
      * 参考定义: {"type":"string","description":"标题"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "标题")
     String title() default "	";
 
@@ -276,13 +276,13 @@ public @interface PopOverObject {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     *
+     * 
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-
+    
     @Schema(title = "body")
     String body() default "	";
 

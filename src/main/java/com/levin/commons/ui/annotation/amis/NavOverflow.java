@@ -7,9 +7,9 @@ import com.levin.commons.ui.annotation.*;
 /**
  * NavOverflow
  *
- *
+ * 
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:02
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:50
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -23,7 +23,7 @@ public @interface NavOverflow {
 
   /**
    * Any Of
-   *
+   * 
    *
    *
    */
@@ -39,13 +39,13 @@ public @interface NavOverflow {
      *
      * 参考定义: {"type":"boolean","description":"是否开启响应式收纳"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "是否开启响应式收纳")
     boolean enable() default false;
 
@@ -56,11 +56,11 @@ public @interface NavOverflow {
      *
      * [{"type":"string"},{"$ref":"#/definitions/SchemaObject"}]
      *
+     * 
      *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "菜单触发按钮的文字")
     String overflowLabel() default "	";
 
@@ -69,13 +69,13 @@ public @interface NavOverflow {
      *
      * 参考定义: "#/definitions/SchemaIcon"
      *
+     * 
      *
-     *
-     *
+     * 
      *
      * @see Icon
      */
-
+    
     @Schema(title = "菜单触发按钮的图标")
     Icon overflowIndicator() ;
 
@@ -84,13 +84,13 @@ public @interface NavOverflow {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
+     * 
      *
-     *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
-
+    
     @Schema(title = "菜单触发按钮CSS类名")
     String overflowClassName() default "	";
 
@@ -99,13 +99,13 @@ public @interface NavOverflow {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
+     * 
      *
-     *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
-
+    
     @Schema(title = "Popover浮层CSS类名")
     String overflowPopoverClassName() default "	";
 
@@ -114,13 +114,13 @@ public @interface NavOverflow {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
+     * 
      *
-     *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
-
+    
     @Schema(title = "菜单外层CSS类名")
     String overflowListClassName() default "	";
 
@@ -129,13 +129,13 @@ public @interface NavOverflow {
      *
      * 参考定义: {"type":"number","description":"导航横向布局时，开启开启响应式收纳后最大可显示数量，超出此数量的导航将被收纳到下拉菜单中"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "导航横向布局时，开启开启响应式收纳后最大可显示数量，超出此数量的导航将被收纳到下拉菜单中")
     double maxVisibleCount() default 0;
 
@@ -144,13 +144,13 @@ public @interface NavOverflow {
      *
      * 参考定义: {"type":"string","description":"包裹导航的外层标签名，可以使用其他标签渲染","default":"ul"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "包裹导航的外层标签名，可以使用其他标签渲染")
     String wrapperComponent() default "	";
 
@@ -159,13 +159,13 @@ public @interface NavOverflow {
      *
      * 参考定义: {"type":"number","description":"导航项目宽度","default":160}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "导航项目宽度")
     double itemWidth() default 0;
 
@@ -174,13 +174,13 @@ public @interface NavOverflow {
      *
      * 参考定义: "#/definitions/SchemaCollection"
      *
-     *
+     * 
      *
      * [{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"},{"type":"array","items":{"anyOf":[{"$ref":"#/definitions/SchemaObject"},{"$ref":"#/definitions/SchemaTpl"}]}}]
      *
      * @see Collection
      */
-
+    
     @Schema(title = "导航列表后缀节点")
     String overflowSuffix() default "	";
 
@@ -189,29 +189,14 @@ public @interface NavOverflow {
      *
      * 参考定义: "#/definitions/React.CSSProperties"
      *
+     * 
      *
-     *
-     *
+     * 
      *
      * @see React_CSSProperties
      */
-
+    
     @Schema(title = "自定义样式")
     React_CSSProperties style() ;
-
-    /**
-     * 菜单DOM挂载点
-     *
-     * 参考定义: {"description":"菜单DOM挂载点"}
-     *
-     *
-     *
-     *
-     *
-     * @see
-     */
-
-    @Schema(title = "菜单DOM挂载点")
-    String popOverContainer() default "	";
 
 }

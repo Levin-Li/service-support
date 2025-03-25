@@ -9,7 +9,7 @@ import com.levin.commons.ui.annotation.*;
  *
  * 表达式，语法 `data.xxx > 5`。
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:01
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:50
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -23,7 +23,7 @@ public @interface Expression {
 
   /**
    * Any Of
-   *
+   * 
    *
    *
    */

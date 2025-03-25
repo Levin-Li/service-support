@@ -7,15 +7,15 @@ import com.levin.commons.ui.annotation.*;
 /**
  * Tasks
  *
- * Tasks 渲染器，格式说明 文档：https://baidu.gitee.io/amis/docs/components/tasks
+ * Tasks 渲染器，格式说明 文档：https://aisuda.bce.baidu.com/amis/zh-CN/components/tasks
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:03
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:51
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(title = "Tasks 渲染器，格式说明 文档：https://baidu.gitee.io/amis/docs/components/tasks")
+@Schema(title = "Tasks 渲染器，格式说明 文档：https://aisuda.bce.baidu.com/amis/zh-CN/components/tasks")
 public @interface Tasks {
 ///////////////////////////////////////////
 
@@ -23,7 +23,7 @@ public @interface Tasks {
 
   /**
    * Any Of
-   *
+   * 
    *
    *
    */
@@ -35,32 +35,47 @@ public @interface Tasks {
    String value() default "	";
 
     /**
-     * 指定为任务类型
+     * loadingConfig
      *
-     * 参考定义: {"type":"string","const":"tasks","description":"指定为任务类型"}
+     * 参考定义: {"type":"object","properties":{"root":{"type":"string"},"show":{"type":"boolean"}},"additionalProperties":false}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
+    
+    @Schema(title = "loadingConfig")
+    String loadingConfig() default "	";
 
-    @Schema(title = "指定为任务类型")
-    String type() default "tasks";
+    /**
+     * 组件唯一 id，主要用于页面设计器中定位 json 节点
+     *
+     * 参考定义: {"type":"string","description":"组件唯一 id，主要用于页面设计器中定位 json 节点"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "组件唯一 id，主要用于页面设计器中定位 json 节点")
+    String $$id() default "	";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
+     * 
      *
-     *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
-
+    
     @Schema(title = "容器 css 类名")
     String className() default "	";
 
@@ -69,13 +84,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "是否禁用")
     boolean disabled() default false;
 
@@ -84,13 +99,13 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
+     * 
      *
-     *
-     *
+     * 
      *
      * @see Expression
      */
-
+    
     @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
@@ -99,13 +114,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
@@ -114,13 +129,13 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
+     * 
      *
-     *
-     *
+     * 
      *
      * @see Expression
      */
-
+    
     @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
@@ -129,13 +144,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "是否显示")
     boolean visible() default false;
 
@@ -144,13 +159,13 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
+     * 
      *
-     *
-     *
+     * 
      *
      * @see Expression
      */
-
+    
     @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
@@ -159,43 +174,223 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
      * 事件动作配置
      *
-     * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
+     * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}},"debounce":{"$ref":"#/definitions/debounceConfig"},"track":{"$ref":"#/definitions/trackConfig"}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "事件动作配置")
     String onEvent() default "	";
+
+    /**
+     * 是否静态展示
+     *
+     * 参考定义: {}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "是否静态展示")
+    String _static() default "	";
+
+    /**
+     * 是否静态展示表达式
+     *
+     * 参考定义: "#/definitions/SchemaExpression"
+     *
+     * 
+     *
+     * 
+     *
+     * @see Expression
+     */
+    
+    @Schema(title = "是否静态展示表达式")
+    String staticOn() default "	";
+
+    /**
+     * 静态展示空值占位
+     *
+     * 参考定义: {"type":"string","description":"静态展示空值占位"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "静态展示空值占位")
+    String staticPlaceholder() default "	";
+
+    /**
+     * 静态展示表单项类名
+     *
+     * 参考定义: "#/definitions/SchemaClassName"
+     *
+     * 
+     *
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
+     *
+     * @see ClassName
+     */
+    
+    @Schema(title = "静态展示表单项类名")
+    String staticClassName() default "	";
+
+    /**
+     * 静态展示表单项Label类名
+     *
+     * 参考定义: "#/definitions/SchemaClassName"
+     *
+     * 
+     *
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
+     *
+     * @see ClassName
+     */
+    
+    @Schema(title = "静态展示表单项Label类名")
+    String staticLabelClassName() default "	";
+
+    /**
+     * 静态展示表单项Value类名
+     *
+     * 参考定义: "#/definitions/SchemaClassName"
+     *
+     * 
+     *
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
+     *
+     * @see ClassName
+     */
+    
+    @Schema(title = "静态展示表单项Value类名")
+    String staticInputClassName() default "	";
+
+    /**
+     * 组件样式
+     *
+     * 参考定义: {"type":"object","description":"组件样式"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "组件样式")
+    String style() default "	";
+
+    /**
+     * 编辑器配置，运行时可以忽略
+     *
+     * 参考定义: {"type":"object","properties":{"behavior":{"type":"string","description":"组件行为、用途，如 create、update、remove"},"displayName":{"type":"string","description":"组件名称，通常是业务名称方便定位"},"mock":{"description":"编辑器假数据，方便展示"}},"description":"编辑器配置，运行时可以忽略"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "编辑器配置，运行时可以忽略")
+    String editorSetting() default "	";
+
+    /**
+     * 可以组件级别用来关闭移动端样式
+     *
+     * 参考定义: {"type":"boolean","description":"可以组件级别用来关闭移动端样式"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "可以组件级别用来关闭移动端样式")
+    boolean useMobileUI() default false;
+
+    /**
+     * testIdBuilder
+     *
+     * 参考定义: "#/definitions/TestIdBuilder"
+     *
+     * 
+     *
+     * 
+     *
+     * @see TestIdBuilder
+     */
+    
+    @Schema(title = "testIdBuilder")
+    TestIdBuilder testIdBuilder() ;
+
+    /**
+     * 指定为任务类型
+     *
+     * 参考定义: {"type":"string","const":"tasks","description":"指定为任务类型"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "指定为任务类型")
+    String type() default "tasks";
+
+    /**
+     * testid
+     *
+     * 参考定义: {"type":"string"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "testid")
+    String testid() default "	";
 
     /**
      * btnClassName
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
+     * 
      *
-     *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
-
+    
     @Schema(title = "btnClassName")
     String btnClassName() default "	";
 
@@ -204,13 +399,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"string","description":"操作按钮文字"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "操作按钮文字")
     String btnText() default "	";
 
@@ -219,13 +414,13 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     *
+     * 
      *
      * [{"type":"string"},{"$ref":"#/definitions/SchemaApiObject"}]
      *
      * @see Api
      */
-
+    
     @Schema(title = "用来获取任务状态的 API，当没有进行时任务时不会发送。")
     String checkApi() default "	";
 
@@ -234,13 +429,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"number","description":"当有任务进行中，会每隔一段时间再次检测，而时间间隔就是通过此项配置，默认 3s。","default":3000}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "当有任务进行中，会每隔一段时间再次检测，而时间间隔就是通过此项配置，默认 3s。")
     double interval() default 0;
 
@@ -249,13 +444,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"array","items":{"type":"object","properties":{"key":{"type":"string","description":"任务键值，请唯一区分"},"label":{"type":"string","description":"任务名称"},"remark":{"type":"string","description":"当前任务状态，支持 html"},"status":{"type":"number","enum":[0,1,2,3,4,5],"description":"任务状态： 0: 初始状态，不可操作。 1: 就绪，可操作状态。 2: 进行中，还没有结束。 3：有错误，不可重试。 4: 已正常结束。 5：有错误，且可以重试。"}},"additionalProperties":false}}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "items")
     String[] items() default "	";
 
@@ -264,13 +459,13 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaName"
      *
+     * 
      *
-     *
-     *
+     * 
      *
      * @see Name
      */
-
+    
     @Schema(title = "name")
     String name() default "	";
 
@@ -279,13 +474,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"string","description":"操作列说明"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "操作列说明")
     String operationLabel() default "	";
 
@@ -294,13 +489,13 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     *
+     * 
      *
      * [{"type":"string"},{"$ref":"#/definitions/SchemaApiObject"}]
      *
      * @see Api
      */
-
+    
     @Schema(title = "如果任务失败，且可以重试，提交的时候会使用此 API")
     String reSubmitApi() default "	";
 
@@ -309,13 +504,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"string","description":"备注列说明"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "备注列说明")
     String remarkLabel() default "	";
 
@@ -324,13 +519,13 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
+     * 
      *
-     *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
-
+    
     @Schema(title = "配置容器重试按钮 className")
     String retryBtnClassName() default "	";
 
@@ -339,13 +534,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"string","description":"重试操作按钮文字"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "重试操作按钮文字")
     String retryBtnText() default "	";
 
@@ -354,13 +549,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"string","description":"状态列说明"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "状态列说明")
     String statusLabel() default "	";
 
@@ -369,13 +564,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"array","items":{"type":"string"},"description":"状态显示对应的类名配置。","default":["label-warning","label-info","label-success","label-danger","label-default","label-danger"]}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "状态显示对应的类名配置。")
     String[] statusLabelMap() default "	";
 
@@ -384,13 +579,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"array","items":{"type":"string"},"description":"状态显示对应的文字显示配置。"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "状态显示对应的文字显示配置。")
     String[] statusTextMap() default "	";
 
@@ -399,13 +594,13 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaApi"
      *
-     *
+     * 
      *
      * [{"type":"string"},{"$ref":"#/definitions/SchemaApiObject"}]
      *
      * @see Api
      */
-
+    
     @Schema(title = "提交任务使用的 API")
     String submitApi() default "	";
 
@@ -414,13 +609,13 @@ public @interface Tasks {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
+     * 
      *
-     *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
-
+    
     @Schema(title = "配置 table className")
     String tableClassName() default "	";
 
@@ -429,13 +624,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"string","description":"任务名称列说明"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "任务名称列说明")
     String taskNameLabel() default "	";
 
@@ -444,13 +639,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"number"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "initialStatusCode")
     double initialStatusCode() default 0;
 
@@ -459,13 +654,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"number"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "readyStatusCode")
     double readyStatusCode() default 0;
 
@@ -474,13 +669,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"number"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "loadingStatusCode")
     double loadingStatusCode() default 0;
 
@@ -489,13 +684,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"number"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "canRetryStatusCode")
     double canRetryStatusCode() default 0;
 
@@ -504,13 +699,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"number"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "finishStatusCode")
     double finishStatusCode() default 0;
 
@@ -519,13 +714,13 @@ public @interface Tasks {
      *
      * 参考定义: {"type":"number"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "errorStatusCode")
     double errorStatusCode() default 0;
 

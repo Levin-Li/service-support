@@ -9,7 +9,7 @@ import com.levin.commons.ui.annotation.*;
  *
  * 消息文案配置，记住这个优先级是最低的，如果你的接口返回了 msg，接口返回的优先。
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:02
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:50
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -23,7 +23,7 @@ public @interface Message {
 
   /**
    * Any Of
-   *
+   * 
    *
    *
    */
@@ -39,13 +39,13 @@ public @interface Message {
      *
      * 参考定义: {"type":"string","description":"获取失败时的提示"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "获取失败时的提示")
     String fetchFailed() default "	";
 
@@ -54,13 +54,13 @@ public @interface Message {
      *
      * 参考定义: {"type":"string","description":"获取成功的提示，默认为空。"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "获取成功的提示，默认为空。")
     String fetchSuccess() default "	";
 
@@ -69,13 +69,13 @@ public @interface Message {
      *
      * 参考定义: {"type":"string","description":"保存失败时的提示。"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "保存失败时的提示。")
     String saveFailed() default "	";
 
@@ -84,13 +84,13 @@ public @interface Message {
      *
      * 参考定义: {"type":"string","description":"保存成功时的提示。"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "保存成功时的提示。")
     String saveSuccess() default "	";
 

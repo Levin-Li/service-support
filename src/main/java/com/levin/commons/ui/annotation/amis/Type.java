@@ -2,108 +2,232 @@ package com.levin.commons.ui.annotation.amis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.lang.annotation.*;
-import com.levin.commons.ui.annotation.*;
-
 /**
  * Type
  *
- *
+ * 
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:02
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:50
  */
-@Target({ElementType.TYPE, ElementType.FIELD})
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Inherited
 @Schema(title = "Type")
-public @interface Type {
-///////////////////////////////////////////
-
-	//null
-	enum ValueType{
-		value,
-		field,
-		func,
+public enum Type {
+		form,
+		alert,
+		app,
+		audio,
+		avatar,
+		button_group,
+		breadcrumb,
+		card,
+		card2,
+		cards,
+		carousel,
+		chart,
+		calendar,
+		collapse,
+		collapse_group,
+		color,
+		crud,
+		crud2,
+		custom,
+		date,
+		static_date,
+		datetime,
+		static_datetime,
+		time,
+		static_time,
+		month,
+		static_month,
+		date_range,
+		dialog,
+		spinner,
+		divider,
+		dropdown_button,
+		drawer,
+		each,
+		flex,
+		flex_item,
+		grid_2d,
+		icon,
+		iframe,
+		image,
+		static_image,
+		images,
+		static_images,
+		json_schema,
+		json_schema_editor,
+		json,
+		static_json,
+		link,
+		list,
+		log,
+		static_list,
+		map,
+		mapping,
+		markdown,
+		nav,
+		number,
+		page,
+		pagination,
+		pagination_wrapper,
+		property,
+		operation,
+		plain,
+		text,
+		progress,
+		qrcode,
+		qr_code,
+		barcode,
+		remark,
+		search_box,
+		sparkline,
+		status,
+		table,
+		static_table,
+		table2,
+		html,
+		tpl,
+		tasks,
+		vbox,
+		video,
+		wizard,
+		wrapper,
+		web_component,
+		anchor_nav,
+		steps,
+		timeline,
+		control,
+		input_array,
+		button,
+		submit,
+		reset,
+		button_group_select,
+		button_toolbar,
+		chained_select,
+		chart_radios,
+		checkbox,
+		checkboxes,
+		input_city,
+		input_color,
+		combo,
+		condition_builder,
+		container,
+		switch_container,
+		input_date,
+		input_datetime,
+		input_time,
+		input_quarter,
+		input_year,
+		input_month,
+		input_date_range,
+		input_time_range,
+		input_datetime_range,
+		input_excel,
+		input_formula,
+		diff_editor,
+		office_viewer,
+		pdf_viewer,
+		input_signature,
+		editor,
+		bat_editor,
+		c_editor,
+		coffeescript_editor,
+		cpp_editor,
+		csharp_editor,
+		css_editor,
+		dockerfile_editor,
+		fsharp_editor,
+		go_editor,
+		handlebars_editor,
+		html_editor,
+		ini_editor,
+		java_editor,
+		javascript_editor,
+		json_editor,
+		less_editor,
+		lua_editor,
+		markdown_editor,
+		msdax_editor,
+		objective_c_editor,
+		php_editor,
+		plaintext_editor,
+		postiats_editor,
+		powershell_editor,
+		pug_editor,
+		python_editor,
+		r_editor,
+		razor_editor,
+		ruby_editor,
+		sb_editor,
+		scss_editor,
+		sol_editor,
+		sql_editor,
+		swift_editor,
+		typescript_editor,
+		vb_editor,
+		xml_editor,
+		yaml_editor,
+		fieldset,
+		fieldSet,
+		input_file,
 		formula,
-		;
-
-		@Override
-		public String toString() { return super.toString().replace('_', '-'); }
-	}
-
-////////////////////////////////////////////
-
-  /**
-   * Any Of
-   *
-   *
-   *
-   */
-
-//////////////////////////////////////////////
-   /**
-    *
-    */
-   String value() default "	";
-
-    /**
-     * defaultOp
-     *
-     * 参考定义: "#/definitions/OperatorType"
-     *
-     *
-     *
-     * [{"type":"string","const":"equal"},{"type":"string","const":"not_equal"},{"type":"string","const":"is_empty"},{"type":"string","const":"is_not_empty"},{"type":"string","const":"like"},{"type":"string","const":"not_like"},{"type":"string","const":"starts_with"},{"type":"string","const":"ends_with"},{"type":"string","const":"less"},{"type":"string","const":"less_or_equal"},{"type":"string","const":"greater"},{"type":"string","const":"greater_or_equal"},{"type":"string","const":"between"},{"type":"string","const":"not_between"},{"type":"string","const":"select_equals"},{"type":"string","const":"select_not_equals"},{"type":"string","const":"select_any_in"},{"type":"string","const":"select_not_any_in"},{"type":"object","properties":{"label":{"type":"string"},"value":{"type":"string"}},"required":["label","value"],"additionalProperties":false}]
-     *
-     * @see OperatorType
-     */
-    @Const({"equal", "not_equal", "is_empty", "is_not_empty", "like", "not_like", "starts_with", "ends_with", "less", "less_or_equal", "greater", "greater_or_equal", "between", "not_between", "select_equals", "select_not_equals", "select_any_in", "select_not_any_in"})
-    @Schema(title = "defaultOp")
-    String defaultOp() default "	";
-
-    /**
-     * operators
-     *
-     * 参考定义: "#/definitions/OperatorType"
-     *
-     *
-     *
-     * [{"type":"string","const":"equal"},{"type":"string","const":"not_equal"},{"type":"string","const":"is_empty"},{"type":"string","const":"is_not_empty"},{"type":"string","const":"like"},{"type":"string","const":"not_like"},{"type":"string","const":"starts_with"},{"type":"string","const":"ends_with"},{"type":"string","const":"less"},{"type":"string","const":"less_or_equal"},{"type":"string","const":"greater"},{"type":"string","const":"greater_or_equal"},{"type":"string","const":"between"},{"type":"string","const":"not_between"},{"type":"string","const":"select_equals"},{"type":"string","const":"select_not_equals"},{"type":"string","const":"select_any_in"},{"type":"string","const":"select_not_any_in"},{"type":"object","properties":{"label":{"type":"string"},"value":{"type":"string"}},"required":["label","value"],"additionalProperties":false}]
-     *
-     * @see OperatorType
-     */
-    @Const({"equal", "not_equal", "is_empty", "is_not_empty", "like", "not_like", "starts_with", "ends_with", "less", "less_or_equal", "greater", "greater_or_equal", "between", "not_between", "select_equals", "select_not_equals", "select_any_in", "select_not_any_in"})
-    @Schema(title = "operators")
-    String[] operators() default "	";
-
-    /**
-     * placeholder
-     *
-     * 参考定义: {"type":"string"}
-     *
-     *
-     *
-     *
-     *
-     * @see
-     */
-
-    @Schema(title = "placeholder")
-    String placeholder() default "	";
-
-    /**
-     * valueTypes
-     *
-     * 参考定义: {"type":"array","items":{"type":"string","enum":["value","field","func","formula"]}}
-     *
-     *
-     *
-     *
-     *
-     * @see
-     */
-
-    @Schema(title = "valueTypes")
-    ValueType[] valueTypes() ;
-
+		grid,
+		group,
+		hbox,
+		hidden,
+		icon_picker,
+		icon_select,
+		input_image,
+		input_group,
+		list_select,
+		location_picker,
+		matrix_checkboxes,
+		input_month_range,
+		input_quarter_range,
+		nested_select,
+		input_number,
+		panel,
+		picker,
+		radio,
+		radios,
+		input_range,
+		input_rating,
+		input_repeat,
+		input_rich_text,
+		select,
+		service,
+		_static,
+		input_sub_form,
+		_switch,
+		input_table,
+		tabs,
+		tabs_transfer,
+		input_tag,
+		input_text,
+		input_password,
+		input_email,
+		input_url,
+		uuid,
+		multi_select,
+		textarea,
+		transfer,
+		transfer_picker,
+		tabs_transfer_picker,
+		input_tree,
+		tree_select,
+		table_view,
+		portlet,
+		grid_nav,
+		users_select,
+		tag,
+		tags,
+		words,
+		password,
+		multiline_text,
+		amis,
+		native_date,
+		native_time,
+		native_number,
+		code,
+		tooltip_wrapper,
 }

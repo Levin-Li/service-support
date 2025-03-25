@@ -7,15 +7,15 @@ import com.levin.commons.ui.annotation.*;
 /**
  * QRCode
  *
- * 二维码展示控件。 文档：https://baidu.gitee.io/amis/docs/components/qrcode
+ * 二维码展示控件。 文档：https://aisuda.bce.baidu.com/amis/zh-CN/components/qrcode
  * 根据 "amis": "1.9.1-beta.11", schema.json 自动生成
- * @author auto gen by service-support at 2022-6-6 23:52:03
+ * @author auto gen by service-support at 2025年3月24日 下午10:00:51
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(title = "二维码展示控件。 文档：https://baidu.gitee.io/amis/docs/components/qrcode")
+@Schema(title = "二维码展示控件。 文档：https://aisuda.bce.baidu.com/amis/zh-CN/components/qrcode")
 public @interface QRCode {
 ///////////////////////////////////////////
 
@@ -45,7 +45,7 @@ public @interface QRCode {
 
   /**
    * Any Of
-   *
+   * 
    *
    *
    */
@@ -57,32 +57,32 @@ public @interface QRCode {
    String value() default "	";
 
     /**
-     * type
+     * 组件唯一 id，主要用于页面设计器中定位 json 节点
      *
-     * 参考定义: {"type":"string","enum":["qrcode","qr-code"]}
+     * 参考定义: {"type":"string","description":"组件唯一 id，主要用于页面设计器中定位 json 节点"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
-    @Schema(title = "type")
-    Type type() ;
+    
+    @Schema(title = "组件唯一 id，主要用于页面设计器中定位 json 节点")
+    String $$id() default "	";
 
     /**
      * 容器 css 类名
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
+     * 
      *
-     *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
-
+    
     @Schema(title = "容器 css 类名")
     String className() default "	";
 
@@ -91,13 +91,13 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"boolean","description":"是否禁用"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "是否禁用")
     boolean disabled() default false;
 
@@ -106,13 +106,13 @@ public @interface QRCode {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
+     * 
      *
-     *
-     *
+     * 
      *
      * @see Expression
      */
-
+    
     @Schema(title = "是否禁用表达式")
     String disabledOn() default "	";
 
@@ -121,13 +121,13 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"boolean","description":"是否隐藏"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "是否隐藏")
     boolean hidden() default false;
 
@@ -136,13 +136,13 @@ public @interface QRCode {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
+     * 
      *
-     *
-     *
+     * 
      *
      * @see Expression
      */
-
+    
     @Schema(title = "是否隐藏表达式")
     String hiddenOn() default "	";
 
@@ -151,13 +151,13 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"boolean","description":"是否显示"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "是否显示")
     boolean visible() default false;
 
@@ -166,13 +166,13 @@ public @interface QRCode {
      *
      * 参考定义: "#/definitions/SchemaExpression"
      *
+     * 
      *
-     *
-     *
+     * 
      *
      * @see Expression
      */
-
+    
     @Schema(title = "是否显示表达式")
     String visibleOn() default "	";
 
@@ -181,43 +181,223 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"string","description":"组件唯一 id，主要用于日志采集"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "组件唯一 id，主要用于日志采集")
     String id() default "	";
 
     /**
      * 事件动作配置
      *
-     * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
+     * 参考定义: {"type":"object","additionalProperties":{"type":"object","properties":{"weight":{"type":"number"},"actions":{"type":"array","items":{"$ref":"#/definitions/ListenerAction"}},"debounce":{"$ref":"#/definitions/debounceConfig"},"track":{"$ref":"#/definitions/trackConfig"}},"required":["actions"],"additionalProperties":false},"description":"事件动作配置"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "事件动作配置")
     String onEvent() default "	";
+
+    /**
+     * 是否静态展示
+     *
+     * 参考定义: {}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "是否静态展示")
+    String _static() default "	";
+
+    /**
+     * 是否静态展示表达式
+     *
+     * 参考定义: "#/definitions/SchemaExpression"
+     *
+     * 
+     *
+     * 
+     *
+     * @see Expression
+     */
+    
+    @Schema(title = "是否静态展示表达式")
+    String staticOn() default "	";
+
+    /**
+     * 静态展示空值占位
+     *
+     * 参考定义: {"type":"string","description":"静态展示空值占位"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "静态展示空值占位")
+    String staticPlaceholder() default "	";
+
+    /**
+     * 静态展示表单项类名
+     *
+     * 参考定义: "#/definitions/SchemaClassName"
+     *
+     * 
+     *
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
+     *
+     * @see ClassName
+     */
+    
+    @Schema(title = "静态展示表单项类名")
+    String staticClassName() default "	";
+
+    /**
+     * 静态展示表单项Label类名
+     *
+     * 参考定义: "#/definitions/SchemaClassName"
+     *
+     * 
+     *
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
+     *
+     * @see ClassName
+     */
+    
+    @Schema(title = "静态展示表单项Label类名")
+    String staticLabelClassName() default "	";
+
+    /**
+     * 静态展示表单项Value类名
+     *
+     * 参考定义: "#/definitions/SchemaClassName"
+     *
+     * 
+     *
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
+     *
+     * @see ClassName
+     */
+    
+    @Schema(title = "静态展示表单项Value类名")
+    String staticInputClassName() default "	";
+
+    /**
+     * 组件样式
+     *
+     * 参考定义: {"type":"object","description":"组件样式"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "组件样式")
+    String style() default "	";
+
+    /**
+     * 编辑器配置，运行时可以忽略
+     *
+     * 参考定义: {"type":"object","properties":{"behavior":{"type":"string","description":"组件行为、用途，如 create、update、remove"},"displayName":{"type":"string","description":"组件名称，通常是业务名称方便定位"},"mock":{"description":"编辑器假数据，方便展示"}},"description":"编辑器配置，运行时可以忽略"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "编辑器配置，运行时可以忽略")
+    String editorSetting() default "	";
+
+    /**
+     * 可以组件级别用来关闭移动端样式
+     *
+     * 参考定义: {"type":"boolean","description":"可以组件级别用来关闭移动端样式"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "可以组件级别用来关闭移动端样式")
+    boolean useMobileUI() default false;
+
+    /**
+     * testIdBuilder
+     *
+     * 参考定义: "#/definitions/TestIdBuilder"
+     *
+     * 
+     *
+     * 
+     *
+     * @see TestIdBuilder
+     */
+    
+    @Schema(title = "testIdBuilder")
+    TestIdBuilder testIdBuilder() ;
+
+    /**
+     * type
+     *
+     * 参考定义: {"type":"string","enum":["qrcode","qr-code"]}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "type")
+    Type type() ;
+
+    /**
+     * testid
+     *
+     * 参考定义: {"type":"string"}
+     *
+     * 
+     *
+     * 
+     *
+     * @see 
+     */
+    
+    @Schema(title = "testid")
+    String testid() default "	";
 
     /**
      * 关联字段名。
      *
      * 参考定义: {"type":"string","description":"关联字段名。"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "关联字段名。")
     String name() default "	";
 
@@ -226,13 +406,13 @@ public @interface QRCode {
      *
      * 参考定义: "#/definitions/SchemaClassName"
      *
+     * 
      *
-     *
-     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"$ref":"#/definitions/SchemaExpression"}]}}]
+     * [{"type":"string"},{"type":"object","additionalProperties":{"anyOf":[{"type":"boolean"},{"not":{}},{"type":"null"},{"type":"string"}]}}]
      *
      * @see ClassName
      */
-
+    
     @Schema(title = "css 类名")
     String qrcodeClassName() default "	";
 
@@ -241,13 +421,13 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"number","description":"二维码的宽高大小，默认 128","default":128}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "二维码的宽高大小，默认 128")
     double codeSize() default 0;
 
@@ -256,13 +436,13 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"string","description":"背景色"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "背景色")
     String backgroundColor() default "	";
 
@@ -271,13 +451,13 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"string","description":"前景色"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "前景色")
     String foregroundColor() default "	";
 
@@ -286,13 +466,13 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"string","enum":["L","M","Q","H"],"description":"二维码复杂级别"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "二维码复杂级别")
     Level level() ;
 
@@ -301,14 +481,29 @@ public @interface QRCode {
      *
      * 参考定义: {"type":"string","description":"占位符"}
      *
+     * 
      *
+     * 
      *
-     *
-     *
-     * @see
+     * @see 
      */
-
+    
     @Schema(title = "占位符")
     String placeholder() default "	";
+
+    /**
+     * 图片配置
+     *
+     * 参考定义: "#/definitions/QRCodeImageSettings"
+     *
+     * 
+     *
+     * 
+     *
+     * @see QRCodeImageSettings
+     */
+    
+    @Schema(title = "图片配置")
+    QRCodeImageSettings imageSettings() ;
 
 }
