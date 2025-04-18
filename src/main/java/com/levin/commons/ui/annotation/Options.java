@@ -16,7 +16,7 @@ import java.lang.annotation.*;
  *
  * @author llw
  */
-@Target({ElementType.FIELD})
+@Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
