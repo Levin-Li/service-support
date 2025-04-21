@@ -81,9 +81,9 @@ public @interface Options {
      */
     String dictCode() default "";
 
-
     /**
      * API接口
+     * 参考Amis 定义: https://baidu.github.io/amis/zh-CN/docs/types/api?page=1
      * <p>
      * 建议通过权限标识来控制权限和匹配URL
      * <p>
@@ -129,6 +129,5 @@ public @interface Options {
      * @return
      */
     boolean searchable() default true;
-
 
 }
