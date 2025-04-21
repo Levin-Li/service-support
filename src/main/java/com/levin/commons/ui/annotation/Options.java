@@ -64,6 +64,15 @@ public @interface Options {
      */
     String[] items() default {};
 
+
+    /**
+     * 枚举类
+     * <p>
+     *
+     * @return
+     */
+    Class<? extends Enum> enumClass() default Enum.class;
+
     /**
      * 系统的字典编码
      * <p>
@@ -71,6 +80,19 @@ public @interface Options {
      * @return
      */
     String dictCode() default "";
+
+
+    /**
+     * API接口
+     * <p>
+     * 建议通过权限标识来控制权限和匹配URL
+     * <p>
+     * 不建议使用通用的API接口，所有的API接口都通过控制器来定义。
+     * <p>
+     *
+     * @return
+     */
+    String loadApi() default "";
 
     /**
      * 列映射表达式
@@ -100,23 +122,6 @@ public @interface Options {
      */
     String reloadOnAttrChanged() default "";
 
-    /**
-     * Dao查询类或是枚举类
-     *
-     * @return
-     */
-    Class<?> queryObjectOrEnumClass() default Void.class;
-
-    /**
-     * API接口
-     * <p>
-     * 建议通过权限标识来控制权限和匹配URL
-     * <p>
-     * 不建议使用通用的API接口，所有的API接口都通过控制器来定义。
-     *
-     * @return
-     */
-    String api() default "";
 
     /**
      * 是否可以搜索
@@ -125,16 +130,5 @@ public @interface Options {
      */
     boolean searchable() default true;
 
-    /**
-     * 查询参数，URL字符串参数
-     * <p>
-     * 包含自动补全搜索参数名称，主要搜索服务端，输入框的参数名称：searchKeywords
-     * <p>
-     * <p>
-     * 支持百度Amis的变量
-     *
-     * @return
-     */
-    String searchParams() default "";
 
 }
