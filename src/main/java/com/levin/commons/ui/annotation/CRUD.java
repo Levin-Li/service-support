@@ -1,5 +1,7 @@
 package com.levin.commons.ui.annotation;
 
+import com.levin.commons.ui.annotation.amis.OperatorType;
+
 import java.lang.annotation.*;
 
 /**
@@ -101,6 +103,14 @@ public @interface CRUD {
          * @return
          */
         String label() default "";
+
+        /**
+         * 操作类型
+         * 如，删除，修改，新增，查看，导出，打印，批量删除，批量修改等
+         *
+         * @return
+         */
+        String type() default "";
 
         /**
          * 操作按钮的显示条件
