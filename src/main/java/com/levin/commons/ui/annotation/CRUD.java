@@ -2,6 +2,7 @@ package com.levin.commons.ui.annotation;
 
 import com.levin.commons.ui.annotation.amis.OperatorType;
 
+import java.io.Serializable;
 import java.lang.annotation.*;
 
 /**
@@ -23,6 +24,13 @@ public @interface CRUD {
      * @return
      */
     String name() default "default";
+
+    /**
+     * 关联的实体类
+     *
+     * @return
+     */
+    Class<?> refEntityClass() default Void.class;
 
     /**
      * 显示名称
