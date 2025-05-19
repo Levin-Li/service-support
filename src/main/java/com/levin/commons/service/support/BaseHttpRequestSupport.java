@@ -4,10 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONFactory;
-import com.alibaba.fastjson2.JSONReader;
-import com.alibaba.fastjson2.PropertyNamingStrategy;
+import com.alibaba.fastjson2.*;
 import com.alibaba.fastjson2.writer.ObjectWriterProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -154,21 +151,22 @@ public class BaseHttpRequestSupport {
 
         log.info(title + "-响应 URL：{} status:{} 响应结果：{}", httpRequest.getUrl(), response.getStatus(), sampleText(respBody));
 
-        if(responseType == null || responseType == String.class || responseType == CharSequence.class){
+        if (responseType == null || responseType == String.class || responseType == CharSequence.class) {
             return (T) respBody;
         }
-        
-        return JSON.parseObject(respBody, responseType, getParseFeatures());
 
+        return JSON.parseObject(respBody, responseType, getParseFeatures());
     }
+
+
+    final JSONWriter.Context writeSnakeCaseContext = JSONFactory.createWriteContext(new ObjectWriterProvider(PropertyNamingStrategy.SnakeCase));
 
     protected String toJsonStr(Object requestParam) {
         return toJsonStr(isUnderlineNaming(), requestParam);
     }
 
     protected String toJsonStr(boolean isUnderlineNaming, Object requestParam) {
-        return isUnderlineNaming ? JSON.toJSONString(requestParam, JSONFactory.createWriteContext(new ObjectWriterProvider(PropertyNamingStrategy.SnakeCase)))
-                : JSON.toJSONString(requestParam);
+        return isUnderlineNaming ? JSON.toJSONString(requestParam, writeSnakeCaseContext) : JSON.toJSONString(requestParam);
     }
 
     protected boolean isToJsonStr(ContentType contentType, Object value) {
