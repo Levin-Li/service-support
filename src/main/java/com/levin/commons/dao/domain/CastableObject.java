@@ -8,10 +8,10 @@ import io.swagger.v3.oas.annotations.Operation;
  *
  * @author llw
  */
-public interface CastableObject<T extends CastableObject<T>> {
+public interface CastableObject {
 
-    @Operation(summary = "类型强转")
-    default <E extends CastableObject<T>> E cast() {
+    @Operation(summary = "类型强转", description = "")
+    default <E extends CastableObject> E cast() {
         return (E) this;
     }
 

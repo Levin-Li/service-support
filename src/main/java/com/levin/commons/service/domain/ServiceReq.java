@@ -15,8 +15,10 @@ import java.io.Serializable;
  */
 
 @Schema(title = "服务请求类")
-public interface ServiceReq<T>
-        extends CastableObject<ServiceReq<T>>,Traceable, Serializable {
+public interface ServiceReq<BODY>
+        extends
+        CastableObject,
+        Traceable, Serializable {
 
     @Schema(title = "是否超级管理员", hidden = true)
     default boolean isSuperAdmin() {

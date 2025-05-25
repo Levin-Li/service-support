@@ -18,7 +18,7 @@ import java.util.List;
 
 @Schema(title = "服务响应")
 public interface ServiceResp<T>
-        extends CastableObject<ServiceResp<T>>, Traceable, Serializable {
+        extends CastableObject, Traceable, Serializable {
 
     @Schema(title = "响应码", description = "响应码，非零表示有错误或异常")
     int getCode();
