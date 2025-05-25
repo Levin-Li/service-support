@@ -1,6 +1,7 @@
 package com.levin.commons.service.domain;
 
 
+import com.levin.commons.dao.domain.CastableObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -14,8 +15,8 @@ import java.io.Serializable;
  */
 
 @Schema(title = "服务请求类")
-public interface ServiceReq
-        extends Traceable, Serializable {
+public interface ServiceReq<T>
+        extends CastableObject<ServiceReq<T>>,Traceable, Serializable {
 
     @Schema(title = "是否超级管理员", hidden = true)
     default boolean isSuperAdmin() {
@@ -30,11 +31,6 @@ public interface ServiceReq
     @Schema(title = "是否需要签名验证")
     default boolean requireSignVerification() {
         return false;
-    }
-
-    @Operation(summary = "类型强转")
-    default <T extends ServiceReq> T cast() {
-        return (T) this;
     }
 
 }

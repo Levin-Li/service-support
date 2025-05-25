@@ -1,5 +1,6 @@
 package com.levin.commons.service.domain;
 
+import com.levin.commons.dao.domain.CastableObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -17,7 +18,7 @@ import java.util.List;
 
 @Schema(title = "服务响应")
 public interface ServiceResp<T>
-        extends Traceable, Serializable {
+        extends CastableObject<ServiceResp<T>>, Traceable, Serializable {
 
     @Schema(title = "响应码", description = "响应码，非零表示有错误或异常")
     int getCode();
@@ -47,12 +48,6 @@ public interface ServiceResp<T>
     @Schema(title = "是否业务异常", description = "错误发生时，是否为业务异常")
     default boolean isBizError() {
         return !isSuccessful() && getCode() < ErrorType.AuthenticationError.baseErrorCode;
-    }
-
-
-    @Operation(summary = "类型强转")
-    default <E extends ServiceResp<T>> E cast() {
-        return (E) this;
     }
 
     @Schema(title = "错误类型")
