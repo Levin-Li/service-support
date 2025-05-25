@@ -1,8 +1,6 @@
 package com.levin.commons.service.domain;
 
 
-import com.levin.commons.dao.domain.CastableObject;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
@@ -17,7 +15,7 @@ import java.io.Serializable;
 @Schema(title = "服务请求类")
 public interface ServiceReq<BODY>
         extends
-        CastableObject,
+        Castable,
         Traceable, Serializable {
 
     @Schema(title = "是否超级管理员", hidden = true)

@@ -1,6 +1,7 @@
 package com.levin.commons.dao.domain;
 
 
+import com.levin.commons.service.domain.Castable;
 import com.levin.commons.service.domain.Identifiable;
 
 /**
@@ -11,6 +12,7 @@ import com.levin.commons.service.domain.Identifiable;
 public interface BaseObject
         extends
         Identifiable,
+        Castable,
         EnableObject,
         EditableObject,
         SortableObject {
