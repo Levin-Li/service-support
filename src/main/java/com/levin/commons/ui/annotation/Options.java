@@ -64,14 +64,15 @@ public @interface Options {
      */
     String[] items() default {};
 
-
     /**
-     * 枚举类
+     * 枚举或是关联的类
+     * <p>
+     * 枚举类,或是关联的实体类
      * <p>
      *
      * @return
      */
-    Class<? extends Enum> enumClass() default Enum.class;
+    Class<?> refClass() default Void.class;
 
     /**
      * 系统的字典编码
