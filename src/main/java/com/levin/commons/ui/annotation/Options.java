@@ -65,14 +65,14 @@ public @interface Options {
     String[] items() default {};
 
     /**
-     * 枚举或是关联的类
+     * 关联的目标类型, 枚举或是实体类
      * <p>
      * 枚举类,或是关联的实体类
      * <p>
      *
      * @return
      */
-    Class<?> refClass() default Void.class;
+    Class<?> refTargetType() default Void.class;
 
     /**
      * 系统的字典编码
@@ -94,6 +94,16 @@ public @interface Options {
      * @return
      */
     String loadApi() default "";
+
+
+    /**
+     * 默认参数
+     * <p>
+     * 针对API接口 , refTargetType 或是字典 的默认参数
+     *
+     * @return
+     */
+    String defaultParams() default "";
 
     /**
      * 列映射表达式
