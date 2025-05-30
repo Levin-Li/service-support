@@ -95,7 +95,6 @@ public @interface Options {
      */
     String loadApi() default "";
 
-
     /**
      * 默认参数
      * <p>
@@ -132,7 +131,6 @@ public @interface Options {
      * @return
      */
     String reloadOnAttrChanged() default "";
-
 
     /**
      * 是否可以搜索

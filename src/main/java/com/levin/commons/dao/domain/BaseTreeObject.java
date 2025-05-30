@@ -47,7 +47,7 @@ public interface BaseTreeObject<PARENT, CHILD> {
      * @return
      */
     default <C extends CHILD> Collection<C> getChildren() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
 }

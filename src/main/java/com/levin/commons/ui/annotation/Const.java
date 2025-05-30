@@ -11,11 +11,13 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Const {
+
     /**
      * 常量列表
      *
      * @return
      */
     String[] value() default {};
+
 }
 

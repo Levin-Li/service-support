@@ -1,8 +1,6 @@
 package com.levin.commons.ui.annotation;
 
-import com.levin.commons.ui.annotation.amis.OperatorType;
 
-import java.io.Serializable;
 import java.lang.annotation.*;
 
 /**
@@ -46,6 +44,7 @@ public @interface CRUD {
      */
     String desc() default "";
 
+
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
@@ -84,9 +83,7 @@ public @interface CRUD {
     }
 
     enum RecordRefType {
-        None,
-        Single,
-        Multiple
+        None, Single, Multiple
     }
 
     /**
@@ -140,6 +137,13 @@ public @interface CRUD {
          * @return
          */
         RecordRefType recordRefType() default RecordRefType.Single;
+
+        /**
+         * 显示是否结果视图
+         *
+         * @return
+         */
+        boolean showResultView() default false;
 
         /**
          * 操作关联的列表
