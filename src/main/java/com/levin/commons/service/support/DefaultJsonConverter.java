@@ -48,8 +48,9 @@ public class DefaultJsonConverter implements GenericConverter {
             if (source instanceof CharSequence
                     || source instanceof JsonElement
                     || source instanceof com.alibaba.fastjson2.JSONObject
+                    || source instanceof com.alibaba.fastjson2.JSONArray
                     || source instanceof com.alibaba.fastjson.JSON
-                    || source instanceof cn.hutool.json.JSONObject) {
+                    || source instanceof cn.hutool.json.JSON) {
                 return source.toString();
             }
 
@@ -92,7 +93,7 @@ public class DefaultJsonConverter implements GenericConverter {
             //自动补全JSON格式塔
             //数组，集合
             if (rt.isArray()
-                    || (rt.resolve() != null && Collection.class.isAssignableFrom(rt.resolve()))) {
+                    || (rt.resolve() != null && Iterable.class.isAssignableFrom(rt.resolve()))) {
 
                 if (json.charAt(0) != '[') {
                     json = "[" + json;
@@ -115,8 +116,10 @@ public class DefaultJsonConverter implements GenericConverter {
                     return gson.toJsonTree(source);
                 } else if (type == com.alibaba.fastjson2.JSONObject.class) {
                     return com.alibaba.fastjson2.JSONObject.parse(json);
+                }  else if (type == com.alibaba.fastjson2.JSONArray.class) {
+                    return com.alibaba.fastjson2.JSONArray.parse(json);
                 } else if (com.alibaba.fastjson.JSON.class.isAssignableFrom((Class<?>) type)) {
-                    return com.alibaba.fastjson.JSONObject.parseObject(json);
+                    return com.alibaba.fastjson.JSON.parseObject(json);
                 } else if (cn.hutool.json.JSON.class.isAssignableFrom((Class<?>) type)) {
                     return cn.hutool.json.JSONUtil.parse(json);
                 }
