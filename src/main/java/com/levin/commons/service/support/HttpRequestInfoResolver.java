@@ -24,11 +24,11 @@ public class HttpRequestInfoResolver implements VariableResolver {
     @Resource
     protected HttpServletResponse response;
 
-    protected static final ThreadLocal<HandlerMethod> handlerMethodThreadLocal = new ThreadLocal<>();
+    protected static final ThreadLocal<Method> handlerMethodThreadLocal = new ThreadLocal<>();
 
     protected static final ThreadLocal<Map<String, ValueHolder>> cacheVars = new ThreadLocal<>();
 
-    public static void setCurrentHandlerMethod(HandlerMethod handlerMethod) {
+    public static void setCurrentHandlerMethod(Method handlerMethod) {
         handlerMethodThreadLocal.set(handlerMethod);
     }
 
@@ -60,12 +60,12 @@ public class HttpRequestInfoResolver implements VariableResolver {
 
         if (InjectConst.OPERATOR_ACTION.equalsIgnoreCase(name)) {
 
-            HandlerMethod method = handlerMethodThreadLocal.get();
+            Method method = handlerMethodThreadLocal.get();
 
-            if (method != null && method.getMethod() != null) {
-                Schema schema = AnnotatedElementUtils.findMergedAnnotation(method.getMethod(), Schema.class);
+            if (method != null ) {
+                Schema schema = AnnotatedElementUtils.findMergedAnnotation(method , Schema.class);
                 if (schema != null) {
-                    value = Stream.of(schema.title(), schema.description(), schema.name(), method.getMethod().getName()).filter(StrUtil::isNotBlank).findFirst().orElse(null);
+                    value = Stream.of(schema.title(), schema.description(), schema.name(), method.getName()).filter(StrUtil::isNotBlank).findFirst().orElse(null);
                 }
             }
 
