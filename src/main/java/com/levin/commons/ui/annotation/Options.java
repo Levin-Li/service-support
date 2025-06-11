@@ -116,10 +116,10 @@ public @interface Options {
      * 第三列为desc对应的列名
      * <p>
      * 如果都不配置，则默认为value, label
-     *
+     * //"value", "label", "desc"
      * @return
      */
-    String[] columnMapExpr() default {"value", "label", "desc"};
+    String[] columnMapExpr() default {};
 
     /**
      * 级联下拉列表时，其他属性变更时，需要重新加载
