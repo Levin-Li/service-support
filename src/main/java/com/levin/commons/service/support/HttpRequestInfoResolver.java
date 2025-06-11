@@ -1,11 +1,19 @@
 package com.levin.commons.service.support;
 
+import cn.hutool.core.util.StrUtil;
 import com.levin.commons.utils.IPAddrUtils;
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.web.method.HandlerMethod;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
 
 
 public class HttpRequestInfoResolver implements VariableResolver {
@@ -15,6 +23,14 @@ public class HttpRequestInfoResolver implements VariableResolver {
 
     @Resource
     protected HttpServletResponse response;
+
+    protected static final ThreadLocal<HandlerMethod> handlerMethodThreadLocal = new ThreadLocal<>();
+
+    protected static final ThreadLocal<Map<String, ValueHolder>> cacheVars = new ThreadLocal<>();
+
+    public static void setCurrentHandlerMethod(HandlerMethod handlerMethod) {
+        handlerMethodThreadLocal.set(handlerMethod);
+    }
 
     @Override
     public <T> ValueHolder<T> resolve(String name, T defaultValue, boolean throwEx, boolean isRequireNotNull, Type... types) throws VariableNotFoundException {
@@ -31,7 +47,29 @@ public class HttpRequestInfoResolver implements VariableResolver {
 //            request.getContextPath()/jqueryLearn
 //            request.getServletPath()/resources/request.jsp
 
-        if (InjectConst.IP_ADDR.equalsIgnoreCase(name)) {
+        if (cacheVars.get() == null) {
+            cacheVars.set(new HashMap<>());
+        }
+
+        ValueHolder<T> cacheVar = cacheVars.get().get(name);
+
+        if (cacheVar != null) {
+            //缓存命中
+            return cacheVar;
+        }
+
+        if (InjectConst.OPERATOR_ACTION.equalsIgnoreCase(name)) {
+
+            HandlerMethod method = handlerMethodThreadLocal.get();
+
+            if (method != null && method.getMethod() != null) {
+                Schema schema = AnnotatedElementUtils.findMergedAnnotation(method.getMethod(), Schema.class);
+                if (schema != null) {
+                    value = Stream.of(schema.title(), schema.description(), schema.name(), method.getMethod().getName()).filter(StrUtil::isNotBlank).findFirst().orElse(null);
+                }
+            }
+
+        } else if (InjectConst.IP_ADDR.equalsIgnoreCase(name)) {
 
             value = IPAddrUtils.try2GetUserRealIPAddr(request, false);
 
@@ -79,9 +117,13 @@ public class HttpRequestInfoResolver implements VariableResolver {
             return ValueHolder.notValue(name);
         }
 
-        return new ValueHolder()
+        ValueHolder valueHolder = new ValueHolder()
                 .setValue(value)
                 .setHasValue(!isRequireNotNull || value != null);
+
+        cacheVars.get().put(name, valueHolder);
+
+        return valueHolder;
     }
 
 }
