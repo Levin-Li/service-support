@@ -29,6 +29,7 @@ public interface InjectConst {
     String USER_PHONE = "userPhone";
     String USER_EMAIL = "userEmail";
 
+    String OPERATOR_ACTION = "operatorAction";
     ////////////////////////////////////////////////////////
 
     /**
