@@ -105,9 +105,9 @@ public @interface CRUD {
         Inline
     }
 
-    @Schema(title = "操作等级", description = "link、primary、secondary、info、success、warning、danger、light、dark、default。")
+    @Schema(title = "信息等级")
     enum Level {
-        Auto, Link, Primary, Secondary, Info, Success, Warning, Danger, Light, Dark
+        Auto, Primary, Secondary, Link, Light, Dark, Info, Success, Warning, Danger
     }
 
     //来指定该 action 的作用类型，支持：ajax、link、url、drawer、dialog、confirm、cancel、prev、next、copy、close。
@@ -139,6 +139,9 @@ public @interface CRUD {
 
         @Schema(title = "当前也跳转")
         Url,
+
+        @Schema(title = "拨打电话")
+        Tel,
 
         @Schema(title = "发送邮件", description = "参考:https://aisuda.bce.baidu.com/amis/zh-CN/components/action?page=1#%E5%8F%91%E9%80%81%E9%82%AE%E4%BB%B6")
         Email,
