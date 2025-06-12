@@ -90,20 +90,33 @@ public @interface CRUD {
     }
 
     @Schema(title = "视图容器类型")
-    enum ViewContainerType {
-        Dialog, Drawer, Inline
+    enum ViewContainerType implements EnumDesc {
+
+        @Schema(title = "自动选择")
+        Auto,
+
+        @Schema(title = "对话框")
+        Dialog,
+
+        @Schema(title = "抽屉")
+        Drawer,
+
+        @Schema(title = "内联")
+        Inline
     }
 
     @Schema(title = "操作等级", description = "link、primary、secondary、info、success、warning、danger、light、dark、default。")
     enum Level {
-        Default, Link, Primary, Secondary, Info, Success, Warning, Danger, Light, Dark
+        Auto, Link, Primary, Secondary, Info, Success, Warning, Danger, Light, Dark
     }
 
     //来指定该 action 的作用类型，支持：ajax、link、url、drawer、dialog、confirm、cancel、prev、next、copy、close。
     enum ActionType implements EnumDesc {
 
-        None,
+        @Schema(title = "自动选择", description = "会根据情况自动处理")
+        Auto,
 
+        @Schema(title = "显示提示")
         Toast,
 
         @Schema(title = "显示表单")
@@ -208,8 +221,8 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "操作等级", description = "可以是：info、success、warning 或者 danger")
-        Level level() default Level.Default;
+        @Schema(title = "操作等级")
+        Level level() default Level.Auto;
 
         /**
          * 操作按钮作用类型
@@ -217,13 +230,13 @@ public @interface CRUD {
          * @return
          */
         @Schema(title = "操作动作类型")
-        ActionType actionType();
+        ActionType actionType() default ActionType.Auto;
 
         /**
          * @return
          */
         @Schema(title = "视图容器类型", description = "整对操作是视图时有效")
-        ViewContainerType viewContainerType() default ViewContainerType.Dialog;
+        ViewContainerType viewContainerType() default ViewContainerType.Auto;
 
         /**
          * 操作的数据
@@ -268,7 +281,7 @@ public @interface CRUD {
          * @return
          */
         @Schema(title = "操作成功后后的动作类型")
-        ActionType successActionType() default ActionType.Toast;
+        ActionType successActionType() default ActionType.Auto;
 
         /**
          * 操作失败后的动作类型
@@ -276,7 +289,7 @@ public @interface CRUD {
          * @return
          */
         @Schema(title = "操作失败后的动作类型")
-        ActionType failActionType() default ActionType.Toast;
+        ActionType failActionType() default ActionType.Auto;
 
 
         @Schema(title = "操作后动作使用的数据", description = "一般情况下使用当前结果的数据")
