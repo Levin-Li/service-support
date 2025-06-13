@@ -105,13 +105,14 @@ public @interface CRUD {
         Inline
     }
 
-    @Schema(title = "信息等级")
-    enum Level {
+    @Schema(title = "信息等级", description = "或是操作等级")
+    enum Level implements EnumDesc {
         Auto, Primary, Secondary, Link, Light, Dark, Info, Success, Warning, Danger
     }
 
     //来指定该 action 的作用类型，支持：ajax、link、url、drawer、dialog、confirm、cancel、prev、next、copy、close。
-    enum ActionType implements EnumDesc {
+    @Schema(title = "动作")
+    enum Action implements EnumDesc {
 
         @Schema(title = "自动选择", description = "会根据情况自动处理")
         Auto,
@@ -122,8 +123,8 @@ public @interface CRUD {
         @Schema(title = "显示表单")
         ShowForm,
 
-        @Schema(title = "显示amis界面")
-        ShowAmisSchema,
+        @Schema(title = "显示Schema描述的界面", description = "参考:https://aisuda.bce.baidu.com/amis/zh-CN/components/service#%E5%8A%A8%E6%80%81%E6%B8%B2%E6%9F%93%E9%A1%B5%E9%9D%A2")
+        ShowSchema,
 
         @Schema(title = "ajax请求")
         Ajax,
@@ -201,6 +202,7 @@ public @interface CRUD {
          *
          * @return
          */
+        @Schema(title = "操作按钮的图标", description = "可以是图标的链接,也可以是fontawesome的字体图标,目前支持V4版本,https://fontawesome.com/v4/icons/")
         String icon() default "";
 
         /**
@@ -208,7 +210,7 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "操作确认提示内容")
+        @Schema(title = "操作确认提示内容", description = "None,作为特殊关键字,表示无需确认")
         String confirmText() default "";
 
         /**
@@ -232,8 +234,8 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "操作动作类型")
-        ActionType actionType() default ActionType.Auto;
+        @Schema(title = "操作动作")
+        Action action() default Action.Auto;
 
         /**
          * @return
@@ -284,17 +286,26 @@ public @interface CRUD {
          * @return
          */
         @Schema(title = "操作成功后后的动作类型")
-        ActionType successActionType() default ActionType.Auto;
+        Action successAction() default Action.Auto;
 
         /**
-         * 操作失败后的动作类型
+         * 操作失败后的动作类y
          *
          * @return
          */
         @Schema(title = "操作失败后的动作类型")
-        ActionType failActionType() default ActionType.Auto;
+        Action failAction() default Action.Auto;
 
 
+        /**
+         * 操作后动作的数据
+         * <p>
+         * 要支持${}类型的变量
+         * <p>
+         * 对于
+         *
+         * @return
+         */
         @Schema(title = "操作后动作使用的数据", description = "一般情况下使用当前结果的数据")
         String resultActionData() default "";
 
