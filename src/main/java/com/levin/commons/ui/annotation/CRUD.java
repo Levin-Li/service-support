@@ -120,7 +120,19 @@ public @interface CRUD {
         @Schema(title = "显示提示")
         Toast,
 
-        @Schema(title = "显示表单")
+        @Schema(title = "显示二维码")
+        ShowQrCode,
+
+        @Schema(title = "显示图片", description = "支持多张图,https://aisuda.bce.baidu.com/amis/zh-CN/components/images")
+        ShowImage,
+
+        @Schema(title = "显示视频", description = "参考文档:https://aisuda.bce.baidu.com/amis/zh-CN/components/video")
+        ShowVideo,
+
+        @Schema(title = "显示网页", description = "")
+        ShowIFrame,
+
+        @Schema(title = "显示表单", description = "自动构建表单页面")
         ShowForm,
 
         @Schema(title = "显示Schema描述的界面", description = "参考:https://aisuda.bce.baidu.com/amis/zh-CN/components/service#%E5%8A%A8%E6%80%81%E6%B8%B2%E6%9F%93%E9%A1%B5%E9%9D%A2")
@@ -285,7 +297,7 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "操作成功后后的动作类型")
+        @Schema(title = "操作成功后后的动作")
         Action successAction() default Action.Auto;
 
         /**
@@ -293,7 +305,7 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "操作失败后的动作类型")
+        @Schema(title = "操作失败后的动作")
         Action failAction() default Action.Auto;
 
 
