@@ -67,6 +67,10 @@ public class BaseHttpRequestSupport {
         return doHttpRequest(title, "get", url, ContentType.FORM_URLENCODED, isUnderlineNaming(), requestParam, responseType, requestConsumer);
     }
 
+    public <T> T postForm(String title, String url, Object requestParam, Type responseType, Consumer<HttpRequest> requestConsumer) {
+        return doHttpRequest(title, "post", url, ContentType.FORM_URLENCODED, isUnderlineNaming(), requestParam, responseType, requestConsumer);
+    }
+
     public <T> T postJson(String title, String url, Object requestParam, Type responseType, Consumer<HttpRequest> requestConsumer) {
         return doHttpRequest(title, "post", url, ContentType.JSON, isUnderlineNaming(), requestParam, responseType, requestConsumer);
     }
