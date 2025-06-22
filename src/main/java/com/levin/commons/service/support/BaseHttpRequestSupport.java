@@ -9,7 +9,9 @@ import com.alibaba.fastjson2.writer.ObjectWriterProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 
+import java.io.File;
 import java.lang.reflect.Type;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -181,7 +183,7 @@ public class BaseHttpRequestSupport {
 
         if (contentType == ContentType.MULTIPART
                 || contentType == ContentType.FORM_URLENCODED) {
-            return !BeanUtils.isSimpleProperty(value.getClass());
+            return !BeanUtils.isSimpleProperty(value.getClass()) && !(value instanceof File);
         }
 
         return false;
