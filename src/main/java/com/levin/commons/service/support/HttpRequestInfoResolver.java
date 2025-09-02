@@ -24,13 +24,6 @@ public class HttpRequestInfoResolver implements VariableResolver {
     @Resource
     protected HttpServletResponse response;
 
-    protected static final ThreadLocal<Method> handlerMethodThreadLocal = new ThreadLocal<>();
-
-    protected static final ThreadLocal<Map<String, ValueHolder>> cacheVars = new ThreadLocal<>();
-
-    public static void setCurrentHandlerMethod(Method handlerMethod) {
-        handlerMethodThreadLocal.set(handlerMethod);
-    }
 
     @Override
     public <T> ValueHolder<T> resolve(String name, T defaultValue, boolean throwEx, boolean isRequireNotNull, Type... types) throws VariableNotFoundException {
@@ -47,29 +40,7 @@ public class HttpRequestInfoResolver implements VariableResolver {
 //            request.getContextPath()/jqueryLearn
 //            request.getServletPath()/resources/request.jsp
 
-        if (cacheVars.get() == null) {
-            cacheVars.set(new HashMap<>());
-        }
-
-        ValueHolder<T> cacheVar = cacheVars.get().get(name);
-
-        if (cacheVar != null) {
-            //缓存命中
-            return cacheVar;
-        }
-
-        if (InjectConst.OPERATOR_ACTION.equalsIgnoreCase(name)) {
-
-            Method method = handlerMethodThreadLocal.get();
-
-            if (method != null ) {
-                Schema schema = AnnotatedElementUtils.findMergedAnnotation(method , Schema.class);
-                if (schema != null) {
-                    value = Stream.of(schema.title(), schema.description(), schema.name(), method.getName()).filter(StrUtil::isNotBlank).findFirst().orElse(null);
-                }
-            }
-
-        } else if (InjectConst.IP_ADDR.equalsIgnoreCase(name)) {
+        if (InjectConst.IP_ADDR.equalsIgnoreCase(name)) {
 
             value = IPAddrUtils.try2GetUserRealIPAddr(request, false);
 
@@ -120,8 +91,6 @@ public class HttpRequestInfoResolver implements VariableResolver {
         ValueHolder valueHolder = new ValueHolder()
                 .setValue(value)
                 .setHasValue(!isRequireNotNull || value != null);
-
-        cacheVars.get().put(name, valueHolder);
 
         return valueHolder;
     }
