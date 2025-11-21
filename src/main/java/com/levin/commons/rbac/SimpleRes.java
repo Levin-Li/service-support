@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -49,7 +50,7 @@ public class SimpleRes
     protected boolean alwaysShow;
 
     @Schema(title = "操作列表", description = "支持*通配符，支持|或选择符")
-    protected List<Res.Action> actionList;
+    protected List<Res.Action> actionList = Collections.emptyList();
 
     @Override
     public String toString() {

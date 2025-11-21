@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -46,7 +47,7 @@ public class SimpleResAction
     String verifyExpression;
 
     @Schema(title = "匹配的任意角色")
-    List<String> anyRoles;
+    List<String> anyRoles = Collections.emptyList();
 
     /**
      * 参考 注解 ResAuthorize
