@@ -52,6 +52,7 @@ public class AccountDataMasker implements DataMasker {
 
         Assert.notNull(masking, "masking is required");
 
+
         Assert.isTrue(rawData instanceof CharSequence, "rawData must be CharSequence");
 
         return (T) encode(getConfuseInfo(masking, annotatedElement, dynamicConfuseInfoSupplier), rawData.toString());
@@ -73,6 +74,10 @@ public class AccountDataMasker implements DataMasker {
         }
 
         Assert.notNull(masking, "masking is required");
+
+        if (!masking.isRestoreData()) {
+            return (T) markingData;
+        }
 
 //        Assert.isTrue(markingData instanceof CharSequence, "markingData must be CharSequence");
 

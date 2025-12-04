@@ -70,6 +70,10 @@ public class DefaultDataMasker implements DataMasker {
 
         Assert.notNull(masking, "masking is required");
 
+        if (!masking.isRestoreData()) {
+            return (T) markingData;
+        }
+
         Assert.isTrue(markingData instanceof CharSequence, "markingData must be CharSequence");
 
         return (T) decode(getConfuseInfo(masking, annotatedElement, dynamicConfuseInfoSupplier), markingData.toString());
