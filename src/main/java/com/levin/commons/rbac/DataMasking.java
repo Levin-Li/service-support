@@ -2,6 +2,7 @@ package com.levin.commons.rbac;
 
 
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
+
 import java.lang.annotation.*;
 
 /**
@@ -17,6 +18,15 @@ import java.lang.annotation.*;
  * 数据脱敏注解
  */
 public @interface DataMasking {
+
+    /**
+     * 是否可以恢复
+     * <p>
+     * 默认可以恢复
+     *
+     * @return
+     */
+    boolean isRestoreData() default true;
 
     /**
      * 数据显示的权限要求

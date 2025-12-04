@@ -9,6 +9,38 @@ import java.nio.charset.StandardCharsets;
 public abstract class DataMaskingUtils {
 
     /**
+     * 把3分1的中间数据用*号代替
+     *
+     * @param key
+     * @param data
+     * @return
+     */
+    public static String simpleStrEncode(String key, String data) {
+
+        if (StrUtil.isBlank(data)) {
+            return data;
+        }
+
+        if (data.length() < 2) {
+            return "*";
+        }
+
+        //3  1   3-1
+        //4  1   4-1
+        //5  1   5-1
+        //6  2   6-2
+
+        int startInclude = data.length() / 3;
+
+        if (startInclude > 4) {
+            return StrUtil.replace(data, startInclude, data.length() - startInclude, "****");
+        }
+
+        return StrUtil.replace(data, startInclude, data.length() - startInclude, '*');
+    }
+
+
+    /**
      * 简单的数据编码
      *
      * @return
