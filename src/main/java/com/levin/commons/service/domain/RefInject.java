@@ -23,11 +23,6 @@ public @interface RefInject {
     String SPEL_PREFIX = "#!spel:";
 
     /**
-     * groovy 表达式前缀
-     */
-    String GROOVY_PREFIX = "#!groovy:";
-
-    /**
      * 关联对象的类型
      *
      * @return
