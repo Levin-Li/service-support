@@ -112,4 +112,5 @@ public @interface ResAuthorize {
      * @return
      */
     String remark() default "角色支持 * 通配符";
+
 }
