@@ -237,7 +237,7 @@ public class ProxyFactoryBean<T>
                         Constructor<?> constructor = ReflectiveMethodInvocation.class.getDeclaredConstructors()[0];
                         constructor.setAccessible(true);
                         methodInvocation = (MethodInvocation) constructor.newInstance(proxyObj, invocationHandler, method, args,
-                                proxyTargetClass, Collections.EMPTY_LIST);
+                                proxyTargetClass, Collections.emptyList());
                     } catch (Exception ex) {
                         ReflectionUtils.rethrowException(ex);
                     }

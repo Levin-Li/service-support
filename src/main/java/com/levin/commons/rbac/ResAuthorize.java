@@ -89,12 +89,22 @@ public @interface ResAuthorize {
     String action() default "";
 
     /**
-     * 需要的角色，任意一个满足都视为验证通过
+     * 要求的角色，任意一个满足都视为验证通过
      * 角色支持 * 通配符，支持|或选择符
      *
      * @return
      */
     String[] anyRoles() default {};
+
+
+    /**
+     * 要求的用户类型，任意一个满足都视为验证通过
+     * 用户支持 * 通配符，支持|或选择符
+     *
+     * @return
+     */
+    String[] anyUserTypes() default {};
+
 
     /**
      * 验证表达式

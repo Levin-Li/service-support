@@ -49,6 +49,9 @@ public class SimpleResAction
     @Schema(title = "匹配的任意角色")
     List<String> anyRoles = Collections.emptyList();
 
+    @Schema(title = "匹配的任意用户类型")
+    List<String> anyUserTypes = Collections.emptyList();
+
     /**
      * 参考 注解 ResAuthorize
      */
@@ -78,6 +81,7 @@ public class SimpleResAction
 
         this.setAndMode(resAuthorize.isAndMode())
                 .setAnyRoles(Arrays.asList(resAuthorize.anyRoles()))
+                .setAnyUserTypes(Arrays.asList(resAuthorize.anyUserTypes()))
                 .setVerifyExpression(resAuthorize.verifyExpression())
                 .setIgnored(resAuthorize.ignored())
                 .setOnlyRequireAuthenticated(resAuthorize.onlyRequireAuthenticated())

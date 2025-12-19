@@ -4,6 +4,7 @@ import com.levin.commons.service.domain.SimpleIdentifiable;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -61,7 +62,7 @@ public interface Res extends SimpleIdentifiable {
      */
     @Schema(title = "资源操作", description = "资源的操作项，比如新建，添加，修改，删除")
     default <O extends Action> Collection<O> getActionList() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     /**
@@ -114,7 +115,16 @@ public interface Res extends SimpleIdentifiable {
          * @return
          */
         default Collection<String> getAnyRoles() {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
+        }
+
+        /**
+         * 可操作的用户类型列表
+         *
+         * @return
+         */
+        default Collection<String> getAnyUserTypes() {
+            return Collections.emptyList();
         }
 
     }
