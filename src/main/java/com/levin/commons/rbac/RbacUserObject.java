@@ -1,10 +1,7 @@
 package com.levin.commons.rbac;
 
 
-import com.levin.commons.dao.domain.MultiTenantObject;
-import com.levin.commons.dao.domain.NamedObject;
 import com.levin.commons.dao.domain.OrganizedObject;
-import com.levin.commons.service.domain.Identifiable;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -17,7 +14,7 @@ import java.util.function.Predicate;
  * 用户基本信息
  */
 public interface RbacUserObject<ROLE extends Serializable>
-        extends BaseUserObject, OrganizedObject  {
+        extends PlatformUserObject, OrganizedObject {
 
     /**
      * 是否SAAS用户

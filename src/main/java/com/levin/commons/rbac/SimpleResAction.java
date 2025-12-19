@@ -1,5 +1,6 @@
 package com.levin.commons.rbac;
 
+import com.levin.commons.dao.domain.ConfidentialObject;
 import com.levin.commons.plugin.Res;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -29,7 +30,7 @@ public class SimpleResAction
     @Schema(title = "ID")
     protected String id;
 
-    ///////////////////////////////////////////////////////////
+    /// ////////////////////////////////////////////////////////
     @Schema(title = "是否忽略")
     boolean ignored;
 
@@ -41,10 +42,13 @@ public class SimpleResAction
      * @return
      */
     @Schema(title = "仅要求认证")
-    boolean onlyRequireAuthenticated;
+    boolean onlyRequireAuthenticated = false;
 
     @Schema(title = "验证表达式")
     String verifyExpression;
+
+    @Schema(title = "数据保密级别", description = "数值越大，级别越高")
+    int confidentialLevel = ConfidentialObject.TENANT_SHARED;
 
     @Schema(title = "匹配的任意角色")
     List<String> anyRoles = Collections.emptyList();
@@ -57,7 +61,7 @@ public class SimpleResAction
      */
     @Schema(title = "匹配模式")
     protected boolean isAndMode;
-    /////////////////////////////////////////////////////
+    /// //////////////////////////////////////////////////
 
     @Schema(title = "名称")
     protected String name;
@@ -83,6 +87,7 @@ public class SimpleResAction
                 .setAnyRoles(Arrays.asList(resAuthorize.anyRoles()))
                 .setAnyUserTypes(Arrays.asList(resAuthorize.anyUserTypes()))
                 .setVerifyExpression(resAuthorize.verifyExpression())
+                .setConfidentialLevel(resAuthorize.confidentialLevel())
                 .setIgnored(resAuthorize.ignored())
                 .setOnlyRequireAuthenticated(resAuthorize.onlyRequireAuthenticated())
                 .setName(resAuthorize.action())

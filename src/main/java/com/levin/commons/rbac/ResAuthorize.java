@@ -1,6 +1,7 @@
 package com.levin.commons.rbac;
 
 import com.levin.commons.annotation.GenNameConstant;
+import com.levin.commons.dao.domain.ConfidentialObject;
 
 import java.lang.annotation.*;
 
@@ -60,7 +61,8 @@ public @interface ResAuthorize {
     /**
      * 资源域
      * 可从父对象获取
-     *  支持 * 通配符，支持|或选择符
+     * 支持 * 通配符，支持|或选择符
+     *
      * @return
      */
     String domain() default "";
@@ -69,6 +71,7 @@ public @interface ResAuthorize {
      * 资源类型
      * 可从父对象获取
      * 支持 * 通配符，支持|或选择符
+     *
      * @return
      */
     String type() default "";
@@ -77,6 +80,7 @@ public @interface ResAuthorize {
      * 资源
      * 可从父对象获取
      * 支持 * 通配符，支持|或选择符
+     *
      * @return
      */
     String res() default "";
@@ -84,6 +88,7 @@ public @interface ResAuthorize {
     /**
      * 授权的操作
      * 支持 * 通配符，支持|或选择符
+     *
      * @return
      */
     String action() default "";
@@ -96,7 +101,6 @@ public @interface ResAuthorize {
      */
     String[] anyRoles() default {};
 
-
     /**
      * 要求的用户类型，任意一个满足都视为验证通过
      * 用户支持 * 通配符，支持|或选择符
@@ -105,6 +109,12 @@ public @interface ResAuthorize {
      */
     String[] anyUserTypes() default {};
 
+    /**
+     * 访问的保密级别
+     * 数值越大，级别越高
+     * @return
+     */
+    int confidentialLevel() default ConfidentialObject.TENANT_SHARED;
 
     /**
      * 验证表达式
