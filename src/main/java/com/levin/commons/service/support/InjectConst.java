@@ -32,6 +32,8 @@ public interface InjectConst {
     String OPERATOR_ACTION = "operatorAction";
     ////////////////////////////////////////////////////////
 
+    String DATA_ACCESS_LEVEL ="dataAccessLevel";
+
     /**
      * 组织对象
      */

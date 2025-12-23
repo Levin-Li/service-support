@@ -1,16 +1,19 @@
 package com.levin.commons.rbac;
 
 
+import com.levin.commons.dao.domain.ConfidentialObject;
+import com.levin.commons.dao.domain.MultiTenantObject;
 import com.levin.commons.dao.domain.NamedObject;
-import com.levin.commons.service.domain.Identifiable;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * 角色对象
  */
-public interface RbacRoleObject<P> extends Identifiable {
+public interface RbacRoleObject extends MultiTenantObject, NamedObject, OrgDataScopeObject {
 
     String ROLE_PREFIX = "R_";
 
@@ -30,11 +33,18 @@ public interface RbacRoleObject<P> extends Identifiable {
     String ORG_ADMIN_ROLE = ROLE_PREFIX + "ORG_ADMIN";
 
     /**
+     * 角色代码
+     *
+     * @return
+     */
+    String getCode();
+
+    /**
      * 获取授权列表
      *
      * @return
      */
-    default Collection<P> getPermissionList() {
+    default <P extends Serializable> List<P> getPermissionList() {
         return Collections.emptyList();
     }
 

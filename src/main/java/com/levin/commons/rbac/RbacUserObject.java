@@ -1,7 +1,10 @@
 package com.levin.commons.rbac;
 
 
+import com.levin.commons.dao.domain.MultiTenantObject;
+import com.levin.commons.dao.domain.NamedObject;
 import com.levin.commons.dao.domain.OrganizedObject;
+import com.levin.commons.service.domain.Identifiable;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -14,7 +17,28 @@ import java.util.function.Predicate;
  * 用户基本信息
  */
 public interface RbacUserObject<ROLE extends Serializable>
-        extends PlatformUserObject, OrganizedObject {
+        extends Serializable, MultiTenantObject, Identifiable, NamedObject, OrganizedObject, OrgDataScopeObject {
+
+    /**
+     * 获取组织ID
+     *
+     * @return
+     */
+    @Override
+    default <ORG_ID extends Serializable> ORG_ID getOrgId() {
+        return null;
+    }
+
+    /**
+     * 用户类型
+     * 如 管理后台用户
+     * 客户
+     *
+     * @return
+     */
+    default String getType() {
+        return "";
+    }
 
     /**
      * 是否SAAS用户
@@ -43,7 +67,6 @@ public interface RbacUserObject<ROLE extends Serializable>
     default boolean isSaasAdmin() {
         return isSaasUser() && hasRole((ROLE) RbacRoleObject.SAAS_ADMIN);
     }
-
 
     /**
      * 是否是租户管理员

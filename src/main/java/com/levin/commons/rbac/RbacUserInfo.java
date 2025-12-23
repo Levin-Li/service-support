@@ -12,7 +12,9 @@ public interface RbacUserInfo<ROLE extends Serializable> extends RbacUserObject<
      *
      * @return
      */
-    String getNickname();
+    default String getNickname() {
+        return null;
+    }
 
     /**
      * 邮箱
@@ -33,6 +35,8 @@ public interface RbacUserInfo<ROLE extends Serializable> extends RbacUserObject<
      *
      * @return
      */
-    String getAvatar();
+    default String getAvatar() {
+        return null;
+    }
 
 }
