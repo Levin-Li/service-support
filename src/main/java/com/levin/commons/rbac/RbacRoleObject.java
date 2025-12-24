@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * 角色对象
  */
-public interface RbacRoleObject extends MultiTenantObject, NamedObject, DataScopeObject {
+public interface RbacRoleObject<P extends Serializable> extends MultiTenantObject, NamedObject, DataScopeObject {
 
     String ROLE_PREFIX = "R_";
 
@@ -42,7 +42,7 @@ public interface RbacRoleObject extends MultiTenantObject, NamedObject, DataScop
      *
      * @return
      */
-    default <P extends Serializable> List<P> getPermissionList() {
+    default List<P> getPermissionList() {
         return Collections.emptyList();
     }
 
