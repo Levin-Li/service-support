@@ -112,6 +112,7 @@ public @interface ResAuthorize {
     /**
      * 访问的保密级别
      * 数值越大，级别越高
+     *
      * @return
      */
     int confidentialLevel() default ConfidentialObject.TENANT_SHARED;

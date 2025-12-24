@@ -49,5 +49,4 @@ public interface ConfidentialObject {
     default Integer getConfidentialLevel() {
         return TENANT_SHARED;
     }
-
 }

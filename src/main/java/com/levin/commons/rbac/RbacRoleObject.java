@@ -1,19 +1,17 @@
 package com.levin.commons.rbac;
 
 
-import com.levin.commons.dao.domain.ConfidentialObject;
 import com.levin.commons.dao.domain.MultiTenantObject;
 import com.levin.commons.dao.domain.NamedObject;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * 角色对象
  */
-public interface RbacRoleObject extends MultiTenantObject, NamedObject, OrgDataScopeObject {
+public interface RbacRoleObject extends MultiTenantObject, NamedObject, DataScopeObject {
 
     String ROLE_PREFIX = "R_";
 

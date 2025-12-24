@@ -2,17 +2,17 @@ package com.levin.commons.rbac;
 
 
 import com.levin.commons.dao.domain.ConfidentialObject;
-import com.levin.commons.dao.domain.MultiTenantObject;
-import com.levin.commons.dao.domain.NamedObject;
 
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * 角色对象
+ * 数据按2个维度进行过滤
+ * 1.部门数据权限
+ * 2.数据访问级别
  */
-public interface OrgDataScopeObject  {
+public interface DataScopeObject {
 
     /**
      * 获取数据权限范围
