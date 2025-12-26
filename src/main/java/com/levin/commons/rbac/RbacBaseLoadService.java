@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * 加载服务
  */
-public interface RbacLoadService {
+public interface RbacBaseLoadService {
 
     /**
      * 加载用户
