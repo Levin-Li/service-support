@@ -35,7 +35,7 @@ public interface ConfidentialObject {
     int SAAS_ADMIN_ACCESSIBLE = 11000;
 
     // 超级管理员
-    int SA_ADMIN_ACCESSIBLE = 12000;
+    int SUPER_ADMIN_ACCESSIBLE = 12000;
 
     // 平台专家
     int PLATFORM_EXPERT_ACCESSIBLE = 13000;

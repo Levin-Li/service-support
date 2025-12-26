@@ -16,7 +16,7 @@ import java.util.function.Predicate;
 /**
  * 用户基本信息
  */
-public interface RbacUserObject<ROLE extends Serializable>
+public interface RbacUserObject
         extends Serializable, MultiTenantObject, Identifiable, NamedObject, OrganizedObject, DataScopeObject {
 
     /**
@@ -56,7 +56,7 @@ public interface RbacUserObject<ROLE extends Serializable>
      * @return
      */
     default boolean isSuperAdmin() {
-        return isSaasUser() && hasRole((ROLE) RbacRoleObject.SA_ROLE);
+        return isSaasUser() && hasRole(RbacRoleObject.SA_ROLE);
     }
 
     /**
@@ -65,7 +65,7 @@ public interface RbacUserObject<ROLE extends Serializable>
      * @return
      */
     default boolean isSaasAdmin() {
-        return isSaasUser() && hasRole((ROLE) RbacRoleObject.SAAS_ADMIN);
+        return isSaasUser() && hasRole(RbacRoleObject.SAAS_ADMIN);
     }
 
     /**
@@ -74,7 +74,7 @@ public interface RbacUserObject<ROLE extends Serializable>
      * @return
      */
     default boolean isTenantAdmin() {
-        return !isSaasUser() && hasRole((ROLE) RbacRoleObject.ADMIN_ROLE);
+        return !isSaasUser() && hasRole(RbacRoleObject.ADMIN_ROLE);
     }
 
     /**
@@ -93,7 +93,7 @@ public interface RbacUserObject<ROLE extends Serializable>
      * @return
      */
     default boolean isAdminOrSelf(Serializable userOrId) {
-        return isAdmin() || Objects.equals(getId(), (userOrId instanceof RbacUserInfo) ? ((RbacUserInfo) userOrId).getId() : userOrId);
+        return isAdmin() || Objects.equals(getId(), (userOrId instanceof RbacUserObject) ? ((RbacUserObject) userOrId).getId() : userOrId);
     }
 
     /**
@@ -102,8 +102,10 @@ public interface RbacUserObject<ROLE extends Serializable>
      * @param role
      * @return
      */
-    default boolean hasRole(ROLE role) {
-        return role != null && getRoleList() != null && getRoleList().contains(role);
+    default boolean hasRole(Serializable role) {
+        return hasRole(ownerRole -> Objects.equals(role, ownerRole)
+                || ((ownerRole instanceof RbacRoleObject) ? ((RbacRoleObject) ownerRole).getCode() : ownerRole).equals(role)
+        );
     }
 
     /**
@@ -112,7 +114,7 @@ public interface RbacUserObject<ROLE extends Serializable>
      * @param rolePredicate
      * @return
      */
-    default boolean hasRole(Predicate<ROLE> rolePredicate) {
+    default boolean hasRole(Predicate<Serializable> rolePredicate) {
         return getRoleList() != null && getRoleList().stream().filter(Objects::nonNull).anyMatch(rolePredicate);
     }
 
@@ -121,7 +123,7 @@ public interface RbacUserObject<ROLE extends Serializable>
      *
      * @return
      */
-    default List<ROLE> getRoleList() {
+    default <ROLE extends Serializable> List<ROLE> getRoleList() {
         return Collections.emptyList();
     }
 
