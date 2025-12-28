@@ -1,13 +1,38 @@
 package com.levin.commons.rbac;
 
 
+import org.springframework.util.StringUtils;
+
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 加载服务
  */
 public interface RbacBaseLoadService {
+
+    /**
+     * 获取用户最大数据访问级别
+     *
+     * @param userPrincipal
+     * @return
+     */
+    default Integer getUserMaxDataAccessLevel(Serializable userPrincipal) {
+
+        RbacUserObject loadUser = loadUser(userPrincipal);
+
+        List<RbacRoleObject> roleList = loadUserRoleList(loadUser);
+
+        // 获取角色最大数据访问级别
+        int maxLevel = roleList.stream().filter(Objects::nonNull)
+                .mapToInt(RbacRoleObject::getDataAccessLevel)
+                .max()
+                .orElse(loadUser.getDataAccessLevel());
+
+        return maxLevel > loadUser.getDataAccessLevel() ? maxLevel : loadUser.getDataAccessLevel();
+    }
 
     /**
      * 加载用户
@@ -24,6 +49,37 @@ public interface RbacBaseLoadService {
      * @param <ROLE>
      * @return
      */
-    <ROLE extends RbacUserObject> List<ROLE> loadUserRoleList(Serializable userPrincipal);
+    <ROLE extends RbacRoleObject> List<ROLE> loadUserRoleList(Serializable userPrincipal);
 
+
+    /**
+     * 加载用户角色编码列表
+     *
+     * @param userPrincipal
+     * @return
+     */
+    default List<String> loadUserRoleCodeList(Serializable userPrincipal) {
+        return loadUserRoleList(userPrincipal).stream().filter(Objects::nonNull)
+                .map(RbacRoleObject::getCode)
+                .filter(StringUtils::hasText)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 加载用户权限列表
+     *
+     * @param userPrincipal
+     * @return
+     */
+    default List<String> loadUserPermissionExprList(Serializable userPrincipal) {
+        return loadUserRoleList(userPrincipal).stream()
+                .filter(Objects::nonNull)
+                .map(RbacRoleObject::getPermissionList)
+                .filter(Objects::nonNull)
+                .flatMap(List::stream)
+                .filter(Objects::nonNull)
+                .map(Object::toString)
+                .filter(StringUtils::hasText)
+                .collect(Collectors.toList());
+    }
 }
