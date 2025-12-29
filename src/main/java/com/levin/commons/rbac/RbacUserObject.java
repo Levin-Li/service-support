@@ -1,6 +1,7 @@
 package com.levin.commons.rbac;
 
 
+import com.levin.commons.dao.domain.ExpiredObject;
 import com.levin.commons.dao.domain.MultiTenantObject;
 import com.levin.commons.dao.domain.NamedObject;
 import com.levin.commons.dao.domain.OrganizedObject;
@@ -17,7 +18,7 @@ import java.util.function.Predicate;
  * 用户基本信息
  */
 public interface RbacUserObject
-        extends Serializable, MultiTenantObject, Identifiable, NamedObject, OrganizedObject, DataScopeObject {
+        extends Serializable, MultiTenantObject, ExpiredObject, Identifiable, NamedObject, OrganizedObject, DataScopeObject {
 
     /**
      * 获取组织ID

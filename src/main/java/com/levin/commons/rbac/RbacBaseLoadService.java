@@ -16,7 +16,7 @@ public interface RbacBaseLoadService {
     /**
      * 获取用户最大数据访问级别
      *
-     * @param userPrincipal
+     * @param userPrincipal 用户对象或是用户ID
      * @return
      */
     default Integer getUserMaxDataAccessLevel(Serializable userPrincipal) {
@@ -37,7 +37,17 @@ public interface RbacBaseLoadService {
     /**
      * 加载用户
      *
-     * @param userPrincipal
+     * @param tenantId
+     * @param account  手机号或是邮箱或是其他用于登录的用户名称
+     * @param <U>
+     * @return
+     */
+    <U extends RbacUserObject> U loadUser(Serializable tenantId, String account);
+
+    /**
+     * 加载用户
+     *
+     * @param userPrincipal 用户对象或是用户ID
      * @return
      */
     <U extends RbacUserObject> U loadUser(Serializable userPrincipal);
@@ -55,7 +65,7 @@ public interface RbacBaseLoadService {
     /**
      * 加载用户角色编码列表
      *
-     * @param userPrincipal
+     * @param userPrincipal 用户对象或是用户ID
      * @return
      */
     default List<String> loadUserRoleCodeList(Serializable userPrincipal) {
@@ -68,7 +78,7 @@ public interface RbacBaseLoadService {
     /**
      * 加载用户权限列表
      *
-     * @param userPrincipal
+     * @param userPrincipal 用户对象或是用户ID
      * @return
      */
     default List<String> loadUserPermissionExprList(Serializable userPrincipal) {
