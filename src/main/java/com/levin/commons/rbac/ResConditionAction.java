@@ -5,60 +5,16 @@ import com.levin.commons.dao.domain.ConfidentialObject;
 
 import java.lang.annotation.*;
 
-/**
- * 资源访问验证
- * <p>
- * 可以注解在类上，表示应用在所有的方法上。
- * <p>
- * 在调用方法前验证方法是否指定的资源授权。
- * <p>
- * 该注解出于简单考虑
- * <p>
- * <p>
- * 复杂的判断建议使用表达式
- * <p>
- * <p>
- * 注意，可以设置空格覆盖类定义
- *
- * @author llw
- */
 
+/**
+ * @author lilw
+ */
 @Inherited
 @Target({ElementType.TYPE, ElementType.METHOD,})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @GenNameConstant
-public @interface ResAuthorize {
-
-    /**
-     * 资源域
-     * 可从父对象获取
-     * 支持 * 通配符，支持|或选择符
-     *
-     * @return
-     */
-    String domain() default "";
-
-    /**
-     * 资源类型
-     * 可从父对象获取
-     * 支持 * 通配符，支持|或选择符
-     *
-     * @return
-     */
-    String type() default "";
-
-    /**
-     * 资源
-     * 可从父对象获取
-     * 支持 * 通配符，支持|或选择符
-     *
-     * @return
-     */
-    String res() default "";
-
-    ///////////////////// 资源许可 Permission //////////////////////
-
+public @interface ResConditionAction {
 
     /**
      * 授权的操作
@@ -93,7 +49,6 @@ public @interface ResAuthorize {
      * @return
      */
     boolean isAndMode() default false;
-
 
     /**
      * 要求的角色，任意一个满足都视为验证通过
@@ -134,5 +89,5 @@ public @interface ResAuthorize {
      *
      * @return
      */
-    String remark() default "角色支持 * 通配符";
+    String remark() default "";
 }
