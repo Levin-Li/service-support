@@ -1,9 +1,9 @@
 package com.levin.commons.plugin;
 
+import com.levin.commons.rbac.Res;
 import com.levin.commons.service.domain.SimpleIdentifiable;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * 资源加载器

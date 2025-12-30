@@ -1,6 +1,5 @@
 package com.levin.commons.rbac;
 
-import com.levin.commons.plugin.Res;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -50,7 +49,7 @@ public class SimpleRes
     protected boolean alwaysShow;
 
     @Schema(title = "操作列表", description = "支持*通配符，支持|或选择符")
-    protected List<? extends ResConditionAction> actionList = Collections.emptyList();
+    protected List<ResConditionAction> actionList = Collections.emptyList();
 
     @Override
     public String toString() {

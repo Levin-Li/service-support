@@ -1,6 +1,6 @@
-package com.levin.commons.plugin;
+package com.levin.commons.rbac;
 
-import com.levin.commons.rbac.ResConditionAction;
+import com.levin.commons.service.domain.Identifiable;
 import com.levin.commons.service.domain.SimpleIdentifiable;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -14,7 +14,7 @@ import java.util.Collections;
  * <p>
  * 对应注解类 ResAuthorize
  */
-public interface Res extends SimpleIdentifiable {
+public interface Res extends Identifiable {
 
     /**
      * 归属域

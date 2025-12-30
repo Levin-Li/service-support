@@ -16,7 +16,7 @@ public interface RbacBaseAuthorizeService {
      * @param resAuthorize
      * @return
      */
-    default ResConditionAction newResConditionAction(ResAuthorize resAuthorize) {
+    static ResConditionAction newResConditionAction(ResAuthorize resAuthorize) {
         return new ResConditionActionObject()
                 .action(resAuthorize.action())
                 .isAndMode(resAuthorize.isAndMode())
@@ -26,8 +26,7 @@ public interface RbacBaseAuthorizeService {
                 .confidentialLevel(resAuthorize.confidentialLevel())
                 .ignored(resAuthorize.ignored())
                 .onlyRequireAuthenticated(resAuthorize.onlyRequireAuthenticated())
-                .remark(resAuthorize.remark())
-                ;
+                .remark(resAuthorize.remark());
     }
 
     /**
@@ -39,7 +38,7 @@ public interface RbacBaseAuthorizeService {
      * @param conditionAction
      * @return
      */
-    default ResAuthorize newResAuthorize(String domain, String resType, String res, ResConditionAction conditionAction) {
+    static ResAuthorize newResAuthorize(String domain, String resType, String res, ResConditionAction conditionAction) {
         return new ResAuthorizeObjectAction()
                 .domain(domain)
                 .type(resType)

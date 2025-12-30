@@ -1,6 +1,5 @@
 package com.levin.commons.rbac;
 
-import com.levin.commons.plugin.Res;
 import com.levin.commons.service.domain.SimpleIdentifiable;
 import com.levin.commons.service.support.SpringContextHolder;
 import com.levin.commons.utils.DisableApiOperationUtils;
@@ -334,7 +333,7 @@ public abstract class RbacUtils {
                         .setActionList(new ArrayList<>(10)));
 
                 //加入操作列表
-                res.getActionList().add(SimpleResAction.newAction(fieldResAuthorize).setRemark(fieldResAuthorize.remark()));
+                res.getActionList().add(RbacBaseAuthorizeService.newResConditionAction(fieldResAuthorize));
 
             });
 
