@@ -25,6 +25,13 @@ public interface SimpleAuthService<TOKEN, UID> {
     UID getLoginId();
 
     /**
+     * 获取当前登录用户信息
+     *
+     * @return
+     */
+    <U extends RbacUserInfo> U getUserInfo();
+
+    /**
      * 认证，并返回token
      *
      * @param authReq 认证请求
