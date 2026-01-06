@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 简单认证服务
  */
-public interface SimpleAuthService<TOKEN, UID> {
+public interface SimpleAuthService<TOKEN extends Serializable, UID extends Serializable> {
 
     /**
      * 是否登录
@@ -23,6 +23,13 @@ public interface SimpleAuthService<TOKEN, UID> {
      * @return
      */
     UID getLoginId();
+
+    /**
+     * 获取登录Token
+     *
+     * @return
+     */
+    TOKEN getLoginToken();
 
     /**
      * 获取当前登录用户信息
