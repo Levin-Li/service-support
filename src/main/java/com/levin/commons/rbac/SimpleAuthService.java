@@ -1,11 +1,28 @@
 package com.levin.commons.rbac;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
  * 简单认证服务
  */
 public interface SimpleAuthService<TOKEN, UID> {
+
+    /**
+     * 是否登录
+     *
+     * @return
+     */
+    boolean isLogin();
+
+    /**
+     * 获取登录用户ID
+     * <p>
+     * 必须返回数据，如果用户没有登录，必须抛出异常
+     *
+     * @return
+     */
+    UID getLoginId();
 
     /**
      * 认证，并返回token
@@ -41,5 +58,11 @@ public interface SimpleAuthService<TOKEN, UID> {
      * @param token
      */
     void invalidate(TOKEN token);
+
+
+    /**
+     * 用户登出
+     */
+    void logout();
 
 }
