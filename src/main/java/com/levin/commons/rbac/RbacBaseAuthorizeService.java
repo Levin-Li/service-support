@@ -5,7 +5,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
- * 加载服务
+ * 授权服务
  */
 @FunctionalInterface
 public interface RbacBaseAuthorizeService {

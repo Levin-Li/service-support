@@ -1,12 +1,42 @@
 package com.levin.commons.rbac;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
- * 简单认证服务 , RbacAuthService 代替
+ * 简单认证服务
  */
-@Deprecated
-public interface SimpleAuthService<TOKEN, UID> {
+public interface RbacAuthService<TOKEN extends Serializable, UID extends Serializable> {
+
+    /**
+     * 是否登录
+     *
+     * @return
+     */
+    boolean isLogin();
+
+    /**
+     * 获取登录用户ID
+     * <p>
+     * 必须返回数据，如果用户没有登录，必须抛出异常
+     *
+     * @return
+     */
+    UID getLoginId();
+
+    /**
+     * 获取登录Token
+     *
+     * @return
+     */
+    TOKEN getLoginToken();
+
+    /**
+     * 获取当前登录用户信息
+     *
+     * @return
+     */
+    <U extends RbacUserInfo> U getUserInfo();
 
     /**
      * 认证，并返回token
@@ -42,5 +72,11 @@ public interface SimpleAuthService<TOKEN, UID> {
      * @param token
      */
     void invalidate(TOKEN token);
+
+
+    /**
+     * 用户登出
+     */
+    void logout();
 
 }
