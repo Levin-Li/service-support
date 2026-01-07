@@ -15,7 +15,7 @@ import java.util.function.Predicate;
  * 用户基本信息
  */
 public interface RbacUserObject
-        extends Serializable, MultiTenantObject, EnableObject, StatefulObject, ExpiredObject, Identifiable, NamedObject, OrganizedObject, DataScopeObject {
+        extends Serializable, MultiTenantObject,  StatefulObject, ExpiredObject, Identifiable, NamedObject, OrganizedObject, DataScopeObject {
 
     /**
      * 获取组织ID
