@@ -42,7 +42,7 @@ public interface DataScopeObject {
      * @return
      */
     default int getDataAccessLevel() {
-        return ConfidentialObject.TENANT_SHARED;
+        return ConfidentialLevel.TENANT_SHARED.code();
     }
 
 }

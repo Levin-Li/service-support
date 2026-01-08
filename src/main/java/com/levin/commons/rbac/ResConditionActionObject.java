@@ -54,7 +54,7 @@ public class ResConditionActionObject implements ResConditionAction {
     String verifyExpression = "";
 
     @Schema(title = "数据保密级别", description = "数值越大，级别越高")
-    int confidentialLevel = ConfidentialObject.TENANT_SHARED;
+    int confidentialLevel = ConfidentialLevel.TENANT_SHARED.code();
 
     @Schema(title = "匹配的任意角色")
     String[] anyRoles = {};
