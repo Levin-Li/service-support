@@ -117,7 +117,7 @@ public @interface ResAuthorize {
      *
      * @return
      */
-    int confidentialLevel() default ConfidentialObject.TENANT_SHARED;
+    int confidentialLevel() default 0;
 
     /**
      * 验证表达式
