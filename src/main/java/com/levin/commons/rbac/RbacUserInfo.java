@@ -55,6 +55,15 @@ public interface RbacUserInfo
     String getTelephone();
 
     /**
+     * 密码
+     *
+     * @return
+     */
+    default String getPassword() {
+        return null;
+    }
+
+    /**
      * 获取MFA密钥
      *
      * @return
