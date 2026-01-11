@@ -21,7 +21,7 @@ public interface RbacBaseLoadService {
      */
     default Integer getUserMaxDataAccessLevel(Serializable userPrincipal) {
 
-        RbacUserObject loadUser = loadUser(userPrincipal);
+        RbacUserInfo loadUser = loadUser(userPrincipal);
 
         List<RbacRoleObject> roleList = loadUserRoleList(loadUser);
 
@@ -42,7 +42,7 @@ public interface RbacBaseLoadService {
      * @param <U>
      * @return
      */
-    <U extends RbacUserObject> U loadUser(Serializable tenantId, String account);
+    <U extends RbacUserInfo> U loadUser(Serializable tenantId, String account);
 
     /**
      * 加载用户
@@ -50,7 +50,7 @@ public interface RbacBaseLoadService {
      * @param userPrincipal 用户对象或是用户ID
      * @return
      */
-    <U extends RbacUserObject> U loadUser(Serializable userPrincipal);
+    <U extends RbacUserInfo> U loadUser(Serializable userPrincipal);
 
     /**
      * 加载用户角色列表
