@@ -4,7 +4,7 @@ package com.levin.commons.rbac;
 /**
  * 用户基本信息
  */
-public interface RbacUserInfo extends RbacUserObject  {
+public interface RbacUserInfo extends RbacUserObject {
 
     /**
      * 昵称
@@ -28,6 +28,15 @@ public interface RbacUserInfo extends RbacUserObject  {
      * @return
      */
     String getTelephone();
+
+    /**
+     * 获取MFA密钥
+     *
+     * @return
+     */
+    default String getMfaSecretKey() {
+        return null;
+    }
 
     /**
      * 头像

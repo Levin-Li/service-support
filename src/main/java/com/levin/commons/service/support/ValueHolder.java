@@ -14,6 +14,9 @@ import java.util.function.Supplier;
 @AllArgsConstructor
 @Accessors(chain = true)
 public class ValueHolder<T> implements Supplier<T> {
+
+//    public static final Object NULL_VALUE = new Object();
+
     public static <T> ValueHolder<T> notValue(boolean throwEx, String name) {
         return notValue(throwEx, name, null);
     }
