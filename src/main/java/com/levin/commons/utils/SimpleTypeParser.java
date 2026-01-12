@@ -2,7 +2,6 @@ package com.levin.commons.utils;
 
 
 import com.levin.commons.service.domain.Desc;
-import com.levin.commons.service.domain.Ignore;
 import org.springframework.util.ConcurrentReferenceHashMap;
 
 import java.io.Serializable;
@@ -177,8 +176,7 @@ public class SimpleTypeParser {
 
     protected static boolean isIgnore(AnnotatedElement element) {
 
-        return element.isAnnotationPresent(Ignore.class)
-                || (element.isAnnotationPresent(Desc.class) && !element.getAnnotation(Desc.class).toDoc());
+        return  (element.isAnnotationPresent(Desc.class) && !element.getAnnotation(Desc.class).toDoc());
     }
 
     /**

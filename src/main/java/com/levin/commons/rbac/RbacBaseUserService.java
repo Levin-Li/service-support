@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 /**
  * 加载服务
  */
-public interface RbacBaseLoadService {
+public interface RbacBaseUserService {
 
     /**
      * 获取用户最大数据访问级别
