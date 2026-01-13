@@ -1,38 +1,28 @@
 package com.levin.commons.rbac;
 
 
-import org.springframework.util.StringUtils;
+import com.levin.commons.service.exception.AuthorizationException;
+import io.swagger.v3.oas.annotations.Operation;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 /**
- * 加载服务
+ * 用户基本服务
+ *
+ * @author lilw
  */
 public interface RbacBaseUserService {
 
     /**
-     * 获取用户最大数据访问级别
+     * 加密密码
+     * 一般的单向加密
      *
-     * @param userPrincipal 用户对象或是用户ID
+     * @param pwd 原始密码
      * @return
      */
-    default Integer getUserMaxDataAccessLevel(Serializable userPrincipal) {
-
-        RbacUserInfo loadUser = loadUser(userPrincipal);
-
-        List<RbacRoleObject> roleList = loadUserRoleList(loadUser);
-
-        // 获取角色最大数据访问级别
-        int maxLevel = roleList.stream().filter(Objects::nonNull)
-                .mapToInt(RbacRoleObject::getDataAccessLevel)
-                .max()
-                .orElse(loadUser.getDataAccessLevel());
-
-        return maxLevel > loadUser.getDataAccessLevel() ? maxLevel : loadUser.getDataAccessLevel();
-    }
+    @Operation(summary = "加密密码")
+    String encryptUserPwd(String pwd);
 
     /**
      * 加载用户
@@ -42,6 +32,7 @@ public interface RbacBaseUserService {
      * @param <U>
      * @return
      */
+    @Operation(summary = "加载用户", description = "账号可以是手机号或是邮箱等")
     <U extends RbacUserInfo> U loadUser(Serializable tenantId, String account);
 
     /**
@@ -50,46 +41,35 @@ public interface RbacBaseUserService {
      * @param userPrincipal 用户对象或是用户ID
      * @return
      */
+    @Operation(summary = "加载用户", description = "用户对象或是用户ID")
     <U extends RbacUserInfo> U loadUser(Serializable userPrincipal);
 
     /**
-     * 加载用户角色列表
+     * 审计用户
+     * 检查用户的状态, 到期, 是否被禁用等
      *
-     * @param userPrincipal
-     * @param <ROLE>
+     * @param userInfo
      * @return
+     * @throws AuthorizationException
      */
-    <ROLE extends RbacRoleObject> List<ROLE> loadUserRoleList(Serializable userPrincipal);
-
-
-    /**
-     * 加载用户角色编码列表
-     *
-     * @param userPrincipal 用户对象或是用户ID
-     * @return
-     */
-    default List<String> loadUserRoleCodeList(Serializable userPrincipal) {
-        return loadUserRoleList(userPrincipal).stream().filter(Objects::nonNull)
-                .map(RbacRoleObject::getCode)
-                .filter(StringUtils::hasText)
-                .collect(Collectors.toList());
-    }
+    @Operation(summary = "审计用户", description = "检查用户状态,到期,是否被禁用等")
+    <U extends RbacUserInfo> U auditUser(U userInfo) throws AuthorizationException;
 
     /**
-     * 加载用户权限列表
+     * 审计用户登录
+     * 检查用户登录是否合法, 包括登录密码, 域名, IP, 设备类型
      *
-     * @param userPrincipal 用户对象或是用户ID
+     * @param userInfo
+     * @param tenantId
+     * @param loginPwd        为空则不验证
+     * @param loginDomain     为空则不验证
+     * @param loginIp
+     * @param loginDeviceType
+     * @param exLoginParams   额外的登录参数
      * @return
+     * @throws AuthorizationException
      */
-    default List<String> loadUserPermissionExprList(Serializable userPrincipal) {
-        return loadUserRoleList(userPrincipal).stream()
-                .filter(Objects::nonNull)
-                .map(RbacRoleObject::getPermissionList)
-                .filter(Objects::nonNull)
-                .flatMap(List::stream)
-                .filter(Objects::nonNull)
-                .map(Object::toString)
-                .filter(StringUtils::hasText)
-                .collect(Collectors.toList());
-    }
+    @Operation(summary = "审计用户登录", description = "检查用户登录是否合法, 包括登录密码, 登录域名, 登录IP, 设备类型等")
+    <U extends RbacUserInfo> U auditUserLogin(U userInfo, String tenantId, String loginPwd, String loginDomain, String loginIp, String loginDeviceType, Map<String, Serializable> exLoginParams) throws AuthorizationException;
+
 }

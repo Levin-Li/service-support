@@ -1,6 +1,8 @@
 package com.levin.commons.rbac;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -76,5 +78,6 @@ public interface RbacBaseAuthorizeService {
      * @param conditionAction
      * @return
      */
+    @Operation(summary = "检查用户授权", description = "检查用户授权是否对指定的资源是否有某个操作权限")
     boolean isAuthorized(@NotNull Serializable principal, String domain, String resType, String res, ResConditionAction conditionAction);
 }
