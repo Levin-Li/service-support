@@ -10,8 +10,9 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.ResourceUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -242,6 +243,28 @@ public class IPAddrUtils {
 
     }
 
+    public static String getPublicIp() {
+
+        try {
+            // 创建URL对象，指向一个提供公共IP查询的服务
+            URL url = new URL("https://checkip.amazonaws.com");
+            // 打开连接
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            // 创建BufferedReader以读取响应
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            // 读取IP地址
+            String ipAddress = reader.readLine();
+            // 关闭连接和读取器
+            reader.close();
+            connection.disconnect();
+
+            return ipAddress;
+        } catch (IOException e) {
+            log.warn("获取出口IP地址异常:" + e.getMessage());
+        }
+
+        return "";
+    }
 
     /**
      * 获取真实IP地址
