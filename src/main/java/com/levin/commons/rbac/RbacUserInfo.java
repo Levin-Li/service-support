@@ -171,7 +171,7 @@ public interface RbacUserInfo
 
         //目标是超级管理员
         if (target.isSuperAdmin()){
-            return isSuperAdmin() && getDataAccessLevel() >= target.getDataAccessLevel();
+            return isSuperAdmin() && getConfidentialDataAccessLevel() >= target.getConfidentialDataAccessLevel();
         }
 
         //自己是超管
@@ -181,7 +181,7 @@ public interface RbacUserInfo
 
         //目标是SAAS管理员和SAAS用户
         if (target.isSaasAdmin() || target.isSaasUser()){
-            return isSaasAdmin() && getDataAccessLevel() >= target.getDataAccessLevel();
+            return isSaasAdmin() && getConfidentialDataAccessLevel() >= target.getConfidentialDataAccessLevel();
         }
 
         //自己是SAAS管理员
@@ -196,7 +196,7 @@ public interface RbacUserInfo
 
         //目标是租户管理员
         if (target.isTenantAdmin()){
-            return isTenantAdmin() && getDataAccessLevel() >= target.getDataAccessLevel();
+            return isTenantAdmin() && getConfidentialDataAccessLevel() >= target.getConfidentialDataAccessLevel();
         }
 
         return isTenantAdmin();

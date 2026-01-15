@@ -1,8 +1,5 @@
 package com.levin.commons.rbac;
 
-
-import com.levin.commons.dao.domain.ConfidentialObject;
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -36,13 +33,13 @@ public interface DataScopeObject {
     }
 
     /**
-     * 获取数据访问级别
+     * 获取机密数据的访问级别
      * 数值越大，级别越高
      *
      * @return
      */
-    default int getDataAccessLevel() {
-        return ConfidentialLevel.TENANT_SHARED.code();
+    default Integer getConfidentialDataAccessLevel() {
+        return null;
     }
 
 }
