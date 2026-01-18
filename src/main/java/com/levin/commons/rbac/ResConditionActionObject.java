@@ -1,7 +1,6 @@
 package com.levin.commons.rbac;
 
 import com.levin.commons.annotation.GenNameConstant;
-import com.levin.commons.dao.domain.ConfidentialObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.experimental.Accessors;

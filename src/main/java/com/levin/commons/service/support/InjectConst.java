@@ -7,6 +7,8 @@ public interface InjectConst {
 
     String IS_WEB_CONTEXT = "isWebContext";
 
+    String IS_TOP_SUPER_ADMIN = "isTopSuperAdmin";
+
     String IS_SUPER_ADMIN = "isSuperAdmin";
 
     String IS_SAAS_ADMIN = "isSaasAdmin";
@@ -32,7 +34,8 @@ public interface InjectConst {
     String OPERATOR_ACTION = "operatorAction";
     ////////////////////////////////////////////////////////
 
-    String DATA_ACCESS_LEVEL ="dataAccessLevel";
+    //机密数据访问级别
+    String CONFIDENTIAL_DATA_ACCESS_LEVEL ="confidentialDataAccessLevel";
 
     /**
      * 组织对象

@@ -13,7 +13,7 @@ public interface ExpiredObject {
     /**
      * 过期时间
      *
-     * @return date
+     * @return date 返回null表示不过期
      */
     Date getExpiredTime();
 

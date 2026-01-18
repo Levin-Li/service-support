@@ -1,8 +1,8 @@
 package com.levin.commons.rbac;
 
 
-import com.levin.commons.dao.domain.*;
-import com.levin.commons.service.domain.Identifiable;
+import com.levin.commons.dao.domain.MultiTenantObject;
+import com.levin.commons.dao.domain.OrganizedObject;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -11,12 +11,26 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-
 /**
  * 用户基本信息
  */
 public interface RbacUserInfo
-        extends Serializable, MultiTenantObject, StatefulObject, ExpiredObject, Identifiable, NamedObject, OrganizedObject, DataScopeObject {
+        extends RbacCoreObject, MultiTenantObject, OrganizedObject, DataScopeObject {
+
+    /**
+     * 超级管理员账号
+     */
+    final String TOP_SA_ACCOUNT_NAME = "sa";
+
+    /**
+     * 获取租户 ID
+     *
+     * @return
+     */
+    @Override
+    default <TID extends Serializable> TID getTenantId() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * 获取组织ID
@@ -39,6 +53,12 @@ public interface RbacUserInfo
         return "";
     }
 
+    /**
+     * 登录名
+     *
+     * @return
+     */
+    String getLoginName();
 
     /**
      * 邮箱
@@ -121,12 +141,22 @@ public interface RbacUserInfo
     }
 
     /**
+     * 是否是顶级超级管理员
+     * 和普通超管的区别是 登录账号为sa, 并且无机密数据级别的限制
+     *
+     * @return
+     */
+    default boolean isTopSuperAdmin() {
+        return isSuperAdmin() && (TOP_SA_ACCOUNT_NAME.equals(getLoginName()));
+    }
+
+    /**
      * 是否超级用户
      *
      * @return
      */
     default boolean isSuperAdmin() {
-        return isSaasUser() && hasRole(RbacRoleObject.SA_ROLE);
+        return isSaasUser() && hasRole(RbacRoleInfo.SA_ROLE);
     }
 
     /**
@@ -135,7 +165,7 @@ public interface RbacUserInfo
      * @return
      */
     default boolean isSaasAdmin() {
-        return isSaasUser() && hasRole(RbacRoleObject.SAAS_ADMIN);
+        return isSaasUser() && hasRole(RbacRoleInfo.SAAS_ADMIN);
     }
 
     /**
@@ -144,7 +174,7 @@ public interface RbacUserInfo
      * @return
      */
     default boolean isTenantAdmin() {
-        return !isSaasUser() && hasRole(RbacRoleObject.ADMIN_ROLE);
+        return !isSaasUser() && hasRole(RbacRoleInfo.ADMIN_ROLE);
     }
 
     /**
@@ -165,37 +195,37 @@ public interface RbacUserInfo
     default boolean canAdmin(RbacUserInfo target) {
 
         //自己
-        if (target== this || getId().equals(target.getId())){
+        if (target == this || getId().equals(target.getId())) {
             return true;
         }
 
         //目标是超级管理员
-        if (target.isSuperAdmin()){
+        if (target.isSuperAdmin()) {
             return isSuperAdmin() && getConfidentialDataAccessLevel() >= target.getConfidentialDataAccessLevel();
         }
 
         //自己是超管
-        if (this.isSuperAdmin()){
+        if (this.isSuperAdmin()) {
             return true;
         }
 
         //目标是SAAS管理员和SAAS用户
-        if (target.isSaasAdmin() || target.isSaasUser()){
+        if (target.isSaasAdmin() || target.isSaasUser()) {
             return isSaasAdmin() && getConfidentialDataAccessLevel() >= target.getConfidentialDataAccessLevel();
         }
 
         //自己是SAAS管理员
-        if (this.isSaasAdmin()){
+        if (this.isSaasAdmin()) {
             return true;
         }
 
         //租户不同
-        if (!target.getTenantId().equals(getTenantId())){
+        if (!target.getTenantId().equals(getTenantId())) {
             return false;
         }
 
         //目标是租户管理员
-        if (target.isTenantAdmin()){
+        if (target.isTenantAdmin()) {
             return isTenantAdmin() && getConfidentialDataAccessLevel() >= target.getConfidentialDataAccessLevel();
         }
 
@@ -211,7 +241,7 @@ public interface RbacUserInfo
      */
     default boolean hasRole(Serializable role) {
         return hasRole(ownerRole -> Objects.equals(role, ownerRole)
-                || ((ownerRole instanceof RbacRoleObject) ? ((RbacRoleObject) ownerRole).getCode() : ownerRole).equals(role)
+                || ((ownerRole instanceof RbacRoleInfo) ? ((RbacRoleInfo) ownerRole).getCode() : ownerRole).equals(role)
         );
     }
 

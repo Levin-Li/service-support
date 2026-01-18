@@ -1,7 +1,6 @@
 package com.levin.commons.rbac;
 
 import com.levin.commons.service.domain.Identifiable;
-import com.levin.commons.service.domain.SimpleIdentifiable;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
