@@ -224,7 +224,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param tenantId 可为null，为 null 时加载公共角色
      * @return
      */
-    Collection<RbacRoleInfo> loadTenantRoleList(String tenantId);
+    <R extends RbacRoleInfo> Collection<R> loadTenantRoleList(String tenantId);
 
     /**
      * 加载角色列表
@@ -233,8 +233,8 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param roleCodeList
      * @return
      */
-    default Collection<RbacRoleInfo> loadTenantRoleListByCodes(String tenantId, Collection<String> roleCodeList) {
-        return loadTenantRoleList(tenantId).stream().filter(r -> roleCodeList.contains(r.getCode())).collect(Collectors.toSet());
+    default <R extends RbacRoleInfo> Collection<R> loadTenantRoleListByCodes(String tenantId, Collection<String> roleCodeList) {
+        return (Collection<R>) loadTenantRoleList(tenantId).stream().filter(r -> roleCodeList.contains(r.getCode())).collect(Collectors.toSet());
     }
 
     /**
@@ -243,7 +243,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param userPrincipal
      * @return
      */
-    default Collection<RbacRoleInfo> loadUserRoleList(Serializable userPrincipal, boolean includeDisable) {
+    default <R extends RbacRoleInfo> Collection<R> loadUserRoleList(Serializable userPrincipal, boolean includeDisable) {
 
         RbacUserInfo user = loadUser(userPrincipal);
 
@@ -259,7 +259,7 @@ public interface RbacBaseService extends RbacBaseUserService {
 
         //从全局角色和租户角色中找角色
         //如果出现同个角色编码的，优先从租户自己的角色中查找
-        return user.getRoleList().stream().filter(Objects::nonNull)
+        return (Collection<R>) user.getRoleList().stream().filter(Objects::nonNull)
                 .map(code ->
                         roleList.stream()
                                 .filter(roleInfo ->
@@ -322,7 +322,7 @@ public interface RbacBaseService extends RbacBaseUserService {
 
 
     @Operation(summary = "加载用户角色列表", description = "不包括已经禁用的角色")
-    default Collection<RbacRoleInfo> loadUserRoleList(Serializable userPrincipal) {
+    default <R extends RbacRoleInfo> Collection<R> loadUserRoleList(Serializable userPrincipal) {
         return loadUserRoleList(userPrincipal, false);
     }
 
