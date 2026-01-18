@@ -1,11 +1,13 @@
 package com.levin.commons.rbac;
 
 
+import cn.hutool.core.lang.Assert;
 import com.levin.commons.service.exception.AuthorizationException;
 import io.swagger.v3.oas.annotations.Operation;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * 用户基本服务
@@ -23,6 +25,7 @@ public interface RbacBaseUserService {
      */
     @Operation(summary = "加密密码")
     String encryptUserPwd(String pwd);
+
 
     /**
      * 加载用户
@@ -43,6 +46,153 @@ public interface RbacBaseUserService {
      */
     @Operation(summary = "加载用户", description = "用户对象或是用户ID")
     <U extends RbacUserInfo> U loadUser(Serializable userPrincipal);
+
+
+    @Operation(summary = "获取用户的机密数据访问级别", description = "当用户本身没有定义访问级别时,运行成本比较高,尽量不要多次调用")
+    default Integer getUserConfidentialDataAccessLevel(Serializable userPrincipal) {
+
+        RbacUserInfo loadUser = loadUser(userPrincipal);
+
+        // 0 重要逻辑,任何角色都要检查机密数据级别,除了顶级SA账号, 其他账号都要检查
+        if (loadUser.isTopSuperAdmin()) {
+            return Integer.MAX_VALUE;
+        }
+
+        return loadUser.getConfidentialDataAccessLevel();
+    }
+
+    /**
+     * 检查数据访问级别
+     *
+     * @param userPrincipal
+     * @param requireDataConfidentialLevels
+     * @return
+     */
+    @Operation(summary = "获取用户的机密数据访问级别", description = "当用户本身没有定义访问级别时,运行成本比较高,尽量不要多次调用")
+    default boolean canAccessConfidentialDataByUser(Serializable userPrincipal, Integer... requireDataConfidentialLevels) {
+        return canAccessConfidentialData(() -> getUserConfidentialDataAccessLevel(userPrincipal), requireDataConfidentialLevels);
+    }
+
+    /**
+     * 检查数据访问级别
+     *
+     * @param userConfidentialDataAccessLevelSupplier 用户的机密数据访问级别
+     * @param requireDataConfidentialLevels           目标数据机密级别  , null 表示非机密数据
+     * @return
+     */
+    default boolean canAccessConfidentialData(Supplier<Integer> userConfidentialDataAccessLevelSupplier, Integer... requireDataConfidentialLevels) {
+
+        if (requireDataConfidentialLevels == null
+                || requireDataConfidentialLevels.length == 0) {
+            return true;
+        }
+
+        if (!(userConfidentialDataAccessLevelSupplier instanceof CacheSupplier)) {
+            //缓存提升性能
+            userConfidentialDataAccessLevelSupplier = new CacheSupplier<>(userConfidentialDataAccessLevelSupplier);
+        }
+
+        for (Integer requireDataConfidentialLevel : requireDataConfidentialLevels) {
+
+            //非机密数据, 允许访问
+            if (requireDataConfidentialLevel == null) {
+                continue;
+            }
+
+            Integer userConfidentialDataAccessLevel = userConfidentialDataAccessLevelSupplier.get();
+
+            if (userConfidentialDataAccessLevel == null
+                    || userConfidentialDataAccessLevel < requireDataConfidentialLevel) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 是否能管理指定用户
+     *
+     * @param operator
+     * @param targetUser
+     * @return
+     */
+    @Operation(summary = "是否能管理指定用户", description = "在不考虑操作权限的情况下")
+    default boolean canAdminUser(Serializable operator, Serializable targetUser) {
+
+        Assert.notNull(operator, "无操作人");
+        Assert.notNull(targetUser, "无目标用户");
+
+        // 自己
+        if (operator.equals(targetUser) || operator == targetUser) {
+            return true;
+        }
+
+        RbacUserInfo operatorInfo = loadUser(operator);
+        Assert.notNull(operatorInfo, "无操作人信息");
+
+        //1
+        if (operatorInfo.isTopSuperAdmin()) {
+            return true;
+        }
+
+        RbacUserInfo targetUserInfo = loadUser(targetUser);
+        Assert.notNull(targetUserInfo, "无目标用户信息");
+
+        //2 自己
+        if (operatorInfo.getId().equals(targetUserInfo.getId())) {
+            return true;
+        }
+
+        //3 机密级别不够
+        if (!canAccessConfidentialData(() -> getUserConfidentialDataAccessLevel(operatorInfo), targetUserInfo.getConfidentialLevel())) {
+            return false;
+        }
+
+        //4 目标用户是超管,操作人也要超管
+        if (targetUserInfo.isSuperAdmin()) {
+            return operatorInfo.isSuperAdmin();
+        }
+
+        //4 是超管
+        if (operatorInfo.isSuperAdmin()) {
+            return true;
+        }
+
+        //5 目标用户是超管,操作人也要超管
+        if (targetUserInfo.isSaasAdmin()) {
+            return operatorInfo.isSaasAdmin();
+        }
+
+        if (operatorInfo.isSaasAdmin()) {
+            return true;
+        }
+
+        //6 目标用户是SAAS用户,操作人也要SAAS用户
+        if (targetUserInfo.isSaasUser()) {
+            return operatorInfo.isSaasUser();
+        }
+
+        //操作者是SAAS用户
+        if (operatorInfo.isSaasUser()) {
+            return operatorInfo.isTenantAdmin();
+        }
+
+        //以下是租户用户逻辑
+
+        //租户不同, 无权限
+        if (!targetUserInfo.getTenantId().equals(operatorInfo.getTenantId())) {
+            return false;
+        }
+
+        if (targetUserInfo.isTenantAdmin()) {
+            return operatorInfo.isTenantAdmin();
+        }
+
+        //同级可以管理,只要有权限就行
+        return true;
+    }
+
 
     /**
      * 审计用户
