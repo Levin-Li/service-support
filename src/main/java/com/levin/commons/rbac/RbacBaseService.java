@@ -188,8 +188,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         for (Integer requireDataConfidentialLevel : requireDataConfidentialLevels) {
 
             //非机密数据, 允许访问
-            if (requireDataConfidentialLevel == null
-                    || requireDataConfidentialLevel <= Integer.MIN_VALUE) {
+            if (requireDataConfidentialLevel == null) {
                 continue;
             }
 
