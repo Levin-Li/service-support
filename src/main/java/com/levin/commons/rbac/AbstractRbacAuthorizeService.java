@@ -416,7 +416,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
      * @param requirePermission
      * @return
      */
-    boolean isPermission(String requirePermission) {
+    protected boolean isPermission(String requirePermission) {
         //@todo 尽量优化性能
         return hasText(requirePermission)
                 //权限不区分内容
@@ -431,7 +431,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
      *
      * @return
      */
-    boolean isPattern(String permission) {
+    protected boolean isPattern(String permission) {
 
 //        return getAntPathMatcher().isPattern(permission);
 
@@ -445,7 +445,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
      * @param requirePermission
      * @return
      */
-    boolean isRole(String requirePermission) {
+    protected boolean isRole(String requirePermission) {
         return hasText(requirePermission)
                 && trimWhitespace(requirePermission).startsWith(ROLE_PREFIX);
     }
@@ -470,7 +470,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
      * @return
      * @see PatternMatchUtils#simpleMatch
      */
-    boolean textPatternMatch(@Nullable String pattern, @Nullable String str) {
+    protected boolean textPatternMatch(@Nullable String pattern, @Nullable String str) {
 
         return (!StringUtils.hasText(str))
                 || (StringUtils.hasText(pattern) && StrUtil.split(pattern, '|').stream().filter(StringUtils::hasText).anyMatch(p -> PatternMatchUtils.simpleMatch(p, str)));
@@ -489,7 +489,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
      * @param ownerPermission   拥有的权限，  eg. **:查询
      * @return
      */
-    boolean simpleMatch(String requirePermission, String ownerPermission) {
+    protected boolean simpleMatch(String requirePermission, String ownerPermission) {
 
         //去除所有空字符
         requirePermission = trimWhitespace(requirePermission);
@@ -551,7 +551,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
      * @param ownerPermissions
      * @return
      */
-    boolean simpleMatch(final String requirePermission, Collection<String> ownerPermissions) {
+    protected boolean simpleMatch(final String requirePermission, Collection<String> ownerPermissions) {
 
         if (!StringUtils.hasText(requirePermission)) {
             return true;
@@ -567,7 +567,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
      * @param ownerPermissions
      * @return
      */
-    boolean simpleMatch(final String requirePermission, String... ownerPermissions) {
+    protected boolean simpleMatch(final String requirePermission, String... ownerPermissions) {
 
         if (!StringUtils.hasText(requirePermission)) {
             return true;

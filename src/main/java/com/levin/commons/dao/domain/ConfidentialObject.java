@@ -6,7 +6,6 @@ package com.levin.commons.dao.domain;
  * @author llw
  */
 public interface ConfidentialObject {
-
     /**
      * 获取保密级别
      * 数值越大，级别越高
@@ -14,5 +13,4 @@ public interface ConfidentialObject {
      * @return
      */
     Integer getConfidentialLevel();
-
 }
