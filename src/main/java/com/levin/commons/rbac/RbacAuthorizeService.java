@@ -162,7 +162,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         principal = userInfo;
 
         // 检查数据访问级别, 任何用户都检查
-        if (!rbacBaseService.canAccessConfidentialData(role.getConfidentialDataAccessLevel(), userInfo)) {
+        if (!rbacBaseService.canAccessConfidentialDataByUser(userInfo, role.getConfidentialDataAccessLevel())) {
             return false;
         }
 
@@ -230,7 +230,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         if (userInfo.isTopSuperAdmin()) {
             return true;
         }
-        principal =userInfo;
+        principal = userInfo;
 
         return isAuthorized(userInfo, rbacBaseService.loadUserRoleCodeList(userInfo), rbacBaseService.loadUserPermissionExprList(userInfo),
                 isRequireAllPermission, requirePermissionList, matchErrorConsumer);
@@ -263,7 +263,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         if (userInfo.isTopSuperAdmin()) {
             return true;
         }
-        principal =userInfo;
+        principal = userInfo;
 
         //过滤空的权限列表
         requirePermissionList = requirePermissionList.stream().filter(StringUtils::hasText).collect(Collectors.toList());

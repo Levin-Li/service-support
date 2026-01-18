@@ -2,6 +2,7 @@ package com.levin.commons.rbac;
 
 import cn.hutool.core.util.StrUtil;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -29,20 +30,12 @@ public class RbacMiscUtils {
     }
 
     /**
-     * 检查数据访问级别
+     * 判断对象是否为空或者为空字符串
      *
-     * @param targetDataConfidentialLevel 目标数据机密级别  , null 表示非机密数据
+     * @param data
      * @return
      */
-    public static boolean canAccessConfidentialData(Integer targetDataConfidentialLevel, Supplier<Integer> userConfidentialDataAccessLevelSupplier) {
-
-        if (targetDataConfidentialLevel == null) {
-            return true;
-        }
-
-        Integer userConfidentialDataAccessLevel = userConfidentialDataAccessLevelSupplier.get();
-
-        return userConfidentialDataAccessLevel != null
-                && userConfidentialDataAccessLevel >= targetDataConfidentialLevel;
+    public static boolean isNullOrBlank(Serializable data) {
+        return data == null || (data instanceof CharSequence) ? StrUtil.isBlank((CharSequence) data) : false;
     }
 }

@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.levin.commons.rbac.RbacMiscUtils.isEmptyOrAllBlank;
 import static com.levin.commons.rbac.RbacMiscUtils.isEmptyOrAllNull;
@@ -49,14 +50,13 @@ public interface RbacBaseService extends RbacBaseUserService {
     /**
      * 加载租户的部门列表
      *
-     * @param userPrincipal
      * @param tenantId
      * @param parentId
      * @return
      */
-    default <ORG extends RbacOrgInfo> Collection<ORG> loadTenantOrgList(Serializable userPrincipal, String tenantId, String parentId) {
+    default <ORG extends RbacOrgInfo> Collection<ORG> loadTenantOrgList(String tenantId, String parentId) {
         //获取所有部门
-        Collection<ORG> orgList = loadTenantOrgList(userPrincipal, tenantId);
+        Collection<ORG> orgList = loadTenantOrgList(tenantId);
 
         return StringUtils.hasText(parentId) ? orgList.stream().filter(o -> parentId.equals(o.getParentId())).collect(Collectors.toList()) : orgList;
     }
@@ -65,11 +65,10 @@ public interface RbacBaseService extends RbacBaseUserService {
      * 加载租户的部门列表
      * tenantId 为 null 时加载公共部门
      *
-     * @param userPrincipal 操作者
-     * @param tenantId      可为null，为 null 时加载公共部门
+     * @param tenantId 可为null，为 null 时加载公共部门
      * @return
      */
-    <ORG extends RbacOrgInfo> Collection<ORG> loadTenantOrgList(Serializable userPrincipal, String tenantId);
+    <ORG extends RbacOrgInfo> Collection<ORG> loadTenantOrgList(String tenantId);
 
 
     /**
@@ -158,22 +157,49 @@ public interface RbacBaseService extends RbacBaseUserService {
     /**
      * 检查数据访问级别
      *
-     * @param targetDataConfidentialLevel 目标数据机密级别  , null 表示非机密数据
+     * @param userPrincipal
+     * @param requireDataConfidentialLevels
      * @return
      */
     @Operation(summary = "获取用户的机密数据访问级别", description = "当用户本身没有定义访问级别时,运行成本比较高,尽量不要多次调用")
-    default boolean canAccessConfidentialData(Integer targetDataConfidentialLevel, Serializable userPrincipal) {
-        return canAccessConfidentialData(targetDataConfidentialLevel, () -> getUserConfidentialDataAccessLevel(userPrincipal));
+    default boolean canAccessConfidentialDataByUser(Serializable userPrincipal, Integer... requireDataConfidentialLevels) {
+        return canAccessConfidentialData(() -> getUserConfidentialDataAccessLevel(userPrincipal), requireDataConfidentialLevels);
     }
 
     /**
      * 检查数据访问级别
      *
-     * @param targetDataConfidentialLevel 目标数据机密级别  , null 表示非机密数据
+     * @param userConfidentialDataAccessLevelSupplier 用户的机密数据访问级别
+     * @param requireDataConfidentialLevels           目标数据机密级别  , null 表示非机密数据
      * @return
      */
-    default boolean canAccessConfidentialData(Integer targetDataConfidentialLevel, Supplier<Integer> userConfidentialDataAccessLevelSupplier) {
-        return RbacMiscUtils.canAccessConfidentialData(targetDataConfidentialLevel, userConfidentialDataAccessLevelSupplier);
+    default boolean canAccessConfidentialData(Supplier<Integer> userConfidentialDataAccessLevelSupplier, Integer... requireDataConfidentialLevels) {
+
+        if (requireDataConfidentialLevels == null
+                || requireDataConfidentialLevels.length == 0) {
+            return true;
+        }
+
+        if (!(userConfidentialDataAccessLevelSupplier instanceof CacheSupplier)) {
+            //缓存提升性能
+            userConfidentialDataAccessLevelSupplier = new CacheSupplier<>(userConfidentialDataAccessLevelSupplier);
+        }
+
+        for (Integer requireDataConfidentialLevel : requireDataConfidentialLevels) {
+
+            if (requireDataConfidentialLevel == null) {
+                continue;
+            }
+
+            Integer userConfidentialDataAccessLevel = userConfidentialDataAccessLevelSupplier.get();
+
+            if (userConfidentialDataAccessLevel == null
+                    || userConfidentialDataAccessLevel < requireDataConfidentialLevel) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -243,6 +269,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param userPrincipal
      * @return
      */
+    @Operation(summary = "加载用户角色列表", description = "不返回机密的角色数据")
     default <R extends RbacRoleInfo> Collection<R> loadUserRoleList(Serializable userPrincipal, boolean includeDisable) {
 
         RbacUserInfo user = loadUser(userPrincipal);
@@ -256,6 +283,13 @@ public interface RbacBaseService extends RbacBaseUserService {
 
         //获取租户的角色列表
         Collection<RbacRoleInfo> roleList = loadTenantRoleList(user.getTenantId());
+
+        if (isEmptyOrAllNull(roleList)) {
+            return Collections.emptyList();
+        }
+
+        //获取用户自身数据访问级别
+        Supplier<Integer> userConfidentialDataAccessLevelSupplier = new CacheSupplier<>(() -> getUserConfidentialDataAccessLevel(user));
 
         //从全局角色和租户角色中找角色
         //如果出现同个角色编码的，优先从租户自己的角色中查找
@@ -271,6 +305,9 @@ public interface RbacBaseService extends RbacBaseUserService {
                                 .findFirst()
                                 .orElse(null)
                 ).filter(Objects::nonNull)
+
+                //过滤访问级别正常的
+                .filter(roleInfo -> canAccessConfidentialData(userConfidentialDataAccessLevelSupplier, roleInfo.getConfidentialDataAccessLevel()))
 
                 //启用的
                 .filter(roleInfo -> includeDisable || roleInfo.isEnable())

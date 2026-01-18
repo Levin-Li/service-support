@@ -198,7 +198,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
             return true;
         }
         //
-        principal =  user;
+        principal = user;
 
         return isAuthorized(
                 principal,
@@ -234,7 +234,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
             return true;
         }
         //
-        principal =  user;
+        principal = user;
 
         /// ////////////////////////////////
 
@@ -337,10 +337,8 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
         }
 
         //获取用户数据访问级别
-        Integer userConfidentialDataAccessLevel = rbacBaseService.getUserConfidentialDataAccessLevel(user);
-
         //如果数据访问级别小于资源访问级别，则不允许访问
-        if (!rbacBaseService.canAccessConfidentialData(action.confidentialLevel(), () -> userConfidentialDataAccessLevel)) {
+        if (!rbacBaseService.canAccessConfidentialDataByUser(user, action.confidentialLevel())) {
             return false;
         }
 
