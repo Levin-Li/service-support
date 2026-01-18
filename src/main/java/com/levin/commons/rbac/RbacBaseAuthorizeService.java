@@ -93,15 +93,15 @@ public interface RbacBaseAuthorizeService {
      * @param roles
      * @return
      */
-    default boolean isAuthorized(@NotNull Serializable principal, boolean isRequireAll, Collection<RbacRoleInfo> roles) {
+    default boolean isRoleAuthorized(@NotNull Serializable principal, boolean isRequireAll, Collection<RbacRoleInfo> roles, BiConsumer<String/*参数1为请求的权限*/, String/*参数2为错误原因*/> matchErrorConsumer) {
 
         if (isEmptyOrAllNull(roles)) {
             return true;
         }
 
         return isRequireAll
-                ? roles.stream().allMatch(role -> isAuthorized(principal, role, null))
-                : roles.stream().anyMatch(role -> isAuthorized(principal, role, null));
+                ? roles.stream().allMatch(role -> isRoleAuthorized(principal, role, matchErrorConsumer))
+                : roles.stream().anyMatch(role -> isRoleAuthorized(principal, role, matchErrorConsumer));
     }
 
     /**
@@ -112,6 +112,6 @@ public interface RbacBaseAuthorizeService {
      * @return
      */
     @Operation(summary = "检查用户对一个角色是否拥有授权", description = "")
-    boolean isAuthorized(@NotNull Serializable principal, @NotNull RbacRoleInfo role, BiConsumer<String/*参数1为请求的权限*/, String/*参数2为错误原因*/> matchErrorConsumer);
+    boolean isRoleAuthorized(@NotNull Serializable principal, @NotNull RbacRoleInfo role, BiConsumer<String/*参数1为请求的权限*/, String/*参数2为错误原因*/> matchErrorConsumer);
 
 }

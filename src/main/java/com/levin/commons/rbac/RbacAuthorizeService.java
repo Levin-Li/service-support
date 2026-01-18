@@ -93,22 +93,6 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
     }
 
     /**
-     * 是否能分配角色
-     *
-     * @param sourcePrincipal
-     * @param roleList
-     * @return
-     */
-    default boolean canAssignRole(Serializable sourcePrincipal, Collection<RbacRoleInfo> roleList, BiConsumer<String/*参数1为请求的权限*/, String/*参数2为错误原因*/> matchErrorConsumer) {
-
-        if (isEmptyOrAllNull(roleList)) {
-            return true;
-        }
-
-        return roleList.stream().anyMatch(role -> isAuthorized(sourcePrincipal, role, matchErrorConsumer));
-    }
-
-    /**
      * 是否授权
      *
      * @param principal       用户对象或是用户ID
@@ -136,6 +120,91 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
     boolean isAuthorized(Serializable principal, String resExpr, ResConditionAction action);
 
     /**
+     * 是否能管理指定用户
+     *
+     * @param operator
+     * @param targetUser
+     * @return
+     */
+    @Operation(summary = "是否能管理指定用户", description = "在不考虑操作权限的情况下")
+    default boolean canAdminUser(Serializable operator, Serializable targetUser) {
+
+        Assert.notNull(operator, "无操作人");
+        Assert.notNull(targetUser, "无目标用户");
+
+        // 自己
+        if (operator.equals(targetUser) || operator == targetUser) {
+            return true;
+        }
+
+        RbacBaseService rbacBaseService = getRbacBaseLoadService();
+
+        RbacUserInfo operatorInfo = rbacBaseService.loadUser(operator);
+        Assert.notNull(operatorInfo, "无操作人信息");
+
+        //1
+        if (operatorInfo.isTopSuperAdmin()) {
+            return true;
+        }
+
+        RbacUserInfo targetUserInfo = rbacBaseService.loadUser(targetUser);
+        Assert.notNull(targetUserInfo, "无目标用户信息");
+
+        //2 自己
+        if (operatorInfo.getId().equals(targetUserInfo.getId())) {
+            return true;
+        }
+
+        //3 机密级别不够
+        if (!rbacBaseService.canAccessConfidentialData(() -> rbacBaseService.getUserConfidentialDataAccessLevel(operatorInfo), targetUserInfo.getConfidentialLevel())) {
+            return false;
+        }
+
+        //4 目标用户是超管,操作人也要超管
+        if (targetUserInfo.isSuperAdmin()) {
+            return operatorInfo.isSuperAdmin();
+        }
+
+        //4 是超管
+        if (operatorInfo.isSuperAdmin()) {
+            return true;
+        }
+
+        //5 目标用户是超管,操作人也要超管
+        if (targetUserInfo.isSaasAdmin()) {
+            return operatorInfo.isSaasAdmin();
+        }
+
+        if (operatorInfo.isSaasAdmin()) {
+            return true;
+        }
+
+        //6 目标用户是SAAS用户,操作人也要SAAS用户
+        if (targetUserInfo.isSaasUser()) {
+            return operatorInfo.isSaasUser();
+        }
+
+        //操作者是SAAS用户
+        if (operatorInfo.isSaasUser()) {
+            return operatorInfo.isTenantAdmin();
+        }
+
+        //以下是租户用户逻辑
+
+        //租户不同, 无权限
+        if (!targetUserInfo.getTenantId().equals(operatorInfo.getTenantId())) {
+            return false;
+        }
+
+        if (targetUserInfo.isTenantAdmin()) {
+            return operatorInfo.isTenantAdmin();
+        }
+
+        //同级可以管理,只要有权限就行
+        return true;
+    }
+
+    /**
      * 是否授权
      *
      * @param principal 用户对象或是用户ID
@@ -143,7 +212,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
      * @return
      */
     @Override
-    default boolean isAuthorized(Serializable principal, RbacRoleInfo role, BiConsumer<String/*参数1为请求的权限*/, String/*参数2为错误原因*/> matchErrorConsumer) {
+    default boolean isRoleAuthorized(Serializable principal, RbacRoleInfo role, BiConsumer<String/*参数1为请求的权限*/, String/*参数2为错误原因*/> matchErrorConsumer) {
 
         Assert.notNull(principal, "无用户主体");
         Assert.notNull(role, "角色为空");

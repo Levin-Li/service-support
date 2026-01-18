@@ -39,7 +39,7 @@ import static org.springframework.util.StringUtils.*;
 @Slf4j
 public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
 
-    final BiConsumer<String, String> emptyConsumer = (v1, v2) -> {
+   protected final BiConsumer<String, String> emptyConsumer = (v1, v2) -> {
     };
 
     @Autowired(required = false)
@@ -54,28 +54,6 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
     final InheritableThreadLocal<RbacBaseService> userLoadServiceHolder = new InheritableThreadLocal<>();
 
     final ContextHolder<String, ResConditionAction> actionContextHolder = ContextHolder.buildContext(true);
-
-    protected static AntPathMatcher defaultAntPathMatcher;
-
-    /**
-     * AntPathMatcher
-     *
-     * @return
-     */
-
-    public AntPathMatcher getAntPathMatcher() {
-
-        if (defaultAntPathMatcher == null) {
-
-            defaultAntPathMatcher = new AntPathMatcher(getPermissionDelimiter());
-
-            defaultAntPathMatcher.setTrimTokens(true);
-
-            defaultAntPathMatcher.setCachePatterns(true);
-        }
-
-        return defaultAntPathMatcher;
-    }
 
     protected ContextHolder<String, ResConditionAction> getActionContext() {
 

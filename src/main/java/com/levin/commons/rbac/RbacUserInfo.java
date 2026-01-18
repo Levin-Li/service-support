@@ -187,53 +187,6 @@ public interface RbacUserInfo
     }
 
     /**
-     * 是否能访问指定用户
-     *
-     * @param target
-     * @return
-     */
-    default boolean canAdmin(RbacUserInfo target) {
-
-        //自己
-        if (target == this || getId().equals(target.getId())) {
-            return true;
-        }
-
-        //目标是超级管理员
-        if (target.isSuperAdmin()) {
-            return isSuperAdmin() && getConfidentialDataAccessLevel() >= target.getConfidentialDataAccessLevel();
-        }
-
-        //自己是超管
-        if (this.isSuperAdmin()) {
-            return true;
-        }
-
-        //目标是SAAS管理员和SAAS用户
-        if (target.isSaasAdmin() || target.isSaasUser()) {
-            return isSaasAdmin() && getConfidentialDataAccessLevel() >= target.getConfidentialDataAccessLevel();
-        }
-
-        //自己是SAAS管理员
-        if (this.isSaasAdmin()) {
-            return true;
-        }
-
-        //租户不同
-        if (!target.getTenantId().equals(getTenantId())) {
-            return false;
-        }
-
-        //目标是租户管理员
-        if (target.isTenantAdmin()) {
-            return isTenantAdmin() && getConfidentialDataAccessLevel() >= target.getConfidentialDataAccessLevel();
-        }
-
-        return isTenantAdmin();
-
-    }
-
-    /**
      * 是否拥有指定角色
      *
      * @param role
