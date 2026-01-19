@@ -139,17 +139,24 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
 
         RbacUserInfo userInfo = rbacBaseService.loadUser(principal);
 
+        if (matchErrorConsumer == null) {
+            matchErrorConsumer = (permission, reason) -> {
+            };
+        }
+
         //不能夸租户管理
         final boolean isSaasRole = isNullOrBlank(role.getTenantId());
-        final boolean isSaaUser = isNullOrBlank(userInfo.getTenantId());
+        final boolean isSaasUser = isNullOrBlank(userInfo.getTenantId());
 
         //是SAAS 角色, 但是用户不是 SAAS用户
-        if (isSaasRole && !isSaaUser) {
+        if (isSaasRole && !isSaasUser) {
+            // matchErrorConsumer.accept(roleCode, "用户不可管理");
             return false;
         }
 
         //如果是有租户的角色, 要求用户必须是saas或是同个租户
-        if (!isSaasRole && !(isSaaUser || role.getTenantId().equals(userInfo.getTenantId()))) {
+        if (!isSaasRole && !(isSaasUser || role.getTenantId().equals(userInfo.getTenantId()))) {
+            // matchErrorConsumer.accept(roleCode, "跨租户校验失败");
             return false;
         }
 
@@ -174,13 +181,25 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
             return false;
         }
 
-        //如果角色是SAAS角色，但是当前用户不是SAAS用户，则不能分配
-        if ((roleCode.startsWith(RbacRoleInfo.SAAS_ROLE_PREFIX) || isSaasRole)
-                && !userInfo.isSaasUser()) {
+        if (userInfo.isSaasAdmin()) {
+            return true;
+        }
+
+        if (RbacRoleInfo.SAAS_ADMIN.equals(roleCode)) {
             return false;
         }
 
-        //除了超管, 其他都要按权限检查
+        //如果角色是SAAS角色，但是当前用户不是SAAS用户，则不能分配
+        if ((roleCode.startsWith(RbacRoleInfo.SAAS_ROLE_PREFIX) || isSaasRole) && !isSaasUser) {
+            return false;
+        }
+
+        //管理员要求也是管理员
+        if (RbacRoleInfo.ADMIN_ROLE.equals(roleCode) && !(isSaasUser || userInfo.isTenantAdmin())) {
+            return false;
+        }
+
+        //除了sa 和 saas_admin, 其他都要按权限检查
         //接下来开始检查角色的权限列表,比对角色需要的权限列表 和 用户拥有的权限列表
 
         return isAuthorized(principal, true, rbacBaseService.loadRolePermissionList(role.getTenantId(), roleCode), matchErrorConsumer);

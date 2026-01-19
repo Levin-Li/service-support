@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static com.levin.commons.rbac.RbacMiscUtils.isNullOrBlank;
+
 /**
  * 用户基本服务
  *
@@ -124,7 +126,7 @@ public interface RbacBaseUserService {
         Assert.notNull(targetUser, "无目标用户");
 
         // 自己
-        if (operator.equals(targetUser) || operator == targetUser) {
+        if (operator.equals(targetUser)) {
             return true;
         }
 
@@ -143,6 +145,25 @@ public interface RbacBaseUserService {
         if (operatorInfo.getId().equals(targetUserInfo.getId())) {
             return true;
         }
+
+        ///////////////////////////////////////
+        //检查跨租户
+        //不能夸租户管理
+        final boolean isSaasTargetUser = isNullOrBlank(targetUserInfo.getTenantId());
+        final boolean isOperatorSaasUser = isNullOrBlank(operatorInfo.getTenantId());
+
+        //是SAAS 角色, 但是用户不是 SAAS用户
+        if (isSaasTargetUser && !isOperatorSaasUser) {
+            // matchErrorConsumer.accept(roleCode, "用户不可管理");
+            return false;
+        }
+
+        //如果是有租户的角色, 要求用户必须是saas或是同个租户
+        if (!isSaasTargetUser && !(isOperatorSaasUser || targetUserInfo.getTenantId().equals(operatorInfo.getTenantId()))) {
+            // matchErrorConsumer.accept(roleCode, "跨租户校验失败");
+            return false;
+        }
+        /// ///////////////////////////////////////
 
         //3 机密级别不够
         if (!canAccessConfidentialData(() -> getUserConfidentialDataAccessLevel(operatorInfo), targetUserInfo.getConfidentialLevel())) {
@@ -171,18 +192,6 @@ public interface RbacBaseUserService {
         //6 目标用户是SAAS用户,操作人也要SAAS用户
         if (targetUserInfo.isSaasUser()) {
             return operatorInfo.isSaasUser();
-        }
-
-        //操作者是SAAS用户
-        if (operatorInfo.isSaasUser()) {
-            return operatorInfo.isTenantAdmin();
-        }
-
-        //以下是租户用户逻辑
-
-        //租户不同, 无权限
-        if (!targetUserInfo.getTenantId().equals(operatorInfo.getTenantId())) {
-            return false;
         }
 
         if (targetUserInfo.isTenantAdmin()) {
