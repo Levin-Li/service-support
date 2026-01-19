@@ -1,6 +1,7 @@
 package com.levin.commons.rbac;
 
 
+import cn.hutool.core.lang.Assert;
 import io.swagger.v3.oas.annotations.Operation;
 
 import javax.validation.constraints.NotNull;
@@ -9,6 +10,7 @@ import java.util.Collection;
 import java.util.function.BiConsumer;
 
 import static com.levin.commons.rbac.RbacMiscUtils.isEmptyOrAllNull;
+import static com.levin.commons.rbac.RbacRoleInfo.*;
 
 /**
  * 授权服务
@@ -103,6 +105,65 @@ public interface RbacBaseAuthorizeService {
                 ? roles.stream().allMatch(role -> isRoleAuthorized(principal, role, matchErrorConsumer))
                 : roles.stream().anyMatch(role -> isRoleAuthorized(principal, role, matchErrorConsumer));
     }
+
+    /**
+     * 是否能管理目标角色
+     * 不涉及角色的权限和机密数据逻辑
+     * @param operatorRoleCode
+     * @param targetRoleCode
+     * @return
+     */
+//    default boolean canAdmin(String operatorRoleCode, String targetRoleCode) {
+//
+//        Assert.notBlank(operatorRoleCode, "操作角色不能为空");
+//        operatorRoleCode = operatorRoleCode.trim();
+//        Assert.isTrue(operatorRoleCode.startsWith(ROLE_PREFIX), "角色代码必须{}开头", ROLE_PREFIX);
+//
+//        //超级管理员, 允许管理所有角色
+//        if (operatorRoleCode.equals(SA_ROLE)) {
+//            return true;
+//        }
+//
+//        Assert.notBlank(targetRoleCode, "目标角色不能为空");
+//        targetRoleCode = targetRoleCode.trim();
+//        Assert.isTrue(targetRoleCode.startsWith(ROLE_PREFIX), "角色代码必须{}开头", ROLE_PREFIX);
+//
+//        //SA角色只允许同级管理
+//        if (targetRoleCode.equals(SA_ROLE)) {
+//            return false;
+//        }
+//
+//        //SAAS管理员
+//        if (operatorRoleCode.equals(SAAS_ADMIN)) {
+//            return true;
+//        }
+//
+//        //允许同级管理
+//        if (targetRoleCode.equals(SAAS_ADMIN)) {
+//            return false;
+//        }
+//
+//        //SAAS普通角色
+//        if (operatorRoleCode.startsWith(SAAS_ROLE_PREFIX)) {
+//            return true;
+//        }
+//
+//        //SAAS角色
+//        if (targetRoleCode.startsWith(SAAS_ROLE_PREFIX)) {
+//            return false;
+//        }
+//
+//        if (operatorRoleCode.equals(ADMIN_ROLE)) {
+//            return true;
+//        }
+//
+//        if (targetRoleCode.equals(ADMIN_ROLE)) {
+//            return false;
+//        }
+//
+//        //普通角色, 都是平权, 允许互相管理
+//        return true;
+//    }
 
     /**
      * 是否授权

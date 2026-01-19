@@ -139,6 +139,20 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
 
         RbacUserInfo userInfo = rbacBaseService.loadUser(principal);
 
+        //不能夸租户管理
+        final boolean isSaasRole = isNullOrBlank(role.getTenantId());
+        final boolean isSaaUser = isNullOrBlank(userInfo.getTenantId());
+
+        //是SAAS 角色, 但是用户不是 SAAS用户
+        if (isSaasRole && !isSaaUser) {
+            return false;
+        }
+
+        //如果是有租户的角色, 要求用户必须是saas或是同个租户
+        if (!isSaasRole && !(isSaaUser || role.getTenantId().equals(userInfo.getTenantId()))) {
+            return false;
+        }
+
         if (userInfo.isTopSuperAdmin()) {
             return true;
         }
@@ -161,10 +175,12 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         }
 
         //如果角色是SAAS角色，但是当前用户不是SAAS用户，则不能分配
-        if (roleCode.startsWith(RbacRoleInfo.SAAS_ROLE_PREFIX) && !userInfo.isSaasUser()) {
+        if ((roleCode.startsWith(RbacRoleInfo.SAAS_ROLE_PREFIX) || isSaasRole)
+                && !userInfo.isSaasUser()) {
             return false;
         }
 
+        //除了超管, 其他都要按权限检查
         //接下来开始检查角色的权限列表,比对角色需要的权限列表 和 用户拥有的权限列表
 
         return isAuthorized(principal, true, rbacBaseService.loadRolePermissionList(role.getTenantId(), roleCode), matchErrorConsumer);
