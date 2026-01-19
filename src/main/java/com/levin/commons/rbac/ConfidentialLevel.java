@@ -8,13 +8,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @GenNameConstant
 public enum ConfidentialLevel implements EnumDesc {
 
-    @Schema(title = "平台公开")
-    PLATFORM_PUBLIC(-2000),
+    @Schema(title = "平台公开", description = "平台内公开,不需要登录,匿名用户可查看")
+    PLATFORM_PUBLIC(Integer.MIN_VALUE),
 
-    @Schema(title = "平台共享")
-    PLATFORM_SHARED(-1000),
+    @Schema(title = "平台共享", description = "平台内共享,要求登录")
+    PLATFORM_SHARED(-1_0000),
 
-    @Schema(title = "系统共享")
+    @Schema(title = "系统共享", description = "租户内共享")
     TENANT_SHARED(0),
 
     @Schema(title = "组织共享")
