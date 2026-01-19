@@ -29,6 +29,8 @@ public interface RbacRoleInfo extends RbacCoreObject, MultiTenantObject, DataSco
     //系统管理员，通常是一个租户的管理员
     String ADMIN_ROLE = ROLE_PREFIX + "ADMIN";
 
+    String ORG_ADMIN_ROLE = ROLE_PREFIX + "ORG_ADMIN";
+
     /**
      * 获取租户 ID
      *
