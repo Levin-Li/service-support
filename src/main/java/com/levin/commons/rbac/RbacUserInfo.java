@@ -147,7 +147,7 @@ public interface RbacUserInfo
      * @return
      */
     default boolean isTopSuperAdmin() {
-        return isSuperAdmin() && (TOP_SA_ACCOUNT_NAME.equals(getLoginName()));
+        return TOP_SA_ACCOUNT_NAME.equals(getLoginName()) && isSuperAdmin();
     }
 
     /**

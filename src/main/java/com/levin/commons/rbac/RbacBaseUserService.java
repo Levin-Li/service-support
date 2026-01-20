@@ -195,7 +195,8 @@ public interface RbacBaseUserService {
         }
 
         if (targetUserInfo.isTenantAdmin()) {
-            return operatorInfo.isTenantAdmin();
+            return operatorInfo.isSaasUser()
+                    || operatorInfo.isTenantAdmin();
         }
 
         //同级可以管理,只要有权限就行
