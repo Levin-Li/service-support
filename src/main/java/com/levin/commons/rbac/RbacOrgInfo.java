@@ -10,7 +10,7 @@ import java.io.Serializable;
  *
  * @author lilw
  */
-public interface RbacOrgInfo extends RbacCoreObject, MultiTenantObject, DataScopeObject {
+public interface RbacOrgInfo extends RbacCoreObject, MultiTenantObject {
 
     /**
      * 获取租户 ID

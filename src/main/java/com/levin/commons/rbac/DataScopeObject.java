@@ -1,5 +1,7 @@
 package com.levin.commons.rbac;
 
+import cn.hutool.core.lang.Assert;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -26,9 +28,9 @@ public interface DataScopeObject {
      * @return
      */
     default <ORG_ID extends Serializable> List<ORG_ID> getAssignedOrgIdList() {
-        if (getOrgDataScope() != OrgDataScope.Assigned) {
-            throw new IllegalArgumentException("当前角色数据权限范围不是指定");
-        }
+
+        Assert.isTrue(getOrgDataScope() == OrgDataScope.Assigned, "数据权限错误-{}", getOrgDataScope());
+
         return Collections.emptyList();
     }
 
