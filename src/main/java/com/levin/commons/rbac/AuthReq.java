@@ -31,14 +31,14 @@ public interface AuthReq
      *
      * @return
      */
-    String getVerificationCode();
+    String getVerifyCode();
 
     /**
      * 获取验证码类型
      *
      * @return
      */
-    String getVerificationCodeType();
+    String getVerifyCodeType();
 
     /**
      * 获取客户端类型
