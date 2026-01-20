@@ -193,9 +193,7 @@ public interface RbacUserInfo
      * @return
      */
     default boolean hasRole(Serializable role) {
-        return hasRole(ownerRole -> Objects.equals(role, ownerRole)
-                || ((ownerRole instanceof RbacRoleInfo) ? ((RbacRoleInfo) ownerRole).getCode() : ownerRole).equals(role)
-        );
+        return hasRole(ownerRole -> ownerRole.equals((role instanceof RbacRoleInfo) ? ((RbacRoleInfo) role).getCode() : role));
     }
 
     /**

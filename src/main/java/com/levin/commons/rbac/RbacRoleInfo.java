@@ -1,7 +1,6 @@
 package com.levin.commons.rbac;
 
 
-import cn.hutool.core.lang.Assert;
 import com.levin.commons.dao.domain.MultiTenantObject;
 
 import java.io.Serializable;
