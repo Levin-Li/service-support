@@ -4,6 +4,7 @@ package com.levin.commons.utils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cglib.beans.BeanCopier;
 import org.springframework.cglib.core.Converter;
+import org.springframework.core.convert.support.DefaultConversionService;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -86,11 +87,29 @@ public abstract class BeanCopyUtils {
             targetClass = (Class<T>) targetBean.getClass();
         }
 
+
         BeanCopier beanCopier = getBeanCopier(sourceBean.getClass(), targetClass, converter != null);
 
         beanCopier.copy(sourceBean, targetBean, converter);
 
         return targetBean;
     }
+
+    public static final Converter DEFAULT_SPRING_CONVERTER = new Converter() {
+
+        @Override
+        public Object convert(Object sourceValue, Class targetFieldType, Object context) {
+
+            // context 是当前拷贝的字段名（如 "ageStr" "createTime"）
+            //String fieldName = (String) context;
+
+            // 空值直接返回 null
+            if (sourceValue == null) {
+                return null;
+            }
+
+            return DefaultConversionService.getSharedInstance().convert(sourceValue, targetFieldType);
+        }
+    };
 
 }
