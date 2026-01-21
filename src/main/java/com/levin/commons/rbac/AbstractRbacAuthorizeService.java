@@ -39,7 +39,7 @@ import static org.springframework.util.StringUtils.*;
 @Slf4j
 public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
 
-   protected final BiConsumer<String, String> emptyConsumer = (v1, v2) -> {
+    protected final BiConsumer<String, String> emptyConsumer = (v1, v2) -> {
     };
 
     @Autowired(required = false)
@@ -324,6 +324,22 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
             return true;
         }
 
+        Collection<String> requireAnyUserTypes = toList(action.anyUserTypes()).stream().filter(StrUtil::isNotBlank).collect(Collectors.toList());
+
+        // 判断用户类型
+        Supplier<Boolean> hasAnyUserTypesFun = requireAnyUserTypes.isEmpty() ? null : () -> requireAnyUserTypes.stream().anyMatch(
+                uTypePattern -> textPatternMatch(uTypePattern, user.getType())
+        );
+
+        //判断用户类型
+        if (hasAnyUserTypesFun != null
+                && !hasAnyUserTypesFun.get()) {
+            return false;
+        }
+
+
+        ///////////////////////////////////////////////////////////////////////////
+
         //生成表达式
         final String requirePermission = String.join(getPermissionDelimiter(), null2Empty(resPrefix), null2Empty(action.action()));
 
@@ -338,12 +354,6 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
                 rolePattern -> ownerRoleList.stream().filter(this::isRole).anyMatch(ownerRole -> textPatternMatch(rolePattern, ownerRole))
         );
 
-        Collection<String> requireAnyUserTypes = toList(action.anyUserTypes()).stream().filter(StrUtil::isNotBlank).collect(Collectors.toList());
-
-        // 判断用户类型
-        Supplier<Boolean> hasAnyUserTypesFun = requireAnyUserTypes.isEmpty() ? null : () -> requireAnyUserTypes.stream().anyMatch(
-                uTypePattern -> textPatternMatch(uTypePattern, user.getType())
-        );
 
         //表达式支持
         //3、表达式闭包
@@ -366,7 +376,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
                 }) : null;
 
         //合并闭包
-        Stream<Supplier<Boolean>> supplierStream = Stream.of(hasAnyUserTypesFun, hasAnyRolesFun, hasPermissionFun, expressFun).filter(Objects::nonNull);
+        Stream<Supplier<Boolean>> supplierStream = Stream.of(hasAnyRolesFun, hasPermissionFun, expressFun).filter(Objects::nonNull);
 
         //执行判断
         return action.isAndMode() ? supplierStream.allMatch(Supplier::get) : supplierStream.anyMatch(Supplier::get);

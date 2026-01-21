@@ -104,6 +104,8 @@ public @interface ResAuthorize {
     /**
      * 要求的用户类型，任意一个满足都视为验证通过
      * 用户支持 * 通配符，支持|或选择符
+     * <p>
+     * 注意，用户类型要求属于固定匹配要求, 和 isAndMode() 无关
      *
      * @return
      */
