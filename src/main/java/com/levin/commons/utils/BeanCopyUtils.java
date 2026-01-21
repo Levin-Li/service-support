@@ -56,21 +56,4 @@ public abstract class BeanCopyUtils {
         return targetBean;
     }
 
-    public static final Converter DEFAULT_SPRING_CONVERTER = new Converter() {
-
-        @Override
-        public Object convert(Object sourceValue, Class targetFieldType, Object context) {
-
-            // context 是当前拷贝的字段名（如 "ageStr" "createTime"）
-            //String fieldName = (String) context;
-
-            // 空值直接返回 null
-            if (sourceValue == null) {
-                return null;
-            }
-
-            return DefaultConversionService.getSharedInstance().convert(sourceValue, targetFieldType);
-        }
-    };
-
 }
