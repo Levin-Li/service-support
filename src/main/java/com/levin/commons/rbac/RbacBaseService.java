@@ -10,10 +10,9 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.levin.commons.rbac.RbacMiscUtils.isEmptyOrAllBlank;
-import static com.levin.commons.rbac.RbacMiscUtils.isEmptyOrAllNull;
+import static com.levin.commons.rbac.RbacMiscUtils.isAllBlank;
+import static com.levin.commons.rbac.RbacMiscUtils.isAllNull;
 
 
 /**
@@ -175,7 +174,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         //获取用户角色
         Collection<RbacRoleInfo> roleList = loadUserRoleList(loadUser);
 
-        if (isEmptyOrAllNull(roleList)) {
+        if (isAllNull(roleList)) {
             return null;
         }
 
@@ -226,14 +225,14 @@ public interface RbacBaseService extends RbacBaseUserService {
         Assert.notNull(user, "用户[{}]无法加载", userPrincipal);
 
         //如果用户没有角色
-        if (isEmptyOrAllBlank(user.getRoleList())) {
+        if (isAllBlank(user.getRoleList())) {
             return Collections.emptyList();
         }
 
         //获取租户的角色列表
         Collection<RbacRoleInfo> roleList = loadTenantRoleList(user.getTenantId());
 
-        if (isEmptyOrAllNull(roleList)) {
+        if (isAllNull(roleList)) {
             return Collections.emptyList();
         }
 
@@ -283,7 +282,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      */
     default Collection<String> loadRolePermissionList(Serializable tenantId, List<String> roleCodeList) {
 
-        if (isEmptyOrAllBlank(roleCodeList)) {
+        if (isAllBlank(roleCodeList)) {
             //如果没有角色编码，则返回空
             return Collections.emptyList();
         }
@@ -293,7 +292,7 @@ public interface RbacBaseService extends RbacBaseUserService {
 
         return roleList
                 .stream().filter(Objects::nonNull)
-                .filter(r -> !isEmptyOrAllBlank(r.getPermissionList()))
+                .filter(r -> r.getPermissionList() != null)
                 //过滤出指定的角色
                 .filter(r -> roleCodeList.contains(r.getCode()))
 

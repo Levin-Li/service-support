@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.function.BiConsumer;
 
-import static com.levin.commons.rbac.RbacMiscUtils.isEmptyOrAllNull;
+import static com.levin.commons.rbac.RbacMiscUtils.isAllNull;
 import static com.levin.commons.rbac.RbacRoleInfo.*;
 
 /**
@@ -97,7 +97,7 @@ public interface RbacBaseAuthorizeService {
      */
     default boolean isRoleAuthorized(@NotNull Serializable principal, boolean isRequireAll, Collection<RbacRoleInfo> roles, BiConsumer<String/*参数1为请求的权限*/, String/*参数2为错误原因*/> matchErrorConsumer) {
 
-        if (isEmptyOrAllNull(roles)) {
+        if (isAllNull(roles)) {
             return true;
         }
 

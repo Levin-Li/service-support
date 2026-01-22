@@ -59,7 +59,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
     @Operation(summary = "获取互斥到角色列表", description = "默认返回第一组互斥的角色")
     default Collection<RbacRoleInfo> getMutexRoleList(Collection<RbacRoleInfo> roles) {
 
-        if (isEmptyOrAllNull(roles)) {
+        if (isAllNull(roles)) {
             return Collections.emptyList();
         }
 
@@ -71,7 +71,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
 
         for (RbacRoleInfo role : roles) {
 
-            if (role == null || isEmptyOrAllBlank(role.getMutexCodeList())) {
+            if (role == null || isAllBlank(role.getMutexCodeList())) {
                 continue;
             }
 
@@ -145,8 +145,8 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         }
 
         //不能夸租户管理
-        final boolean isSaasRole = isNullOrBlank(role.getTenantId());
-        final boolean isSaasUser = isNullOrBlank(userInfo.getTenantId());
+        final boolean isSaasRole = isBlank(role.getTenantId());
+        final boolean isSaasUser = isBlank(userInfo.getTenantId());
 
         //是SAAS 角色, 但是用户不是 SAAS用户
         if (isSaasRole && !isSaasUser) {
@@ -232,14 +232,14 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         Assert.notNull(principal, "无用户主体");
 
         //如果不需要权限
-        if (isEmptyOrAllBlank(requirePermissionList)) {
+        if (isAllBlank(requirePermissionList)) {
             return true;
         }
 
         //过滤空的权限列表
         requirePermissionList = requirePermissionList.stream().filter(StringUtils::hasText).collect(Collectors.toList());
 
-        if (isEmptyOrAllBlank(requirePermissionList)) {
+        if (isAllBlank(requirePermissionList)) {
             return true;
         }
 
@@ -272,7 +272,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
                                  boolean isRequireAllPermission, Collection<String> requirePermissionList,
                                  BiConsumer<String/*参数1为请求的权限*/, String/*参数2为错误原因*/> matchErrorConsumer) {
         //如果不需要权限
-        if (isEmptyOrAllBlank(requirePermissionList)) {
+        if (isAllBlank(requirePermissionList)) {
             return true;
         }
 

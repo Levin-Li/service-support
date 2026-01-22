@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.levin.commons.rbac.RbacMiscUtils.isNullOrBlank;
+import static com.levin.commons.rbac.RbacMiscUtils.isBlank;
 
 /**
  * 用户基本服务
@@ -149,8 +149,8 @@ public interface RbacBaseUserService {
         ///////////////////////////////////////
         //检查跨租户
         //不能夸租户管理
-        final boolean isSaasTargetUser = isNullOrBlank(targetUserInfo.getTenantId());
-        final boolean isOperatorSaasUser = isNullOrBlank(operatorInfo.getTenantId());
+        final boolean isSaasTargetUser = isBlank(targetUserInfo.getTenantId());
+        final boolean isOperatorSaasUser = isBlank(operatorInfo.getTenantId());
 
         //是SAAS 角色, 但是用户不是 SAAS用户
         if (isSaasTargetUser && !isOperatorSaasUser) {

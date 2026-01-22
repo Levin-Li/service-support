@@ -9,14 +9,8 @@ import java.util.stream.Collectors;
 
 public class RbacMiscUtils {
 
-    /**
-     * 判断集合是否为空或者全部为空
-     *
-     * @param data
-     * @return
-     */
-    public static boolean isEmptyOrAllBlank(Collection<? extends CharSequence> data) {
-        return data == null || data.isEmpty() || !data.stream().anyMatch(StrUtil::isNotBlank);
+    public static boolean hasAnyNotBlank(Collection<? extends CharSequence> data) {
+        return !isAllBlank(data);
     }
 
     /**
@@ -25,8 +19,26 @@ public class RbacMiscUtils {
      * @param data
      * @return
      */
-    public static boolean isEmptyOrAllNull(Collection<?> data) {
-        return data == null || data.isEmpty() || !data.stream().anyMatch(Objects::nonNull);
+    public static boolean isAllBlank(Collection<? extends CharSequence> data) {
+        return data == null || data.isEmpty() || data.stream().noneMatch(StrUtil::isNotBlank);
+    }
+
+    public static boolean hasAnyNotNull(Collection<?> data) {
+        return !isAllNull(data);
+    }
+
+    /**
+     * 判断集合是否为空或者全部为空
+     *
+     * @param data
+     * @return
+     */
+    public static boolean isAllNull(Collection<?> data) {
+        return data == null || data.isEmpty() || data.stream().noneMatch(Objects::nonNull);
+    }
+
+    public static boolean isNotBlack(Serializable data) {
+        return !(isBlank(data));
     }
 
     /**
@@ -35,7 +47,7 @@ public class RbacMiscUtils {
      * @param data
      * @return
      */
-    public static boolean isNullOrBlank(Serializable data) {
+    public static boolean isBlank(Serializable data) {
         return data == null || (data instanceof CharSequence) ? StrUtil.isBlank((CharSequence) data) : false;
     }
 
