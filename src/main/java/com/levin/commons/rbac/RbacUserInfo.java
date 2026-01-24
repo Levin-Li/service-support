@@ -20,7 +20,7 @@ public interface RbacUserInfo
     /**
      * 超级管理员账号
      */
-    final String TOP_SA_ACCOUNT_NAME = "sa";
+    String TOP_SA_ACCOUNT_NAME = "sa";
 
     /**
      * 获取租户 ID

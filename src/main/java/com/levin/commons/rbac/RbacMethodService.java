@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
  * 方法调用授权服务
  */
 @FunctionalInterface
-public interface RbacMethodService{
+public interface RbacMethodService {
 
     /**
      * 检查当前用户的方法调用授权

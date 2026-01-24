@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 
 /**
  * 数据脱敏编解码器
+ *
  * @author lilw
  */
 public interface DataMasker {

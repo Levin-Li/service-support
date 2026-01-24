@@ -71,7 +71,7 @@ public class DefaultDataMasker implements DataMasker {
         Assert.notNull(masking, "masking is required");
 
         if (!masking.isRestoreData()) {
-            return (T) markingData;
+            return markingData;
         }
 
         Assert.isTrue(markingData instanceof CharSequence, "markingData must be CharSequence");

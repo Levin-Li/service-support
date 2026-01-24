@@ -40,9 +40,8 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
         Jsonp,
 
         @Schema(title = "服务端动作")
-        ServerSideAction
+        ServerSideAction;
 
-        ;
         @Override
         public String toString() {
             return nameAndDesc();

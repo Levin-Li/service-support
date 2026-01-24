@@ -158,12 +158,9 @@ public interface RbacBaseAuthorizeService {
             return true;
         }
 
-        if (targetRoleCode.equals(ADMIN_ROLE)) {
-            return false;
-        }
+        return !targetRoleCode.equals(ADMIN_ROLE);
 
         //普通角色, 都是平权, 允许互相管理
-        return true;
     }
 
     /**

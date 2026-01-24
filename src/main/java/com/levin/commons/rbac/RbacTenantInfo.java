@@ -6,6 +6,6 @@ package com.levin.commons.rbac;
  *
  * @author lilw
  */
-public interface RbacTenantInfo extends RbacCoreObject{
+public interface RbacTenantInfo extends RbacCoreObject {
 
 }

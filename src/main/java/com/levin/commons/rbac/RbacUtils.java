@@ -430,7 +430,7 @@ public abstract class RbacUtils {
                         //设置路径
                         .setPath(Arrays.asList(mapping != null ? mapping.path() : new String[0]).stream().filter(StringUtils::hasText).findFirst().orElse(defaultName))
                         //设置菜单名称
-                        .setName(Arrays.asList(tag != null ? tag.description() : null).stream().filter(StringUtils::hasText).findFirst().orElse(defaultName))
+                        .setName(Collections.singletonList(tag != null ? tag.description() : null).stream().filter(StringUtils::hasText).findFirst().orElse(defaultName))
                 ;
 
                 menuItems.add(menuRes);

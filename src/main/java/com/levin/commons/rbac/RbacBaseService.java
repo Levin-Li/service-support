@@ -363,7 +363,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         }
 
         //复制列表
-        Collection<RbacRoleInfo> roleList = new ArrayList<>(loadTenantRoleList((String) tenantId));
+        Collection<RbacRoleInfo> roleList = new ArrayList<>(loadTenantRoleList(tenantId));
 
         return roleList
                 .stream().filter(Objects::nonNull)
