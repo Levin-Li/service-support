@@ -4,10 +4,10 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -45,6 +45,12 @@ public interface RbacBaseService extends RbacBaseUserService {
         userTypeEnv.set(userType);
     }
 
+    /**
+     * @param tenantId
+     * @param orgPrincipal
+     * @param <ORG>
+     */
+    <ORG extends RbacOrgInfo> ORG loadOrg(Serializable tenantId, Serializable orgPrincipal);
 
     /**
      * 加载租户的部门列表
@@ -53,22 +59,22 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param parentId
      * @return
      */
-    default <ORG extends RbacOrgInfo> Collection<ORG> loadTenantOrgList(String tenantId, String parentId) {
+    default <ORG extends RbacOrgInfo> List<ORG> loadTenantOrgList(Serializable tenantId, Serializable parentId) {
         //获取所有部门
-        Collection<ORG> orgList = loadTenantOrgList(tenantId);
+        List<ORG> orgList = loadTenantOrgList(tenantId);
 
-        return StringUtils.hasText(parentId) ? orgList.stream().filter(o -> parentId.equals(o.getParentId())).collect(Collectors.toList()) : orgList;
+        return RbacMiscUtils.isNotBlank(parentId) ? orgList.stream().filter(o -> parentId.equals(o.getParentId())).collect(Collectors.toList()) : orgList;
     }
 
     /**
      * 加载租户的部门列表
      * tenantId 为 null 时加载公共部门
+     * 部门太多时，会导致性能问题
      *
      * @param tenantId 可为null，为 null 时加载公共部门
      * @return
      */
-    <ORG extends RbacOrgInfo> Collection<ORG> loadTenantOrgList(String tenantId);
-
+    <ORG extends RbacOrgInfo> List<ORG> loadTenantOrgList(Serializable tenantId);
 
     /**
      * 是否能访问所有部门
@@ -85,18 +91,80 @@ public interface RbacBaseService extends RbacBaseUserService {
         if (user.isSuperAdmin()
                 || user.isSaasAdmin()
                 || user.getOrgDataScope() == OrgDataScope.All
-                || (user.isTenantAdmin() && StrUtil.isNotBlank(user.getTenantId()))
+                || (user.isTenantAdmin() && RbacMiscUtils.isNotBlank(user.getTenantId()))
 
         ) {
             //如果是管理员，或是租户管理员且有租户ID
             return true;
         }
 
-        Collection<RbacRoleInfo> roleList = loadUserRoleList(userPrincipal);
+        List<RbacRoleInfo> roleList = loadUserRoleList(userPrincipal);
 
         return !CollUtil.isEmpty(roleList)
                 && roleList.stream().filter(Objects::nonNull)
                 .anyMatch(roleInfo -> OrgDataScope.All == roleInfo.getOrgDataScope());
+    }
+
+
+    /**
+     * 加载所有父部门
+     *
+     * @param tenantId
+     * @param orgPrincipal orgId 或是 RbacOrgInfo
+     * @return
+     */
+    @Operation(summary = "加载所有的直系父组织", description = "要求按由近到远的顺序返回")
+    default <ORG extends RbacOrgInfo> List<ORG> loadAllParentOrg(Serializable tenantId, boolean containsSelf, Serializable orgPrincipal) {
+
+        RbacOrgInfo leafOrg = null;
+
+        Serializable orgId = null;
+
+        Assert.notNull(orgPrincipal, "orgPrincipal为空");
+
+        if (orgPrincipal instanceof RbacOrgInfo) {
+
+            leafOrg = (ORG) orgPrincipal;
+            orgId = leafOrg.getId();
+
+        } else if (orgPrincipal instanceof CharSequence) {
+
+            Assert.notBlank((CharSequence) orgPrincipal, "orgPrincipal为空");
+            orgId = orgPrincipal;
+
+        } else {
+            orgId = orgPrincipal;
+        }
+
+        List<ORG> orgList = loadTenantOrgList(tenantId);
+
+        //@todo 优化效率, 当列表太大时,用map查找,是否性能更好
+        Map<Serializable, ORG> orgMap = orgList.stream().filter(Objects::nonNull).collect(Collectors.toMap(RbacOrgInfo::getId, Function.identity()));
+
+        //Function<Serializable, ORG> getOrg = tempOrgId -> orgList.stream().filter(Objects::nonNull).filter(o -> o.getId().equals(tempOrgId)).findAny().orElse(null)
+
+        if (leafOrg == null) {
+            leafOrg = orgMap.get(orgId);
+        }
+
+        Assert.notNull(leafOrg, "组织[{}]不存在", orgId);
+
+        List<ORG> parentList = new ArrayList<>();
+
+        if (containsSelf) {
+            parentList.add((ORG) leafOrg);
+        }
+
+        //获取所有父部门
+        while (leafOrg != null
+                && RbacMiscUtils.isNotBlank(leafOrg.getParentId())) {
+
+            leafOrg = orgMap.get(leafOrg.getParentId());
+
+            parentList.add((ORG) leafOrg);
+        }
+
+        return parentList;
     }
 
     /**
@@ -107,7 +175,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param rootIdList    指定部分的根节点ID
      * @return 部门信息集合，可能是树形结构
      */
-    <ORG extends RbacOrgInfo> Collection<ORG> loadUserOrgList(Serializable userPrincipal, boolean assembleTree, String... rootIdList);
+    <ORG extends RbacOrgInfo> List<ORG> loadUserOrgList(Serializable userPrincipal, boolean assembleTree, String... rootIdList);
 
     /**
      * 校验用户是否是否可以访问机构
@@ -116,7 +184,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param parentId
      * @param orgId
      */
-    default void checkOrgAccessible(Serializable userPrincipal, String tenantId, String parentId, String orgId) {
+    default void checkOrgAccessible(Serializable userPrincipal, Serializable tenantId, Serializable parentId, Serializable orgId) {
 
         RbacUserInfo user = loadUser(userPrincipal);
 
@@ -128,7 +196,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         }
 
         //租户ID必须相等
-        Assert.isTrue(StrUtil.isBlank(tenantId) || user.getTenantId().equals(tenantId), "非关联的租户[{}]", tenantId);
+        Assert.isTrue(RbacMiscUtils.isBlank(tenantId) || user.getTenantId().equals(tenantId), "非关联的租户[{}]", tenantId);
 
         //优化效率
         if (user.isTenantAdmin()) {
@@ -136,7 +204,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         }
 
         //只有租户管理员可以操作根节点
-        Assert.isTrue(StrUtil.isNotBlank(parentId) || user.isTenantAdmin(), "组织机构上级节点不能为空");
+        Assert.isTrue(RbacMiscUtils.isNotBlank(parentId) || user.isTenantAdmin(), "组织机构上级节点不能为空");
 
         Collection<RbacOrgInfo> orgList = loadUserOrgList(userPrincipal, false);
 
@@ -144,9 +212,9 @@ public interface RbacBaseService extends RbacBaseUserService {
 
         Assert.isFalse(orgList.isEmpty(), "无可用的组织机构，请检查是否授权");
 
-        Assert.isTrue(StrUtil.isBlank(parentId) || orgList.stream().anyMatch(org -> org.getId().equals(parentId)), "父组织机构[{}]未授权", parentId);
+        Assert.isTrue(RbacMiscUtils.isBlank(parentId) || orgList.stream().anyMatch(org -> org.getId().equals(parentId)), "父组织机构[{}]未授权", parentId);
 
-        Assert.isTrue(StrUtil.isBlank(orgId) || orgList.stream().anyMatch(org -> org.getId().equals(orgId)), "组织机构[{}]未授权", orgId);
+        Assert.isTrue(RbacMiscUtils.isBlank(orgId) || orgList.stream().anyMatch(org -> org.getId().equals(orgId)), "组织机构[{}]未授权", orgId);
 
     }
 
@@ -189,6 +257,13 @@ public interface RbacBaseService extends RbacBaseUserService {
         return max.isPresent() ? max.getAsInt() : null;
     }
 
+    /**
+     * 加载角色
+     *
+     * @param tenantId
+     * @param rolePrincipal
+     */
+    <R extends RbacRoleInfo> R loadRole(Serializable tenantId, Serializable rolePrincipal);
 
     /**
      * 加载租户的角色列表
@@ -198,7 +273,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param tenantId 可为null，为 null 时加载公共角色
      * @return
      */
-    <R extends RbacRoleInfo> Collection<R> loadTenantRoleList(String tenantId);
+    <R extends RbacRoleInfo> Collection<R> loadTenantRoleList(Serializable tenantId);
 
     /**
      * 加载角色列表
@@ -207,7 +282,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param roleCodeList
      * @return
      */
-    default <R extends RbacRoleInfo> Collection<R> loadTenantRoleListByCodes(String tenantId, Collection<String> roleCodeList) {
+    default <R extends RbacRoleInfo> Collection<R> loadTenantRoleListByCodes(Serializable tenantId, Collection<String> roleCodeList) {
         return (Collection<R>) loadTenantRoleList(tenantId).stream().filter(r -> roleCodeList.contains(r.getCode())).collect(Collectors.toSet());
     }
 
@@ -218,7 +293,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @return
      */
     @Operation(summary = "加载用户角色列表", description = "不返回机密的角色数据")
-    default <R extends RbacRoleInfo> Collection<R> loadUserRoleList(Serializable userPrincipal, boolean includeDisable) {
+    default <R extends RbacRoleInfo> List<R> loadUserRoleList(Serializable userPrincipal, boolean includeDisable) {
 
         RbacUserInfo user = loadUser(userPrincipal);
 
@@ -241,12 +316,12 @@ public interface RbacBaseService extends RbacBaseUserService {
 
         //从全局角色和租户角色中找角色
         //如果出现同个角色编码的，优先从租户自己的角色中查找
-        return (Collection<R>) user.getRoleList().stream().filter(Objects::nonNull)
+        return (List<R>) user.getRoleList().stream().filter(Objects::nonNull)
                 .map(code ->
                         roleList.stream()
                                 .filter(roleInfo ->
                                         //如果出现同个角色编码的，优先从租户自己的角色中查找
-                                        (!StringUtils.hasText(roleInfo.getTenantId()) || roleInfo.getTenantId().equals(user.getTenantId()))
+                                        (RbacMiscUtils.isBlank(roleInfo.getTenantId()) || roleInfo.getTenantId().equals(user.getTenantId()))
                                                 && roleInfo.getCode().equals(code)
                                 )
                                 //优先获取租户自己的角色
@@ -298,7 +373,7 @@ public interface RbacBaseService extends RbacBaseUserService {
 
                 .flatMap(r -> r.getPermissionList().stream())
 
-                .filter(StrUtil::isNotBlank)
+                .filter(RbacMiscUtils::isNotBlank)
 
                 //去重
                 //  .distinct()
@@ -307,7 +382,7 @@ public interface RbacBaseService extends RbacBaseUserService {
 
 
     @Operation(summary = "加载用户角色列表", description = "不包括已经禁用的角色")
-    default <R extends RbacRoleInfo> Collection<R> loadUserRoleList(Serializable userPrincipal) {
+    default <R extends RbacRoleInfo> List<R> loadUserRoleList(Serializable userPrincipal) {
         return loadUserRoleList(userPrincipal, false);
     }
 
@@ -322,7 +397,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         return loadUserRoleList(userPrincipal).stream()
                 .filter(Objects::nonNull)
                 .map(RbacRoleInfo::getCode)
-                .filter(StringUtils::hasText)
+                .filter(RbacMiscUtils::isNotBlank)
                 .collect(Collectors.toList());
     }
 
@@ -340,7 +415,7 @@ public interface RbacBaseService extends RbacBaseUserService {
                 .flatMap(Collection::stream)
                 .filter(Objects::nonNull)
                 .map(Object::toString)
-                .filter(StringUtils::hasText)
+                .filter(RbacMiscUtils::isNotBlank)
                 .collect(Collectors.toList());
     }
 

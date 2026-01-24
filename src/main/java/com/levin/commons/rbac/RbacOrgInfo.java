@@ -30,5 +30,14 @@ public interface RbacOrgInfo extends RbacCoreObject, MultiTenantObject {
     default <ID extends Serializable> ID getParentId() {
         return null;
     }
+//
+//    /**
+//     * 获取父级对象
+//     *
+//     * @return
+//     */
+//    default <ORG extends RbacOrgInfo> ORG getParent() {
+//        throw new UnsupportedOperationException();
+//    }
 
 }

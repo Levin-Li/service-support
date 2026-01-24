@@ -229,6 +229,6 @@ public interface RbacBaseUserService {
      * @throws AuthorizationException
      */
     @Operation(summary = "审计用户登录", description = "检查用户登录是否合法, 包括登录密码, 登录域名, 登录IP, 设备类型等")
-    <U extends RbacUserInfo> U auditUserLogin(U userInfo, String tenantId, String loginPwd, String loginDomain, String loginIp, String loginDeviceType, Map<String, Serializable> exLoginParams) throws AuthorizationException;
+    <U extends RbacUserInfo> U auditUserLogin(U userInfo, Serializable tenantId, String loginPwd, String loginDomain, String loginIp, String loginDeviceType, Map<String, Serializable> exLoginParams) throws AuthorizationException;
 
 }

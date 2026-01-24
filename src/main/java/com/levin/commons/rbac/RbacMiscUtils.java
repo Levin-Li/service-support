@@ -37,7 +37,7 @@ public class RbacMiscUtils {
         return data == null || data.isEmpty() || data.stream().noneMatch(Objects::nonNull);
     }
 
-    public static boolean isNotBlack(Serializable data) {
+    public static boolean isNotBlank(Serializable data) {
         return !(isBlank(data));
     }
 
