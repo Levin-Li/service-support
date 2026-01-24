@@ -4,6 +4,7 @@ package com.levin.commons.rbac;
 import com.levin.commons.dao.domain.MultiTenantObject;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -46,7 +47,7 @@ public interface RbacOrgInfo extends RbacCoreObject, MultiTenantObject {
      *
      * @return
      */
-    default <ORG extends RbacOrgInfo> List<ORG> getChildren() {
+    default <ORG extends RbacOrgInfo> Collection<ORG> getChildren() {
         throw new UnsupportedOperationException();
     }
 }
