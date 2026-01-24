@@ -4,6 +4,7 @@ package com.levin.commons.rbac;
 import com.levin.commons.dao.domain.MultiTenantObject;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 组织对象
@@ -30,14 +31,22 @@ public interface RbacOrgInfo extends RbacCoreObject, MultiTenantObject {
     default <ID extends Serializable> ID getParentId() {
         return null;
     }
-//
-//    /**
-//     * 获取父级对象
-//     *
-//     * @return
-//     */
-//    default <ORG extends RbacOrgInfo> ORG getParent() {
-//        throw new UnsupportedOperationException();
-//    }
 
+    /**
+     * 获取父级对象
+     *
+     * @return
+     */
+    default <ORG extends RbacOrgInfo> ORG getParent() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * 获取孩子列表
+     *
+     * @return
+     */
+    default <ORG extends RbacOrgInfo> List<ORG> getChildren() {
+        throw new UnsupportedOperationException();
+    }
 }

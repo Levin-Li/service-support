@@ -46,24 +46,36 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
     /**
-     * @param tenantId
+     * 加载部门
+     *
      * @param orgPrincipal
      * @param <ORG>
      */
-    <ORG extends RbacOrgInfo> ORG loadOrg(Serializable tenantId, Serializable orgPrincipal);
+    @Operation(summary = "加载部门", description = "orgPrincipal 参数可以是orgId 或是 RbacOrgInfo")
+    <ORG extends RbacOrgInfo> ORG loadOrg(Serializable orgPrincipal);
 
     /**
-     * 加载租户的部门列表
+     * 加载直接下级组织
      *
      * @param tenantId
-     * @param parentId
+     * @param orgPrincipal id 或是 RbacOrgInfo
      * @return
      */
-    default <ORG extends RbacOrgInfo> List<ORG> loadTenantOrgList(Serializable tenantId, Serializable parentId) {
-        //获取所有部门
-        List<ORG> orgList = loadTenantOrgList(tenantId);
+    @Operation(summary = "加载直接下级组织", description = "orgPrincipal 参数可以是orgId 或是 RbacOrgInfo")
+    default <ORG extends RbacOrgInfo> List<ORG> loadOrgChildren(Serializable tenantId, Serializable orgPrincipal) {
 
-        return RbacMiscUtils.isNotBlank(parentId) ? orgList.stream().filter(o -> parentId.equals(o.getParentId())).collect(Collectors.toList()) : orgList;
+        Assert.isTrue(RbacMiscUtils.isNotBlank(orgPrincipal), "父节点不能为空");
+
+        if (orgPrincipal instanceof RbacOrgInfo) {
+            orgPrincipal = ((RbacOrgInfo) orgPrincipal).getId();
+        }
+
+        Serializable orgId = orgPrincipal;
+
+        //获取所有部门
+        return (List<ORG>) loadTenantOrgList(tenantId, true).stream()
+                .filter(o -> orgId.equals(o.getParentId()))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -74,7 +86,8 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param tenantId 可为null，为 null 时加载公共部门
      * @return
      */
-    <ORG extends RbacOrgInfo> List<ORG> loadTenantOrgList(Serializable tenantId);
+    @Operation(summary = "加载租户的部门列表", description = "tenantId 为 null 时加载公共部门, onlyEffectOrg 可以指定是否只加载有效组织")
+    <ORG extends RbacOrgInfo> List<ORG> loadTenantOrgList(Serializable tenantId, boolean onlyLoadEffectOrg);
 
     /**
      * 是否能访问所有部门
@@ -118,25 +131,17 @@ public interface RbacBaseService extends RbacBaseUserService {
 
         RbacOrgInfo leafOrg = null;
 
-        Serializable orgId = null;
-
-        Assert.notNull(orgPrincipal, "orgPrincipal为空");
+        Assert.isTrue(RbacMiscUtils.isNotBlank(orgPrincipal), "orgPrincipal为空");
 
         if (orgPrincipal instanceof RbacOrgInfo) {
 
             leafOrg = (ORG) orgPrincipal;
-            orgId = leafOrg.getId();
 
-        } else if (orgPrincipal instanceof CharSequence) {
+            orgPrincipal = leafOrg.getId();
 
-            Assert.notBlank((CharSequence) orgPrincipal, "orgPrincipal为空");
-            orgId = orgPrincipal;
-
-        } else {
-            orgId = orgPrincipal;
         }
 
-        List<ORG> orgList = loadTenantOrgList(tenantId);
+        List<ORG> orgList = loadTenantOrgList(tenantId, false);
 
         //@todo 优化效率, 当列表太大时,用map查找,是否性能更好
         Map<Serializable, ORG> orgMap = orgList.stream().filter(Objects::nonNull).collect(Collectors.toMap(RbacOrgInfo::getId, Function.identity()));
@@ -144,10 +149,10 @@ public interface RbacBaseService extends RbacBaseUserService {
         //Function<Serializable, ORG> getOrg = tempOrgId -> orgList.stream().filter(Objects::nonNull).filter(o -> o.getId().equals(tempOrgId)).findAny().orElse(null)
 
         if (leafOrg == null) {
-            leafOrg = orgMap.get(orgId);
+            leafOrg = orgMap.get(orgPrincipal);
         }
 
-        Assert.notNull(leafOrg, "组织[{}]不存在", orgId);
+        Assert.notNull(leafOrg, "组织[{}]不存在", orgPrincipal);
 
         List<ORG> parentList = new ArrayList<>();
 
@@ -175,6 +180,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param rootIdList    指定部分的根节点ID
      * @return 部门信息集合，可能是树形结构
      */
+    @Operation(summary = "加载当前用户有权限访问的部门列表", description = "assembleTree 为 true 时返回树形结构")
     <ORG extends RbacOrgInfo> List<ORG> loadUserOrgList(Serializable userPrincipal, boolean assembleTree, String... rootIdList);
 
     /**
@@ -260,20 +266,22 @@ public interface RbacBaseService extends RbacBaseUserService {
     /**
      * 加载角色
      *
-     * @param tenantId
      * @param rolePrincipal
      */
-    <R extends RbacRoleInfo> R loadRole(Serializable tenantId, Serializable rolePrincipal);
+    @Operation(summary = "加载角色", description = "角色不存在时返回null")
+    <R extends RbacRoleInfo> R loadRole(Serializable rolePrincipal);
 
     /**
      * 加载租户的角色列表
      * <p>
      * tenantId 为 null 时加载公共角色
      *
-     * @param tenantId 可为null，为 null 时加载公共角色
+     * @param tenantId           可为null，为 null 时加载公共角色
+     * @param onlyLoadEffectRole 是否只加载有效角色 ,否则加载所有角色
      * @return
      */
-    <R extends RbacRoleInfo> Collection<R> loadTenantRoleList(Serializable tenantId);
+    @Operation(summary = "加载租户的角色列表", description = "onlyLoadEffectRole 是否只加载有效角色 ,否则加载所有角色")
+    <R extends RbacRoleInfo> Collection<R> loadTenantRoleList(Serializable tenantId, boolean onlyLoadEffectRole);
 
     /**
      * 加载角色列表
@@ -282,8 +290,9 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param roleCodeList
      * @return
      */
+    @Operation(summary = "根据角色代码加载角色列表", description = "不管角色是否处于有效状态")
     default <R extends RbacRoleInfo> Collection<R> loadTenantRoleListByCodes(Serializable tenantId, Collection<String> roleCodeList) {
-        return (Collection<R>) loadTenantRoleList(tenantId).stream().filter(r -> roleCodeList.contains(r.getCode())).collect(Collectors.toSet());
+        return (Collection<R>) loadTenantRoleList(tenantId, false).stream().filter(r -> roleCodeList.contains(r.getCode())).collect(Collectors.toSet());
     }
 
     /**
@@ -293,7 +302,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @return
      */
     @Operation(summary = "加载用户角色列表", description = "不返回机密的角色数据")
-    default <R extends RbacRoleInfo> List<R> loadUserRoleList(Serializable userPrincipal, boolean includeDisable) {
+    default <R extends RbacRoleInfo> List<R> loadUserRoleList(Serializable userPrincipal, boolean onlyLoadEffectRole) {
 
         RbacUserInfo user = loadUser(userPrincipal);
 
@@ -305,7 +314,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         }
 
         //获取租户的角色列表
-        Collection<RbacRoleInfo> roleList = loadTenantRoleList(user.getTenantId());
+        Collection<RbacRoleInfo> roleList = loadTenantRoleList(user.getTenantId(), onlyLoadEffectRole);
 
         if (isAllNull(roleList)) {
             return Collections.emptyList();
@@ -333,7 +342,7 @@ public interface RbacBaseService extends RbacBaseUserService {
                 .filter(roleInfo -> canAccessConfidentialData(userConfidentialDataAccessLevelSupplier, roleInfo.getConfidentialDataAccessLevel()))
 
                 //启用的
-                .filter(roleInfo -> includeDisable || roleInfo.isEnable())
+
                 .collect(Collectors.toList());
     }
 
@@ -355,6 +364,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param roleCodeList 过滤出指定的角色
      * @return
      */
+    @Operation(summary = "根据角色代码加载权限列表", description = "不管角色是否处于有效状态")
     default Collection<String> loadRolePermissionList(Serializable tenantId, List<String> roleCodeList) {
 
         if (isAllBlank(roleCodeList)) {
@@ -362,10 +372,7 @@ public interface RbacBaseService extends RbacBaseUserService {
             return Collections.emptyList();
         }
 
-        //复制列表
-        Collection<RbacRoleInfo> roleList = new ArrayList<>(loadTenantRoleList(tenantId));
-
-        return roleList
+        return loadTenantRoleList(tenantId, false)
                 .stream().filter(Objects::nonNull)
                 .filter(r -> r.getPermissionList() != null)
                 //过滤出指定的角色
@@ -383,7 +390,7 @@ public interface RbacBaseService extends RbacBaseUserService {
 
     @Operation(summary = "加载用户角色列表", description = "不包括已经禁用的角色")
     default <R extends RbacRoleInfo> List<R> loadUserRoleList(Serializable userPrincipal) {
-        return loadUserRoleList(userPrincipal, false);
+        return loadUserRoleList(userPrincipal, true);
     }
 
 
