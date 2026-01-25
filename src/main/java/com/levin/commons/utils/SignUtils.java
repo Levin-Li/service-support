@@ -1,7 +1,7 @@
 package com.levin.commons.utils;
 
-import com.levin.commons.service.domain.SignReq;
 import com.levin.commons.service.domain.Sign;
+import com.levin.commons.service.domain.SignReq;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.util.DigestUtils;

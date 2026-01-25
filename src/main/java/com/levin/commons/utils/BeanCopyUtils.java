@@ -23,7 +23,6 @@ public abstract class BeanCopyUtils {
         return targetBean;
     }
 
-
     /**
      * 拷贝属性
      *

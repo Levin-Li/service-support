@@ -5,7 +5,6 @@ import com.levin.commons.dao.domain.MultiTenantObject;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * 组织对象
