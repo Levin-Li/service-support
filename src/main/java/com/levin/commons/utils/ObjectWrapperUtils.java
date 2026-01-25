@@ -20,11 +20,14 @@ import java.util.function.Supplier;
  */
 public abstract class ObjectWrapperUtils {
 
-    public static <T> T wrapper2Readonly(Object originalObject) {
-        return wrapper2Readonly(originalObject, null, () -> true);
+    public static <T> T wrapper2Readonly(T originalObject) {
+        return wrapper2Readonly(originalObject, () -> true);
     }
 
-    public static <T> T wrapper2Readonly(Object originalObject, Supplier<Boolean> isReadonly) {
+    public static <T> T wrapper2Readonly(T originalObject, Supplier<Boolean> isReadonly) {
+        if (originalObject == null) {
+            return null;
+        }
         return wrapper2Readonly(originalObject, null, isReadonly);
     }
 
@@ -33,6 +36,7 @@ public abstract class ObjectWrapperUtils {
     }
 
     public static <T> T wrapper2Readonly(Object originalObject, Class<T> wrapperTargetClass, Supplier<Boolean> isReadonly) {
+
         return wrapperByProxy(originalObject, wrapperTargetClass, new ReadonlyMethodOverrideHandler(isReadonly));
     }
 
@@ -42,12 +46,16 @@ public abstract class ObjectWrapperUtils {
 
     public static <T> T wrapperByProxy(Object originalObject, Class<T> proxyTargetClass, MethodOverrideHandler methodOverrideHandler, Class<?>... newEnhanceInterfaces) {
 
-        Assert.isTrue(originalObject != null || proxyTargetClass != null
-                , "originalObject or proxyTargetClass must has one");
-
         if (proxyTargetClass == null) {
+
+            if (originalObject == null) {
+                return null;
+            }
+
             proxyTargetClass = (Class<T>) AopProxyUtils.ultimateTargetClass(originalObject);
         }
+
+        Assert.notNull(proxyTargetClass, "proxyTargetClass can not be null");
 
         Enhancer enhancer = new Enhancer();
 
