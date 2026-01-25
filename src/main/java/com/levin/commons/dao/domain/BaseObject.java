@@ -15,6 +15,7 @@ public interface BaseObject
         Castable,
         EnableObject,
         EditableObject,
-        SortableObject {
+        SortableObject,
+        SelfAuditableObject {
 
 }
