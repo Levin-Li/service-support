@@ -15,12 +15,16 @@ import java.util.function.Function;
  */
 public interface SelfAuditableObject {
 
-    @Operation(summary = "自审", description = "通过则放回true, 具体错误信息通过errorInfoConsumer接收")
-    default boolean selfAudit(Consumer<String> errorInfoConsumer) {
+    @Operation(summary = "自审", description = "通过则放回true, 具体错误信息通过errorInfoConsumers接收")
+    default boolean selfAudit(Consumer<String>... errorInfoConsumers) {
 
         final Function<String, Boolean> auditErrorFun = (error) -> {
-            if (errorInfoConsumer != null) {
-                errorInfoConsumer.accept(error);
+            if (errorInfoConsumers != null) {
+                for (Consumer<String> errorInfoConsumer : errorInfoConsumers) {
+                    if (errorInfoConsumer == null) {
+                        errorInfoConsumer.accept(error);
+                    }
+                }
             }
             return false;
         };
