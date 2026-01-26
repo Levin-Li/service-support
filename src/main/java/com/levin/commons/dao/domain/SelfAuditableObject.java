@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.Operation;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * 可自审对象
@@ -13,37 +15,41 @@ import java.util.Date;
  */
 public interface SelfAuditableObject {
 
-    @Operation(summary = "自审并返回错误信息", description = "没有错误,则放回null")
-    default String selfAudit() {
+    @Operation(summary = "自审", description = "通过则放回true, 具体错误信息通过errorInfoConsumer接收")
+    default boolean selfAudit(Consumer<String> errorInfoConsumer) {
+
+        final Function<String, Boolean> auditErrorFun = (error) -> {
+            if (errorInfoConsumer != null) {
+                errorInfoConsumer.accept(error);
+            }
+            return false;
+        };
 
         if (this instanceof Identifiable) {
             // id 不能为空, 不能为空字符串
             Serializable objectTempAuditId = ((Identifiable) this).getId();
-
             if (objectTempAuditId == null
                     || (objectTempAuditId instanceof CharSequence && ((CharSequence) objectTempAuditId).toString().trim().isEmpty())) {
-                return "object id is required";
+                return auditErrorFun.apply("object id is required");
             }
         }
 
         if (this instanceof EnableObject && !((EnableObject) this).isEnable()) {
             // 不能是未启用的
-            return "object is not enable";
+            return auditErrorFun.apply("object is not enable");
         }
 
         if (this instanceof LogicDeletableObject && ((LogicDeletableObject) this).isDeleted()) {
             // 不能是逻辑删除的
-            return ("object logic deleted");
+            return auditErrorFun.apply("object logic deleted");
         }
 
         if (this instanceof ExpiredObject
                 && ((ExpiredObject) this).getExpiredTime() != null
                 && ((ExpiredObject) this).getExpiredTime().before(new Date())) {
-
-            return "object expired";
+            return auditErrorFun.apply("object expired");
         }
 
-        return null;
+        return true;
     }
-
 }
