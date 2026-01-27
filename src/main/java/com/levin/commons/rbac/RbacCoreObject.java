@@ -10,7 +10,7 @@ import java.util.Date;
 /**
  * 角色对象
  */
-public interface RbacCoreObject extends Serializable, Identifiable, NamedObject, EnableObject, StatefulObject, TypeableObject, ExpiredObject, EditableObject, ConfidentialObject {
+public interface RbacCoreObject extends Serializable, Identifiable, NamedObject, EnableObject, StatefulObject, TypeableObject, ExpiredObject, EditableObject, ConfidentialObject, SelfAuditableObject {
 
     /**
      * 获取对象标识

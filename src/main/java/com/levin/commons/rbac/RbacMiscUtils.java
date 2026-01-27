@@ -38,7 +38,7 @@ public class RbacMiscUtils {
     }
 
     public static boolean isNotBlank(Serializable data) {
-        return !(isBlank(data));
+        return !isBlank(data);
     }
 
     /**
@@ -48,7 +48,7 @@ public class RbacMiscUtils {
      * @return
      */
     public static boolean isBlank(Serializable data) {
-        return (data == null || (data instanceof CharSequence)) && StrUtil.isBlank((CharSequence) data);
+        return  data == null || (data instanceof CharSequence && StrUtil.isBlank((CharSequence) data));
     }
 
     /**

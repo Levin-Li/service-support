@@ -3,15 +3,16 @@ package com.levin.commons.rbac;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
-import com.levin.commons.utils.BeanCopyUtils;
 import io.swagger.v3.oas.annotations.Operation;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.levin.commons.rbac.RbacMiscUtils.isAllBlank;
 import static com.levin.commons.rbac.RbacMiscUtils.isAllNull;
@@ -120,30 +121,6 @@ public interface RbacBaseService extends RbacBaseUserService {
                 .anyMatch(roleInfo -> OrgDataScope.All == roleInfo.getOrgDataScope());
     }
 
-
-    @Operation(summary = "溯源直系父组织", description = "放回包含Parent属性的对象, stopPredicate可以中断溯源")
-    default <ORG extends RbacOrgInfo> ORG loadOrgParents(Serializable orgPrincipal, Predicate<ORG> stopPredicate) {
-
-        RbacOrgInfo leafOrg = loadOrg(orgPrincipal);
-
-        Assert.notNull(leafOrg, "组织[{}]不存在", orgPrincipal);
-
-        List<ORG> orgList = loadTenantOrgList(leafOrg.getTenantId(), false);
-
-        Map<Serializable, ORG> orgMap = orgList.stream().filter(Objects::nonNull).collect(Collectors.toMap(RbacOrgInfo::getId, Function.identity()));
-
-
-        while (leafOrg != null
-                && RbacMiscUtils.isNotBlank(leafOrg.getParentId())) {
-
-            leafOrg = orgMap.get(leafOrg.getParentId());
-
-        }
-
-        return (ORG) leafOrg;
-    }
-
-
     /**
      * 加载所有父部门
      *
@@ -152,7 +129,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @return
      */
     @Operation(summary = "加载所有的直系父组织", description = "要求按由近到远的顺序返回")
-    default <ORG extends RbacOrgInfo> List<ORG> loadOrgParentList(Serializable tenantId, boolean containsSelf, Serializable orgPrincipal) {
+    default <ORG extends RbacOrgInfo> List<ORG> loadOrgParentList(Serializable tenantId, boolean containsSelf, Serializable orgPrincipal, boolean selfAudit) {
 
         RbacOrgInfo leafOrg = null;
 
@@ -179,6 +156,10 @@ public interface RbacBaseService extends RbacBaseUserService {
 
         Assert.notNull(leafOrg, "组织[{}]不存在", orgPrincipal);
 
+        if (selfAudit && !leafOrg.selfAudit()) {
+            throw new IllegalStateException("组织不可用-" + leafOrg.getName());
+        }
+
         List<ORG> parentList = new ArrayList<>();
 
         if (containsSelf) {
@@ -189,7 +170,16 @@ public interface RbacBaseService extends RbacBaseUserService {
         while (leafOrg != null
                 && RbacMiscUtils.isNotBlank(leafOrg.getParentId())) {
 
+            RbacOrgInfo tempOrg = leafOrg;
+
             leafOrg = orgMap.get(leafOrg.getParentId());
+
+            //
+            Assert.notNull(leafOrg, "组织[{}]不存在", (Object /* 强制转换,防止被编译成数组 */) tempOrg.getParentId());
+
+            if (selfAudit && !leafOrg.selfAudit()) {
+                throw new IllegalStateException("组织不可用-" + leafOrg.getName());
+            }
 
             parentList.add((ORG) leafOrg);
         }
