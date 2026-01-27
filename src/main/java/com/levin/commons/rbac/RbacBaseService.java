@@ -170,6 +170,8 @@ public interface RbacBaseService extends RbacBaseUserService {
         while (leafOrg != null
                 && RbacMiscUtils.isNotBlank(leafOrg.getParentId())) {
 
+            Assert.isTrue(!leafOrg.getId().equals(leafOrg.getParentId()), "组织[{}]的父组织ID[{}]与自身ID相同", leafOrg.getName(), leafOrg.getParentId());
+
             RbacOrgInfo tempOrg = leafOrg;
 
             leafOrg = orgMap.get(leafOrg.getParentId());
