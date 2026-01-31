@@ -180,6 +180,7 @@ public abstract class ExpressionUtils {
      * @return
      */
     public static <T> T evalSpEL(Object rootObject, VariableResolver variableResolver, String expression, List<Map<String, Object>> contexts, Consumer<StandardEvaluationContext>... consumers) {
+
         final StandardEvaluationContext ctx = new StandardEvaluationContext(rootObject) {
 
             Map<String, Object> variableNames = new HashMap<>();
@@ -232,9 +233,8 @@ public abstract class ExpressionUtils {
 
         //执行
         Optional.ofNullable(consumers).ifPresent(funs ->
-                Stream.of(funs).filter(Objects::nonNull).forEachOrdered(fun ->
-                        fun.accept(ctx)
-                )
+                Stream.of(funs).filter(Objects::nonNull)
+                        .forEachOrdered(fun -> fun.accept(ctx))
         );
 
         return (T) expressionParser.parseExpression(expression).getValue(ctx);
@@ -253,11 +253,14 @@ public abstract class ExpressionUtils {
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     public static boolean isEmpty(Object value) {
-        return !isNotEmpty(value);
+        return value == null
+                || (value instanceof CharSequence && !hasText((CharSequence) value))
+                || (value instanceof Collection && ((Collection) value).isEmpty())
+                || (value instanceof Map && ((Map) value).isEmpty())
+                || (value.getClass().isArray() && Array.getLength(value) == 0);
     }
 
     /**
@@ -267,20 +270,7 @@ public abstract class ExpressionUtils {
      * @return
      */
     public static boolean isNotEmpty(Object value) {
-
-        if (value == null) {
-            return false;
-        } else if (value instanceof CharSequence) {
-            return hasText((CharSequence) value);
-        } else if (value.getClass().isArray()) {
-            return (Array.getLength(value) > 0);
-        } else if (value instanceof Collection) {
-            return (((Collection) value).size() > 0);
-        } else if (value instanceof Map) {
-            return (((Map) value).size() > 0);
-        }
-
-        return true;
+        return !isEmpty(value);
     }
 
 }

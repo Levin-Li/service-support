@@ -7,12 +7,9 @@ import io.swagger.v3.oas.annotations.Operation;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.levin.commons.rbac.RbacMiscUtils.isAllBlank;
 import static com.levin.commons.rbac.RbacMiscUtils.isAllNull;
@@ -355,8 +352,8 @@ public interface RbacBaseService extends RbacBaseUserService {
                                 .orElse(null)
                 ).filter(Objects::nonNull)
 
-                //过滤访问级别正常的
-                .filter(roleInfo -> canAccessConfidentialData(userConfidentialDataAccessLevelSupplier, roleInfo.getConfidentialDataAccessLevel()))
+                //@todo 过滤访问级别正常的 , 会导致死循环
+             //   .filter(roleInfo -> canAccessConfidentialData(userConfidentialDataAccessLevelSupplier, roleInfo.getConfidentialDataAccessLevel()))
 
                 //启用的
 
