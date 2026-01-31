@@ -6,6 +6,7 @@ package com.levin.commons.service.support;
 public interface InjectConst {
 
     String IS_WEB_CONTEXT = "isWebContext";
+    String IS_UNSAFE_CONTEXT = "isUnsafeContext";
 
     String IS_TOP_SUPER_ADMIN = "isTopSuperAdmin";
 
