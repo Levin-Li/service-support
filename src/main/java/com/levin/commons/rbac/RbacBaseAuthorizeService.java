@@ -26,6 +26,7 @@ public interface RbacBaseAuthorizeService {
     static ResConditionAction newResConditionAction(@NotNull ResAuthorize resAuthorize) {
         return new ResConditionActionObject()
                 .action(resAuthorize.action())
+                .actionTypes(resAuthorize.actionTypes())
                 .isAndMode(resAuthorize.isAndMode())
                 .anyUserTypes((resAuthorize.anyUserTypes()))
                 .anyRoles(resAuthorize.anyRoles())
@@ -51,6 +52,7 @@ public interface RbacBaseAuthorizeService {
                 .type(resType)
                 .res(res)
                 .action(conditionAction.action())
+                .actionTypes(conditionAction.actionTypes())
                 .isAndMode(conditionAction.isAndMode())
                 .anyUserTypes(conditionAction.anyUserTypes())
                 .anyRoles(conditionAction.anyRoles())

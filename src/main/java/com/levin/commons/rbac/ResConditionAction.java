@@ -24,6 +24,13 @@ public @interface ResConditionAction {
     String action() default "";
 
     /**
+     * 操作类型
+     *
+     * @return
+     */
+    ActionType[] actionTypes() default {};
+
+    /**
      * 忽略的
      * 不做资源授权检查
      *

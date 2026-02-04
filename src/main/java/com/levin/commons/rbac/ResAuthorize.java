@@ -66,6 +66,16 @@ public @interface ResAuthorize {
      */
     String action() default "";
 
+
+    /**
+     * 操作类型
+     * 创建,查询,更新,删除
+     * Create,Update,Delete
+     *
+     * @return
+     */
+    ActionType[] actionTypes() default {};
+
     /**
      * 忽略的
      * 不做资源授权检查
