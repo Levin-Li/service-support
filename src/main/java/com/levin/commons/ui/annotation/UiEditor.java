@@ -24,10 +24,7 @@ public @interface UiEditor {
      *
      * @return
      */
-    @Schema(description = "表单定义, 表单url 或是表单id,     * class: xx.xx.xx\n" +
-            "     * attrName: 当前类的属性名\n" +
-            "     * id: xx\n" +
-            "     * 默认当前字段的类型")
+    @Schema(description = "表单定义, 表单url 或是表单id, url: http://xxx.xxx.xxx/xxx.json , id: xx")
     String form() default "";
 
     /**
