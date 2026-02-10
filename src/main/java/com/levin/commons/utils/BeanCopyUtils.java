@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 
 /**
- * @author lilw
+ * @author echo
  */
 public abstract class BeanCopyUtils {
 

@@ -17,7 +17,7 @@ import java.util.UUID;
  * <p>
  * 建议独立使用
  *
- * @author lilw
+ * @author echo
  */
 
 @FieldNameConstants

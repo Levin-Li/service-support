@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 /**
  * 用户基本服务
  *
- * @author lilw
+ * @author echo
  */
 public interface RbacBaseUserService {
 

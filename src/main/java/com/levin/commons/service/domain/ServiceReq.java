@@ -9,7 +9,7 @@ import java.io.Serializable;
  * 服务请求
  * 请求格式不做具体的限制
  *
- * @author lilw
+ * @author echo
  */
 
 @Schema(title = "服务请求类")

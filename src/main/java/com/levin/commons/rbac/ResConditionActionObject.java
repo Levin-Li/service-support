@@ -58,6 +58,9 @@ public class ResConditionActionObject implements ResConditionAction {
     @Schema(title = "数据保密级别", description = "数值越大，级别越高")
     int confidentialLevel = ConfidentialLevel.TENANT_SHARED.code();
 
+    @Schema(title = "组织数据范围")
+    String orgDataScope;
+
     @Schema(title = "匹配的任意角色")
     String[] anyRoles = {};
 

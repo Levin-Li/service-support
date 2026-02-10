@@ -15,7 +15,7 @@ import java.util.UUID;
  * 可以继承
  *
  * @param <T>
- * @author lilw
+ * @author echo
  */
 
 

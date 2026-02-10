@@ -4,7 +4,7 @@ package com.levin.commons.rbac;
 /**
  * 租户对象
  *
- * @author lilw
+ * @author echo
  */
 public interface RbacTenantInfo extends RbacCoreObject {
 

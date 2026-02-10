@@ -14,7 +14,7 @@ import java.io.Serializable;
  * 可以继承
  *
  * @param <T>
- * @author lilw
+ * @author echo
  */
 
 

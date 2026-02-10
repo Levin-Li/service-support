@@ -24,7 +24,7 @@ import java.lang.annotation.*;
  *     String userName;
  * }
  *
- * @author lilw
+ * @author echo
  *
  */
 public @interface InjectVar {

@@ -32,6 +32,7 @@ public interface RbacBaseAuthorizeService {
                 .anyRoles(resAuthorize.anyRoles())
                 .verifyExpression(resAuthorize.verifyExpression())
                 .confidentialLevel(resAuthorize.confidentialLevel())
+                .orgDataScope(resAuthorize.orgDataScope())
                 .ignored(resAuthorize.ignored())
                 .onlyRequireAuthenticated(resAuthorize.onlyRequireAuthenticated())
                 .remark(resAuthorize.remark());
@@ -58,6 +59,7 @@ public interface RbacBaseAuthorizeService {
                 .anyRoles(conditionAction.anyRoles())
                 .verifyExpression(conditionAction.verifyExpression())
                 .confidentialLevel(conditionAction.confidentialLevel())
+                .orgDataScope(conditionAction.orgDataScope())
                 .ignored(conditionAction.ignored())
                 .onlyRequireAuthenticated(conditionAction.onlyRequireAuthenticated())
                 .remark(conditionAction.remark())
@@ -87,7 +89,6 @@ public interface RbacBaseAuthorizeService {
      */
     @Operation(summary = "检查用户授权", description = "检查用户授权是否对指定的资源是否有某个操作权限")
     boolean isAuthorized(@NotNull Serializable principal, String domain, String resType, String res, ResConditionAction conditionAction);
-
 
     /**
      * 是否授权

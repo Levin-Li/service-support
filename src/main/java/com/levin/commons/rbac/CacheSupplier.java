@@ -3,7 +3,7 @@ package com.levin.commons.rbac;
 import java.util.function.Supplier;
 
 /**
- * @author lilw
+ * @author echo
  * <p>
  * 缓存, 拥有提升性能
  */

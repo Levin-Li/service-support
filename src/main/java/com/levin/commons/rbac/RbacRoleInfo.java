@@ -10,7 +10,7 @@ import java.util.Collections;
 /**
  * 角色对象
  *
- * @author lilw
+ * @author echo
  */
 public interface RbacRoleInfo extends RbacCoreObject, MultiTenantObject, DataScopeObject {
 

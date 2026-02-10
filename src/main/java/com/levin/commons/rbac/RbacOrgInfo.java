@@ -9,7 +9,7 @@ import java.util.Collection;
 /**
  * 组织对象
  *
- * @author lilw
+ * @author echo
  */
 public interface RbacOrgInfo extends RbacCoreObject, MultiTenantObject {
 

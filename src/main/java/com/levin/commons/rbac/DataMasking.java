@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import java.lang.annotation.*;
 
 /**
- * @author lilw
+ * @author echo
  */
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)

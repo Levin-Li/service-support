@@ -76,6 +76,7 @@ public @interface ResAuthorize {
      */
     ActionType[] actionTypes() default {};
 
+    /// //////////////////////////////////////////////////////////////////
     /**
      * 忽略的
      * 不做资源授权检查
@@ -102,7 +103,6 @@ public @interface ResAuthorize {
      */
     boolean isAndMode() default false;
 
-
     /**
      * 要求的角色，任意一个满足都视为验证通过
      * 角色支持 * 通配符，支持|或选择符
@@ -122,14 +122,6 @@ public @interface ResAuthorize {
     String[] anyUserTypes() default {};
 
     /**
-     * 访问的保密级别
-     * 数值越大，级别越高
-     *
-     * @return
-     */
-    int confidentialLevel() default 0;
-
-    /**
      * 验证表达式
      * <p>
      * 建议 应用 spel 表达式
@@ -138,6 +130,30 @@ public @interface ResAuthorize {
      * @return 表达式应该返回 true 或 false
      */
     String verifyExpression() default "";
+
+    ///////////////////////////////////////////////////////////////////////
+
+    /**
+     * 访问需要的保密级别
+     * 数值越大，级别越高
+     *
+     * @return
+     */
+    int confidentialLevel() default 0;
+
+    //////////////////////////////////////////////////////////////////
+
+    /**
+     * 因为注解不允许空值, 所有采用字符串来定义
+     * 数据权限范围, 默认为空表示未定义
+     * 取值范围, 参考枚举类:OrgDataScope
+     * 期望指定部门时, 直接在本属性中填入部门ID,部门ID直接用逗号分隔
+     * eg
+     * Id123,id234,id567
+     *
+     * @return
+     */
+    String orgDataScope() default "";
 
     /**
      * 备注

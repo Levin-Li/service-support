@@ -12,7 +12,7 @@ import java.util.List;
  * 可以继承
  *
  * @param <T>
- * @author lilw
+ * @author echo
  */
 
 @Schema(title = "服务响应")

@@ -12,7 +12,7 @@ import java.lang.annotation.*;
 
 /**
  *
- * @author lilw
+ * @author echo
  *
  */
 public @interface RefInject {

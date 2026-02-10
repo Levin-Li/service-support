@@ -18,7 +18,7 @@ import static com.levin.commons.rbac.RbacMiscUtils.isAllNull;
 /**
  * 加载服务
  *
- * @author lilw
+ * @author echo
  */
 public interface RbacBaseService extends RbacBaseUserService {
 

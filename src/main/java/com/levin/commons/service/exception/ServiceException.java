@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * <p/>
  * Created by echo on 2015/11/22.
  *
- * @author lilw
+ * @author echo
  */
 @Schema(title = "服务异常")
 public class ServiceException

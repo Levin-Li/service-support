@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 
 
 /**
- * @author lilw
+ * @author echo
  */
 @Inherited
 @Target({ElementType.TYPE, ElementType.METHOD,})
@@ -79,6 +79,18 @@ public @interface ResConditionAction {
      * @return
      */
     int confidentialLevel() default 0;
+
+    /**
+     * 因为注解不允许空值, 所有采用字符串来定义
+     * 数据权限范围, 默认为空表示未定义
+     * 取值范围, 参考枚举类:OrgDataScope
+     * 期望指定部门时, 直接在本属性中填入部门ID,部门ID直接用逗号分隔
+     * eg
+     * Id123,id234,id567
+     *
+     * @return
+     */
+    String orgDataScope() default "";
 
     /**
      * 验证表达式

@@ -13,7 +13,7 @@ import java.util.List;
  * <p>
  * 用于业务变化时调整原有的交互流程
  *
- * @author lilw
+ * @author echo
  */
 @Schema(title = "服务交互")
 public interface Interaction

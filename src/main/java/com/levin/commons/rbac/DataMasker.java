@@ -5,13 +5,13 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.function.Supplier;
 
 /**
- * @author lilw
+ * @author echo
  */
 
 /**
  * 数据脱敏编解码器
  *
- * @author lilw
+ * @author echo
  */
 public interface DataMasker {
 
