@@ -90,4 +90,12 @@ public abstract class RedissonLockUtils {
             return true;
         });
     }
+
+    @SneakyThrows
+    public static Boolean tryLockAndDoTask(final RLock lock, long maxTimeout, Runnable task) {
+        return tryLockAndDoTask(lock, maxTimeout, () -> {
+            task.run();
+            return true;
+        });
+    }
 }
