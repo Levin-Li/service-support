@@ -356,7 +356,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             if (subEle.getKind() != ElementKind.FIELD
                     || modifiers.contains(Modifier.STATIC)
-                    || modifiers.contains(Modifier.TRANSIENT)
+//                    || modifiers.contains(Modifier.TRANSIENT)
                     || modifiers.contains(Modifier.FINAL)) {
                 continue;
             }
