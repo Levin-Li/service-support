@@ -1,11 +1,14 @@
 package com.levin.commons.service.support;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import com.alibaba.fastjson2.*;
 import com.alibaba.fastjson2.writer.ObjectWriterProvider;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 
@@ -16,7 +19,20 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 @Slf4j
+@Accessors(chain = true)
 public class BaseHttpRequestSupport {
+
+    @Setter
+    String baseUrl = "";
+
+    @Setter
+    JSONReader.Feature[] parseFeatures = {JSONReader.Feature.SupportSmartMatch};
+
+    @Setter
+    boolean isUnderlineNaming = false;
+
+    @Setter
+    int connectTimeoutMs = 30 * 1000;
 
     /**
      * 获取请求地址
@@ -24,9 +40,12 @@ public class BaseHttpRequestSupport {
      * @return
      */
     protected String getBaseUrl() {
-        return "";
+        return baseUrl;
     }
 
+    public static Consumer<HttpRequest> newHeadConsumer(Map<String, String> paramMap) {
+        return httpRequest -> paramMap.forEach((k, v) -> httpRequest.header(k, v));
+    }
 
     /**
      * 初始化http请求
@@ -42,15 +61,15 @@ public class BaseHttpRequestSupport {
      * @return
      */
     protected JSONReader.Feature[] getParseFeatures() {
-        return new JSONReader.Feature[]{JSONReader.Feature.SupportSmartMatch};
+        return parseFeatures;
     }
 
     protected int getConnectTimeoutMs() {
-        return 30 * 1000;
+        return connectTimeoutMs;
     }
 
     protected boolean isUnderlineNaming() {
-        return false;
+        return isUnderlineNaming;
     }
 
     public <T> T get(String title, String url, Object requestParam, Type responseType) {
@@ -59,6 +78,10 @@ public class BaseHttpRequestSupport {
 
     public <T> T postJson(String title, String url, Object requestParam, Type responseType) {
         return postJson(title, url, requestParam, responseType, this::initHttpRequest);
+    }
+
+    public <T> T postForm(String title, String url, Object requestParam, Type responseType) {
+        return postForm(title, url, requestParam, responseType, this::initHttpRequest);
     }
 
     public <T> T postMultipart(String title, String url, Object requestParam, Type responseType) {
@@ -153,9 +176,12 @@ public class BaseHttpRequestSupport {
 
         HttpResponse response = httpRequest.execute();
 
+
         String respBody = response.body();
 
         log.info(title + "-响应 URL：{} status:{} 响应结果：{}", httpRequest.getUrl(), response.getStatus(), sampleText(respBody));
+
+        //Assert.isTrue(response.isOk(), "请求失败：" + response.getStatus() + ", " + respBody);
 
         if (responseType == null || responseType == String.class || responseType == CharSequence.class) {
             return (T) respBody;
