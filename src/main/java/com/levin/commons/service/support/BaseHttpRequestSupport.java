@@ -34,6 +34,9 @@ public class BaseHttpRequestSupport {
     @Setter
     int connectTimeoutMs = 30 * 1000;
 
+    @Setter
+    boolean isIgnoreHttpStatusError = false;
+
     /**
      * 获取请求地址
      *
@@ -115,7 +118,7 @@ public class BaseHttpRequestSupport {
      * @param <T>
      * @return
      */
-    public <T> T doHttpRequest(String title, String httpMethod, String url, ContentType contentType, boolean isUnderlineNaming, Object requestParam, Type responseType, Consumer<HttpRequest> requestConsumer) {
+    public <T> T doHttpRequest(String title, String httpMethod, String url, ContentType contentType, boolean isUnderlineNaming, Object requestParam, final Type responseType, Consumer<HttpRequest> requestConsumer) {
 
         if (!url.toLowerCase().startsWith("https://")
                 && !url.toLowerCase().startsWith("http://")) {
@@ -176,12 +179,11 @@ public class BaseHttpRequestSupport {
 
         HttpResponse response = httpRequest.execute();
 
-
-        String respBody = response.body();
+        final String respBody = response.body();
 
         log.info(title + "-响应 URL：{} status:{} 响应结果：{}", httpRequest.getUrl(), response.getStatus(), sampleText(respBody));
 
-        //Assert.isTrue(response.isOk(), "请求失败：" + response.getStatus() + ", " + respBody);
+        Assert.isTrue(isIgnoreHttpStatusError || response.isOk(), title + ", 请求失败：" + response.getStatus() + ", " + sampleText(respBody));
 
         if (responseType == null || responseType == String.class || responseType == CharSequence.class) {
             return (T) respBody;
