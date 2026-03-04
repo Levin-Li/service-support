@@ -5,8 +5,10 @@ import io.swagger.v3.oas.annotations.Operation;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * 可自审对象
@@ -20,11 +22,7 @@ public interface SelfAuditableObject {
 
         final Function<String, Boolean> auditErrorFun = (error) -> {
             if (errorInfoConsumers != null) {
-                for (Consumer<String> errorInfoConsumer : errorInfoConsumers) {
-                    if (errorInfoConsumer == null) {
-                        errorInfoConsumer.accept(error);
-                    }
-                }
+                Stream.of(errorInfoConsumers).filter(Objects::nonNull).forEachOrdered(ec -> ec.accept(error));
             }
             return false;
         };
