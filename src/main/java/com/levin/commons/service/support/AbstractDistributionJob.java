@@ -131,7 +131,7 @@ public abstract class AbstractDistributionJob<T> {
      *
      * @return
      */
-    protected Executor getExecutor() {
+    protected Executor getExecutor(T data) {
         return null;
     }
 
@@ -296,7 +296,7 @@ public abstract class AbstractDistributionJob<T> {
                 }
 
                 //使用执行器
-                Optional.ofNullable(getExecutor())
+                Optional.ofNullable(getExecutor(data))
                         .orElse(Runnable::run)
                         .execute(() ->
                                         //尝试锁定记录，并且处理单条记录
