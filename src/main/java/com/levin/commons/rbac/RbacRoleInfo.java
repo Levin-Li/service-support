@@ -1,7 +1,7 @@
 package com.levin.commons.rbac;
 
 
-import com.levin.commons.dao.domain.MultiTenantObject;
+import com.levin.commons.dao.domain.MultiTenantPublicObject;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -12,7 +12,7 @@ import java.util.Collections;
  *
  * @author echo
  */
-public interface RbacRoleInfo extends RbacCoreObject, MultiTenantObject, DataScopeObject {
+public interface RbacRoleInfo extends RbacCoreObject, MultiTenantPublicObject, DataScopeObject {
 
     String ROLE_PREFIX = "R_";
 

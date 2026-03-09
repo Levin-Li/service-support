@@ -2,6 +2,7 @@ package com.levin.commons.rbac;
 
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
+import com.levin.commons.dao.domain.MultiTenantPublicObject;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.util.StringUtils;
 
@@ -139,27 +140,30 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
 
         RbacUserInfo userInfo = rbacBaseService.loadUser(principal);
 
+
         if (matchErrorConsumer == null) {
             matchErrorConsumer = (permission, reason) -> {
             };
         }
 
-        //不能夸租户管理
-        final boolean isSaasRole = isBlank(role.getTenantId());
+
         final boolean isSaasUser = isBlank(userInfo.getTenantId());
 
-        //是SAAS 角色, 但是用户不是 SAAS用户
-        if (isSaasRole && !isSaasUser) {
-            // matchErrorConsumer.accept(roleCode, "用户不可管理");
-            return false;
+        //如果是租户用户
+        if (!isSaasUser) {
+
+            if (isBlank(role.getTenantId())) {
+                //如果角色是SAAS角色，或不是共享角色，则不能访问
+                if (roleCode.startsWith(RbacRoleInfo.SAAS_ROLE_PREFIX) || !(role instanceof MultiTenantPublicObject)) {
+                    return false;
+                }
+            } else if (!role.getTenantId().equals(userInfo.getTenantId())) {
+                //不能跨租户访问
+                return false;
+            }
         }
 
-        //如果是有租户的角色, 要求用户必须是saas或是同个租户
-        if (!isSaasRole && !(isSaasUser || role.getTenantId().equals(userInfo.getTenantId()))) {
-            // matchErrorConsumer.accept(roleCode, "跨租户校验失败");
-            return false;
-        }
-
+        // 如果是顶级超级管理员
         if (userInfo.isTopSuperAdmin()) {
             return true;
         }
@@ -186,11 +190,6 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         }
 
         if (RbacRoleInfo.SAAS_ADMIN.equals(roleCode)) {
-            return false;
-        }
-
-        //如果角色是SAAS角色，但是当前用户不是SAAS用户，则不能分配
-        if ((roleCode.startsWith(RbacRoleInfo.SAAS_ROLE_PREFIX) || isSaasRole) && !isSaasUser) {
             return false;
         }
 

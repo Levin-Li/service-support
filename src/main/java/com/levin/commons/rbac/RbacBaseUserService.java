@@ -147,7 +147,7 @@ public interface RbacBaseUserService {
 
         ///////////////////////////////////////
         //检查跨租户
-        //不能夸租户管理
+        //不能跨租户管理
         final boolean isSaasTargetUser = RbacMiscUtils.isBlank(targetUserInfo.getTenantId());
         final boolean isOperatorSaasUser = RbacMiscUtils.isBlank(operatorInfo.getTenantId());
 
