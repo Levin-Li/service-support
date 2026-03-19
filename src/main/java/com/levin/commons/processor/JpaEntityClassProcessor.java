@@ -428,10 +428,10 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             fieldMap.put("F_" + fieldName, "\n    String F_" + fieldName + "  = \"F$:" + fieldName + "\"; //用于替换的名称，替换字段" + name + " 对应的数据库列名 \n");
 
-            fieldMap.put("L_" + fieldName, "\n    String L_" + fieldName + "  = " + (fieldDesc.length > 0 && StringUtils.hasText(fieldDesc[0]) ? ("\"" + fieldDesc[0] + "\"") : fieldName) + "; //字段标签，用于字段的业务描述 \n");
+            fieldMap.put("L_" + fieldName, "\n    String L_" + fieldName + "  = " + (fieldDesc.length > 0 && StringUtils.hasText(fieldDesc[0]) ? ("\"" + fieldDesc[0].replace("\n", "\\n").replace("\r", "\\r") + "\"") : fieldName) + "; //字段标签，用于字段的业务描述 \n");
 
             if (fieldDesc.length > 1 && StringUtils.hasText(fieldDesc[1])) {
-                fieldMap.put("D_" + fieldName, "\n    String D_" + fieldName + "  = " + ("\"" + fieldDesc[1] + "\"") + "; //字段描述，用于字段的业务描述 \n");
+                fieldMap.put("D_" + fieldName, "\n    String D_" + fieldName + "  = " + ("\"" + fieldDesc[1].replace("\n", "\\n").replace("\r", "\\r") + "\"") + "; //字段描述，用于字段的业务描述 \n");
             }
 
             boolean isIdAttr = subEle.getAnnotation(Id.class) != null || subEle.getAnnotation(EmbeddedId.class) != null;

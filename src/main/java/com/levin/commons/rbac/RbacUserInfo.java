@@ -3,6 +3,7 @@ package com.levin.commons.rbac;
 
 import com.levin.commons.dao.domain.MultiTenantObject;
 import com.levin.commons.dao.domain.OrganizedObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -15,7 +16,7 @@ import java.util.function.Predicate;
  * 用户基本信息
  */
 public interface RbacUserInfo
-        extends RbacCoreObject, MultiTenantObject, OrganizedObject, DataScopeObject {
+        extends RbacCoreObject, MultiTenantObject, OrganizedObject, DataScope {
 
     /**
      * 超级管理员账号
@@ -111,26 +112,6 @@ public interface RbacUserInfo
     }
 
     /**
-     * 获取对象状态
-     *
-     * @return
-     */
-    @Override
-    default <STATE extends Serializable> STATE getState() {
-        return null;
-    }
-
-    /**
-     * 过期时间
-     *
-     * @return date
-     */
-    @Override
-    default Date getExpiredTime() {
-        return null;
-    }
-
-    /**
      * 是否SAAS用户
      *
      * @return
@@ -211,6 +192,7 @@ public interface RbacUserInfo
      *
      * @return
      */
+    @Schema(title = "角色列表")
     default <ROLE extends Serializable> List<ROLE> getRoleList() {
         return Collections.emptyList();
     }

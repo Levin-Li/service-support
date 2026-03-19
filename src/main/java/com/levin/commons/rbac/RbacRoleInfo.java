@@ -2,6 +2,7 @@ package com.levin.commons.rbac;
 
 
 import com.levin.commons.dao.domain.MultiTenantPublicObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -12,7 +13,7 @@ import java.util.Collections;
  *
  * @author echo
  */
-public interface RbacRoleInfo extends RbacCoreObject, MultiTenantPublicObject, DataScopeObject {
+public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPublicObject {
 
     String ROLE_PREFIX = "R_";
 
@@ -30,42 +31,33 @@ public interface RbacRoleInfo extends RbacCoreObject, MultiTenantPublicObject, D
 
     String ORG_ADMIN_ROLE = ROLE_PREFIX + "ORG_ADMIN";
 
-    /**
-     * 获取租户 ID
-     *
-     * @return
-     */
     @Override
+    @Schema(title = "租户ID")
     default <TID extends Serializable> TID getTenantId() {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * 角色代码
-     *
-     * @return
-     */
+    @Schema(title = "角色代码", description = "以R_开头")
     String getCode();
 
 
-    /**
-     * 获取互斥角色代码列表
-     *
-     * @return
-     */
-    default Collection<String> getMutexCodeList() {
+    @Schema(title = "继承的角色列表", description = "可以使用*?通配符")
+    default Collection<String> getInheritedRoleList() {
         return Collections.emptyList();
     }
 
-    default String getAssignCondition() {
-        return null;
+    @Schema(title = "角色分配的前置条件", description = "是指把角色分配给用户时, 必须先满足的条件, 一般是表达式,如 user.type = '2' ")
+    default String getRoleAssignPreCondition() {
+        return "";
     }
 
-    /**
-     * 获取授权列表
-     *
-     * @return
-     */
+    @Schema(title = "排斥的角色列表", description = "是指把角色分配给用户时,和这个角色不能共存的角色, 可以使用*?通配符")
+    default Collection<String> getExclusiveRoleList() {
+        return Collections.emptyList();
+    }
+
+
+    @Schema(title = "授权列表")
     default Collection<String> getPermissionList() {
         return Collections.emptyList();
     }

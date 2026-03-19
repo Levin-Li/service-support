@@ -2,6 +2,7 @@ package com.levin.commons.rbac;
 
 
 import com.levin.commons.dao.domain.MultiTenantObject;
+import com.levin.commons.dao.domain.TreeObject;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -11,7 +12,7 @@ import java.util.Collection;
  *
  * @author echo
  */
-public interface RbacOrgInfo extends RbacCoreObject, MultiTenantObject {
+public interface RbacOrgInfo extends RbacCoreObject, MultiTenantObject, TreeObject<RbacOrgInfo, RbacOrgInfo> {
 
     /**
      * 获取租户 ID

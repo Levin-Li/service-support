@@ -6,6 +6,7 @@ import java.io.Serializable;
 
 /**
  * 资源许可
+ * @author lilw
  */
 
 public interface Permission {
