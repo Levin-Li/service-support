@@ -3,7 +3,6 @@ package com.levin.commons.rbac;
 import com.levin.commons.annotation.GenNameConstant;
 import com.levin.commons.service.domain.EnumDesc;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
 
 @Schema(title = "机密级别")
 @GenNameConstant

@@ -24,6 +24,7 @@ public interface DataMasker {
      * @param dynamicConfuseInfoSupplier 动态的混淆信息，一般建议根据当前登录用户的信息来动态的生成混淆信息
      * @param <T>
      */
+
     <T> T encode(DataMasking masking, AnnotatedElement annotatedElement, T rawData, Supplier<String> dynamicConfuseInfoSupplier);
 
     /**

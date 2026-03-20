@@ -10,6 +10,7 @@ import java.io.Serializable;
  * @Author levin li
  * @Since 2.2.23
  */
+@FunctionalInterface
 public interface MultiTenantObject {
 
     /**

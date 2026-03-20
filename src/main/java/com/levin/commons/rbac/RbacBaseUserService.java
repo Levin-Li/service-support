@@ -27,7 +27,6 @@ public interface RbacBaseUserService {
     @Operation(summary = "加密密码")
     String encryptUserPwd(String pwd);
 
-
     /**
      * 加载用户
      *
@@ -48,7 +47,6 @@ public interface RbacBaseUserService {
     @Operation(summary = "加载用户", description = "用户对象或是用户ID")
     <U extends RbacUserInfo> U loadUser(Serializable userPrincipal);
 
-
     @Operation(summary = "获取用户的机密数据访问级别", description = "当用户本身没有定义访问级别时,运行成本比较高,尽量不要多次调用")
     default Integer getUserConfidentialDataAccessLevel(Serializable userPrincipal) {
 
@@ -58,6 +56,10 @@ public interface RbacBaseUserService {
         if (loadUser.isTopSuperAdmin()) {
             return Integer.MAX_VALUE;
         }
+
+        //如果用户没有设置机密数据访问级别, 但是角色有机密数据访问级别, 则返回该级别
+        //@todo 获取用户角色的机密数据访问级别, 但是要防止递归
+        //考虑缓存
 
         return loadUser.getConfidentialDataAccessLevel();
     }
@@ -118,7 +120,7 @@ public interface RbacBaseUserService {
      * @param targetUser
      * @return
      */
-    @Operation(summary = "是否能管理指定用户", description = "在不考虑操作权限的情况下")
+    @Operation(summary = "操作者是否能管理指定用户", description = "在不考虑操作权限的情况下")
     default boolean canAdminUser(Serializable operator, Serializable targetUser) {
 
         Assert.notNull(operator, "无操作人");
@@ -165,7 +167,7 @@ public interface RbacBaseUserService {
         /// ///////////////////////////////////////
 
         //3 机密级别不够
-        if (!canAccessConfidentialData(() -> getUserConfidentialDataAccessLevel(operatorInfo), targetUserInfo.getConfidentialLevel())) {
+        if (!canAccessConfidentialDataByUser(operatorInfo, targetUserInfo.getConfidentialLevel())) {
             return false;
         }
 

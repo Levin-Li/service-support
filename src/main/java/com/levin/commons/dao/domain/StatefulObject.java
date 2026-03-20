@@ -8,6 +8,7 @@ import java.io.Serializable;
  *
  * @author llw
  */
+@FunctionalInterface
 public interface StatefulObject {
 
     /**

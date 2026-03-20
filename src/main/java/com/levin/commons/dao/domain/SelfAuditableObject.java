@@ -15,6 +15,7 @@ import java.util.stream.Stream;
  *
  * @author llw
  */
+
 public interface SelfAuditableObject {
 
     @Operation(summary = "自审", description = "通过则放回true, 具体错误信息通过errorInfoConsumers接收")
@@ -43,7 +44,7 @@ public interface SelfAuditableObject {
 
         if (this instanceof LogicDeletableObject && ((LogicDeletableObject) this).isDeleted()) {
             // 不能是逻辑删除的
-            return auditErrorFun.apply("object logic deleted");
+            return auditErrorFun.apply("object already logic deleted");
         }
 
         if (this instanceof ExpiredObject

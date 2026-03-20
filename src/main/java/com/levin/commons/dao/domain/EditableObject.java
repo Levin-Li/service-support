@@ -5,6 +5,7 @@ package com.levin.commons.dao.domain;
  *
  * @author llw
  */
+@FunctionalInterface
 public interface EditableObject {
 
     /**

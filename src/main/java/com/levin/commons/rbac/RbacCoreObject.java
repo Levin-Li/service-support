@@ -3,9 +3,12 @@ package com.levin.commons.rbac;
 
 import com.levin.commons.dao.domain.*;
 import com.levin.commons.service.domain.Identifiable;
+import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.beans.Transient;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * 角色对象
@@ -92,4 +95,14 @@ public interface RbacCoreObject extends Serializable, Identifiable, NamedObject,
     default boolean isEditable() {
         return true;
     }
+
+    /**
+     * 扩展信息
+     *
+     * @return
+     */
+    @Schema(title = "临时扩展信息")
+    @Transient
+    Map<String, Object> getTransientExInfo();
+
 }

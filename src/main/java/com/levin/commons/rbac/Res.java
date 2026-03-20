@@ -22,7 +22,7 @@ public interface Res extends Identifiable {
      *
      * @return
      */
-    @Schema(title = "资源域")
+    @Schema(title = "资源域",description = "资源所属域，通常为子系统，子模块等")
     <T extends Serializable> T getDomain();
 
     /**

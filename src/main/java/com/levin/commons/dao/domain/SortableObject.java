@@ -6,6 +6,7 @@ package com.levin.commons.dao.domain;
  *
  * @author llw
  */
+@FunctionalInterface
 public interface SortableObject extends Comparable<SortableObject> {
 
     /**

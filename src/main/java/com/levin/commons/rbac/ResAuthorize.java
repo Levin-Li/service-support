@@ -3,7 +3,6 @@ package com.levin.commons.rbac;
 import com.levin.commons.annotation.GenNameConstant;
 
 import java.lang.annotation.*;
-import java.util.List;
 
 /**
  * 资源访问验证

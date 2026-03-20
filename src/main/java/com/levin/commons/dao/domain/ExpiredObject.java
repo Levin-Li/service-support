@@ -8,6 +8,7 @@ import java.util.Date;
  *
  * @author llw
  */
+@FunctionalInterface
 public interface ExpiredObject {
 
     /**

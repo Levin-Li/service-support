@@ -2,21 +2,22 @@ package com.levin.commons.rbac;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * 数据范围按2个维度进行处理
  * <p>
  * 1.组织范围
- * 2.数据访问级别
+ * 2.机密数据访问级别
  *
  * @author lilw
  */
+@Schema(title = "数据范围", description = "数据范围按2个维度进行处理, 1.组织范围 2.机密数据访问级别")
 public interface DataScope {
 
     @Schema(title = "组织范围列表")
-    default <ORG_SCOPE extends OrgScope> List<ORG_SCOPE> getOrgScopeList() {
+    default <ORG_SCOPE extends OrgScope> Collection<ORG_SCOPE> getOrgScopeList() {
         return Collections.emptyList();
     }
 

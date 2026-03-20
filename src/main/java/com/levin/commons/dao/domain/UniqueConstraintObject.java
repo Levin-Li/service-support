@@ -3,6 +3,7 @@ package com.levin.commons.dao.domain;
 /**
  * 唯一列对象
  */
+@FunctionalInterface
 public interface UniqueConstraintObject {
 
     /**

@@ -2,7 +2,6 @@ package com.levin.commons.rbac;
 
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
-import com.levin.commons.dao.domain.MultiTenantPublicObject;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.util.StringUtils;
 
@@ -13,7 +12,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.levin.commons.rbac.RbacMiscUtils.*;
+import static com.levin.commons.rbac.RbacMiscUtils.isAllBlank;
+import static com.levin.commons.rbac.RbacMiscUtils.isAllNull;
 
 /**
  * Rbac 授权服务
@@ -51,14 +51,8 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
      */
     RbacBaseService getRbacBaseLoadService();
 
-    /**
-     * 返回错误信息
-     *
-     * @param roles
-     * @return
-     */
-    @Operation(summary = "获取互斥到角色列表", description = "默认返回第一组互斥的角色")
-    default Collection<RbacRoleInfo> getMutexRoleList(Collection<RbacRoleInfo> roles) {
+    @Operation(summary = "找出第一组互斥的角色对", description = "默认返回第一组互斥的角色")
+    default Collection<RbacRoleInfo> findFirstExclusiveRolePair(Collection<RbacRoleInfo> roles) {
 
         if (isAllNull(roles)) {
             return Collections.emptyList();
@@ -69,14 +63,13 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
                 .filter(role -> StrUtil.isNotBlank(role.getCode()))
                 .collect(Collectors.toMap(RbacRoleInfo::getCode, role -> role));
 
-
         for (RbacRoleInfo role : roles) {
 
-            if (role == null || isAllBlank(role.getMutexCodeList())) {
+            if (role == null || (role.getExclusiveRoleList()) == null) {
                 continue;
             }
 
-            RbacRoleInfo mutexRole = role.getMutexCodeList().stream()
+            RbacRoleInfo mutexRole = role.getExclusiveRoleList().stream()
                     .filter(StringUtils::hasText)
                     .map(map::get)
                     .filter(Objects::nonNull)
@@ -140,21 +133,24 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
 
         RbacUserInfo userInfo = rbacBaseService.loadUser(principal);
 
+        // 如果是顶级超级管理员
+        if (userInfo.isTopSuperAdmin()) {
+            return true;
+        }
 
         if (matchErrorConsumer == null) {
             matchErrorConsumer = (permission, reason) -> {
             };
         }
 
-
-        final boolean isSaasUser = isBlank(userInfo.getTenantId());
+        final boolean isSaasUser = userInfo.isSaasUser();
 
         //如果是租户用户
         if (!isSaasUser) {
 
-            if (isBlank(role.getTenantId())) {
-                //如果角色是SAAS角色，或不是共享角色，则不能访问
-                if (roleCode.startsWith(RbacRoleInfo.SAAS_ROLE_PREFIX) || !(role instanceof MultiTenantPublicObject)) {
+            if (role.isPublicRole()) {
+                //如果角色是SAAS角色，则不能访问
+                if (roleCode.startsWith(RbacRoleInfo.SAAS_ROLE_PREFIX)) {
                     return false;
                 }
             } else if (!role.getTenantId().equals(userInfo.getTenantId())) {
@@ -163,14 +159,9 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
             }
         }
 
-        // 如果是顶级超级管理员
-        if (userInfo.isTopSuperAdmin()) {
-            return true;
-        }
-
         principal = userInfo;
 
-        // 检查数据访问级别, 任何用户都检查
+        // 检查数据访问级别, 任何用户都检查, 除了TopSA
         if (!rbacBaseService.canAccessConfidentialDataByUser(userInfo, role.getConfidentialDataAccessLevel())) {
             return false;
         }
@@ -197,6 +188,8 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         if (RbacRoleInfo.ADMIN_ROLE.equals(roleCode) && !(isSaasUser || userInfo.isTenantAdmin())) {
             return false;
         }
+
+        //@todo  还有要检查 当前用户 可访问的数据权限是否大于等于角色的数据权限
 
         //除了sa 和 saas_admin, 其他都要按权限检查
         //接下来开始检查角色的权限列表,比对角色需要的权限列表 和 用户拥有的权限列表
@@ -244,10 +237,12 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
 
         final RbacBaseService rbacBaseService = getRbacBaseLoadService();
         RbacUserInfo userInfo = rbacBaseService.loadUser(principal);
+
         //如果是超级管理员
         if (userInfo.isTopSuperAdmin()) {
             return true;
         }
+
         principal = userInfo;
 
         return isAuthorized(userInfo, rbacBaseService.loadUserRoleCodeList(userInfo), rbacBaseService.loadUserPermissionExprList(userInfo),
@@ -271,20 +266,26 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
                                  boolean isRequireAllPermission, Collection<String> requirePermissionList,
                                  BiConsumer<String/*参数1为请求的权限*/, String/*参数2为错误原因*/> matchErrorConsumer) {
         //如果不需要权限
-        if (isAllBlank(requirePermissionList)) {
+        if (requirePermissionList == null
+                || requirePermissionList.isEmpty()) {
+            return true;
+        }
+
+        //过滤空的权限列表
+        requirePermissionList = requirePermissionList.stream().filter(StringUtils::hasText).collect(Collectors.toList());
+
+        if (requirePermissionList.isEmpty()) {
             return true;
         }
 
         final RbacBaseService rbacBaseService = getRbacBaseLoadService();
         RbacUserInfo userInfo = rbacBaseService.loadUser(principal);
+        principal = userInfo;
+
         //如果是超级管理员
         if (userInfo.isTopSuperAdmin()) {
             return true;
         }
-        principal = userInfo;
-
-        //过滤空的权限列表
-        requirePermissionList = requirePermissionList.stream().filter(StringUtils::hasText).collect(Collectors.toList());
 
         ///////////////////////////////////////////////////////////////
 

@@ -2,6 +2,8 @@ package com.levin.commons.plugin;
 
 import com.levin.commons.rbac.Res;
 import com.levin.commons.service.domain.SimpleIdentifiable;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Collection;
 
@@ -19,6 +21,7 @@ public interface ResLoader {
      *
      * @return
      */
+    @Operation(summary = "插件所有的资源类型", description = "资源类型")
     Collection<SimpleIdentifiable> getResTypes();
 
     /**
@@ -36,6 +39,7 @@ public interface ResLoader {
      * @param loadDeep  加载层级 , -1 表示不限制层级，0 表示只加载自己
      * @return
      */
+    @Schema(title = "获取插件的资源", description = "资源：比如地区资源，用户资源，部门资源，文档资源，栏目资源. 正常需要和权限模块结合处理")
     <R extends Res> Collection<R> getResItems(String resTypeId, int loadDeep);
 
     /**
@@ -47,6 +51,7 @@ public interface ResLoader {
      * @param <R>
      * @return
      */
+    @Schema(title = "获取下级资源列表", description = "获取下级资源列表")
     <R extends Res> Collection<R> getSubItems(String resTypeId, String resId, int loadDeep);
 
 }

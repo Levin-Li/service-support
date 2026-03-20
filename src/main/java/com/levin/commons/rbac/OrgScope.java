@@ -85,6 +85,11 @@ public interface OrgScope extends Serializable {
     }
 
     @Schema(title = "是否是自定义范围")
+    default boolean isCustomScope() {
+        return Scope.Custom.equals(getScope());
+    }
+
+    @Schema(title = "是否是自定义范围")
     default Scope getScope() {
         return Stream.of(Scope.values())
                 .filter(scope -> scope.getScopeExpression().equals(getScopeExpression()))

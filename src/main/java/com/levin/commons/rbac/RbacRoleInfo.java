@@ -37,11 +37,15 @@ public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPubl
         throw new UnsupportedOperationException();
     }
 
-    @Schema(title = "角色代码", description = "以R_开头")
+    @Schema(title = "是否是公共角色", description = "没有归属租户即为公共角色角色")
+    default boolean isPublicRole() {
+        return RbacMiscUtils.isBlank(getTenantId());
+    }
+
+    @Schema(title = "角色编码", description = "以R_开头")
     String getCode();
 
-
-    @Schema(title = "继承的角色列表", description = "可以使用*?通配符")
+    @Schema(title = "继承的角色编码列表", description = "可以使用*?通配符")
     default Collection<String> getInheritedRoleList() {
         return Collections.emptyList();
     }
@@ -51,11 +55,10 @@ public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPubl
         return "";
     }
 
-    @Schema(title = "排斥的角色列表", description = "是指把角色分配给用户时,和这个角色不能共存的角色, 可以使用*?通配符")
+    @Schema(title = "排斥的角色编码列表", description = "是指把角色分配给用户时,和这个角色不能共存的角色, 可以使用*?通配符")
     default Collection<String> getExclusiveRoleList() {
         return Collections.emptyList();
     }
-
 
     @Schema(title = "授权列表")
     default Collection<String> getPermissionList() {

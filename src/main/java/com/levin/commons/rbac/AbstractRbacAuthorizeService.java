@@ -11,6 +11,7 @@ import com.levin.commons.plugin.ResLoader;
 import com.levin.commons.service.domain.Identifiable;
 import com.levin.commons.service.support.ContextHolder;
 import com.levin.commons.utils.ExpressionUtils;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -36,6 +37,7 @@ import static org.springframework.util.StringUtils.*;
  * 逻辑
  */
 @Slf4j
+@Schema(title = "权限验证服务", description = "权限验证的关键实现")
 public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
 
     protected final BiConsumer<String, String> emptyConsumer = (v1, v2) -> {
@@ -170,19 +172,18 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
         RbacBaseService rbacBaseService = getRbacBaseLoadService();
 
         RbacUserInfo user = rbacBaseService.loadUser(principal);
+        principal = user;
 
         if (user.isTopSuperAdmin()) {
             return true;
         }
         //
-        principal = user;
-
         return isAuthorized(
-                principal,
+                user,
                 resPrefix,
                 action,
-                getRbacBaseLoadService().loadUserRoleCodeList(principal),
-                getRbacBaseLoadService().loadUserPermissionExprList(principal),
+                getRbacBaseLoadService().loadUserRoleCodeList(user),
+                getRbacBaseLoadService().loadUserPermissionExprList(user),
                 getAuthorizeContext()
         );
     }
@@ -210,6 +211,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
         if (user.isTopSuperAdmin()) {
             return true;
         }
+
         //
         principal = user;
 
@@ -235,12 +237,11 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
             boolean found = ownerRoleList.contains(requirePermission);
 
             if (!found) {
-                Optional.ofNullable(matchErrorConsumer).orElse(emptyConsumer).accept(requirePermission, requirePermission + " role not authorized ");
+                Optional.ofNullable(matchErrorConsumer).orElse(emptyConsumer).accept(requirePermission, requirePermission + " role not authorized");
             }
 
             //@todo 拆解角色需要的权限，然后匹配权限
             //问题无法获取 角色对应的权限列表，只能匹配失败
-
             return found;
         }
 
@@ -262,9 +263,9 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
             return false;
         }
 
-        Map<String, Object> authorizeContext = getAuthorizeContext();
+        final Map<String, Object> authorizeContext = getAuthorizeContext();
 
-        AtomicBoolean result = new AtomicBoolean(true);
+        final AtomicBoolean result = new AtomicBoolean(true);
 
         for (Map.Entry<String, ResConditionAction> entry : actionMap.entrySet()) {
 
@@ -275,7 +276,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
                 continue;
             }
 
-            if (!isAuthorized(principal, rp.substring(0, rp.lastIndexOf(getPermissionDelimiter())), action, ownerRoleList, ownerPermissionList, authorizeContext)) {
+            if (!isAuthorized(user, rp.substring(0, rp.lastIndexOf(getPermissionDelimiter())), action, ownerRoleList, ownerPermissionList, authorizeContext)) {
                 result.set(false);
                 Optional.ofNullable(matchErrorConsumer).orElse(emptyConsumer).accept(requirePermission, rp);
                 break;
@@ -298,7 +299,8 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
      * @param ownerPermissionList 已经拥有的权限列表
      * @return 是否可以访问指定资源
      */
-    protected boolean isAuthorized(Serializable principal, String resPrefix, ResConditionAction action, Collection<String> ownerRoleList, Collection<String> ownerPermissionList, Map<String, Object>... exprContexts) {
+    @SafeVarargs
+    protected final boolean isAuthorized(Serializable principal, String resPrefix, ResConditionAction action, Collection<String> ownerRoleList, Collection<String> ownerPermissionList, Map<String, Object>... exprContexts) {
 
         if (action.ignored()
                 || action.onlyRequireAuthenticated()) {
@@ -315,6 +317,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
 
         //获取用户数据访问级别
         //如果数据访问级别小于资源访问级别，则不允许访问
+        //@todo 调用这个方法可能导致大量的重复数据操作影响性能
         if (!rbacBaseService.canAccessConfidentialDataByUser(user, action.confidentialLevel())) {
             return false;
         }
@@ -323,10 +326,10 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
             return true;
         }
 
-        Collection<String> requireAnyUserTypes = toList(action.anyUserTypes()).stream().filter(StrUtil::isNotBlank).collect(Collectors.toList());
+        final Collection<String> requireAnyUserTypes = toList(action.anyUserTypes()).stream().filter(StrUtil::isNotBlank).collect(Collectors.toList());
 
         // 判断用户类型
-        Supplier<Boolean> hasAnyUserTypesFun = requireAnyUserTypes.isEmpty() ? null : () -> requireAnyUserTypes.stream().anyMatch(
+        final Supplier<Boolean> hasAnyUserTypesFun = requireAnyUserTypes.isEmpty() ? null : () -> requireAnyUserTypes.stream().anyMatch(
                 uTypePattern -> textPatternMatch(uTypePattern, user.getType())
         );
 
@@ -336,27 +339,25 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
             return false;
         }
 
-
         ///////////////////////////////////////////////////////////////////////////
 
         //生成表达式
         final String requirePermission = String.join(getPermissionDelimiter(), null2Empty(resPrefix), null2Empty(action.action()));
 
         //1、权限检查闭包
-        Supplier<Boolean> hasPermissionFun = isEmptyPermission(requirePermission) ? null : () -> simpleMatch(requirePermission, ownerPermissionList);
+        final Supplier<Boolean> hasPermissionFun = isEmptyPermission(requirePermission) ? null : () -> simpleMatch(requirePermission, ownerPermissionList);
 
         //过滤出符合角色的字符串
-        List<String> requireAnyRoles = toList(action.anyRoles()).stream().filter(StrUtil::isNotBlank).filter(this::isRole).collect(Collectors.toList());
+        final List<String> requireAnyRoles = toList(action.anyRoles()).stream().filter(StrUtil::isNotBlank).filter(this::isRole).collect(Collectors.toList());
 
         //2、角色检查闭包，允许角色匹配表达式
-        Supplier<Boolean> hasAnyRolesFun = requireAnyRoles.isEmpty() ? null : () -> requireAnyRoles.stream().anyMatch(
+        final Supplier<Boolean> hasAnyRolesFun = requireAnyRoles.isEmpty() ? null : () -> requireAnyRoles.stream().anyMatch(
                 rolePattern -> ownerRoleList.stream().filter(this::isRole).anyMatch(ownerRole -> textPatternMatch(rolePattern, ownerRole))
         );
 
-
         //表达式支持
         //3、表达式闭包
-        Supplier<Boolean> expressFun = hasText(action.verifyExpression()) ? () -> (Boolean) ExpressionUtils.evalSpEL(null, action.verifyExpression(),
+        final Supplier<Boolean> expressFun = hasText(action.verifyExpression()) ? () -> (Boolean) ExpressionUtils.evalSpEL(null, action.verifyExpression(),
                 (ctx) -> {
 
                     ctx.setBeanResolver(new BeanFactoryResolver(getContext()));
@@ -375,12 +376,11 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
                 }) : null;
 
         //合并闭包
-        Stream<Supplier<Boolean>> supplierStream = Stream.of(hasAnyRolesFun, hasPermissionFun, expressFun).filter(Objects::nonNull);
+        final Stream<Supplier<Boolean>> supplierStream = Stream.of(hasAnyRolesFun, hasPermissionFun, expressFun).filter(Objects::nonNull);
 
         //执行判断
         return action.isAndMode() ? supplierStream.allMatch(Supplier::get) : supplierStream.anyMatch(Supplier::get);
     }
-
 
     /// ///////////////////////////////
 
