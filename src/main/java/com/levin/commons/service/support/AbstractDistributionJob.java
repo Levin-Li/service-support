@@ -7,7 +7,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -26,7 +28,7 @@ public abstract class AbstractDistributionJob<T> {
 
     private final AtomicBoolean running = new AtomicBoolean(false);
 
-    @Resource
+    @Autowired(required = false)
     @Setter
     RedissonClient redissonClient;
 
@@ -110,11 +112,15 @@ public abstract class AbstractDistributionJob<T> {
         Assert.notNull(task, "not tasks to do");
 
         if (StringUtils.hasText(lockKey)) {
-            return RedissonLockUtils.tryLockAndDoTask(redissonClient.getLock(lockKey), task);
+            return RedissonLockUtils.tryLockAndDoTask(getLock(lockKey), task);
         } else {
             task.run();
             return true;
         }
+    }
+
+    protected RLock getLock(String lockKey) {
+        return redissonClient.getLock(lockKey);
     }
 
     /**
