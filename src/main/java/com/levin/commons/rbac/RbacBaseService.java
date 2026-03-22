@@ -1,6 +1,5 @@
 package com.levin.commons.rbac;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,8 +9,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.levin.commons.rbac.RbacMiscUtils.isAllBlank;
-import static com.levin.commons.rbac.RbacMiscUtils.isAllNull;
+import static com.levin.commons.rbac.RbacMiscUtils.*;
 
 
 /**
@@ -96,6 +94,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param userPrincipal
      * @return
      */
+    @Operation(summary = "是否能访问所有部门", description = "建议子类重新实现")
     default boolean canAccessAllOrg(Serializable userPrincipal) {
 
         RbacUserInfo user = loadUser(userPrincipal);
@@ -111,16 +110,30 @@ public interface RbacBaseService extends RbacBaseUserService {
 
         DataScope userDataScope = getUserDataScope(user);
 
+        if (userDataScope == null
+                || userDataScope.getOrgScopeList() == null
+                || userDataScope.getOrgScopeList().isEmpty()) {
+            return false;
+        }
+
+
         //@todo 获取用户数据权限
-        return userDataScope != null
-                && userDataScope.getOrgScopeList() != null
-                && userDataScope.getOrgScopeList().stream()
+        return userDataScope.getOrgScopeList()
+                .stream()
                 .filter(Objects::nonNull)
-                .anyMatch(orgScope ->
-                        orgScope.isAllOrg()
-                                && orgScope.isAllow()
-                                && orgScope.getScope() == OrgScope.Scope.All
-                )
+
+                //允许所有部门
+                .anyMatch(OrgScope::isAllowAllOrg)
+
+                &&
+
+                //不能有任何拒绝的
+                userDataScope.getOrgScopeList()
+                        .stream()
+                        .filter(Objects::nonNull)
+
+                        //不能有任何拒绝的
+                        .noneMatch(OrgScope::isDeny)
                 ;
     }
 
@@ -133,7 +146,7 @@ public interface RbacBaseService extends RbacBaseUserService {
 
         Map<String, Object> transientExInfo = user.getTransientExInfo();
 
-        //缓存
+        //缓存加载
         SimpleDataScope dataScope = transientExInfo != null ? (SimpleDataScope) transientExInfo.get(DataScope.class.getName()) : null;
 
         if (dataScope != null) {
@@ -142,18 +155,56 @@ public interface RbacBaseService extends RbacBaseUserService {
 
         dataScope = new SimpleDataScope();
 
-        Collection<OrgScope> userOrgScopeList = mergeOrgScopeList(user.getOrgScopeList());
+        //优先使用用户自定义的数据权限
+        dataScope.setConfidentialDataAccessLevel(user.getConfidentialDataAccessLevel());
 
-        if (!userOrgScopeList.isEmpty()) {
-            dataScope.setOrgScopeList(userOrgScopeList);
+        //优先使用用户自定义的组织数据权限
+        dataScope.setOrgScopeList(mergeOrgScopeList(user.getOrgScopeList()));
+
+        //
+        final boolean notUserOrgScope = isAllNull(dataScope.getOrgScopeList());
+
+        if (notUserOrgScope || dataScope.getConfidentialDataAccessLevel() == null) {
+
+            //加载用户的所有角色
+            final List<RbacRoleInfo> roleList = loadUserRoleList(user);
+
+            if (dataScope.getConfidentialDataAccessLevel() == null) {
+
+                OptionalInt max = roleList.stream()
+                        .filter(Objects::nonNull)
+                        .mapToInt(RbacRoleInfo::getConfidentialDataAccessLevel)
+                        .filter(Objects::nonNull)
+                        .max();
+
+                //获取最高权限
+                if (max.isPresent()) {
+                    dataScope.setConfidentialDataAccessLevel(max.getAsInt());
+                }
+            }
+
+            if (notUserOrgScope) {
+
+                dataScope.setOrgScopeList(
+
+                        //合并
+                        mergeOrgScopeList(
+
+                                //角色权限
+                                roleList.stream()
+                                        .filter(Objects::nonNull)
+                                        .map(RbacRoleInfo::getOrgScopeList)
+                                        .filter(Objects::nonNull)
+                                        .flatMap(Collection::stream)
+                                        .collect(Collectors.toList())
+
+                        )
+                );
+            }
+
         }
 
-        //@todo 加载和合并数据权限
-        if (user.getConfidentialDataAccessLevel() != null) {
-            dataScope.setConfidentialDataAccessLevel(user.getConfidentialDataAccessLevel());
-        }
-
-
+        //放入缓存
         if (transientExInfo != null) {
             transientExInfo.put(DataScope.class.getName(), dataScope);
         }
@@ -163,15 +214,71 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
 
+    @Operation(summary = "合并组织权限列表", description = "合并组织权限列表")
     default Collection<OrgScope> mergeOrgScopeList(Collection<OrgScope> orgScopeList) {
 
         if (orgScopeList == null || orgScopeList.isEmpty()) {
             return Collections.emptyList();
         }
 
-        //@todo 合并, 去除重复
+        final List<OrgScope> result = new ArrayList<>(orgScopeList.size());
 
-        return orgScopeList;
+        final Map<String, OrgScope> scopeMap = new HashMap<>();
+
+        boolean hasDeny = false;
+
+        OrgScope allowAllScope = null;
+
+        //用普通循环
+        for (OrgScope scope : orgScopeList) {
+
+            //忽略无效数据
+            if (scope == null
+                    || StrUtil.isBlank(scope.getOrgId())
+                    || StrUtil.isBlank(scope.getScopeExpression())) {
+                continue;
+            }
+
+            final String scopeKey = String.join("_", scope.getOrgId(), "" + scope.isAllow(), scope.getScopeExpression());
+
+            if (scopeMap.containsKey(scopeKey)) {
+                //如果有重复的,则忽略
+                continue;
+            }
+            //添加
+            scopeMap.put(scopeKey, scope);
+
+            if (scope.isDeny()) {
+
+                hasDeny = true;
+
+                if (scope.isDenyAllOrg()) {
+
+                    //拒绝所有部门, 则忽略其他
+                    result.clear();
+                    result.add(scope);
+
+                    break;
+                }
+
+            } else if (scope.isAllowAllOrg()) {
+
+                allowAllScope = scope;
+
+            }
+
+            result.add(scope);
+
+        }// 循环结束
+
+        //如果没有拒绝的, 有允许所有的, 则忽略其他
+        if (!hasDeny && allowAllScope != null) {
+            result.clear();
+            result.add(allowAllScope);
+        }
+
+
+        return result;
     }
 
 

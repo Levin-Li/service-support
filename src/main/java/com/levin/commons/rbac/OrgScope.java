@@ -7,6 +7,7 @@ import com.levin.commons.service.domain.EnumDesc;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.stream.Stream;
 
@@ -18,7 +19,7 @@ import java.util.stream.Stream;
 @GenNameConstant
 public interface OrgScope extends Serializable {
 
-    String ALL_ORG = "_ALL_ORG_";
+    String ALL_ROOT_ORG = "_ALL_ROOT_ORG_";
 
     String USER_ORG = "_USER_ORG_";
 
@@ -60,24 +61,35 @@ public interface OrgScope extends Serializable {
     /**
      * 所有组织
      */
-    @Schema(title = "是否所有组织", description = "所有组织")
-    default boolean isAllOrg() {
-        return ALL_ORG.equalsIgnoreCase(StrUtil.nullToEmpty(getOrgId()).trim());
+    @Schema(title = "是否所有根组织", description = "所有根组织")
+    default boolean isAllRootOrg() {
+        return ALL_ROOT_ORG.equalsIgnoreCase(StrUtil.nullToEmpty(getOrgId()).trim());
     }
 
     /**
      * 是否是用户的所在的部门
      */
-    @Schema(title = "是否用户的组织", description = "是否用户的组织")
+    @Schema(title = "是否用户的默认组织", description = "是否用户的默认组织")
     default boolean isUserOrg() {
         return USER_ORG.equalsIgnoreCase(StrUtil.nullToEmpty(getOrgId()).trim());
     }
 
+    @NotBlank
     @Schema(title = "组织标识", description = "有3种情况, _ALL_ORG_, _USER_ORG_ 和具体的组织Id")
     String getOrgId();
 
     @Schema(title = "是否允许访问", description = "true: 允许, false: 拒绝")
     boolean isAllow();
+
+    @Schema(title = "是否允许所有组织", description = "true: 允许, false: 拒绝")
+    default boolean isAllowAllOrg() {
+        return isAllow() && isAllRootOrg() && getScope() == Scope.All;
+    }
+
+    @Schema(title = "是否拒绝所有组织", description = "true: 拒绝, false: 允许")
+    default boolean isDenyAllOrg() {
+        return isDeny() && isAllRootOrg() && getScope() == Scope.All;
+    }
 
     @Schema(title = "是否拒绝访问")
     default boolean isDeny() {
@@ -97,6 +109,7 @@ public interface OrgScope extends Serializable {
                 .orElse(Scope.Custom);
     }
 
+    @NotBlank
     @Schema(title = "范围表达式", description = "Ant path 或是 Groovy 脚本")
     String getScopeExpression();
 

@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -26,8 +27,9 @@ public abstract class AbstractDistributionJob<T> {
 
     private final AtomicBoolean running = new AtomicBoolean(false);
 
-    @Resource
+    //@Resource
     @Setter
+    @Autowired(required = false)
     RedissonClient redissonClient;
 
     /**
@@ -110,6 +112,9 @@ public abstract class AbstractDistributionJob<T> {
         Assert.notNull(task, "not tasks to do");
 
         if (StringUtils.hasText(lockKey)) {
+
+            Assert.notNull(redissonClient, "redissonClient is null");
+
             return RedissonLockUtils.tryLockAndDoTask(redissonClient.getLock(lockKey), task);
         } else {
             task.run();
