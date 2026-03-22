@@ -14,7 +14,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -30,7 +29,7 @@ public abstract class AbstractDistributionJob<T> {
 
     @Autowired(required = false)
     @Setter
-    RedissonClient redissonClient;
+    protected RedissonClient redissonClient;
 
     /**
      * 是否单机模式，默认为分布式模式
@@ -112,14 +111,14 @@ public abstract class AbstractDistributionJob<T> {
         Assert.notNull(task, "not tasks to do");
 
         if (StringUtils.hasText(lockKey)) {
-            return RedissonLockUtils.tryLockAndDoTask(getLock(lockKey), task);
+            return RedissonLockUtils.tryLockAndDoTask(getRedissonLock(lockKey), task);
         } else {
             task.run();
             return true;
         }
     }
 
-    protected RLock getLock(String lockKey) {
+    protected RLock getRedissonLock(String lockKey) {
         return redissonClient.getLock(lockKey);
     }
 
