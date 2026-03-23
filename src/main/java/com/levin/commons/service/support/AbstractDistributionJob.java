@@ -28,10 +28,9 @@ public abstract class AbstractDistributionJob<T> {
 
     private final AtomicBoolean running = new AtomicBoolean(false);
 
-    //@Resource
-    @Setter
     @Autowired(required = false)
-    RedissonClient redissonClient;
+    @Setter
+    protected RedissonClient redissonClient;
 
     /**
      * 是否单机模式，默认为分布式模式
@@ -113,14 +112,14 @@ public abstract class AbstractDistributionJob<T> {
         Assert.notNull(task, "not tasks to do");
 
         if (StringUtils.hasText(lockKey)) {
-            return RedissonLockUtils.tryLockAndDoTask(getLock(lockKey), task);
+            return RedissonLockUtils.tryLockAndDoTask(getRedissonLock(lockKey), task);
         } else {
             task.run();
             return true;
         }
     }
 
-    protected RLock getLock(String lockKey) {
+    protected RLock getRedissonLock(String lockKey) {
         return redissonClient.getLock(lockKey);
     }
 

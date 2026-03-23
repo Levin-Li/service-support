@@ -54,30 +54,6 @@ public interface RbacBaseService extends RbacBaseUserService {
     <ORG extends RbacOrgInfo> ORG loadOrg(Serializable orgPrincipal);
 
     /**
-     * 加载直接下级组织
-     *
-     * @param tenantId
-     * @param orgPrincipal id 或是 RbacOrgInfo
-     * @return
-     */
-    @Operation(summary = "加载直接下级组织", description = "orgPrincipal 参数可以是orgId 或是 RbacOrgInfo")
-    default <ORG extends RbacOrgInfo> List<ORG> loadOrgChildren(Serializable tenantId, Serializable orgPrincipal) {
-
-        Assert.isTrue(RbacMiscUtils.isNotBlank(orgPrincipal), "父节点不能为空");
-
-        if (orgPrincipal instanceof RbacOrgInfo) {
-            orgPrincipal = ((RbacOrgInfo) orgPrincipal).getId();
-        }
-
-        Serializable orgId = orgPrincipal;
-
-        //获取所有部门
-        return (List<ORG>) loadTenantOrgList(tenantId, true).stream()
-                .filter(o -> orgId.equals(o.getParentId()))
-                .collect(Collectors.toList());
-    }
-
-    /**
      * 加载租户的部门列表
      * tenantId 为 null 时加载公共部门
      * 部门太多时，会导致性能问题
@@ -87,6 +63,18 @@ public interface RbacBaseService extends RbacBaseUserService {
      */
     @Operation(summary = "加载租户的部门列表", description = "tenantId 为 null 时加载公共部门, onlyEffectOrg 可以指定是否只加载有效组织")
     <ORG extends RbacOrgInfo> List<ORG> loadTenantOrgList(Serializable tenantId, boolean onlyLoadEffectOrg);
+
+    /**
+     * 加载当前用户有权限访问的部门列表
+     *
+     * @param userPrincipal
+     * @param assembleTree
+     * @param rootIdList    指定部分的根节点ID
+     * @return 部门信息集合，可能是树形结构
+     */
+    @Operation(summary = "加载当前用户有权限访问的部门列表", description = "assembleTree 为 true 时返回树形结构")
+    <ORG extends RbacOrgInfo> List<ORG> loadUserOrgList(Serializable userPrincipal, boolean assembleTree, String... rootIdList);
+
 
     /**
      * 是否能访问所有部门
@@ -281,6 +269,29 @@ public interface RbacBaseService extends RbacBaseUserService {
         return result;
     }
 
+    /**
+     * 加载直接下级组织
+     *
+     * @param tenantId
+     * @param orgPrincipal id 或是 RbacOrgInfo
+     * @return
+     */
+    @Operation(summary = "加载直接下级组织", description = "orgPrincipal 参数可以是orgId 或是 RbacOrgInfo")
+    default <ORG extends RbacOrgInfo> List<ORG> loadOrgChildren(Serializable tenantId, Serializable orgPrincipal) {
+
+        Assert.isTrue(RbacMiscUtils.isNotBlank(orgPrincipal), "父节点不能为空");
+
+        if (orgPrincipal instanceof RbacOrgInfo) {
+            orgPrincipal = ((RbacOrgInfo) orgPrincipal).getId();
+        }
+
+        Serializable orgId = orgPrincipal;
+
+        //获取所有部门
+        return (List<ORG>) loadTenantOrgList(tenantId, true).stream()
+                .filter(o -> orgId.equals(o.getParentId()))
+                .collect(Collectors.toList());
+    }
 
     /**
      * 加载所有父部门
@@ -359,16 +370,6 @@ public interface RbacBaseService extends RbacBaseUserService {
         return parentList;
     }
 
-    /**
-     * 加载当前用户有权限访问的部门列表
-     *
-     * @param userPrincipal
-     * @param assembleTree
-     * @param rootIdList    指定部分的根节点ID
-     * @return 部门信息集合，可能是树形结构
-     */
-    @Operation(summary = "加载当前用户有权限访问的部门列表", description = "assembleTree 为 true 时返回树形结构")
-    <ORG extends RbacOrgInfo> List<ORG> loadUserOrgList(Serializable userPrincipal, boolean assembleTree, String... rootIdList);
 
     /**
      * 校验用户是否是否可以访问机构
@@ -483,7 +484,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param onlyLoadEffectRole 是否只加载有效角色 ,否则加载所有角色
      * @return
      */
-    @Operation(summary = "加载租户的角色列表", description = "onlyLoadEffectRole 是否只加载有效角色 ,否则加载所有角色")
+    @Operation(summary = "加载租户的角色列表", description = "同时也会加载公共角色, onlyLoadEffectRole 是否只加载有效角色, 否则加载所有角色")
     <R extends RbacRoleInfo> Collection<R> loadTenantRoleList(Serializable tenantId, boolean onlyLoadEffectRole);
 
     /**
@@ -493,10 +494,15 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param roleCodeList
      * @return
      */
-    @Operation(summary = "根据角色代码加载角色列表", description = "不管角色是否处于有效状态")
-    default <R extends RbacRoleInfo> Collection<R> loadTenantRoleListByCodes(Serializable tenantId, Collection<String> roleCodeList) {
+    @Operation(summary = "根据角色代码加载角色列表", description = "不管角色是否处于有效状态,公共角色会并存")
+    default <R extends RbacRoleInfo> Collection<R> loadTenantRoleListByCodes(final Serializable tenantId, Collection<String> roleCodeList) {
         return (Collection<R>) loadTenantRoleList(tenantId, false)
                 .stream()
+
+                // 过滤租户
+                .filter(r -> RbacMiscUtils.isBlank(tenantId) ? RbacMiscUtils.isBlank(r.getTenantId()) : tenantId.equals(r.getTenantId()))
+
+                //
                 .filter(r -> roleCodeList.contains(r.getCode()))
                 .collect(Collectors.toSet());
     }
@@ -520,7 +526,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         }
 
         //获取租户的角色列表
-        Collection<RbacRoleInfo> roleList = loadTenantRoleList(user.getTenantId(), onlyLoadEffectRole);
+        final Collection<RbacRoleInfo> roleList = loadTenantRoleList(user.getTenantId(), onlyLoadEffectRole);
 
         if (isAllNull(roleList)) {
             return Collections.emptyList();
@@ -572,14 +578,15 @@ public interface RbacBaseService extends RbacBaseUserService {
         }
 
         return loadTenantRoleList(tenantId, false)
-                .stream().filter(Objects::nonNull)
+                .stream()
+                .filter(Objects::nonNull)
                 .filter(r -> r.getPermissionList() != null)
                 //过滤出指定的角色
                 .filter(r -> roleCodeList.contains(r.getCode()))
 
                 .flatMap(r -> r.getPermissionList().stream())
 
-                .filter(RbacMiscUtils::isNotBlank)
+                .filter(StrUtil::isNotBlank)
 
                 //去重
                 //  .distinct()
@@ -600,11 +607,13 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @return
      */
     default Collection<String> loadUserRoleCodeList(Serializable userPrincipal) {
+
         return loadUserRoleList(userPrincipal).stream()
                 .filter(Objects::nonNull)
                 .map(RbacRoleInfo::getCode)
-                .filter(RbacMiscUtils::isNotBlank)
-                .collect(Collectors.toList());
+                .filter(StrUtil::isNotBlank)
+
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -614,15 +623,20 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @return
      */
     default Collection<String> loadUserPermissionExprList(Serializable userPrincipal) {
+
         return loadUserRoleList(userPrincipal).stream()
                 .filter(Objects::nonNull)
+
                 .map(RbacRoleInfo::getPermissionList)
                 .filter(Objects::nonNull)
+
                 .flatMap(Collection::stream)
                 .filter(Objects::nonNull)
+
                 .map(Object::toString)
-                .filter(RbacMiscUtils::isNotBlank)
-                .collect(Collectors.toList());
+                .filter(StrUtil::isNotBlank)
+
+                .collect(Collectors.toSet());
     }
 
 }
