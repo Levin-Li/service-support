@@ -176,6 +176,7 @@ public abstract class AbstractDistributionJob<T> {
      *
      * @return
      */
+    @Deprecated
     protected boolean isTerminateOnException() {
         return false;
     }
@@ -263,6 +264,26 @@ public abstract class AbstractDistributionJob<T> {
         return data.toString();
     }
 
+    protected void onLockFail(T data, String dataLockKey) {
+        if (log.isDebugEnabled()) {
+            log.debug("[ {} ] 第[ {} ] 单条数据<<<{}>>>无法获取锁({})，忽略处理。", getName(), counter.get(), getDataDesc(data), dataLockKey);
+        }
+    }
+
+    /**
+     * 单条数据处理发生异常时
+     *
+     * @param data
+     * @param e
+     * @return 是否继续处理下一条数据
+     */
+    protected boolean onDataException(T data, Throwable e) {
+
+        log.error(getName() + "处理单条数据<<<" + getDataDesc(data) + ">>>时发生异常，" + e.getMessage(), e);
+
+        return isTerminateOnException();
+    }
+
     /**
      * 按指定的批大小执行任务
      *
@@ -309,30 +330,32 @@ public abstract class AbstractDistributionJob<T> {
                         .execute(() ->
                                         //尝试锁定记录，并且处理单条记录
                                 {
-                                    boolean hasLock = tryLockAndDoTask(getDataLockKey(data), () -> {
-                                        try {
+                                    final String dataLockKey = getDataLockKey(data);
 
+                                    final boolean hasLock = tryLockAndDoTask(dataLockKey, () -> {
+                                        try {
                                             //执行
                                             isStop.set(!processData(data));
 
                                             if (isStop.get()) {
                                                 log.info("[ {} ] 第[ {} ] 单条数据<<<{}>>> 后续主动终止任务执行。", getName(), counter.get(), getDataDesc(data));
                                             }
-                                        } catch (Exception e) {
-                                            isStop.set(isTerminateOnException());
-                                            log.error(getName() + "处理单条数据<<<" + getDataDesc(data) + ">>>时发生异常，" + e.getMessage(), e);
-                                        } finally {
+                                        } catch (Throwable e) {
+                                            isStop.set(onDataException(data, e));
                                         }
-                                        autoControlCpuUsage();
 
                                     });
 
-                                    if (!hasLock
-                                            && log.isDebugEnabled()) {
-                                        log.debug("[ {} ] 第[ {} ] 单条数据<<<{}>>>无法获取锁，忽略处理。", getName(), counter.get(), getDataDesc(data));
+                                    //没有获取锁
+                                    if (!hasLock) {
+                                        onLockFail(data, dataLockKey);
                                     }
+
                                 }
                         );
+
+                //控制CPU使用率
+                autoControlCpuUsage();
 
                 try {
                     //防止过快处理，占满CPU
@@ -370,6 +393,5 @@ public abstract class AbstractDistributionJob<T> {
 
         log.info("[ {} ] 第[ {} ]次批任务执行完成。", getName(), counter.get());
     }
-
 
 }
