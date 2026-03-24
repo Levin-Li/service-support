@@ -217,7 +217,7 @@ public class ProxyBeanScanAndRegistrar
             packagesToScan.add(ClassUtils.getPackageName(basePackageClass));
         }
 
-        if (!packagesToScan.isEmpty()) {
+        if (packagesToScan.isEmpty()) {
             //如果没有指定，就默认加入被注解所在的包
             String packageName = ClassUtils.getPackageName(metadata.getClassName());
             if (StringUtils.hasText(packageName)) {

@@ -237,7 +237,8 @@ public class SpringCacheResolver implements CacheService, CacheResolver, Initial
              */
             @Override
             public <T> T get(String key) {
-                return (T) springCache.get(key).get();
+                Cache.ValueWrapper valueWrapper = springCache.get(key);
+                return valueWrapper != null ? (T) valueWrapper.get() : null;
             }
 
             /**

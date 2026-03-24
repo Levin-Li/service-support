@@ -1,7 +1,6 @@
 package com.levin.commons.service.support;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -70,7 +69,7 @@ public class DefaultVariableResolverManager
     @Override
     public List<VariableResolver> getVariableResolvers() {
 
-        var result = new ArrayList<VariableResolver>(defaultVariableResolvers.size() + 7);
+        List<VariableResolver> result = new ArrayList<>(defaultVariableResolvers.size() + 7);
 
         List<VariableResolver> tempThreadLocalVariableResolvers = threadLocalHolder.get();
 

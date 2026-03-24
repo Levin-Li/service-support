@@ -32,6 +32,7 @@ public class DefaultSignatureReq implements SignReq {
     private static final long serialVersionUID = -944707546677849710L;
 
     @Schema(title = "请求标识", description = "请求标识，用于跟踪请求，便于调试")
+    @Builder.Default
     String traceId = UUID.randomUUID().toString().replace("-", "");
 
     @Schema(title = "应用标识")

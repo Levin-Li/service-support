@@ -58,6 +58,10 @@ class SimpleVariableInjectorTest {
 
         Org org;
 
+        public boolean getIsAdmin() {
+            return isAdmin;
+        }
+
     }
 
 

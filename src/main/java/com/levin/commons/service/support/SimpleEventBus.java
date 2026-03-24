@@ -72,55 +72,60 @@ public class SimpleEventBus implements EventBus {
 
     public void wake() {
 
-        //如果已经在工作，则退出
-        if (working.get()) {
+        //如果已经在工作，则退出；CAS 防止并发下重复启动工作线程
+        if (!working.compareAndSet(false, true)) {
             return;
         }
 
-        executor.execute(() -> {
+        try {
+            executor.execute(() -> {
 
-            log.info("事件总线工作中...");
+                log.info("事件总线工作中...");
 
-            try {
-                working.set(true);
+                try {
 
-                while (!Thread.currentThread().isInterrupted()) {
+                    while (!Thread.currentThread().isInterrupted()) {
 
-                    Event event = null;
+                        Event event = null;
 
-                    try {
-                        event = eventQueue.poll(30, TimeUnit.MILLISECONDS);
-                    } catch (InterruptedException e) {
-                        break;
+                        try {
+                            event = eventQueue.poll(30, TimeUnit.MILLISECONDS);
+                        } catch (InterruptedException e) {
+                            break;
+                        }
+
+                        if (event == null) {
+                            //没有事件，退出线程
+                            // working.set(false);
+                            //  return;
+                        } else {
+
+                            //异步处理事件
+                            processEvent(event);
+                        }
                     }
 
-                    if (event == null) {
-                        //没有事件，退出线程
-                        // working.set(false);
-                        //  return;
-                    } else {
+                    //如果线程被中断，停止工作，则清除所有的数据
+                    stop.set(true);
 
-                        //异步处理事件
-                        processEvent(event);
-                    }
+                    //清除所有的数据
+                    //eventQueue.clear();
 
+                } catch (Exception e) {
+                    log.error("事件总线处理事件异常", e);
+                } finally {
+                    working.set(false);
                 }
 
-                //如果线程被中断，停止工作，则清除所有的数据
-                stop.set(true);
+                log.info("事件总线停止");
 
-                //清除所有的数据
-                //eventQueue.clear();
+            });
+        } catch (RuntimeException ex) {
+            //线程提交失败时，允许后续再次唤醒
+            working.set(false);
+            throw ex;
+        }
 
-            } catch (Exception e) {
-                log.error("事件总线处理事件异常", e);
-            } finally {
-                working.set(false);
-            }
-
-            log.info("事件总线停止");
-
-        });
     }
 
     protected void processEvent(Event event) {
