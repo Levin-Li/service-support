@@ -14,7 +14,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -82,7 +81,10 @@ public abstract class AbstractDistributionJob<T> {
                 if (standalone) {
                     batchProcess(timeoutMs, runOnce, batchSize);
                 } else {
-                    tryLockAndDoTask(getJobLockKey(), () -> batchProcess(timeoutMs, runOnce, batchSize));
+                    boolean hasLock = tryLockAndDoTask(getJobLockKey(), () -> batchProcess(timeoutMs, runOnce, batchSize));
+                    if (!hasLock) {
+                        log.info("任务[ {} ]未获得执行锁[{}]，将等待下次执行.", getName(), getJobLockKey());
+                    }
                 }
             } finally {
                 setThreadName(threadName);
@@ -112,7 +114,7 @@ public abstract class AbstractDistributionJob<T> {
         Assert.notNull(task, "not tasks to do");
 
         if (StringUtils.hasText(lockKey)) {
-            return RedissonLockUtils.tryLockAndDoTask(getRedissonLock(lockKey), task);
+            return Boolean.TRUE.equals(RedissonLockUtils.tryLockAndDoTask(getRedissonLock(lockKey), task));
         } else {
             task.run();
             return true;
