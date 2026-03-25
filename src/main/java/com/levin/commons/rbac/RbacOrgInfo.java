@@ -2,7 +2,6 @@ package com.levin.commons.rbac;
 
 
 import com.levin.commons.dao.domain.MultiTenantObject;
-import com.levin.commons.dao.domain.TreeObject;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -12,17 +11,7 @@ import java.util.Collection;
  *
  * @author echo
  */
-public interface RbacOrgInfo extends RbacCoreObject, MultiTenantObject, TreeObject<RbacOrgInfo, RbacOrgInfo> {
-
-    /**
-     * 获取租户 ID
-     *
-     * @return
-     */
-    @Override
-    default <TID extends Serializable> TID getTenantId() {
-        throw new UnsupportedOperationException();
-    }
+public interface RbacOrgInfo extends RbacCoreObject, MultiTenantObject {
 
     /**
      * 获取父级ID
@@ -30,7 +19,7 @@ public interface RbacOrgInfo extends RbacCoreObject, MultiTenantObject, TreeObje
      * @return
      */
     default <ID extends Serializable> ID getParentId() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**

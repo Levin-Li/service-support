@@ -103,6 +103,8 @@ public interface RbacCoreObject extends Serializable, Identifiable, NamedObject,
      */
     @Schema(title = "临时扩展信息")
     @Transient
-    Map<String, Object> getTransientExInfo();
+    default Map<String, Object> getTransientExInfo() {
+        return null;
+    }
 
 }
