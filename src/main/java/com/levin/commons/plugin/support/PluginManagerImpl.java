@@ -22,7 +22,7 @@ import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

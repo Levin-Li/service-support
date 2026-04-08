@@ -2,9 +2,9 @@ package com.levin.commons.utils;
 
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
-import org.springframework.util.Base64Utils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 public abstract class DataMaskingUtils {
 
@@ -81,7 +81,7 @@ public abstract class DataMaskingUtils {
             i++;
         }
 
-        return Base64Utils.encodeToUrlSafeString(result.toString().getBytes(StandardCharsets.UTF_8));
+        return Base64.getUrlEncoder().encodeToString(result.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -108,7 +108,7 @@ public abstract class DataMaskingUtils {
             return data;
         }
 
-        data = new String(Base64Utils.decodeFromUrlSafeString(data), StandardCharsets.UTF_8);
+        data = new String(Base64.getUrlDecoder().decode(data), StandardCharsets.UTF_8);
 
         StringBuilder result = new StringBuilder();
 

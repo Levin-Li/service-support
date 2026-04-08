@@ -153,6 +153,7 @@ public class GenNameConstantProcessor extends AbstractProcessor {
             boolean isRootParent = newSuperFullClassName.trim().length() < 1
                     || newSuperFullClassName.startsWith("java.")
                     || newSuperFullClassName.startsWith("javax.")
+                    || newSuperFullClassName.startsWith("jakarta.")
                     || newSuperFullClassName.equals(Object.class.getName());
 
             final StringBuilder codeBlock = new StringBuilder();

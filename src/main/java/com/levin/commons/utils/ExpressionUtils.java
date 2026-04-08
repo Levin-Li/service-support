@@ -14,7 +14,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.scripting.groovy.GroovyScriptEvaluator;
 import org.springframework.scripting.support.StaticScriptSource;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -76,7 +76,7 @@ public abstract class ExpressionUtils {
     public static <T> T evalGroovy(@NotNull Map<String, Class<Object>> cacheMap, @Nullable Supplier<GroovyClassLoader> groovyClassLoaderSupplier,
                                    @NotNull String scriptText, @NotNull String fileName, Map<String, Object>... contexts) {
 
-        Class<Object> scriptClass = cacheMap.get(scriptText);
+        Class<?> scriptClass = cacheMap.get(scriptText);
 
         if (scriptClass == null) {
 
@@ -85,7 +85,7 @@ public abstract class ExpressionUtils {
             //编译脚本，生成类定义
             scriptClass = groovyClassLoader.parseClass(scriptText, fileName);
 
-            cacheMap.put(scriptText, scriptClass);
+            cacheMap.put(scriptText, (Class<Object>) scriptClass);
         }
 
         if (Script.class.isAssignableFrom(scriptClass)) {
@@ -102,7 +102,7 @@ public abstract class ExpressionUtils {
 
             Binding context = new Binding(tempCtx);
 
-            return (T) InvokerHelper.newScript(scriptClass, context).run();
+            return (T) InvokerHelper.newScript(scriptClass.asSubclass(Script.class), context).run();
 
         } else {
             throw new UnsupportedOperationException("不支持的脚本");

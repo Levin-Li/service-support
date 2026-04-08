@@ -765,7 +765,7 @@ public class SimpleTypeParser {
 //
 //                if (validationAnnos.size() > 0) {
 //
-//                    String info = ("" + validationAnnos).replace("javax.validation.constraints.", "");
+//                    String info = ("" + validationAnnos).replace("jakarta.validation.constraints.", "");
 //
 //                    buf.append("   /* 校验规则：").append(info).append(" */");
 //                }
@@ -826,7 +826,7 @@ public class SimpleTypeParser {
 
         if (annotations != null) {
             for (Annotation annotation : annotationList) {
-                if (annotation.annotationType().getName().startsWith("javax.validation.constraints.")) {
+                if (annotation.annotationType().getName().startsWith("jakarta.validation.constraints.")) {
                     annotationList.add(annotation);
                 }
             }

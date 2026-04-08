@@ -4,7 +4,7 @@ package com.levin.commons.rbac;
 import cn.hutool.core.lang.Assert;
 import io.swagger.v3.oas.annotations.Operation;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.function.BiConsumer;

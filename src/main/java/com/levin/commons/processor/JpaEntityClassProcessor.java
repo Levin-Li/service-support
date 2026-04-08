@@ -17,7 +17,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-@SupportedAnnotationTypes({"javax.persistence.MappedSuperclass", "javax.persistence.Entity"})
+@SupportedAnnotationTypes({"jakarta.persistence.MappedSuperclass", "jakarta.persistence.Entity"})
 //@SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class JpaEntityClassProcessor extends AbstractProcessor {
 
@@ -170,6 +170,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
             boolean hasParent = newSuperFullClassName.trim().length() > 0
                     && !newSuperFullClassName.startsWith("java.")
                     && !newSuperFullClassName.startsWith("javax.")
+                    && !newSuperFullClassName.startsWith("jakarta.")
                     && !newSuperFullClassName.equals(Object.class.getName());
 
 

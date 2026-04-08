@@ -17,7 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
