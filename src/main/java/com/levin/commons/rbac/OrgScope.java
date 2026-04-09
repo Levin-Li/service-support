@@ -37,7 +37,7 @@ public interface OrgScope extends Serializable {
         @Schema(title = "本节点及直接子节点", description = "本部门及所有下级部门")
         SelfAndDirectChild("/*"),
 
-        @Schema(title = "全部子部门", description = "所有下级部门")
+        @Schema(title = "全部子节点", description = "所有下级部门")
         All("/**"),
 
         @Schema(title = "自定义", description = "可以是其他自定义规则, 如 /**/*部门/, 或是Groovy脚本")
