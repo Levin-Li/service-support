@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-@SupportedAnnotationTypes({"jakarta.persistence.MappedSuperclass", "jakarta.persistence.Entity"})
+@SupportedAnnotationTypes({"jakarta.persistence.MappedSuperclass", "jakarta.persistence.Entity","javax.persistence.MappedSuperclass", "javax.persistence.Entity"})
 //@SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class JpaEntityClassProcessor extends AbstractProcessor {
 
