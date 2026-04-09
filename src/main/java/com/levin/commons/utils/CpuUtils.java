@@ -49,8 +49,7 @@ public class CpuUtils {
 
             lastCollectTime = System.currentTimeMillis();
 
-            // 获取系统范围的cpu负载技计数
-//            long[] prevTicks = processor.getSystemCpuLoadTicks();
+            long[] prevTicks = processor.getSystemCpuLoadTicks();
 
             try {
                 Thread.sleep(collectInterval);
@@ -58,9 +57,7 @@ public class CpuUtils {
                 return lastCollectValue;
             }
 
-            //  long[] ticks = processor.getSystemCpuLoadTicks();
-
-            lastCollectValue = (int) (processor.getSystemCpuLoadBetweenTicks() * 100);
+            lastCollectValue = (int) (processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100);
         }
 
         return lastCollectValue;
