@@ -425,7 +425,7 @@ public abstract class RbacUtils {
                 //@todo 设置权限
 
                 //设置默认权限
-                menuRes.setRequireAuthorizations(permission == null ? null : JsonStrArrayUtils.toStrArrayJson(permission))
+                menuRes.setRequireAuthorizations(permission == null ? null : Arrays.asList(permission.toString()))
                         .setDomain(packageName)
                         //设置路径
                         .setPath(Arrays.asList(mapping != null ? mapping.path() : new String[0]).stream().filter(StringUtils::hasText).findFirst().orElse(defaultName))
