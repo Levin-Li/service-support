@@ -1,6 +1,8 @@
 package com.levin.commons.rbac;
 
 
+import java.util.List;
+
 /**
  * 授权对象
  *
@@ -16,7 +18,7 @@ public interface AuthorizedObject {
      *
      * @return
      */
-    default String getRequireAuthorizations() {
+    default List<String> getRequireAuthorizations() {
         return null;
     }
 

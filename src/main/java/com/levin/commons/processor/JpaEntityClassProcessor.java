@@ -344,7 +344,6 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
         for (Element subEle : (hasParent && useExtends) ? typeElement.getEnclosedElements() : elementUtils.getAllMembers(typeElement)) {
 
-
             GenNameConstant fieldAnno = subEle.getAnnotation(GenNameConstant.class);
 
             if (fieldAnno != null && fieldAnno.ignore()) {

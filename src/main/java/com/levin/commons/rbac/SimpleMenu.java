@@ -12,6 +12,7 @@ import jakarta.persistence.Enumerated;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 
 /**
@@ -53,7 +54,7 @@ public class SimpleMenu
 
     @Schema(title = "需要的授权，Json数组")
     @Column(length = 1800)
-    protected String requireAuthorizations;
+    protected List<String> requireAuthorizations;
 
     @Schema(title = "无权限时是否展示")
     @Column(nullable = false)
