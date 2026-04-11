@@ -47,7 +47,7 @@ public interface RbacBaseUserService {
     @Operation(summary = "加载用户", description = "用户对象或是用户ID")
     <U extends RbacUserInfo> U loadUser(Serializable userPrincipal);
 
-    @Operation(summary = "获取用户的机密数据访问级别", description = "当用户本身没有定义访问级别时,运行成本比较高,尽量不要多次调用")
+    @Operation(summary = "获取用户的机密数据访问级别", description = "本实现类不包含角色的级别, 一般情况下不要调用本方法,请调用子类的方法")
     default Integer getUserConfidentialDataAccessLevel(Serializable userPrincipal) {
 
         RbacUserInfo loadUser = loadUser(userPrincipal);

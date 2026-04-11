@@ -6,6 +6,7 @@ import java.io.Serializable;
 
 /**
  * 可类型化的对象
+ * @author lilw
  */
 
 @FunctionalInterface

@@ -1,7 +1,6 @@
 package com.levin.commons.dao.domain;
 
 import java.util.Collection;
-import java.util.Collections;
 
 
 /**
@@ -38,16 +37,16 @@ public interface BaseTreeObject<PARENT, CHILD> {
      * @return 返回 null，表示未知，true 表示有孩子节点，false 表示没有
      */
     default Boolean hasChildren() {
-        return getChildren() != null && !getChildren().isEmpty();
+        return getChildren() != null ? !getChildren().isEmpty() : null;
     }
 
     /**
      * 获取子节点
      *
-     * @return
+     * @return 返回 null 表示未知, 空集合表示没有子节点
      */
     default <C extends CHILD> Collection<C> getChildren() {
-        return Collections.emptyList();
+        return null;
     }
 
 }

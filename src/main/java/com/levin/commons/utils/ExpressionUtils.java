@@ -7,6 +7,7 @@ import groovy.lang.GroovyClassLoader;
 import groovy.lang.Script;
 import lombok.SneakyThrows;
 import org.codehaus.groovy.runtime.InvokerHelper;
+import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -180,6 +181,19 @@ public abstract class ExpressionUtils {
      * @return
      */
     public static <T> T evalSpEL(Object rootObject, VariableResolver variableResolver, String expression, List<Map<String, Object>> contexts, Consumer<StandardEvaluationContext>... consumers) {
+        return evalSpEL(rootObject, variableResolver, expressionParser.parseExpression(expression), contexts, consumers);
+    }
+
+    /**
+     * spring el 求值
+     *
+     * @param rootObject
+     * @param expression 已编译表达式
+     * @param contexts
+     * @param <T>
+     * @return
+     */
+    public static <T> T evalSpEL(Object rootObject, VariableResolver variableResolver, Expression expression, List<Map<String, Object>> contexts, Consumer<StandardEvaluationContext>... consumers) {
 
         final StandardEvaluationContext ctx = new StandardEvaluationContext(rootObject) {
 
@@ -237,7 +251,7 @@ public abstract class ExpressionUtils {
                         .forEachOrdered(fun -> fun.accept(ctx))
         );
 
-        return (T) expressionParser.parseExpression(expression).getValue(ctx);
+        return (T) expression.getValue(ctx);
 
     }
 

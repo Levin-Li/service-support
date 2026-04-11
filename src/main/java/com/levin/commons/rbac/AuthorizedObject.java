@@ -1,6 +1,7 @@
 package com.levin.commons.rbac;
 
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -8,6 +9,7 @@ import java.util.List;
  *
  * @author llw
  */
+@FunctionalInterface
 public interface AuthorizedObject {
 
     /**
@@ -18,8 +20,6 @@ public interface AuthorizedObject {
      *
      * @return
      */
-    default List<String> getRequireAuthorizations() {
-        return null;
-    }
+    Collection<String> getRequireAuthorizations();
 
 }

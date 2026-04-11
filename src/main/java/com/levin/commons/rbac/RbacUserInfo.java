@@ -6,6 +6,7 @@ import com.levin.commons.dao.domain.OrganizedObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -192,7 +193,7 @@ public interface RbacUserInfo
      * @return
      */
     @Schema(title = "角色列表")
-    default <ROLE extends Serializable> List<ROLE> getRoleList() {
+    default <ROLE extends Serializable> Collection<ROLE> getRoleList() {
         return Collections.emptyList();
     }
 

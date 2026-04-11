@@ -6,6 +6,7 @@ import com.levin.commons.dao.domain.BaseTreeObject;
 /**
  * 树形资源
  *
+ * @author lilw
  * @param <PARENT>
  * @param <CHILD>
  */

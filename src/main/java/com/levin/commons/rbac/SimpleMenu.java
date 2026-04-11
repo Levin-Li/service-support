@@ -9,9 +9,7 @@ import lombok.experimental.FieldNameConstants;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
+
 import java.util.List;
 
 
@@ -26,25 +24,11 @@ import java.util.List;
 public class SimpleMenu
         implements MenuItem<MenuItem, MenuItem> {
 
-    @Override
-    public <P extends MenuItem> P getParent() {
-        return null;
-    }
+    @Schema(title = "id")
+    protected String id;
 
-    @Override
-    public Boolean hasChildren() {
-        return false;
-    }
-
-    @Override
-    public <C extends MenuItem> Collection<C> getChildren() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public <ID extends Serializable> ID getId() {
-        return null;
-    }
+    @Schema(title = "父节点")
+    protected String parentId;
 
     @Schema(title = "子域")
     protected String domain;
