@@ -34,6 +34,10 @@ public interface RbacBaseService extends RbacBaseUserService {
 
     String USER_ROLE_MAX_CONFIDENTIAL_DATA_ACCESS_LEVEL_KEY = RbacUserInfo.class.getName() + ".roleMaxConfidentialDataAccessLevel";
     Map<Class<?>, List<Field>> COPYABLE_FIELDS_CACHE = new ConcurrentReferenceHashMap<>();
+    Map<Class<?>, Method> CHILDREN_SETTER_CACHE = new ConcurrentReferenceHashMap<>();
+    Map<Class<?>, Method> NODE_PATH_SETTER_CACHE = new ConcurrentReferenceHashMap<>();
+    Map<Class<?>, Field> CHILDREN_FIELD_CACHE = new ConcurrentReferenceHashMap<>();
+    Map<Class<?>, Field> NODE_PATH_FIELD_CACHE = new ConcurrentReferenceHashMap<>();
     // 自定义 Groovy 规则的编译结果可以跨请求复用，避免每次重新编译脚本。
     Map<String, Class<Object>> ORG_SCOPE_GROOVY_CLASS_CACHE = new ConcurrentReferenceHashMap<>();
     // SpEL 解析本身也有成本，这里缓存编译后的表达式对象。
@@ -175,6 +179,9 @@ public interface RbacBaseService extends RbacBaseUserService {
         final Collection<ORG> orgList = new LinkedHashSet<>();
 
         for (String tenantId : tenantIdSet) {
+            if (tenantId == null) {
+                continue;
+            }
             orgList.addAll((Collection<ORG>) loadTenantOrgList(tenantId, onlyLoadEffectOrg).stream()
                     .filter(Objects::nonNull)
                     .collect(Collectors.toCollection(LinkedHashSet::new)));
@@ -602,9 +609,11 @@ public interface RbacBaseService extends RbacBaseUserService {
         }
 
         final Collection<ORG> parentList = new ArrayList<>();
+        final Set<String> visitedParentIds = new LinkedHashSet<>();
 
         if (containsSelf) {
             parentList.add((ORG) leafOrg);
+            visitedParentIds.add(Objects.toString(leafOrg.getId(), ""));
         }
 
         //获取所有父组织 , 防止递归死循环
@@ -626,7 +635,7 @@ public interface RbacBaseService extends RbacBaseUserService {
 
             //@todo 防止递归死循环
             final String tempLeafOrgId = leafOrg.getId();
-            Assert.isTrue(parentList.stream().noneMatch(o -> o.getId().equals(tempLeafOrgId))
+            Assert.isTrue(visitedParentIds.add(tempLeafOrgId)
 
                     , "组织节点[{}-{}]出现循环引用:{}"
                     , leafOrg.getId(), leafOrg.getName()
@@ -700,10 +709,16 @@ public interface RbacBaseService extends RbacBaseUserService {
         Collection<RbacOrgInfo> orgList = loadUserOrgList(user, false);
 
         Assert.isTrue(orgList != null && !orgList.isEmpty(), "无可用的组织机构，请检查是否授权");
+        final Set<String> accessibleOrgIdSet = orgList.stream()
+                .filter(Objects::nonNull)
+                .map(RbacOrgInfo::getId)
+                .filter(Objects::nonNull)
+                .map(String::valueOf)
+                .collect(Collectors.toSet());
 
-        Assert.isTrue(RbacMiscUtils.isBlank(parentId) || orgList.stream().anyMatch(org -> org.getId().equals(parentId)), "父组织机构[{}]未授权", parentId);
+        Assert.isTrue(RbacMiscUtils.isBlank(parentId) || accessibleOrgIdSet.contains(Objects.toString(parentId, "")), "父组织机构[{}]未授权", parentId);
 
-        Assert.isTrue(RbacMiscUtils.isBlank(orgId) || orgList.stream().anyMatch(org -> org.getId().equals(orgId)), "组织机构[{}]未授权", orgId);
+        Assert.isTrue(RbacMiscUtils.isBlank(orgId) || accessibleOrgIdSet.contains(Objects.toString(orgId, "")), "组织机构[{}]未授权", orgId);
 
     }
 
@@ -829,24 +844,40 @@ public interface RbacBaseService extends RbacBaseUserService {
             return Collections.emptyList();
         }
 
-        //从全局角色和租户角色中找角色
-        //如果出现同个角色编码的，优先从租户自己的角色中查找
-        return (Collection<R>) user.getRoleList().stream().filter(Objects::nonNull)
-                .map(code ->
-                        roleList.stream()
-                                .filter(roleInfo ->
-                                        //如果出现同个角色编码的，优先从租户自己的角色中查找
-                                        (RbacMiscUtils.isBlank(roleInfo.getTenantId()) || roleInfo.getTenantId().equals(user.getTenantId()))
-                                                && roleInfo.getCode().equals(code)
-                                )
-                                //优先获取租户自己的角色
-                                .findFirst()
-                                .orElse(null)
-                ).filter(Objects::nonNull)
+        final String userTenantId = Objects.toString(user.getTenantId(), null);
+        final Map<String, RbacRoleInfo> roleByCode = new LinkedHashMap<>();
 
-                //不做角色对象的机密级别过滤
+        for (RbacRoleInfo roleInfo : roleList) {
+            if (roleInfo == null || StrUtil.isBlank(roleInfo.getCode())) {
+                continue;
+            }
 
-                .collect(Collectors.toList());
+            final String roleTenantId = Objects.toString(roleInfo.getTenantId(), null);
+            final boolean sameTenant = Objects.equals(roleTenantId, userTenantId);
+            final boolean publicRole = RbacMiscUtils.isBlank(roleInfo.getTenantId());
+
+            if (!sameTenant && !publicRole) {
+                continue;
+            }
+
+            roleByCode.merge(roleInfo.getCode(), roleInfo,
+                    (current, incoming) -> Objects.equals(Objects.toString(incoming.getTenantId(), null), userTenantId) ? incoming : current);
+        }
+
+        final Collection<R> result = new ArrayList<>();
+
+        for (Object roleCode : user.getRoleList()) {
+            if (roleCode == null) {
+                continue;
+            }
+
+            final RbacRoleInfo roleInfo = roleByCode.get(Objects.toString(roleCode, ""));
+            if (roleInfo != null) {
+                result.add((R) roleInfo);
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -963,20 +994,22 @@ public interface RbacBaseService extends RbacBaseUserService {
             return false;
         }
 
+        boolean hasAllowAll = false;
+
         // 这里只消费已经算好的 DataScope，避免在高频调用链上重复触发 getUserDataScope(...)。
-        return userDataScope.getOrgScopeList()
-                .stream()
-                .filter(Objects::nonNull)
+        for (OrgScope scope : userDataScope.getOrgScopeList()) {
+            if (scope == null) {
+                continue;
+            }
+            if (scope.isDeny()) {
+                return false;
+            }
+            if (scope.isAllowAllOrg() && scope.isAllTenant()) {
+                hasAllowAll = true;
+            }
+        }
 
-                // 只有 ALL_TENANT 下的 allow all，才代表真正的“全部组织”。
-                .anyMatch(scope -> scope.isAllowAllOrg() && scope.isAllTenant())
-
-                &&
-
-                userDataScope.getOrgScopeList()
-                        .stream()
-                        .filter(Objects::nonNull)
-                        .noneMatch(OrgScope::isDeny);
+        return hasAllowAll;
     }
 
     private <ORG extends RbacOrgInfo> Set<String> calcAccessibleOrgIds(RbacUserInfo user,
@@ -1575,38 +1608,6 @@ public interface RbacBaseService extends RbacBaseUserService {
         return StrUtil.blankToDefault(useNamePath ? org.getName() : Objects.toString(org.getId(), ""), "");
     }
 
-    private <ORG extends RbacOrgInfo> boolean isSameOrDescendant(String ancestorOrgId, String orgId, Map<String, ORG> orgMap) {
-
-        if (StrUtil.isBlank(ancestorOrgId) || StrUtil.isBlank(orgId)) {
-            return false;
-        }
-
-        if (ancestorOrgId.equals(orgId)) {
-            return true;
-        }
-
-        ORG current = orgMap.get(orgId);
-        final Set<String> visited = new LinkedHashSet<>();
-
-        while (current != null && isNotBlank(current.getParentId())) {
-            final String currentId = Objects.toString(current.getId(), "");
-
-            if (!visited.add(currentId)) {
-                throwOrgCycleException(currentId, visited, orgMap);
-            }
-
-            final String parentId = Objects.toString(current.getParentId(), "");
-
-            if (ancestorOrgId.equals(parentId)) {
-                return true;
-            }
-
-            current = orgMap.get(parentId);
-        }
-
-        return false;
-    }
-
     private Set<String> normalizeOrgIdSet(Collection<?> orgIds) {
         if (orgIds == null || orgIds.isEmpty()) {
             return Collections.emptySet();
@@ -1622,22 +1623,7 @@ public interface RbacBaseService extends RbacBaseUserService {
     private <ORG extends RbacOrgInfo> Set<String> collectDescendantOrgIds(Set<String> rootIds,
                                                                           Collection<ORG> orgList,
                                                                           Map<String, ORG> orgMap) {
-        final Map<String, List<String>> childrenByParentId = new HashMap<>();
-
-        for (ORG org : orgList) {
-            if (org == null || isBlank(org.getId()) || isBlank(org.getParentId())) {
-                continue;
-            }
-
-            final String parentId = Objects.toString(org.getParentId(), "");
-            final String orgId = Objects.toString(org.getId(), "");
-
-            if (!orgMap.containsKey(parentId)) {
-                continue;
-            }
-
-            childrenByParentId.computeIfAbsent(parentId, key -> new ArrayList<>()).add(orgId);
-        }
+        final Map<String, List<String>> childrenByParentId = buildChildrenByParentId(orgList, orgMap);
 
         final Set<String> selectedOrgIds = new LinkedHashSet<>();
         final Deque<String> stack = new ArrayDeque<>();
@@ -1838,91 +1824,89 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
     private boolean setChildren(RbacOrgInfo org, Collection<RbacOrgInfo> children) {
-        return setChildrenByEditableNode(org, children)
-                || setChildrenBySetter(org, children)
-                || setChildrenByField(org, children);
-    }
-
-    private boolean setChildrenByEditableNode(RbacOrgInfo org, Collection<RbacOrgInfo> children) {
-        if (!(org instanceof EditableTreeNode)) {
-            return false;
+        if (org instanceof EditableTreeNode) {
+            ((EditableTreeNode) org).setChildren((Collection) children);
+            return true;
         }
 
-        ((EditableTreeNode) org).setChildren((Collection) children);
-        return true;
-    }
-
-    private boolean setChildrenBySetter(RbacOrgInfo org, Collection<RbacOrgInfo> children) {
-        Method setter = Arrays.stream(org.getClass().getMethods())
-                .filter(method -> "setChildren".equals(method.getName()))
-                .filter(method -> method.getParameterCount() == 1)
-                .filter(method -> Collection.class.isAssignableFrom(method.getParameterTypes()[0]))
-                .findFirst()
-                .orElse(null);
-
-        if (setter == null) {
-            return false;
-        }
-
-        ReflectionUtils.makeAccessible(setter);
-        ReflectionUtils.invokeMethod(setter, org, children);
-        return true;
-    }
-
-    private boolean setChildrenByField(RbacOrgInfo org, Collection<RbacOrgInfo> children) {
-        Field field = ReflectionUtils.findField(org.getClass(), "children");
-
-        if (field == null || !Collection.class.isAssignableFrom(field.getType())) {
-            return false;
-        }
-
-        ReflectionUtils.makeAccessible(field);
-        ReflectionUtils.setField(field, org, children);
-        return true;
+        return writeProperty(org, children, "setChildren", Collection.class, "children",
+                CHILDREN_SETTER_CACHE, CHILDREN_FIELD_CACHE);
     }
 
     private boolean setNodePathOnCopy(RbacOrgInfo org, String nodePath) {
-        return setNodePathByEditableNode(org, nodePath)
-                || setNodePathBySetter(org, nodePath)
-                || setNodePathByField(org, nodePath);
+        if (org instanceof EditableTreeNode) {
+            ((EditableTreeNode) org).setNodePath(nodePath);
+            return true;
+        }
+
+        return writeProperty(org, nodePath, "setNodePath", CharSequence.class, "nodePath",
+                NODE_PATH_SETTER_CACHE, NODE_PATH_FIELD_CACHE);
     }
 
-    private boolean setNodePathByEditableNode(RbacOrgInfo org, String nodePath) {
-        if (!(org instanceof EditableTreeNode)) {
+    private boolean writeProperty(RbacOrgInfo org,
+                                  Object value,
+                                  String setterName,
+                                  Class<?> setterParamType,
+                                  String fieldName,
+                                  Map<Class<?>, Method> setterCache,
+                                  Map<Class<?>, Field> fieldCache) {
+        Method setter = findCachedCompatibleSetter(org.getClass(), setterName, setterParamType, setterCache);
+
+        if (setter != null) {
+            ReflectionUtils.invokeMethod(setter, org, value);
+            return true;
+        }
+
+        Field field = findCachedField(org.getClass(), fieldName, setterParamType, fieldCache);
+        if (field == null) {
             return false;
         }
 
-        ((EditableTreeNode) org).setNodePath(nodePath);
+        ReflectionUtils.setField(field, org, value);
         return true;
     }
 
-    private boolean setNodePathBySetter(RbacOrgInfo org, String nodePath) {
-        Method setter = Arrays.stream(org.getClass().getMethods())
-                .filter(method -> "setNodePath".equals(method.getName()))
+    private Method findCachedCompatibleSetter(Class<?> type,
+                                              String setterName,
+                                              Class<?> setterParamType,
+                                              Map<Class<?>, Method> setterCache) {
+        Method setter = setterCache.get(type);
+        if (setter != null) {
+            return setter;
+        }
+
+        setter = Arrays.stream(type.getMethods())
+                .filter(method -> setterName.equals(method.getName()))
                 .filter(method -> method.getParameterCount() == 1)
-                .filter(method -> CharSequence.class.isAssignableFrom(method.getParameterTypes()[0]))
+                .filter(method -> setterParamType.isAssignableFrom(method.getParameterTypes()[0]))
                 .findFirst()
                 .orElse(null);
 
-        if (setter == null) {
-            return false;
+        if (setter != null) {
+            ReflectionUtils.makeAccessible(setter);
+            setterCache.put(type, setter);
         }
 
-        ReflectionUtils.makeAccessible(setter);
-        ReflectionUtils.invokeMethod(setter, org, nodePath);
-        return true;
+        return setter;
     }
 
-    private boolean setNodePathByField(RbacOrgInfo org, String nodePath) {
-        Field field = ReflectionUtils.findField(org.getClass(), "nodePath");
-
-        if (field == null || !CharSequence.class.isAssignableFrom(field.getType())) {
-            return false;
+    private Field findCachedField(Class<?> type,
+                                  String fieldName,
+                                  Class<?> fieldType,
+                                  Map<Class<?>, Field> fieldCache) {
+        Field field = fieldCache.get(type);
+        if (field != null) {
+            return field;
         }
 
-        ReflectionUtils.makeAccessible(field);
-        ReflectionUtils.setField(field, org, nodePath);
-        return true;
+        field = ReflectionUtils.findField(type, fieldName);
+        if (field != null && fieldType.isAssignableFrom(field.getType())) {
+            ReflectionUtils.makeAccessible(field);
+            fieldCache.put(type, field);
+            return field;
+        }
+
+        return null;
     }
 
     /**
