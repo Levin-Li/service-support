@@ -2,6 +2,8 @@ package com.levin.commons.rbac;
 
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.levin.commons.annotation.GenNameConstant;
 import com.levin.commons.service.domain.EnumDesc;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,6 +20,14 @@ import java.util.stream.Stream;
 
 @Schema(title = "组织范围", description = "组织范围")
 @GenNameConstant
+@JsonAutoDetect(
+        // 只序列化字段
+        fieldVisibility = JsonAutoDetect.Visibility.ANY,
+        // 忽略所有 getter
+        getterVisibility = JsonAutoDetect.Visibility.NONE,
+        // 忽略 isXXX
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE
+)
 public interface OrgScope extends Serializable {
 
     String ALL_ROOT_ORG = "_ALL_ROOT_ORG_";
