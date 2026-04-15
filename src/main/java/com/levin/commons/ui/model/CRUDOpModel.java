@@ -1,5 +1,6 @@
 package com.levin.commons.ui.model;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.levin.commons.ui.annotation.CRUD;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -14,11 +15,16 @@ import java.lang.annotation.Annotation;
 @Data
 @NoArgsConstructor
 @Accessors(fluent = true, chain = true)
+@JsonAutoDetect(
+        fieldVisibility = JsonAutoDetect.Visibility.ANY,
+        getterVisibility = JsonAutoDetect.Visibility.NONE,
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE
+)
 @Schema(title = "操作", description = "通常注解在控制器方法上")
 public class CRUDOpModel implements CRUD.Op {
 
-    @Schema(title = "类名", description = "注解所在的类全名，用于全局定位")
-    String className = "";
+    @Schema(title = "方法ID", description = "完整的泛型方法签名")
+    String methodId = "";
 
     @Schema(title = "方法名", description = "注解所在方法名，用于全局定位")
     String methodName = "";

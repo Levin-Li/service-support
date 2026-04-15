@@ -1,5 +1,6 @@
 package com.levin.commons.ui.model;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.levin.commons.ui.annotation.Form;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -16,14 +17,13 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Accessors(fluent = true, chain = true)
+@JsonAutoDetect(
+        fieldVisibility = JsonAutoDetect.Visibility.ANY,
+        getterVisibility = JsonAutoDetect.Visibility.NONE,
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE
+)
 @Schema(title = "表单", description = "通常注解在控制器方法的参数上")
 public class FormModel implements Form {
-
-    @Schema(title = "类名", description = "注解所在的类全名，用于全局定位")
-    String className = "";
-
-    @Schema(title = "别名", description = "用于全局标识的别名")
-    String alias = "";
 
     @Schema(title = "表单名称", description = "关联属性名称")
     String name = "";

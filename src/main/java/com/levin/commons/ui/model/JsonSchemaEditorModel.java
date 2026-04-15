@@ -1,5 +1,6 @@
 package com.levin.commons.ui.model;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.levin.commons.ui.annotation.JsonSchemaEditor;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -14,6 +15,11 @@ import java.lang.annotation.Annotation;
 @Data
 @NoArgsConstructor
 @Accessors(fluent = true, chain = true)
+@JsonAutoDetect(
+        fieldVisibility = JsonAutoDetect.Visibility.ANY,
+        getterVisibility = JsonAutoDetect.Visibility.NONE,
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE
+)
 @Schema(title = "JsonSchema编辑器", description = "通常注解在DTO对象的复杂字段上, 用于动态编辑")
 public class JsonSchemaEditorModel implements JsonSchemaEditor {
 

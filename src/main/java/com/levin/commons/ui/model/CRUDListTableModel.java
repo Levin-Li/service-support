@@ -1,5 +1,6 @@
 package com.levin.commons.ui.model;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.levin.commons.ui.annotation.CRUD;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -7,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@link CRUD.ListTable} 的模型对象。
@@ -14,11 +17,16 @@ import java.lang.annotation.Annotation;
 @Data
 @NoArgsConstructor
 @Accessors(fluent = true, chain = true)
+@JsonAutoDetect(
+        fieldVisibility = JsonAutoDetect.Visibility.ANY,
+        getterVisibility = JsonAutoDetect.Visibility.NONE,
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE
+)
 @Schema(title = "列表", description = "通常注解在控制器的列表方法上")
 public class CRUDListTableModel implements CRUD.ListTable {
 
-    @Schema(title = "类名", description = "注解所在的类全名，用于全局定位")
-    String className = "";
+    @Schema(title = "方法ID", description = "完整的泛型方法签名")
+    String methodId = "";
 
     @Schema(title = "方法名", description = "注解所在方法名，用于全局定位")
     String methodName = "";
@@ -42,6 +50,9 @@ public class CRUDListTableModel implements CRUD.ListTable {
     String style = "";
 
     String desc = "";
+
+    @Schema(title = "操作列表", description = "归属本列表的操作")
+    List<CRUDOpModel> opList = new ArrayList<>();
 
     @Override
     public Class<? extends Annotation> annotationType() {

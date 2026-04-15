@@ -1,5 +1,6 @@
 package com.levin.commons.ui.model;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.levin.commons.ui.annotation.FormLayout;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -14,13 +15,12 @@ import java.lang.annotation.Annotation;
 @Data
 @NoArgsConstructor
 @Accessors(fluent = true, chain = true)
+@JsonAutoDetect(
+        fieldVisibility = JsonAutoDetect.Visibility.ANY,
+        getterVisibility = JsonAutoDetect.Visibility.NONE,
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE
+)
 public class FormLayoutModel implements FormLayout {
-
-    @Schema(title = "类名", description = "注解所在的类全名，用于全局定位")
-    String className = "";
-
-    @Schema(title = "别名", description = "用于全局标识的别名")
-    String alias = "";
 
     @Schema(title = "标题")
     String title = "";
