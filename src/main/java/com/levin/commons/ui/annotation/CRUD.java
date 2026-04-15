@@ -18,7 +18,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Schema(title = "CRUD页面", description = "通常注解在控制器类上, 用于标识这个是一个CRUD页面, 一个页面中允许存在多个列表, 多个列表时一般使用tab样式展示")
+@Schema(title = "CRUD页面", description = "通常注解在控制器类上, 用于标识这个是一个CRUD页面, 一个页面中允许存在多个列表, 多个列表时使用tab样式展示")
 public @interface CRUD {
 
     @Schema(title = "名称", description = "默认取控制器@Tag注解")
@@ -40,6 +40,7 @@ public @interface CRUD {
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
+    @Schema(title = "列表", description = "通常注解在控制器的列表方法上")
     @interface ListTable {
 
         /**
@@ -197,6 +198,7 @@ public @interface CRUD {
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
+    @Schema(title = "操作", description = "通常注解在控制器方法上")
     @interface Op {
 
         /**

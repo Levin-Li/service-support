@@ -50,6 +50,9 @@ public @interface FormLayout {
     @Schema(title = "本布局在父布局中的占位顺序", description = "默认为-1，表示默认")
     int order() default -1;
 
+    @Schema(title = "布局项栅格占位", description = "默认为-1，表示使用布局默认值")
+    int span() default -1;
+
     @Schema(title = "列数", description = "默认为-1, 表示自动处理, 建议总字段数除7行,得出列数,但是不能超过父分组的列数")
     int columns() default -1;
 
@@ -81,6 +84,8 @@ public @interface FormLayout {
     @Schema(title = "布局参数", description = "json格式, 具体有布局类型解析和使用")
     String layoutParams() default "";
 
+    @Schema(title = "显示条件", description = "前端Js表达式，返回true时布局显示")
+    String visibleOn() default "";
 
     @Schema(title = "样式")
     String style() default "";

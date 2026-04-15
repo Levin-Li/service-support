@@ -36,6 +36,9 @@ public @interface FormItem {
     @Schema(title = "表单项在布局中的占位顺序", description = "默认为-1，表示默认")
     int order() default -1;
 
+    @Schema(title = "表单项栅格占位", description = "默认为-1，表示使用布局默认值")
+    int span() default -1;
+
     /**
      * 占位符
      * 同时也是Label
@@ -103,6 +106,46 @@ public @interface FormItem {
      */
     @Schema(title = "数据校验表达式", description = "Js表达式或是固定规则名称")
     String[] verifyRules() default {};
+
+    /**
+     * 控制可编辑状态
+     * <p>
+     * 字段显示，但不可编辑
+     *
+     * @return
+     */
+    @Schema(title = "禁用条件", description = "前端Js表达式，返回true时字段显示但不可编辑")
+    String disabledOn() default "";
+
+    /**
+     * 条件必填
+     * <p>
+     * 优先级高于静态必填推导
+     *
+     * @return
+     */
+    @Schema(title = "必填条件", description = "前端Js表达式，返回true时字段为必填，优先级高于静态required推导")
+    String requiredOn() default "";
+
+    /**
+     * 只读条件
+     * <p>
+     * 字段可见、可提交、不可改
+     *
+     * @return
+     */
+    @Schema(title = "只读条件", description = "前端Js表达式，返回true时字段只读，可见、可提交、不可修改")
+    String readOnlyOn() default "";
+
+    /**
+     * 隐藏时清空值
+     * <p>
+     * 用于避免联动后残值污染提交数据
+     *
+     * @return
+     */
+    @Schema(title = "隐藏时是否清空值", description = "当字段被隐藏时，是否自动清空字段值，避免联动残值污染提交数据")
+    boolean clearOnHidden() default false;
 
     /**
      * 求值过滤器

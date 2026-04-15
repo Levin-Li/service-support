@@ -18,6 +18,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
+@Schema(title = "表单", description = "通常注解在控制器方法的参数上")
 public @interface Form {
 
     @Schema(title = "表单名称", description = "关联属性名称")
