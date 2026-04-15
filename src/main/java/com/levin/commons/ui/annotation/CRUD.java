@@ -4,6 +4,7 @@ package com.levin.commons.ui.annotation;
 import com.levin.commons.service.domain.EnumDesc;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.io.Serializable;
 import java.lang.annotation.*;
 
 /**
@@ -17,36 +18,24 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
+@Schema(title = "CRUD页面", description = "通常注解在控制器类上, 用于标识这个是一个CRUD页面, 一个页面中允许存在多个列表, 多个列表时一般使用tab样式展示")
 public @interface CRUD {
 
-    /**
-     * 列表名称
-     *
-     * @return
-     */
-    String name() default "default";
+    @Schema(title = "名称", description = "默认取控制器@Tag注解")
+    String name() default "";
 
-    /**
-     * 关联的实体类
-     *
-     * @return
-     */
+    @Schema(title = "关联的实体类", description = "")
+    @Deprecated
     Class<?> refEntityClass() default Void.class;
 
-    /**
-     * 显示名称
-     *
-     * @return
-     */
-    String label() default "";
+    @Schema(title = "标题")
+    String title() default "";
 
-    /**
-     * 列表描述
-     *
-     * @return
-     */
+    @Schema(title = "样式", description = "样式")
+    String style() default "";
+
+    @Schema(title = "描述")
     String desc() default "";
-
 
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
@@ -58,7 +47,20 @@ public @interface CRUD {
          *
          * @return
          */
+        @Schema(title = "列表名称", description = "用于关联CURD的操作")
         String name() default "default";
+
+        /**
+         * 显示名称
+         *
+         * @return
+         */
+        @Schema(title = "标题", description = "通常用于在一个CURD页面中有多个列表时")
+        String title() default "";
+
+
+        @Schema(title = "列表关联的实体类", description = "也可能不是具体的一个实体")
+        Class<?> refEntityClass() default Void.class;
 
         /**
          * 列表显示条件
@@ -67,26 +69,33 @@ public @interface CRUD {
          *
          * @return
          */
+        @Schema(title = "显示条件", description = "Js脚本")
         String visibleOn() default "";
 
-        /**
-         * 显示名称
-         *
-         * @return
-         */
-        String label() default "";
+        @Schema(title = "样式", description = "样式")
+        String style() default "";
 
-        /**
-         * 列表描述
-         *
-         * @return
-         */
         String desc() default "";
 
     }
 
-    enum RecordRefType {
-        None, Single, Multiple
+    @Schema(title = "操作关联的目标类型")
+    enum OpRefTargetType {
+
+        @Schema(title = "无")
+        None,
+
+        @Schema(title = "单条数据")
+        SingleRow,
+
+        @Schema(title = "多条数据")
+        MultipleRow,
+
+        @Schema(title = "列表")
+        ListTable,
+
+        @Schema(title = "其他")
+        Other;
     }
 
     @Schema(title = "视图容器类型")
@@ -147,10 +156,10 @@ public @interface CRUD {
         @Schema(title = "执行JSONP请求")
         Jsonp,
 
-        @Schema(title = "跳转链接")
+        @Schema(title = "跳转链接", description = "新窗口打开link")
         Link,
 
-        @Schema(title = "当前也跳转")
+        @Schema(title = "当前页跳转", description = "当前页面替换")
         Url,
 
         @Schema(title = "拨打电话")
@@ -195,6 +204,7 @@ public @interface CRUD {
          *
          * @return
          */
+        @Schema(title = "操作名称")
         String name() default "";
 
         /**
@@ -202,6 +212,7 @@ public @interface CRUD {
          *
          * @return
          */
+        @Schema(title = "操作按钮的显示名称")
         String label() default "";
 
         /**
@@ -222,7 +233,7 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "操作确认提示内容", description = "None,作为特殊关键字,表示无需确认")
+        @Schema(title = "操作确认弹窗提示内容", description = "操作前确认提示内容, None,作为特殊关键字,表示无需确认")
         String confirmText() default "";
 
         /**
@@ -230,7 +241,7 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "弹窗标题")
+        @Schema(title = "操作确认弹窗标题")
         String confirmTitle() default "";
 
         /**
@@ -252,7 +263,7 @@ public @interface CRUD {
         /**
          * @return
          */
-        @Schema(title = "视图容器类型", description = "整对操作是视图时有效")
+        @Schema(title = "视图容器类型", description = "对操作是视图时有效")
         ViewContainerType viewContainerType() default ViewContainerType.Auto;
 
         /**
@@ -277,18 +288,8 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "操作按钮的显示条件")
+        @Schema(title = "操作按钮的显示条件", description = "js脚本, 需要支持 _user 变量, 如果是关联单条记录的操作")
         String visibleOn() default "";
-
-        /**
-         * 记录关联类型
-         * <p>
-         * 默认关联单条记录
-         *
-         * @return
-         */
-        @Schema(title = "记录关联类型")
-        RecordRefType recordRefType() default RecordRefType.Single;
 
         ////////////////////////////////////////////////////////////////////////
 
@@ -297,7 +298,7 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "操作成功后后的动作")
+        @Schema(title = "操作成功后的动作")
         Action successAction() default Action.Auto;
 
         /**
@@ -308,7 +309,6 @@ public @interface CRUD {
         @Schema(title = "操作失败后的动作")
         Action failAction() default Action.Auto;
 
-
         /**
          * 操作后动作的数据
          * <p>
@@ -318,8 +318,18 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "操作后动作使用的数据", description = "一般情况下使用当前结果的数据")
+        @Schema(title = "操作后动作使用的数据", description = "一般情况下使用Api调用结果的数据")
         String resultActionData() default "";
+
+        /**
+         * 记录关联类型
+         * <p>
+         * 默认关联单条记录
+         *
+         * @return
+         */
+        @Schema(title = "操作关联的目标类型")
+        OpRefTargetType opRefTargetType() default OpRefTargetType.SingleRow;
 
         /**
          * 操作关联的列表
@@ -328,8 +338,8 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "操作关联的列表")
-        String refListTable() default "default";
+        @Schema(title = "操作关联的名字", description = "如果为空，则表示是页面的操作")
+        String opRefTargetName() default "default";
 
         /**
          * 列表描述

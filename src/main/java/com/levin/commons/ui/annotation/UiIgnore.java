@@ -4,6 +4,7 @@ import java.lang.annotation.*;
 
 /**
  * ui忽略
+ * @author lilw
  */
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
@@ -11,11 +12,5 @@ import java.lang.annotation.*;
 @Inherited
 public @interface UiIgnore {
 
-    /**
-     * 忽略的属性
-     * 默认忽略当前属性
-     *
-     * @return
-     */
     String[] value() default {};
 }

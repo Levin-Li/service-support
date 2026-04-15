@@ -1,5 +1,7 @@
 package com.levin.commons.ui.annotation;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.lang.annotation.*;
 
 /**
@@ -105,6 +107,18 @@ public @interface Options {
     String defaultParams() default "";
 
     /**
+     * 级联下拉列表时，其他属性变更时，需要重新加载
+     * <p>
+     * 只正对API或是查询对象有效
+     * <p>
+     * 如果不为空，则表示默认不加载内容
+     *
+     * @return
+     */
+    @Schema(title = "重新加载的触发条件", description = "Js脚本, 通常是通过Api加载的时候才需要")
+    String reloadOn() default "";
+
+    /**
      * 列映射表达式
      * <p>
      * 每一个选项支持 3个属性，value, label, desc
@@ -117,20 +131,10 @@ public @interface Options {
      * <p>
      * 如果都不配置，则默认为value, label
      * //"value", "label", "desc"
-     * @return
-     */
-    String[] columnMapExpr() default {};
-
-    /**
-     * 级联下拉列表时，其他属性变更时，需要重新加载
-     * <p>
-     * 只正对API或是查询对象有效
-     * <p>
-     * 如果不为空，则表示默认不加载内容
      *
      * @return
      */
-    String reloadOnAttrChanged() default "";
+    String[] columnMapExpr() default {};
 
     /**
      * 是否可以搜索
