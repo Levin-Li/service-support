@@ -71,7 +71,6 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             } catch (ClassNotFoundException e) {
                 this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, getClass().getSimpleName() + "  can't found class " + typeName + ", ClassNotFoundException:" + e.getMessage());
-                throw new RuntimeException(e);
             }
         }
 
