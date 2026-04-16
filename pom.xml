@@ -124,12 +124,6 @@
         </dependency>
 
         <dependency>
-            <groupId>ma.glasnost.orika</groupId>
-            <artifactId>orika-core</artifactId>
-            <version>1.5.4</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
             <version>4.5.1</version>
@@ -144,8 +138,8 @@
 
         <dependency>
             <groupId>com.github.oshi</groupId>
-            <artifactId>oshi-core</artifactId>
-            <version>6.10.0</version>
+            <artifactId>oshi-core-java11</artifactId>
+            <version>6.11.1</version>
             <scope>provided</scope>
         </dependency>
 
@@ -354,39 +348,6 @@
                 </executions>
             </plugin>
 
-
-            <!--            <plugin>
-                            <groupId>org.jsonschema2pojo</groupId>
-                            <artifactId>jsonschema2pojo-maven-plugin</artifactId>
-                            <version>1.1.1</version>
-
-                            &lt;!&ndash; amis 项目  npm run build-schemas&ndash;&gt;
-
-                            <executions>
-
-                                <execution>
-                                    <configuration>
-
-                                    </configuration>
-                                </execution>
-                            </executions>
-                            <configuration>
-                                <sourceType>json</sourceType>
-                                <sourceDirectory>${basedir}/src/main/resources/json/schema</sourceDirectory>
-                                <outputDirectory>${basedir}/src/main/java</outputDirectory>
-                                <targetPackage>${project.groupId}.ui.annotation.amis</targetPackage>
-                                <addCompileSourceRoot>true</addCompileSourceRoot>
-                                <annotationStyle>jackson2</annotationStyle>
-                                &lt;!&ndash;                    <useTitleAsClassname>true</useTitleAsClassname>&ndash;&gt;
-                                <includeTypeInfo>false</includeTypeInfo>
-                                <includeHashcodeAndEquals>false</includeHashcodeAndEquals>
-                                <includeToString>false</includeToString>
-                                <includeAdditionalProperties>false</includeAdditionalProperties>
-                                <includeGetters>false</includeGetters>
-                                <includeSetters>false</includeSetters>
-                                <includeAllPropertiesConstructor>false</includeAllPropertiesConstructor>
-                            </configuration>
-                        </plugin>-->
 
         </plugins>
     </build>

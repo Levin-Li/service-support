@@ -28,6 +28,9 @@ public class CRUDModel implements CRUD {
     @Schema(title = "类名", description = "注解所在的类全名，用于全局定位")
     String className = "";
 
+    @Schema(title = "别名", description = "用于全局标识的别名")
+    String alias = "";
+
     @Schema(title = "名称", description = "默认取控制器@Tag注解")
     String name = "";
 

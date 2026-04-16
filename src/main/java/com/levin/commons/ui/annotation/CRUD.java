@@ -24,10 +24,6 @@ public @interface CRUD {
     @Schema(title = "名称", description = "默认取控制器@Tag注解")
     String name() default "";
 
-    @Schema(title = "关联的实体类", description = "")
-    @Deprecated
-    Class<?> refEntityClass() default Void.class;
-
     @Schema(title = "标题")
     String title() default "";
 

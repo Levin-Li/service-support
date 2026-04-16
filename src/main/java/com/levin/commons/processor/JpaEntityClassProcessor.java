@@ -17,7 +17,9 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
+
 import jakarta.persistence.*;
+
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
@@ -27,7 +29,12 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-@SupportedAnnotationTypes({"jakarta.persistence.MappedSuperclass", "jakarta.persistence.Entity","javax.persistence.MappedSuperclass", "javax.persistence.Entity"})
+@SupportedAnnotationTypes(
+        {
+                "jakarta.persistence.MappedSuperclass",
+                "jakarta.persistence.Entity"
+        }
+)
 //@SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class JpaEntityClassProcessor extends AbstractProcessor {
 
@@ -63,12 +70,10 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 process(roundEnv, roundEnv.getElementsAnnotatedWith(annoType));
 
             } catch (ClassNotFoundException e) {
-
-                this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, getClass().getSimpleName() + "  can't found class " + typeName);
+                this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, getClass().getSimpleName() + "  can't found class " + typeName + ", ClassNotFoundException:" + e.getMessage());
+                throw new RuntimeException(e);
             }
-
         }
-
 
         return false;
     }
@@ -355,7 +360,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             if (subEle.getKind() != ElementKind.FIELD
                     || modifiers.contains(Modifier.STATIC)
-                 //   || modifiers.contains(Modifier.TRANSIENT)
+                    //   || modifiers.contains(Modifier.TRANSIENT)
                     || modifiers.contains(Modifier.FINAL)) {
                 continue;
             }
@@ -482,35 +487,35 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
         //生成字段构建器
         codeBlock.append(
                 "    public static FieldBuilder newFieldBuilder() {\n" +
-                "        return new FieldBuilder();\n" +
-                "    }\n" +
-                "\n" +
-                "    public static FieldBuilder newNativeQLFieldBuilder() {\n" +
-                "        return new FieldBuilder(true);\n" +
-                "    }\n" +
-                "\n" +
-                "    public static class FieldBuilder {\n" +
-                "\n" +
-                "        final boolean isNativeQL;\n" +
-                "\n" +
-                "        Set<String> fields = new LinkedHashSet<String>();\n" +
-                "\n" +
-                "        protected FieldBuilder() {\n" +
-                "            this.isNativeQL = false;\n" +
-                "        }\n" +
-                "\n" +
-                "        protected FieldBuilder(boolean isNativeQL) {\n" +
-                "            this.isNativeQL = isNativeQL;\n" +
-                "        }\n" +
-                "\n" +
-                "        protected FieldBuilder add(String field) {\n" +
-                "            fields.add(field);\n" +
-                "            return this;\n" +
-                "        }\n" +
-                "\n" +
-                "        public Set<String> build() {\n" +
-                "            return fields;\n" +
-                "        }\n");
+                        "        return new FieldBuilder();\n" +
+                        "    }\n" +
+                        "\n" +
+                        "    public static FieldBuilder newNativeQLFieldBuilder() {\n" +
+                        "        return new FieldBuilder(true);\n" +
+                        "    }\n" +
+                        "\n" +
+                        "    public static class FieldBuilder {\n" +
+                        "\n" +
+                        "        final boolean isNativeQL;\n" +
+                        "\n" +
+                        "        Set<String> fields = new LinkedHashSet<String>();\n" +
+                        "\n" +
+                        "        protected FieldBuilder() {\n" +
+                        "            this.isNativeQL = false;\n" +
+                        "        }\n" +
+                        "\n" +
+                        "        protected FieldBuilder(boolean isNativeQL) {\n" +
+                        "            this.isNativeQL = isNativeQL;\n" +
+                        "        }\n" +
+                        "\n" +
+                        "        protected FieldBuilder add(String field) {\n" +
+                        "            fields.add(field);\n" +
+                        "            return this;\n" +
+                        "        }\n" +
+                        "\n" +
+                        "        public Set<String> build() {\n" +
+                        "            return fields;\n" +
+                        "        }\n");
 
 
         for (String fieldName : classFields) {

@@ -23,6 +23,9 @@ import java.lang.annotation.Annotation;
 @Schema(title = "操作", description = "通常注解在控制器方法上")
 public class CRUDOpModel implements CRUD.Op {
 
+    @Schema(title = "类名", description = "注解所在类的全名，用于全局定位")
+    String className = "";
+
     @Schema(title = "方法ID", description = "完整的泛型方法签名")
     String methodId = "";
 

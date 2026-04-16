@@ -25,6 +25,12 @@ import java.util.List;
 @Schema(title = "表单", description = "通常注解在控制器方法的参数上")
 public class FormModel implements Form {
 
+    @Schema(title = "类名", description = "注解所在类的全名，用于全局定位")
+    String className = "";
+
+    @Schema(title = "别名", description = "用于全局标识的别名")
+    String alias = "";
+
     @Schema(title = "表单名称", description = "关联属性名称")
     String name = "";
 

@@ -41,7 +41,7 @@ public class OptionsModel implements Options {
 
     String[] items = {};
 
-    String refTargetTypeName;
+    String refTargetTypeName = "";
 
     String dictCode = "";
 
@@ -68,6 +68,11 @@ public class OptionsModel implements Options {
     @Override
     public Class<?> refTargetType() {
         return (refTargetTypeName == null || refTargetTypeName.isBlank() || refTargetTypeName.trim().equals(Void.class.getName())) ? null : getClass().getClassLoader().loadClass(refTargetTypeName);
+    }
+
+    public OptionsModel refTargetType(Class<?> refTargetType) {
+        this.refTargetTypeName = refTargetType == null ? "" : refTargetType.getName();
+        return this;
     }
 
     @Override

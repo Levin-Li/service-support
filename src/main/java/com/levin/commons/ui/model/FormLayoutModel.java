@@ -22,6 +22,12 @@ import java.lang.annotation.Annotation;
 )
 public class FormLayoutModel implements FormLayout {
 
+    @Schema(title = "类名", description = "注解所在类的全名，用于全局定位")
+    String className = "";
+
+    @Schema(title = "别名", description = "用于全局标识的别名")
+    String alias = "";
+
     @Schema(title = "标题")
     String title = "";
 

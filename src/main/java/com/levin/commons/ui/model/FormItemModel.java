@@ -83,6 +83,9 @@ public class FormItemModel implements FormItem {
     @Schema(title = "求值转换器", description = "Js表达式或是固定转换器名称")
     String[] uiToDataConvertors = {};
 
+    @Schema(title = "表单项Ui类型", description = "表单项的UI类型,如text, Upload, Date等")
+    String uiType = "";
+
     String style = "";
 
     @Override

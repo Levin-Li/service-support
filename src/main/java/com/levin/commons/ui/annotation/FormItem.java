@@ -170,6 +170,9 @@ public @interface FormItem {
     String[] uiToDataConvertors() default {};
 
 
+    @Schema(title = "表单项Ui类型", description = "表单项的UI类型,如text, Upload, Date等")
+    String uiType() default "";
+
     /**
      * 样式
      *

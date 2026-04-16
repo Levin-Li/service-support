@@ -49,6 +49,4 @@ public interface LanguageType {
     String vb = "vb";
     String xml = "xml";
     String yaml = "yaml";
-
-
 }
