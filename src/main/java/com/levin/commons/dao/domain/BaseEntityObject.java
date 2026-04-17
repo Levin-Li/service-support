@@ -1,5 +1,6 @@
 package com.levin.commons.dao.domain;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -15,7 +16,7 @@ public interface BaseEntityObject
      *
      * @return createTime
      */
-    Date getCreateTime();
+    LocalDateTime getCreateTime();
 
 
     /**
@@ -24,7 +25,7 @@ public interface BaseEntityObject
      * @return
      */
 
-    Date getLastUpdateTime();
+    LocalDateTime getLastUpdateTime();
 
     /**
      * 获取对象描述

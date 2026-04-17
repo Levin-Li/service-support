@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.beans.Transient;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
 
@@ -62,7 +63,7 @@ public interface RbacCoreObject extends Serializable, Identifiable, NamedObject,
      * @return date
      */
     @Override
-    default Date getExpiredTime() {
+    default LocalDateTime getExpiredTime() {
         return null;
     }
 

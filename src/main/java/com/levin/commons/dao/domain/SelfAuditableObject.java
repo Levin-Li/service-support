@@ -4,6 +4,7 @@ import com.levin.commons.service.domain.Identifiable;
 import io.swagger.v3.oas.annotations.Operation;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -49,7 +50,7 @@ public interface SelfAuditableObject {
 
         if (this instanceof ExpiredObject
                 && ((ExpiredObject) this).getExpiredTime() != null
-                && ((ExpiredObject) this).getExpiredTime().before(new Date())) {
+                && ((ExpiredObject) this).getExpiredTime().isBefore(LocalDateTime.now())) {
             return auditErrorFun.apply("object expired");
         }
 

@@ -5,10 +5,8 @@ import com.levin.commons.service.domain.Desc;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.*;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeMirror;
@@ -23,8 +21,7 @@ import java.util.stream.Collectors;
 
 @SupportedAnnotationTypes({
         "com.levin.commons.annotation.GenNameConstant",})
-//@SupportedSourceVersion(SourceVersion.RELEASE_6)
-//@com.google.auto.service.AutoService(Processor.class)
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
 public class GenNameConstantProcessor extends AbstractProcessor {
 
     final Map<String, Object> processedFiles = new ConcurrentHashMap<>();

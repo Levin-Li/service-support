@@ -6,10 +6,8 @@ import com.levin.commons.utils.LangUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.*;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
@@ -35,7 +33,7 @@ import java.util.stream.Collectors;
                 "jakarta.persistence.Entity"
         }
 )
-//@SupportedSourceVersion(SourceVersion.RELEASE_6)
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
 public class JpaEntityClassProcessor extends AbstractProcessor {
 
     final Map<String, Object> processedFiles = new ConcurrentHashMap<>();
@@ -63,7 +61,7 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
             Class<? extends Annotation> annoType = null;
 
             try {
-                annoType = (Class<? extends Annotation>) Class.forName(typeName);
+                annoType = (Class<? extends Annotation>) getClass().getClassLoader().loadClass(typeName);
 
                 this.processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, getClass().getSimpleName() + " start process type [ " + typeName + " ]...");
 
