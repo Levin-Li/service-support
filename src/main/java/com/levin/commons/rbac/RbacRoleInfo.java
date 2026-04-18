@@ -45,6 +45,11 @@ public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPubl
     @Schema(title = "角色编码", description = "以R_开头")
     String getCode();
 
+    @Schema(title = "是否可继承", description = "默认为true")
+    default boolean isInheritable() {
+        return true;
+    }
+
     @Schema(title = "继承的角色编码列表", description = "可以使用*?通配符")
     default Collection<String> getInheritedRoleList() {
         return Collections.emptyList();
