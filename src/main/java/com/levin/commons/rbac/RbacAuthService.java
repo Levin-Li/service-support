@@ -5,6 +5,7 @@ import java.util.Map;
 
 /**
  * 简单认证服务
+ * @author lilw
  */
 public interface RbacAuthService<TOKEN extends Serializable, UID extends Serializable> {
 
