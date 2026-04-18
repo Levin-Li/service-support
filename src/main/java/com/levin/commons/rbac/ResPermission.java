@@ -1,5 +1,6 @@
 package com.levin.commons.rbac;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,12 +12,22 @@ import java.io.Serializable;
 
 /**
  * 资源许可
+ *
+ * @author lilw
  */
 
 @Data
 @Accessors(chain = true)
 @FieldNameConstants
 @EqualsAndHashCode
+@JsonAutoDetect(
+        // 只序列化字段
+        fieldVisibility = JsonAutoDetect.Visibility.ANY,
+        // 忽略所有 getter
+        getterVisibility = JsonAutoDetect.Visibility.NONE,
+        // 忽略 isXXX
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE
+)
 public class ResPermission implements Permission, Serializable {
 
     @Schema(title = "资源域", description = "逗号隔开")
@@ -50,9 +61,10 @@ public class ResPermission implements Permission, Serializable {
 
         return new ResPermission()
                 .setDomain(txts[0])
-                .setType(txts[1])
-                .setRes(txts[2])
-                .setAction(txts[3]);
+                .setType(txts.length > 1 ? txts[1] : "*")
+                .setRes(txts.length > 2 ? txts[2] : "*")
+                .setAction(txts.length > 3 ? txts[3] : "*");
+
     }
 
     /**

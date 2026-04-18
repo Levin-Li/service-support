@@ -1,5 +1,6 @@
 package com.levin.commons.rbac;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.levin.commons.annotation.GenNameConstant;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -28,6 +29,15 @@ import java.lang.annotation.Annotation;
 @Data
 @Accessors(fluent = true, chain = true)
 @GenNameConstant
+
+@JsonAutoDetect(
+        // 只序列化字段
+        fieldVisibility = JsonAutoDetect.Visibility.ANY,
+        // 忽略所有 getter
+        getterVisibility = JsonAutoDetect.Visibility.NONE,
+        // 忽略 isXXX
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE
+)
 public class ResConditionActionObject implements ResConditionAction {
 
     @Schema(title = "ID")

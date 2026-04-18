@@ -1,5 +1,6 @@
 package com.levin.commons.rbac;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.levin.commons.annotation.GenNameConstant;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -14,6 +15,16 @@ import java.util.Collection;
 @Data
 @Accessors(chain = true)
 @ToString
+
+@JsonAutoDetect(
+        // 只序列化字段
+        fieldVisibility = JsonAutoDetect.Visibility.ANY,
+        // 忽略所有 getter
+        getterVisibility = JsonAutoDetect.Visibility.NONE,
+        // 忽略 isXXX
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE
+)
+
 public class SimpleDataScope implements DataScope {
 
     @Schema(title = "组织范围")

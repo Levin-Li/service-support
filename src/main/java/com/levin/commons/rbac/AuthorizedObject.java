@@ -1,6 +1,8 @@
 package com.levin.commons.rbac;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -20,6 +22,7 @@ public interface AuthorizedObject {
      *
      * @return
      */
+    @Schema(title = "访问当前对象需要的授权清单")
     Collection<String> getRequireAuthorizations();
 
 }

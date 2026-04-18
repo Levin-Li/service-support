@@ -50,7 +50,7 @@ public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPubl
         return Collections.emptyList();
     }
 
-    @Schema(title = "角色分配的前置条件", description = "是指把角色分配给用户时, 必须先满足的条件, 一般是表达式,如 user.type = '2' ")
+    @Schema(title = "角色分配的前置条件", description = "默认为groovy脚本, 是指把角色分配给用户时, 必须先满足的条件, 一般是表达式,如 user.type = '2' ")
     default String getRoleAssignPreCondition() {
         return "";
     }

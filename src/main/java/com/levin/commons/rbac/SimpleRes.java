@@ -1,5 +1,6 @@
 package com.levin.commons.rbac;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,6 +19,14 @@ import java.util.List;
 @Accessors(chain = true)
 @EqualsAndHashCode(of = {"domain", "type", "id"})
 @FieldNameConstants
+@JsonAutoDetect(
+        // 只序列化字段
+        fieldVisibility = JsonAutoDetect.Visibility.ANY,
+        // 忽略所有 getter
+        getterVisibility = JsonAutoDetect.Visibility.NONE,
+        // 忽略 isXXX
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE
+)
 public class SimpleRes
         implements Res {
 

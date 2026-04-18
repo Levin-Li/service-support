@@ -1,5 +1,6 @@
 package com.levin.commons.rbac;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.levin.commons.annotation.GenNameConstant;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -13,6 +14,7 @@ import lombok.experimental.Accessors;
 @ToString
 @GenNameConstant
 @EqualsAndHashCode(of = {"tenantExpression", "orgId", "isAllow", "expressionType", "orgScopeExpression"})
+
 public class SimpleOrgScope implements OrgScope {
 
     @Schema(title = "租户匹配表达式")
