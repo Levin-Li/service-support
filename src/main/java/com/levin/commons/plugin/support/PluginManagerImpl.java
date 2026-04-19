@@ -19,15 +19,19 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.lang.Nullable;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.StringUtils;
 
 import jakarta.annotation.PostConstruct;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -196,7 +200,7 @@ public class PluginManagerImpl implements PluginManager,
         if (asyncTaskExecutor == null) {
             log.warn("plugin manager asyncTaskExecutor [pluginAsyncTaskExecutor] not set");
             //使用 Spring boot 标准的名字
-            asyncTaskExecutor = beanFactory.getBean("applicationTaskExecutor", AsyncTaskExecutor.class);
+            asyncTaskExecutor = beanFactory.getBeanProvider(AsyncTaskExecutor.class).stream().findFirst().orElse(new SimpleAsyncTaskExecutor());
         }
 
         asyncTaskExecutor.execute(() -> syncSendEvent(pluginId, events));
