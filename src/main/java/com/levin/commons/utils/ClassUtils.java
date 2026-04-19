@@ -20,6 +20,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 import jakarta.annotation.PostConstruct;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -28,6 +29,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -177,6 +179,55 @@ public final class ClassUtils {
             this.attrs.add(new Attr().name(name).value(sub));
 
             return sub;
+        }
+
+        /**
+         * 获取简单泛型字符串
+         *
+         * @param type
+         * @param type2StrFun
+         * @return
+         */
+        public static String resolvableType2GenericStr(ResolvableType type, Function<Class<?>, String> type2StrFun) {
+
+            if (type2StrFun == null) {
+                type2StrFun = Class::getSimpleName;
+            }
+
+            Class<?> resolved = type.resolve();
+
+            if (resolved == null) {
+                return type.toString();
+            }
+
+            // ========== 修复点 1：判断是否为数组 ==========
+            final boolean isArray = resolved.isArray();
+
+            // 如果是数组，strip掉[]，拿到基础类型
+            resolved = resolved.isArray() ? resolved.getComponentType() : resolved;
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.append(type2StrFun.apply(resolved));
+
+            // ========== 修复点 2：处理泛型 ==========
+            ResolvableType[] generics = type.getGenerics();
+
+            if (generics.length > 0) {
+                sb.append("<");
+                for (int i = 0; i < generics.length; i++) {
+                    if (i > 0) sb.append(",");
+                    sb.append(resolvableType2GenericStr(generics[i], type2StrFun));
+                }
+                sb.append(">");
+            }
+
+            // ========== 修复点 3：追加数组符号 [] ==========
+            if (isArray) {
+                sb.append("[]");
+            }
+
+            return sb.toString();
         }
 
 
