@@ -369,6 +369,7 @@ public final class ClassUtils {
         if (visited.containsKey(resolved)) {
             return type2StrFun.apply(resolved);
         }
+
         visited.put(resolved, Boolean.TRUE);
 
         // ========== 修复点 1：判断是否为数组 ==========
