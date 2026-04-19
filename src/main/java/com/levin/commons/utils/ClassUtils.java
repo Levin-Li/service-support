@@ -181,56 +181,6 @@ public final class ClassUtils {
             return sub;
         }
 
-        /**
-         * 获取简单泛型字符串
-         *
-         * @param type
-         * @param type2StrFun
-         * @return
-         */
-        public static String resolvableType2GenericStr(ResolvableType type, Function<Class<?>, String> type2StrFun) {
-
-            if (type2StrFun == null) {
-                type2StrFun = Class::getSimpleName;
-            }
-
-            Class<?> resolved = type.resolve();
-
-            if (resolved == null) {
-                return type.toString();
-            }
-
-            // ========== 修复点 1：判断是否为数组 ==========
-            final boolean isArray = resolved.isArray();
-
-            // 如果是数组，strip掉[]，拿到基础类型
-            resolved = resolved.isArray() ? resolved.getComponentType() : resolved;
-
-            StringBuilder sb = new StringBuilder();
-
-            sb.append(type2StrFun.apply(resolved));
-
-            // ========== 修复点 2：处理泛型 ==========
-            ResolvableType[] generics = type.getGenerics();
-
-            if (generics.length > 0) {
-                sb.append("<");
-                for (int i = 0; i < generics.length; i++) {
-                    if (i > 0) sb.append(",");
-                    sb.append(resolvableType2GenericStr(generics[i], type2StrFun));
-                }
-                sb.append(">");
-            }
-
-            // ========== 修复点 3：追加数组符号 [] ==========
-            if (isArray) {
-                sb.append("[]");
-            }
-
-            return sb.toString();
-        }
-
-
         protected Class<?> loadClass(String cls) throws ClassNotFoundException {
             return Stream.of(this.anType, this.parentType, getClass()).filter(Objects::nonNull).findFirst().get().getClassLoader().loadClass(cls);
         }
@@ -391,14 +341,55 @@ public final class ClassUtils {
     }
 
 
-    public static String revertAnnotation(Field target, Annotation annotation) {
+    /**
+     * 获取简单泛型字符串
+     *
+     * @param type
+     * @param type2StrFun
+     * @return
+     */
+    public static String resolvableType2GenericStr(ResolvableType type, Function<Class<?>, String> type2StrFun) {
 
-        Class<?> declaringClass = target.getDeclaringClass();
+        if (type2StrFun == null) {
+            type2StrFun = Class::getSimpleName;
+        }
 
-        //annotation.
+        Class<?> resolved = type.resolve();
 
-        return null;
+        if (resolved == null) {
+            return type.toString();
+        }
+
+        // ========== 修复点 1：判断是否为数组 ==========
+        final boolean isArray = resolved.isArray();
+
+        // 如果是数组，strip掉[]，拿到基础类型
+        resolved = resolved.isArray() ? resolved.getComponentType() : resolved;
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(type2StrFun.apply(resolved));
+
+        // ========== 修复点 2：处理泛型 ==========
+        ResolvableType[] generics = type.getGenerics();
+
+        if (generics.length > 0) {
+            sb.append("<");
+            for (int i = 0; i < generics.length; i++) {
+                if (i > 0) sb.append(",");
+                sb.append(resolvableType2GenericStr(generics[i], type2StrFun));
+            }
+            sb.append(">");
+        }
+
+        // ========== 修复点 3：追加数组符号 [] ==========
+        if (isArray) {
+            sb.append("[]");
+        }
+
+        return sb.toString();
     }
+
 
 
     /**
