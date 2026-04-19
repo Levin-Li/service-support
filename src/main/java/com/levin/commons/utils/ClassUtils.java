@@ -340,6 +340,9 @@ public final class ClassUtils {
         return invokeMethodByAnnotationTag(bean, false, PostConstruct.class, args);
     }
 
+    public static String resolvableType2GenericStr(ResolvableType type, Function<Class<?>, String> type2StrFun) {
+        return resolvableType2GenericStr(type, new IdentityHashMap<>(), type2StrFun);
+    }
 
     /**
      * 获取简单泛型字符串
@@ -348,7 +351,7 @@ public final class ClassUtils {
      * @param type2StrFun
      * @return
      */
-    public static String resolvableType2GenericStr(ResolvableType type, Function<Class<?>, String> type2StrFun) {
+    public static String resolvableType2GenericStr(ResolvableType type, Map<Class<?>, Boolean> visited, Function<Class<?>, String> type2StrFun) {
 
         if (type2StrFun == null) {
             type2StrFun = Class::getSimpleName;
@@ -359,6 +362,14 @@ public final class ClassUtils {
         if (resolved == null) {
             return type.toString();
         }
+
+        // ========================
+        // 关键：防止递归死循环
+        // ========================
+        if (visited.containsKey(resolved)) {
+            return type2StrFun.apply(resolved);
+        }
+        visited.put(resolved, Boolean.TRUE);
 
         // ========== 修复点 1：判断是否为数组 ==========
         final boolean isArray = resolved.isArray();
@@ -377,7 +388,7 @@ public final class ClassUtils {
             sb.append("<");
             for (int i = 0; i < generics.length; i++) {
                 if (i > 0) sb.append(",");
-                sb.append(resolvableType2GenericStr(generics[i], type2StrFun));
+                sb.append(resolvableType2GenericStr(generics[i], visited, type2StrFun));
             }
             sb.append(">");
         }
@@ -389,7 +400,6 @@ public final class ClassUtils {
 
         return sb.toString();
     }
-
 
 
     /**
