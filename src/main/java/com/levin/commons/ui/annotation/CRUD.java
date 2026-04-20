@@ -84,10 +84,10 @@ public @interface CRUD {
         @Schema(title = "无")
         None,
 
-        @Schema(title = "单条数据")
+        @Schema(title = "单条数据", description = "列表中的单条数据")
         SingleRow,
 
-        @Schema(title = "多条数据")
+        @Schema(title = "多条数据", description = "列表中的多条数据, 如批量删除,批量更新")
         MultipleRow,
 
         @Schema(title = "列表")

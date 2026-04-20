@@ -151,7 +151,7 @@ public class ModelUtils {
 
         Map<String, List<CRUDOpModel>> groupedOps = new LinkedHashMap<>();
         for (CRUDOpModel opModel : opModels) {
-            if (opModel == null || !hasText(opModel.opRefTargetName())) {
+            if (opModel == null || !hasText(opModel.opRefTargetListName())) {
                 continue;
             }
 
@@ -160,7 +160,7 @@ public class ModelUtils {
                 continue;
             }
 
-            groupedOps.computeIfAbsent(opModel.opRefTargetName(), key -> new ArrayList<>()).add(opModel);
+            groupedOps.computeIfAbsent(opModel.opRefTargetListName(), key -> new ArrayList<>()).add(opModel);
         }
 
         for (CRUDListTableModel listTableModel : listTableModels) {
