@@ -44,7 +44,7 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "列表名称", description = "用于关联CURD的操作")
+        @Schema(title = "列表名称", description = "通常用于关联[CURD.OP]的[opRefTargetName]属性")
         String name() default "default";
 
         /**
@@ -103,7 +103,7 @@ public @interface CRUD {
         @Schema(title = "自动选择")
         Auto,
 
-        @Schema(title = "对话框")
+        @Schema(title = "弹出式对话框")
         Dialog,
 
         @Schema(title = "抽屉")
@@ -176,16 +176,16 @@ public @interface CRUD {
         @Schema(title = "前进")
         Next,
 
-        @Schema(title = "复制")
+        @Schema(title = "复制", description = "复制API接口或是动作返回的数据到操作系统黏贴板")
         Copy,
 
-        @Schema(title = "关闭")
+        @Schema(title = "关闭", description = "关闭当前页面或是弹窗")
         Close,
 
-        @Schema(title = "更新当前数据")
+        @Schema(title = "更新当前数据", description = "把API接口或是动作返回的数据更新到当前这条数据")
         UpdateData,
 
-        @Schema(title = "刷新列表数据")
+        @Schema(title = "重新加载列表数据", description = "通常用于列表页面")
         ReloadDataList
     }
 
@@ -250,7 +250,7 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "操作等级")
+        @Schema(title = "操作等级", description = "操作等级,通常影响")
         Level level() default Level.Auto;
 
         /**
@@ -258,7 +258,7 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "操作动作")
+        @Schema(title = "操作动作", description = "默认自动选择, 如果注解标注在控制器方法上, [Auto]就是对应到[Ajax]")
         Action action() default Action.Auto;
 
         /**
@@ -276,7 +276,7 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "操作使用的数据", description = "一般情况下使用当前记录的数据")
+        @Schema(title = "操作使用的数据", description = "一般情况下使用当前记录的数据, 一般接口通常是直接使用数据的id属性")
         String actionData() default "";
 
         /**
@@ -291,7 +291,6 @@ public @interface CRUD {
          */
         @Schema(title = "操作按钮的显示条件", description = "js脚本,  支持的变量:__user 当前登录用户信息; 如果是关联单条记录的操作 还要支持当前记录的所有属性")
         String visibleOn() default "";
-
         ////////////////////////////////////////////////////////////////////////
 
         /**
@@ -319,7 +318,7 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "操作后动作使用的数据", description = "一般情况下使用Api调用结果的数据")
+        @Schema(title = "操作后的动作使用的数据", description = "默认为空, 表示直接使用api接口返回的数据, 支持 ${} 表达式, 如${data.detail} 表示使用返回Json中data属性中的detail属性")
         String resultActionData() default "";
 
         /**
@@ -339,8 +338,8 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "操作关联的名字", description = "如果为空，则表示是页面的操作")
-        String opRefTargetName() default "default";
+        @Schema(title = "操作关联的目标列表名称", description = "如果为空，则表示是页面的操作")
+        String opRefTargetListName() default "default";
 
         /**
          * 列表描述

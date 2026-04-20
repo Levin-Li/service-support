@@ -78,7 +78,7 @@ public class CRUDOpModel implements CRUD.Op {
     CRUD.OpRefTargetType opRefTargetType = CRUD.OpRefTargetType.SingleRow;
 
     @Schema(title = "操作关联的名字", description = "如果为空，则表示是页面的操作")
-    String opRefTargetName = "default";
+    String opRefTargetListName = "default";
 
     String desc = "";
 
