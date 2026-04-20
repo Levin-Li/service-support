@@ -155,8 +155,7 @@ public class ModelUtils {
                 continue;
             }
 
-            if (opModel.opRefTargetType() == CRUD.OpRefTargetType.None
-                    || opModel.opRefTargetType() == CRUD.OpRefTargetType.Other) {
+            if (opModel.opRefTargetType() == CRUD.OpRefTargetType.None ) {
                 continue;
             }
 

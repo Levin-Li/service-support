@@ -92,9 +92,7 @@ public @interface CRUD {
 
         @Schema(title = "列表")
         ListTable,
-
-        @Schema(title = "其他")
-        Other;
+        ;
     }
 
     @Schema(title = "视图容器类型")
