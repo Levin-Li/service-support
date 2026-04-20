@@ -62,14 +62,7 @@ public @interface FormLayout {
     @Schema(title = "展示分类", description = "通常用于表单项过多时, 展示基本部分还是全部, 比如高级搜索,简单搜索, 基本信息, 更多信息等场景")
     String[] showCategories() default {"更多"};
 
-    /**
-     * 要布局的分组
-     * 默认为空分组，即无分组的表单项
-     * <p>
-     * 通过组标识实现布局嵌套，通过（dot）分割
-     *
-     * @return
-     */
+
     @Schema(title = "分组", description = "分组关联表单项, 通过布局分组实现布局嵌套，通过点分割,如base.addr,标识这个布局是嵌套在base组中")
     String group() default "";
 

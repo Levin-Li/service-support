@@ -17,14 +17,6 @@ public @interface JsonSchemaEditor {
     @Schema(title = "标题", description = "默认为被注解字段的@Schema.title属性")
     String title() default "";
 
-    /**
-     * class: xx.xx.xx
-     * attrName: 当前类的属性名
-     * id: xx
-     * 默认当前字段的类型
-     *
-     * @return
-     */
     @Schema(description = "支持3种格式: 1类名, 2 Url, 3 被注解字段同个类的属性名. 如: 1 com.test.UserAddress  2 :attrName 3 /sys/jsonSchema/userAddr.json")
     String jsonSchema() default "";
 
@@ -34,10 +26,5 @@ public @interface JsonSchemaEditor {
     @Schema(title = "列数", description = "默认为-1, 表示自动处理, 建议总字段数除7行,得出列数,但是不能超过父布局器的列数")
     int columns() default -1;
 
-    /**
-     * 描述
-     *
-     * @return
-     */
     String desc() default "";
 }

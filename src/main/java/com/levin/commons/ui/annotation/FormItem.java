@@ -19,17 +19,7 @@ import java.lang.annotation.*;
 @Inherited
 public @interface FormItem {
 
-    /**
-     * 表单项名称
-     * 对应查询对象的字段名称，或是API接口的URL参数名称
-     * <p>
-     * "name": "${name}",
-     * "email": "${email}",
-     * <p>
-     * 参考文档： https://aisuda.bce.baidu.com/amis/zh-CN/docs/concepts/data-mapping
-     *
-     * @return
-     */
+
     @Schema(title = "表单项名称", description = "对应查询对象字段名称，或是API接口的URL参数名称")
     String name() default "";
 
@@ -58,6 +48,7 @@ public @interface FormItem {
      * @return
      */
     String desc() default "";
+
 
     @Schema(title = "适用场景", description = "适用的业务场景, 场景名称通常是api接口的名称 , 默认无限制, 如query/create/update/view/detail/list/")
     String[] scenes() default {};

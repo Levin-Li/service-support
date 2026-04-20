@@ -4,7 +4,6 @@ package com.levin.commons.ui.annotation;
 import com.levin.commons.service.domain.EnumDesc;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.io.Serializable;
 import java.lang.annotation.*;
 
 /**
@@ -37,6 +36,7 @@ public @interface CRUD {
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
     @Schema(title = "列表", description = "通常注解在控制器的列表方法上")
+    @Inherited
     @interface ListTable {
 
         /**
@@ -52,7 +52,7 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "标题", description = "通常用于在一个CURD页面中有多个列表时")
+        @Schema(title = "标题", description = "通常用于在一个CURD页面中有多个列表时, 默认获取[refEntityClass]属性指定类的@Schema注解的title属性")
         String title() default "";
 
 
@@ -66,11 +66,13 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "显示条件", description = "Js脚本")
+        @Schema(title = "显示条件", description = "Js脚本, 支持的变量:__user 当前登录用户信息;")
         String visibleOn() default "";
+
 
         @Schema(title = "样式", description = "样式")
         String style() default "";
+
 
         String desc() default "";
 
@@ -195,6 +197,7 @@ public @interface CRUD {
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
     @Schema(title = "操作", description = "通常注解在控制器方法上")
+    @Inherited
     @interface Op {
 
         /**
@@ -286,7 +289,7 @@ public @interface CRUD {
          *
          * @return
          */
-        @Schema(title = "操作按钮的显示条件", description = "js脚本, 需要支持 _user 变量, 如果是关联单条记录的操作")
+        @Schema(title = "操作按钮的显示条件", description = "js脚本,  支持的变量:__user 当前登录用户信息; 如果是关联单条记录的操作 还要支持当前记录的所有属性")
         String visibleOn() default "";
 
         ////////////////////////////////////////////////////////////////////////
