@@ -15,31 +15,25 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
     @Schema(title = "动作类型")
     enum ActionType implements EnumDesc {
 
-        @Schema(title = "默认")
+        @Schema(title = "默认", description = "具体如何展示,前端自行处理")
         Default,
-
-        @Schema(title = "模态窗口")
-        ModalWindow,
 
         @Schema(title = "Tab栏")
         TabPanel,
 
-        @Schema(title = "Tab栏Iframe")
-        TabPanelIFrame,
+        @Schema(title = "模态窗口")
+        ModalWindow,
 
-        @Schema(title = "新浏览器窗口")
+        @Schema(title = "新浏览器窗口", description = "新浏览器窗口打开path指定的页面加参数params")
         NewWindow,
 
         @Schema(title = "地址栏重定向")
         Redirect,
 
-        @Schema(title = "路径重写")
-        Rewrite,
-
-        @Schema(title = "jsonp回调")
+        @Schema(title = "jsonp回调", description = "调用远程path指定的远程js, 同时携带参数params")
         Jsonp,
 
-        @Schema(title = "服务端动作")
+        @Schema(title = "服务端动作", description = "调用path指定的API, 同时携带参数params")
         ServerSideAction;
 
         @Override
