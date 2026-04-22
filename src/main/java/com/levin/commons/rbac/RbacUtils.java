@@ -1,7 +1,9 @@
 package com.levin.commons.rbac;
 
+import cn.hutool.core.util.StrUtil;
 import com.levin.commons.service.domain.SimpleIdentifiable;
 import com.levin.commons.service.support.SpringContextHolder;
+import com.levin.commons.ui.annotation.CRUD;
 import com.levin.commons.utils.DisableApiOperationUtils;
 import com.levin.commons.utils.JsonStrArrayUtils;
 import com.levin.commons.utils.MapUtils;
@@ -18,6 +20,7 @@ import org.springframework.util.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import jakarta.validation.constraints.NotNull;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -349,7 +352,6 @@ public abstract class RbacUtils {
 
     }
 
-
     /**
      * 扫描控制器并构建菜单项
      * <p>
@@ -385,13 +387,12 @@ public abstract class RbacUtils {
                     defaultName = defaultName.substring(0, defaultName.length() - "Controller".length());
                 }
 
-                MenuResTag menuResTag = AnnotatedElementUtils.findMergedAnnotation(type, MenuResTag.class);
-                Tag tag = AnnotatedElementUtils.findMergedAnnotation(type, Tag.class);
-
-                if (menuResTag == null || !menuResTag.value()) {
-                    //忽略非菜单资源标记的控制器
+                CRUD crud = AnnotatedElementUtils.findMergedAnnotation(type, CRUD.class);
+                if (crud == null) {
                     continue;
                 }
+
+                Tag tag = AnnotatedElementUtils.findMergedAnnotation(type, Tag.class);
 
                 RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(type, RequestMapping.class);
 
@@ -430,7 +431,8 @@ public abstract class RbacUtils {
                         //设置路径
                         .setPath(Arrays.asList(mapping != null ? mapping.path() : new String[0]).stream().filter(StringUtils::hasText).findFirst().orElse(defaultName))
                         //设置菜单名称
-                        .setName(Collections.singletonList(tag != null ? tag.description() : null).stream().filter(StringUtils::hasText).findFirst().orElse(defaultName))
+                        .setName(StrUtil.firstNonBlank(crud.title(), tag == null ? null : tag.name(), defaultName))
+                        .setRemark(StrUtil.firstNonBlank(crud.desc(), tag == null ? null : tag.description(), ""))
                 ;
 
                 menuItems.add(menuRes);

@@ -23,7 +23,7 @@ public @interface CRUD {
     @Schema(title = "名称", description = "为空则默认取控制器@Tag注解的name属性值")
     String name() default "";
 
-    @Schema(title = "标题")
+    @Schema(title = "标题", description = "通常可以做为菜单名字")
     String title() default "";
 
     @Schema(title = "样式", description = "自定义样式")
