@@ -36,7 +36,7 @@ public @interface Options {
     @Schema(title = "系统的字典编码")
     String dictCode() default "";
 
-    @Schema(title = "关联的目标类型", description = "枚举类,或是关联的实体类,或是Dao查询对象")
+    @Schema(title = "关联的目标类型", description = "枚举类或是实体类")
     Class<?> refTargetType() default Void.class;
 
     @Schema(title = "自定义加载选项加载API", description = "优先级最低")
@@ -67,7 +67,7 @@ public @interface Options {
     @Schema(title = "列映射表达式", description = "每一个选项支持 3个属性，value, label, desc;; 如果都不配置，则默认为value, label")
     String[] columnMapExpr() default {};
 
-    @Schema(title = "搜索参数名称", description = "搜索时附加的参数名称")
-    String searchParamName() default "name";
+    @Schema(title = "搜索参数名称", description = "搜索时附加的参数名称, 一般根据实体类控制器的list接口参数,模糊查找参数名优先")
+    String searchParamName() default "";
 
 }
