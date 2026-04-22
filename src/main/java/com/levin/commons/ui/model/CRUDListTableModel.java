@@ -5,6 +5,7 @@ import com.levin.commons.ui.annotation.CRUD;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
 
 import java.lang.annotation.Annotation;
@@ -44,7 +45,7 @@ public class CRUDListTableModel implements CRUD.ListTable {
     String title = "";
 
     @Schema(title = "列表关联的实体类", description = "也可能不是具体的一个实体")
-    Class<?> refEntityClass = Void.class;
+    String refEntityClassName = "";
 
     @Schema(title = "显示条件", description = "Js脚本")
     String visibleOn = "";
@@ -52,10 +53,22 @@ public class CRUDListTableModel implements CRUD.ListTable {
     @Schema(title = "样式", description = "样式")
     String style = "";
 
+    @Schema(title = "描述", description = "为空则默认获取本注解[refEntityClass]属性指定类的@Schema注解的description属性值")
     String desc = "";
 
     @Schema(title = "操作列表", description = "归属本列表的操作")
     List<CRUDOpModel> opList = new ArrayList<>();
+
+    @Override
+    @SneakyThrows
+    public Class<?> refEntityClass() {
+        return (refEntityClassName == null || refEntityClassName.isBlank() || refEntityClassName.trim().equals(Void.class.getName())) ? Void.class : getClass().getClassLoader().loadClass(refEntityClassName);
+    }
+
+    public CRUDListTableModel refEntityClass(Class<?> refEntityClass) {
+        this.refEntityClassName = refEntityClass == null ? "" : refEntityClass.getName();
+        return this;
+    }
 
     @Override
     public Class<? extends Annotation> annotationType() {

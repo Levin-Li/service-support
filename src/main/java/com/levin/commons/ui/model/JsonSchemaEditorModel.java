@@ -41,6 +41,7 @@ public class JsonSchemaEditorModel implements JsonSchemaEditor {
     @Schema(title = "列数", description = "默认为-1, 表示自动处理, 建议总字段数除7行,得出列数,但是不能超过父布局器的列数")
     int columns = -1;
 
+    @Schema(title = "描述", description = "默认取@Schema.description属性")
     String desc = "";
 
     @Override

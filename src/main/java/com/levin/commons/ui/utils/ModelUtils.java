@@ -7,6 +7,7 @@ import com.levin.commons.ui.annotation.FormItem;
 import com.levin.commons.ui.annotation.FormLayout;
 import com.levin.commons.ui.annotation.JsonSchemaEditor;
 import com.levin.commons.ui.annotation.Options;
+import com.levin.commons.ui.annotation.UiIgnore;
 import com.levin.commons.ui.model.CRUDModel;
 import com.levin.commons.ui.model.CRUDListTableModel;
 import com.levin.commons.ui.model.CRUDOpModel;
@@ -19,8 +20,10 @@ import com.levin.commons.ui.model.OptionsModel;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -30,16 +33,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Date;
 
 public class ModelUtils {
 
     public static CRUDModel genModelByClass(Class<?> clazz) {
         if (clazz == null) {
+            return null;
+        }
+
+        if (findClassAnnotation(clazz, UiIgnore.class) != null) {
             return null;
         }
 
@@ -57,19 +64,24 @@ public class ModelUtils {
         crudModel.className(clazz.getName());
         crudModel.alias(defaultText(crudModel.alias(), buildClassAlias(clazz, crud, tag)));
         crudModel.name(defaultText(crudModel.name(), tag != null ? tag.name() : "", clazz.getSimpleName()));
-        crudModel.title(defaultText(crudModel.title(), tag != null ? tag.description() : ""));
+        crudModel.title(defaultText(crudModel.title(), crudModel.name()));
+        crudModel.desc(defaultText(crudModel.desc(), tag != null ? tag.description() : ""));
 
         List<CRUDListTableModel> listTableModels = new ArrayList<>();
         List<CRUDOpModel> opModels = new ArrayList<>();
 
         for (Method method : getPublicMethods(clazz)) {
 
-            CRUD.ListTable listTable = method.getAnnotation(CRUD.ListTable.class);
+            if (findAnnotation(method, UiIgnore.class) != null) {
+                continue;
+            }
+
+            CRUD.ListTable listTable = findAnnotation(method, CRUD.ListTable.class);
             if (listTable != null) {
                 listTableModels.add(buildListTableModel(clazz, method, listTable));
             }
 
-            CRUD.Op op = method.getAnnotation(CRUD.Op.class);
+            CRUD.Op op = findAnnotation(method, CRUD.Op.class);
             if (op != null) {
                 opModels.add(buildOpModel(clazz, method, op));
             }
@@ -88,24 +100,25 @@ public class ModelUtils {
         CRUDListTableModel model = new CRUDListTableModel();
         copyAnnotationValues(annotation, model);
 
-        Operation operation = method.getAnnotation(Operation.class);
+        Operation operation = findAnnotation(method, Operation.class);
+        Schema refEntitySchema = getSchema(annotation.refEntityClass());
 
         model.className(controllerClass.getName());
         model.methodId(method.toGenericString());
         model.methodName(method.getName());
         model.alias(defaultText(model.alias(), buildMethodAlias(controllerClass, method, "listTable")));
 
-        if (!hasText(model.title()) && operation != null) {
-            model.title(operation.summary());
-        }
+        model.title(defaultText(model.title(),
+                refEntitySchema != null ? refEntitySchema.title() : "",
+                operation != null ? operation.summary() : ""));
 
         if ((!hasText(model.name()) || "default".equals(model.name())) && !"list".equals(method.getName())) {
             model.name(method.getName());
         }
 
-        if (!hasText(model.desc()) && operation != null) {
-            model.desc(operation.description());
-        }
+        model.desc(defaultText(model.desc(),
+                refEntitySchema != null ? refEntitySchema.description() : "",
+                operation != null ? operation.description() : ""));
 
         return model;
     }
@@ -115,7 +128,7 @@ public class ModelUtils {
         CRUDOpModel model = new CRUDOpModel();
         copyAnnotationValues(annotation, model);
 
-        Operation operation = method.getAnnotation(Operation.class);
+        Operation operation = findAnnotation(method, Operation.class);
 
         model.className(controllerClass.getName());
         model.methodId(method.toGenericString());
@@ -123,13 +136,7 @@ public class ModelUtils {
         model.alias(defaultText(model.alias(), buildMethodAlias(controllerClass, method, "op")));
         model.name(defaultText(model.name(), method.getName()));
 
-        if (!hasText(model.label()) && operation != null) {
-            model.label(operation.summary());
-        }
-
-        if (!hasText(model.label())) {
-            model.label(method.getName());
-        }
+        model.label(defaultText(model.label(), model.name(), operation != null ? operation.summary() : "", method.getName()));
 
         if (!hasText(model.desc()) && operation != null) {
             model.desc(operation.description());
@@ -170,9 +177,9 @@ public class ModelUtils {
     private static FormModel buildFormModel(Class<?> controllerClass, Method method) {
 
         for (Parameter parameter : method.getParameters()) {
-            Form form = parameter.getAnnotation(Form.class);
+            Form form = findAnnotation(parameter, Form.class);
             if (form == null) {
-                form = parameter.getType().getAnnotation(Form.class);
+                form = findClassAnnotation(parameter.getType(), Form.class);
             }
 
             if (form == null) {
@@ -183,7 +190,7 @@ public class ModelUtils {
             FormModel formModel = new FormModel();
             copyAnnotationValues(form, formModel);
 
-            Schema schema = requestClass.getAnnotation(Schema.class);
+            Schema schema = findClassAnnotation(requestClass, Schema.class);
 
             formModel.className(requestClass.getName());
             formModel.alias(defaultText(formModel.alias(), buildFormAlias(controllerClass, method, requestClass)));
@@ -248,8 +255,8 @@ public class ModelUtils {
             }
 
             FormItemModel itemModel = new FormItemModel();
-            FormItem formItem = field.getAnnotation(FormItem.class);
-            Schema schema = field.getAnnotation(Schema.class);
+            FormItem formItem = findAnnotation(field, FormItem.class);
+            Schema schema = findAnnotation(field, Schema.class);
 
             itemModel.fieldName(field.getName());
             itemModel.alias(buildFieldAlias(field));
@@ -261,9 +268,8 @@ public class ModelUtils {
             itemModel.name(defaultText(itemModel.name(), field.getName()));
 
             if (schema != null) {
-                if (!hasText(itemModel.placeholder())) {
-                    itemModel.placeholder(schema.title());
-                }
+                itemModel.label(defaultText(itemModel.label(), schema.title()));
+                itemModel.placeholder(defaultText(itemModel.placeholder(), itemModel.label()));
 
                 if (!hasText(itemModel.desc())) {
                     itemModel.desc(schema.description());
@@ -274,13 +280,15 @@ public class ModelUtils {
                 }
             }
 
+            itemModel.placeholder(defaultText(itemModel.placeholder(), itemModel.label()));
+
             if (!hasText(itemModel.uiType())) {
                 itemModel.uiType(inferUiType(field));
             }
 
             itemModel.options(buildOptions(field, formItem));
 
-            JsonSchemaEditor editor = field.getAnnotation(JsonSchemaEditor.class);
+            JsonSchemaEditor editor = findAnnotation(field, JsonSchemaEditor.class);
             if (editor != null) {
                 itemModel.jsonSchemaEditor(buildJsonSchemaEditorModel(field, editor));
             }
@@ -297,7 +305,7 @@ public class ModelUtils {
 
         List<OptionsModel> optionsModels = new ArrayList<>();
 
-        Options directOptions = field.getAnnotation(Options.class);
+        Options directOptions = findAnnotation(field, Options.class);
         if (directOptions != null) {
             optionsModels.add(buildOptionsModel(field, directOptions));
         }
@@ -343,9 +351,16 @@ public class ModelUtils {
         model.alias(buildFieldAlias(field) + ":jsonSchema");
 
         if (!hasText(model.title())) {
-            Schema schema = field.getAnnotation(Schema.class);
+            Schema schema = findAnnotation(field, Schema.class);
             if (schema != null) {
                 model.title(schema.title());
+            }
+        }
+
+        if (!hasText(model.desc())) {
+            Schema schema = findAnnotation(field, Schema.class);
+            if (schema != null) {
+                model.desc(schema.description());
             }
         }
 
@@ -354,26 +369,41 @@ public class ModelUtils {
 
     private static boolean shouldBuildFormItem(Field field) {
 
-        if (field.getAnnotation(JsonIgnore.class) != null || Modifier.isTransient(field.getModifiers())) {
+        if (findAnnotation(field, JsonIgnore.class) != null
+                || findAnnotation(field, UiIgnore.class) != null
+                || Modifier.isTransient(field.getModifiers())) {
             return false;
         }
 
-        return field.getAnnotation(FormItem.class) != null
-                || field.getAnnotation(Schema.class) != null
-                || field.getAnnotation(Options.class) != null
-                || field.getAnnotation(JsonSchemaEditor.class) != null;
+        return findAnnotation(field, FormItem.class) != null
+                || findAnnotation(field, Schema.class) != null
+                || findAnnotation(field, Options.class) != null
+                || findAnnotation(field, JsonSchemaEditor.class) != null;
     }
 
     private static <A extends Annotation> A findClassAnnotation(Class<?> clazz, Class<A> annotationClass) {
 
         for (Class<?> current = clazz; current != null && current != Object.class; current = current.getSuperclass()) {
-            A annotation = current.getAnnotation(annotationClass);
+            A annotation = findAnnotation(current, annotationClass);
             if (annotation != null) {
                 return annotation;
             }
         }
 
         return null;
+    }
+
+    private static <A extends Annotation> A findAnnotation(AnnotatedElement element, Class<A> annotationClass) {
+        return element == null ? null : AnnotatedElementUtils.findMergedAnnotation(element, annotationClass);
+    }
+
+    private static Schema getSchema(Class<?> clazz) {
+
+        if (clazz == null || clazz == Void.class || clazz == Void.TYPE) {
+            return null;
+        }
+
+        return findClassAnnotation(clazz, Schema.class);
     }
 
     private static List<Method> getPublicMethods(Class<?> clazz) {

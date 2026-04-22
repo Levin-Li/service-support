@@ -37,12 +37,16 @@ public class FormItemModel implements FormItem {
     @Schema(title = "表单项栅格占位", description = "默认为-1，表示使用布局默认值")
     int span = -1;
 
-    @Schema(title = "占位符", description = "同时也是Label")
+    @Schema(title = "标题", description = "为空默认取字段的@Schema的title")
+    String label = "";
+
+    @Schema(title = "占位符", description = "为空时,默认取label值")
     String placeholder = "";
 
     @Schema(title = "表单项尾部提示", description = "格式：颜色:文字, 比如单位：元，秒等")
     String inputPrompt = "";
 
+    @Schema(title = "表单项描述", description = "表单项的描述信息, 通常用于帮助填写")
     String desc = "";
 
     @Schema(title = "适用场景", description = "适用的业务场景, 场景名称通常是api接口的名称 , 默认无限制, 如query/create/update/view/detail/list/")
@@ -60,10 +64,14 @@ public class FormItemModel implements FormItem {
     @Schema(title = "JsonSchema编辑器", description = "复杂字段关联的JsonSchema编辑器")
     JsonSchemaEditorModel jsonSchemaEditor;
 
+    @Schema(title = "默认值", description = "表单项的默认值")
     String defaultValue = "";
 
-    @Schema(title = "数据校验表达式", description = "Js表达式或是固定规则名称")
+    @Schema(title = "数据校验规则", description = "Js表达式或是固定规则名称, 多个规则必须同时满足; 固定规则按[JSR 380]注解规则,以@开头,如@NotBlank")
     String[] verifyRules = {};
+
+    @Schema(title = "显示条件", description = "前端Js表达式，返回true时布局显示")
+    String visibleOn = "";
 
     @Schema(title = "禁用条件", description = "前端Js表达式，返回true时字段显示但不可编辑")
     String disabledOn = "";
@@ -74,8 +82,8 @@ public class FormItemModel implements FormItem {
     @Schema(title = "只读条件", description = "前端Js表达式，返回true时字段只读，可见、可提交、不可修改")
     String readOnlyOn = "";
 
-    @Schema(title = "隐藏时是否清空值", description = "当字段被隐藏时，是否自动清空字段值，避免联动残值污染提交数据")
-    boolean clearOnHidden = false;
+    @Schema(title = "隐藏时是否提交", description = "当字段被隐藏时，是否提交")
+    boolean submitOnHidden = false;
 
     @Schema(title = "求值转换器", description = "Js表达式或是固定转换器名称")
     String[] dataToUiConvertors = {};
@@ -86,6 +94,7 @@ public class FormItemModel implements FormItem {
     @Schema(title = "表单项Ui类型", description = "表单项的UI类型,如text, Upload, Date等")
     String uiType = "";
 
+    @Schema(title = "表单项样式", description = "表单项的样式")
     String style = "";
 
     @Override
