@@ -21,7 +21,7 @@ public @interface Options {
     @Schema(title = "描述")
     String desc() default "";
 
-    @Schema(title = "是否可多选")
+    @Schema(title = "是否可多选", description = "默认为单选")
     boolean multiSelect() default false;
 
     @Schema(title = "样式")
