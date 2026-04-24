@@ -32,7 +32,6 @@ public interface RbacBaseAuthorizeService {
                 .anyRoles(resAuthorize.anyRoles())
                 .verifyExpression(resAuthorize.verifyExpression())
                 .confidentialLevel(resAuthorize.confidentialLevel())
-                .orgDataScope(resAuthorize.orgDataScope())
                 .ignored(resAuthorize.ignored())
                 .onlyRequireAuthenticated(resAuthorize.onlyRequireAuthenticated())
                 .remark(resAuthorize.remark());
@@ -59,7 +58,6 @@ public interface RbacBaseAuthorizeService {
                 .anyRoles(conditionAction.anyRoles())
                 .verifyExpression(conditionAction.verifyExpression())
                 .confidentialLevel(conditionAction.confidentialLevel())
-                .orgDataScope(conditionAction.orgDataScope())
                 .ignored(conditionAction.ignored())
                 .onlyRequireAuthenticated(conditionAction.onlyRequireAuthenticated())
                 .remark(conditionAction.remark())

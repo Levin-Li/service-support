@@ -1,6 +1,7 @@
 package com.levin.commons.rbac;
 
 import com.levin.commons.annotation.GenNameConstant;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.lang.annotation.*;
 
@@ -54,6 +55,7 @@ public @interface ResConditionAction {
      *
      * @return
      */
+    @Schema(title = "逻辑与模式", description = "权限，角色和表达式3个条件是否都必须满足，否则任意一个满足即视为验证通过")
     boolean isAndMode() default false;
 
     /**
@@ -79,18 +81,6 @@ public @interface ResConditionAction {
      * @return
      */
     int confidentialLevel() default 0;
-
-    /**
-     * 因为注解不允许空值, 所有采用字符串来定义
-     * 数据权限范围, 默认为空表示未定义
-     * 取值范围, 参考枚举类:OrgDataScope
-     * 期望指定部门时, 直接在本属性中填入部门ID,部门ID直接用逗号分隔
-     * eg
-     * Id123,id234,id567
-     *
-     * @return
-     */
-    String orgDataScope() default "";
 
     /**
      * 验证表达式
