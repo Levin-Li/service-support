@@ -52,9 +52,6 @@ public class ResConditionActionObject implements ResConditionAction {
     @Schema(title = "操作")
     String action = "";
 
-    @Schema(title = "操作类型")
-    ActionType[] actionTypes = {};
-
     @Schema(title = "备注")
     String remark = "";
     /// /////////////////////////////////////////////////////////////////////////

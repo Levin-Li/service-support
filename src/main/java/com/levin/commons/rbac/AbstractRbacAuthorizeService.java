@@ -367,7 +367,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
                     if (exprContexts != null) {
                         Stream.of(exprContexts).filter(Objects::nonNull).forEach(ctx::setVariables);
                     }
-                    ctx.setVariable("principal", user);
+                    ctx.setVariable("user", user);
                     ctx.setVariable("action", action);
                     ctx.setVariable("resPrefix", resPrefix);
                     ctx.setVariable("userType", user.getType());
