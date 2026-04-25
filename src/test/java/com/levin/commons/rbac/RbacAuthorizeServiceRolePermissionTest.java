@@ -985,14 +985,14 @@ class RbacAuthorizeServiceRolePermissionTest {
     @Test
     void shouldAssembleLargeOrgTreeWithinReasonableTime() {
         StubRbacBaseService scopedService = new StubRbacBaseService(user);
-        List<TestOrg> orgList = largeWideOrgTree("ROOT", "T1", 3000);
+        List<TestOrg> orgList = largeLayeredOrgTree("ROOT", "T1", 50000, 100);
 
-        List<TestOrg> tree = assertTimeout(Duration.ofSeconds(3),
+        List<TestOrg> tree = assertTimeout(Duration.ofSeconds(2),
                 () -> new ArrayList<>(scopedService.assembleOrgTree(orgList, true, "ROOT")),
-                "大组织树组装应保持线性索引和挂载，不应出现明显性能退化");
+                "50000 个组织节点、100 个层级的组树应在 2 秒内完成");
 
         assertEquals(1, tree.size(), "大组织树应返回一个根节点");
-        assertEquals(2999, tree.get(0).getChildren().size(), "根节点应挂载所有直接子节点");
+        assertEquals(50000, countTreeNodes(tree), "组树后节点总数应完整保留");
         assertEquals("/ROOT/", tree.get(0).getNodePath(), "根节点应正常构建 nodePath");
     }
 
@@ -1011,13 +1011,13 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
                 .setTenantList(Collections.singletonList(new TestTenant("T1", "Tenant1")))
-                .setOrgList(largeWideOrgTree("ROOT", "T1", 3000));
+                .setOrgList(largeLayeredOrgTree("ROOT", "T1", 50000, 100));
 
-        Collection<TestOrg> orgList = assertTimeout(Duration.ofSeconds(3),
+        Collection<TestOrg> orgList = assertTimeout(Duration.ofSeconds(2),
                 () -> scopedService.loadUserAccessibleOrgList(scopedUser, true),
-                "用户可访问组织计算应复用索引，不应对大组织列表出现明显性能退化");
+                "50000 个组织节点、100 个层级的用户可访问组织计算应在 2 秒内完成");
 
-        assertEquals(3000, orgList.size(), "允许根组织全部子树时，应返回完整组织集合");
+        assertEquals(50000, orgList.size(), "允许根组织全部子树时，应返回完整组织集合");
     }
 
     @Test
@@ -1124,16 +1124,47 @@ class RbacAuthorizeServiceRolePermissionTest {
         );
     }
 
-    private static List<TestOrg> largeWideOrgTree(String rootId, String tenantId, int size) {
+    private static List<TestOrg> largeLayeredOrgTree(String rootId, String tenantId, int size, int levels) {
         List<TestOrg> orgList = new ArrayList<>(size);
         orgList.add(new TestOrg(rootId, null, tenantId, rootId));
 
-        for (int i = 1; i < size; i++) {
-            String orgId = rootId + "-" + i;
-            orgList.add(new TestOrg(orgId, rootId, tenantId, orgId));
+        List<String> previousLevelIds = Collections.singletonList(rootId);
+        int remaining = size - 1;
+        int nextIndex = 1;
+
+        for (int level = 1; level < levels && remaining > 0; level++) {
+            int remainingLevels = levels - level;
+            int levelSize = Math.max(1, remaining / remainingLevels);
+            List<String> currentLevelIds = new ArrayList<>(levelSize);
+
+            for (int levelIndex = 0; levelIndex < levelSize; levelIndex++) {
+                String orgId = rootId + "-" + nextIndex++;
+                String parentId = previousLevelIds.get(levelIndex % previousLevelIds.size());
+                orgList.add(new TestOrg(orgId, parentId, tenantId, orgId));
+                currentLevelIds.add(orgId);
+            }
+
+            remaining -= levelSize;
+            previousLevelIds = currentLevelIds;
         }
 
         return orgList;
+    }
+
+    private static int countTreeNodes(Collection<? extends RbacOrgInfo> roots) {
+        int count = 0;
+        Deque<RbacOrgInfo> stack = new ArrayDeque<>(roots);
+
+        while (!stack.isEmpty()) {
+            RbacOrgInfo org = stack.pop();
+            count++;
+            Collection<RbacOrgInfo> children = org.getChildren();
+            if (children != null) {
+                children.forEach(stack::push);
+            }
+        }
+
+        return count;
     }
 
     private static class TestAuthorizeService extends AbstractRbacAuthorizeService {
