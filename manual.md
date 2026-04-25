@@ -121,7 +121,7 @@
 
 - `com.levin.commons.dao.domain`
   一组基础领域接口，例如：
-  `ConfidentialObject`、`EditableTreeNode`、`MultiTenantObject`、`ProxyWrapperObject`
+  `ConfidentialObject`、`MultiTenantObject`、`ProxyWrapperObject`
 
 - `com.levin.commons.utils`
   通用工具类
@@ -872,4 +872,3 @@ RBAC 默认实现已经做了一些性能优化，例如：
    [OrgScope.java](/Users/lilw/IdeaProjects/service-support/src/main/java/com/levin/commons/rbac/OrgScope.java)
    [RbacUserInfo.java](/Users/lilw/IdeaProjects/service-support/src/main/java/com/levin/commons/rbac/RbacUserInfo.java)
    [RbacRoleInfo.java](/Users/lilw/IdeaProjects/service-support/src/main/java/com/levin/commons/rbac/RbacRoleInfo.java)
-

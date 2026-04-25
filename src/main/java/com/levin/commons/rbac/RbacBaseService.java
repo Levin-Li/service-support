@@ -3,7 +3,6 @@ package com.levin.commons.rbac;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import com.levin.commons.dao.domain.ConfidentialObject;
-import com.levin.commons.dao.domain.EditableTreeNode;
 import com.levin.commons.dao.domain.ProxyWrapperObject;
 import com.levin.commons.utils.ExpressionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,15 +32,19 @@ import static com.levin.commons.rbac.RbacMiscUtils.*;
 public interface RbacBaseService extends RbacBaseUserService {
 
     String USER_ROLE_MAX_CONFIDENTIAL_DATA_ACCESS_LEVEL_KEY = RbacUserInfo.class.getName() + ".roleMaxConfidentialDataAccessLevel";
+
     Map<Class<?>, List<Field>> COPYABLE_FIELDS_CACHE = new ConcurrentReferenceHashMap<>();
     Map<Class<?>, Method> CHILDREN_SETTER_CACHE = new ConcurrentReferenceHashMap<>();
     Map<Class<?>, Method> NODE_PATH_SETTER_CACHE = new ConcurrentReferenceHashMap<>();
     Map<Class<?>, Field> CHILDREN_FIELD_CACHE = new ConcurrentReferenceHashMap<>();
     Map<Class<?>, Field> NODE_PATH_FIELD_CACHE = new ConcurrentReferenceHashMap<>();
+
     // 自定义 Groovy 规则的编译结果可以跨请求复用，避免每次重新编译脚本。
     Map<String, Class<Object>> ORG_SCOPE_GROOVY_CLASS_CACHE = new ConcurrentReferenceHashMap<>();
+
     // SpEL 解析本身也有成本，这里缓存编译后的表达式对象。
     Map<String, Expression> ORG_SCOPE_SPEL_CACHE = new ConcurrentReferenceHashMap<>();
+
     SpelExpressionParser ORG_SCOPE_SPEL_PARSER = new SpelExpressionParser();
 
     /**
@@ -82,7 +85,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param <TENANT>
      * @return
      */
-    @Operation(summary = "加载用户能访问的租户列表", description = "onlyEffectOrg 可以指定是否只加载有效租户")
+    @Operation(summary = "加载用户能访问的租户列表", description = "性能扩展点：默认实现会先加载候选租户再在内存中按数据范围过滤；子类可覆盖为按用户、租户表达式或缓存直接裁剪。onlyEffectOrg 可以指定是否只加载有效租户")
     default <TENANT extends RbacTenantInfo> Collection<TENANT> loadUserAccessibleTenantList(Serializable userPrincipal, boolean onlyLoadEffectTenant) {
 
         final RbacUserInfo user = loadUser(userPrincipal);
@@ -150,10 +153,10 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param tenantId 可为null，为 null 时加载无租户的组织
      * @return
      */
-    @Operation(summary = "加载租户的组织列表", description = "tenantId 为 null 时加载无租户的组织, onlyEffectOrg 可以指定是否只加载有效组织, 要求方法返回只读对象")
+    @Operation(summary = "加载租户的组织列表", description = "性能扩展点：组织量大时应由子类在数据层按租户、状态、根节点或 nodePath 预裁剪。tenantId 为 null 时加载无租户组织, onlyEffectOrg 指定是否只加载有效组织, 要求方法返回只读对象")
     <ORG extends RbacOrgInfo> Collection<ORG> loadTenantOrgList(Serializable tenantId, boolean onlyLoadEffectOrg);
 
-    @Operation(summary = "加载用户能访问的组织列表", description = "onlyEffect 可以指定是否只加载有效组织")
+    @Operation(summary = "加载用户能访问的组织列表", description = "性能扩展点：默认实现会按租户加载候选组织后在内存中计算 DataScope；子类可覆盖为 SQL/缓存直接计算用户可访问组织。onlyEffect 可以指定是否只加载有效组织")
     default <ORG extends RbacOrgInfo> Collection<ORG> loadUserAccessibleOrgList(Serializable userPrincipal, boolean onlyLoadEffectOrg) {
 
         RbacUserInfo user = loadUser(userPrincipal);
@@ -227,6 +230,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * 加载“最大候选组织集合”。
      * 包含所有租户组织和无租户公共组织，供顶级超级管理员直接返回，也供普通超管/SaaS 管理员做机密级别过滤。
      */
+    @Operation(summary = "加载最大候选组织集合", description = "性能扩展点：默认实现遍历所有租户并逐个加载组织；子类可覆盖为一次性批量查询或缓存读取，避免 N+1 加载。")
     default <ORG extends RbacOrgInfo> Collection<ORG> loadMaxAccessibleOrgList(boolean onlyLoadEffectOrg) {
         final Collection<ORG> allOrgList = new LinkedHashSet<>();
 
@@ -275,12 +279,12 @@ public interface RbacBaseService extends RbacBaseUserService {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    @Operation(summary = "组装组织树", description = "rootIdList有指定时,表示只返回指定的根节点, 否则返回所有的根节点")
+    @Operation(summary = "组装组织树", description = "性能扩展点：组织量大或已有数据库树查询能力时，子类可覆盖为直接返回预裁剪/预组装树。rootIdList有指定时,表示只返回指定的根节点, 否则返回所有的根节点")
     default <ORG extends RbacOrgInfo> Collection<ORG> assembleOrgTree(Collection<ORG> orgList, String... rootIdList) {
         return assembleOrgTree(orgList, true, rootIdList);
     }
 
-    @Operation(summary = "组装组织树", description = "buildNodePath 指定是否构建 nodePath, rootIdList有指定时,表示只返回指定的根节点, 否则返回所有的根节点")
+    @Operation(summary = "组装组织树", description = "性能扩展点：默认实现会建立索引、复制节点并可选构建 nodePath；子类可覆盖为数据层递归查询/物化路径查询或轻量 DTO 组树。buildNodePath 指定是否构建 nodePath, rootIdList有指定时,表示只返回指定的根节点, 否则返回所有的根节点")
     default <ORG extends RbacOrgInfo> Collection<ORG> assembleOrgTree(Collection<ORG> orgList, boolean buildNodePath, String... rootIdList) {
 
         if (orgList == null || orgList.isEmpty()) {
@@ -306,31 +310,34 @@ public interface RbacBaseService extends RbacBaseUserService {
             return Collections.emptyList();
         }
 
+        final Map<String, List<String>> childrenByParentId = buildChildrenByParentId(sourceOrgMap);
         final Set<String> selectedRootIds = normalizeOrgIdSet(Arrays.asList(rootIdList));
         final Set<String> selectedOrgIds = selectedRootIds.isEmpty()
                 ? new LinkedHashSet<>(sourceOrgMap.keySet())
-                : collectDescendantOrgIds(selectedRootIds, sourceOrgList, sourceOrgMap);
+                : collectDescendantOrgIds(selectedRootIds, sourceOrgMap, childrenByParentId);
 
         if (selectedOrgIds.isEmpty()) {
             return Collections.emptyList();
         }
 
+        validateSelectedOrgTreeAcyclic(selectedOrgIds, sourceOrgMap);
+
         final Map<String, ORG> copiedOrgMap = new LinkedHashMap<>();
         final Map<String, String> nodePathCache = buildNodePath ? new HashMap<>() : Collections.emptyMap();
 
-        for (ORG sourceOrg : sourceOrgList) {
+        for (ORG sourceOrg : sourceOrgMap.values()) {
             final String orgId = Objects.toString(sourceOrg.getId(), "");
             if (!selectedOrgIds.contains(orgId)) {
                 continue;
             }
-            copiedOrgMap.put(orgId, copyOrgNode(sourceOrg));
+            copiedOrgMap.put(orgId, copyOrgNodeForAssembleTree(sourceOrg));
         }
 
         copiedOrgMap.values().forEach(this::resetCopiedNode);
 
         final List<ORG> rootList = new ArrayList<>();
 
-        for (ORG sourceOrg : sourceOrgList) {
+        for (ORG sourceOrg : sourceOrgMap.values()) {
             final String orgId = Objects.toString(sourceOrg.getId(), "");
 
             if (!selectedOrgIds.contains(orgId)) {
@@ -388,7 +395,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param userPrincipal
      * @return
      */
-    @Operation(summary = "是否能访问所有组织", description = "建议子类重新实现")
+    @Operation(summary = "是否能访问所有组织", description = "性能扩展点：建议子类覆盖为基于用户标记、角色缓存或权限缓存的 O(1) 判断，避免重复解析 DataScope")
     default boolean canAccessAllOrg(Serializable userPrincipal) {
 
         RbacUserInfo user = loadUser(userPrincipal);
@@ -405,7 +412,7 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
 
-    @Operation(summary = "获取用户数据权限", description = "优先使用用户的数据权限,没有才获取角色上的定义的数据权限")
+    @Operation(summary = "获取用户数据权限", description = "性能扩展点：默认实现会合并用户和角色数据范围；子类可覆盖为缓存后的 DataScope 或一次性查询结果。优先使用用户的数据权限,没有才获取角色上的定义的数据权限")
     default DataScope getUserDataScope(Serializable userPrincipal) {
 
         RbacUserInfo user = loadUser(userPrincipal);
@@ -478,7 +485,7 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
 
-    @Operation(summary = "合并组织权限列表", description = "合并组织权限列表")
+    @Operation(summary = "合并组织权限列表", description = "性能扩展点：若数据范围已在存储层归并或缓存，子类可覆盖以避免每次内存去重和 allow/deny 收敛。")
     default Collection<OrgScope> mergeOrgScopeList(Collection<OrgScope> orgScopeList) {
 
         if (orgScopeList == null || orgScopeList.isEmpty()) {
@@ -552,7 +559,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         return result;
     }
 
-    @Operation(summary = "加载直接下级组织", description = "orgPrincipal 参数可以是orgId 或是 RbacOrgInfo")
+    @Operation(summary = "加载直接下级组织", description = "性能扩展点：默认实现会加载租户组织列表后内存过滤；子类应优先覆盖为按 parentId 直接查询。orgPrincipal 参数可以是orgId 或是 RbacOrgInfo")
     default <ORG extends RbacOrgInfo> Collection<ORG> loadOrgChildren(Serializable tenantId, Serializable orgPrincipal) {
 
         Assert.isTrue(RbacMiscUtils.isNotBlank(orgPrincipal), "父节点不能为空");
@@ -576,7 +583,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param orgPrincipal orgId 或是 RbacOrgInfo
      * @return
      */
-    @Operation(summary = "加载所有的直系父组织", description = "要求按由近到远的顺序返回")
+    @Operation(summary = "加载所有的直系父组织", description = "性能扩展点：默认实现会加载租户全量组织再回溯父链；子类可覆盖为递归 SQL、闭包表或 nodePath 查询。要求按由近到远的顺序返回")
     default <ORG extends RbacOrgInfo> Collection<ORG> loadOrgParentList(Serializable tenantId, boolean containsSelf, Serializable orgPrincipal, boolean selfAudit) {
 
         RbacOrgInfo leafOrg = null;
@@ -656,6 +663,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param parentId
      * @param orgId
      */
+    @Operation(summary = "检查用户组织可访问性", description = "性能扩展点：默认实现可能加载用户可访问组织列表后做内存 contains；子类可覆盖为 exists 查询或权限缓存判断。")
     default void checkOrgAccessible(Serializable userPrincipal, Serializable tenantId, Serializable parentId, Serializable orgId) {
 
         RbacUserInfo user = loadUser(userPrincipal);
@@ -729,7 +737,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @return
      */
     @Override
-    @Operation(summary = "获取用户的机密数据访问级别", description = "当用户本身没有定义访问级别时,运行成本比较高,尽量不要多次调用")
+    @Operation(summary = "获取用户的机密数据访问级别", description = "性能扩展点：当用户本身没有定义访问级别时默认会扫描用户生效角色；子类可覆盖为缓存字段或预聚合查询，尽量不要多次调用")
     default Integer getUserConfidentialDataAccessLevel(Serializable userPrincipal) {
 
         RbacUserInfo userInfo = loadUser(userPrincipal);
@@ -806,7 +814,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param roleCodeList
      * @return
      */
-    @Operation(summary = "根据角色代码加载角色列表", description = "不管角色是否处于有效状态,公共角色会并存")
+    @Operation(summary = "根据角色代码加载角色列表", description = "性能扩展点：默认实现会加载租户角色列表后内存按 code 过滤；子类可覆盖为按 code 批量查询。不管角色是否处于有效状态,公共角色会并存")
     default <R extends RbacRoleInfo> Collection<R> loadTenantRoleListByCodes(final Serializable tenantId, Collection<String> roleCodeList) {
         return (Collection<R>) loadTenantRoleList(tenantId, false)
                 .stream()
@@ -825,7 +833,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param userPrincipal
      * @return
      */
-    @Operation(summary = "加载用户生效角色列表", description = "内部授权计算使用，不做角色对象的机密级别过滤")
+    @Operation(summary = "加载用户生效角色列表", description = "性能扩展点：默认实现会加载租户角色列表后按用户角色 code 归并；子类可覆盖为用户-角色关联查询或缓存。内部授权计算使用，不做角色对象的机密级别过滤")
     default <R extends RbacRoleInfo> Collection<R> loadUserOwnerRoleList(Serializable userPrincipal, boolean onlyLoadEffectRole) {
 
         RbacUserInfo user = loadUser(userPrincipal);
@@ -885,7 +893,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * 这个方法面向展示或外部读取语义，可以按角色对象本身的机密级别做过滤；
      * 内部授权、权限汇总、数据范围汇总请使用 loadUserEffectiveRoleList，避免递归并保持用户已有角色语义稳定。
      */
-    @Operation(summary = "加载用户可访问的角色列表", description = "默认按角色对象自身的机密级别做可见性过滤")
+    @Operation(summary = "加载用户可访问的角色列表", description = "性能扩展点：默认实现基于生效角色再做机密级别过滤；子类可覆盖为已过滤缓存或数据库条件查询。默认按角色对象自身的机密级别做可见性过滤")
     default <R extends RbacRoleInfo> Collection<R> loadUserAccessibleRoleList(Serializable userPrincipal, boolean onlyLoadEffectRole) {
         final RbacUserInfo user = loadUser(userPrincipal);
         Assert.notNull(user, "用户[{}]无法加载", userPrincipal);
@@ -899,6 +907,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param roleCodeList
      * @return
      */
+    @Operation(summary = "根据角色代码加载权限列表", description = "性能扩展点：子类可覆盖为按角色 code 直接查询权限表达式，避免加载完整角色对象。")
     default Collection<String> loadRolePermissionList(Serializable tenantId, String... roleCodeList) {
         return loadRolePermissionList(tenantId, Arrays.asList(roleCodeList));
     }
@@ -910,7 +919,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param roleCodeList 过滤出指定的角色
      * @return
      */
-    @Operation(summary = "根据角色代码加载权限列表", description = "不管角色是否处于有效状态")
+    @Operation(summary = "根据角色代码加载权限列表", description = "性能扩展点：默认实现会加载租户角色列表后汇总权限；子类可覆盖为角色权限表批量查询或权限缓存。不管角色是否处于有效状态")
     default Collection<String> loadRolePermissionList(Serializable tenantId, Collection<String> roleCodeList) {
 
         if (isAllBlank(roleCodeList)) {
@@ -934,13 +943,13 @@ public interface RbacBaseService extends RbacBaseUserService {
                 .collect(Collectors.toSet());
     }
 
-    @Operation(summary = "加载用户生效角色列表", description = "不包括已经禁用的角色，不做角色对象机密级别过滤")
+    @Operation(summary = "加载用户生效角色列表", description = "性能扩展点：子类可覆盖为用户角色缓存或关联表查询。不包括已经禁用的角色，不做角色对象机密级别过滤")
     default <R extends RbacRoleInfo> Collection<R> loadUserOwnerRoleList(Serializable userPrincipal) {
         return loadUserOwnerRoleList(userPrincipal, true);
     }
 
 
-    @Operation(summary = "加载用户角色列表", description = "不包括已经禁用的角色")
+    @Operation(summary = "加载用户角色列表", description = "性能扩展点：子类可覆盖为用户可见角色缓存或数据库条件查询。不包括已经禁用的角色")
     default <R extends RbacRoleInfo> Collection<R> loadUserAccessibleRoleList(Serializable userPrincipal) {
         return loadUserAccessibleRoleList(userPrincipal, true);
     }
@@ -952,6 +961,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param userPrincipal 用户对象或是用户ID
      * @return
      */
+    @Operation(summary = "加载用户角色编码列表", description = "性能扩展点：默认实现会加载用户生效角色对象再提取 code；子类可覆盖为直接读取用户角色 code 或缓存。")
     default Collection<String> loadUserRoleCodeList(Serializable userPrincipal) {
 
         // 授权判断依赖的是“用户实际拥有的角色”，不能因为角色对象不可见就丢失角色编码。
@@ -969,6 +979,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param userPrincipal 用户对象或是用户ID
      * @return
      */
+    @Operation(summary = "加载用户权限表达式列表", description = "性能扩展点：默认实现会加载用户生效角色并汇总权限；子类可覆盖为权限表达式缓存或关联表聚合查询。")
     default Collection<String> loadUserPermissionExprList(Serializable userPrincipal) {
 
         // 权限汇总也必须基于生效角色，不能使用带机密过滤的可见角色列表。
@@ -1022,7 +1033,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         }
 
         // 为标准范围预先建立父子索引，避免每个 scope 都全表扫描组织树。
-        final Map<String, List<String>> childrenByParentId = buildChildrenByParentId(tenantOrgList, orgMap);
+        final Map<String, List<String>> childrenByParentId = buildChildrenByParentId(orgMap);
         // 同一个 root 的整棵子树可能被多个 scope 复用，缓存后代集合以降低重复遍历成本。
         final Map<String, Set<String>> subtreeOrgIdsCache = new HashMap<>();
         // scope 根节点解析也可能重复出现，这里按 orgId 做一次调用级缓存。
@@ -1147,11 +1158,10 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
     // 先把父子关系索引出来，后续标准 scope 就不需要对组织集合做重复全表扫描。
-    private <ORG extends RbacOrgInfo> Map<String, List<String>> buildChildrenByParentId(Collection<ORG> orgList,
-                                                                                        Map<String, ORG> orgMap) {
+    private <ORG extends RbacOrgInfo> Map<String, List<String>> buildChildrenByParentId(Map<String, ORG> orgMap) {
         final Map<String, List<String>> childrenByParentId = new HashMap<>();
 
-        for (ORG org : orgList) {
+        for (ORG org : orgMap.values()) {
             if (org == null || isBlank(org.getId()) || isBlank(org.getParentId())) {
                 continue;
             }
@@ -1621,10 +1631,8 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
     private <ORG extends RbacOrgInfo> Set<String> collectDescendantOrgIds(Set<String> rootIds,
-                                                                          Collection<ORG> orgList,
-                                                                          Map<String, ORG> orgMap) {
-        final Map<String, List<String>> childrenByParentId = buildChildrenByParentId(orgList, orgMap);
-
+                                                                          Map<String, ORG> orgMap,
+                                                                          Map<String, List<String>> childrenByParentId) {
         final Set<String> selectedOrgIds = new LinkedHashSet<>();
         final Deque<String> stack = new ArrayDeque<>();
 
@@ -1647,7 +1655,55 @@ public interface RbacBaseService extends RbacBaseUserService {
         return selectedOrgIds;
     }
 
-    private <ORG extends RbacOrgInfo> ORG copyOrgNode(ORG sourceOrg) {
+    private <ORG extends RbacOrgInfo> void validateSelectedOrgTreeAcyclic(Set<String> selectedOrgIds,
+                                                                          Map<String, ORG> orgMap) {
+        final Set<String> checkedOrgIds = new HashSet<>();
+
+        for (String orgId : selectedOrgIds) {
+            if (checkedOrgIds.contains(orgId)) {
+                continue;
+            }
+
+            final Set<String> visitingOrgIds = new LinkedHashSet<>();
+            String currentId = orgId;
+
+            while (StrUtil.isNotBlank(currentId)
+                    && selectedOrgIds.contains(currentId)
+                    && !checkedOrgIds.contains(currentId)) {
+
+                if (!visitingOrgIds.add(currentId)) {
+                    throwOrgCycleException(currentId, visitingOrgIds, orgMap);
+                }
+
+                final ORG currentOrg = orgMap.get(currentId);
+
+                if (currentOrg == null || isBlank(currentOrg.getParentId())) {
+                    break;
+                }
+
+                currentId = Objects.toString(currentOrg.getParentId(), "");
+            }
+
+            checkedOrgIds.addAll(visitingOrgIds);
+        }
+    }
+
+    /**
+     * 复制组树用的组织节点。
+     * <p>
+     * 默认实现会兼容只读代理对象和未知实体类型，因此需要 AOP 脱壳、BeanUtils 和字段反射。
+     * 如果业务实现明确知道组织对象类型，建议覆盖本方法，用构造器或 mapper 只复制必要字段，
+     * 这样可以减少大组织树装配时的反射成本。
+     * <p>
+     * 注意：返回对象必须是独立的新对象，并且 children/nodePath 可写；默认组树流程会重置 children，
+     * 不能直接返回原始 sourceOrg，否则会修改调用方传入的扁平列表对象。
+     */
+    @Operation(summary = "复制组树用组织节点", description = "性能扩展点：默认实现使用 AOP 脱壳、BeanUtils 和字段反射；子类知道组织类型时应覆盖为构造器/mapper 复制，以减少大组织树装配时的反射成本。")
+    default <ORG extends RbacOrgInfo> ORG copyOrgNodeForAssembleTree(ORG sourceOrg) {
+        return copyOrgNodeByReflection(sourceOrg);
+    }
+
+    private <ORG extends RbacOrgInfo> ORG copyOrgNodeByReflection(ORG sourceOrg) {
         Object source = unwrapOrgSource(sourceOrg);
         Class<?> sourceType = resolveOrgSourceClass(source);
 
@@ -1824,21 +1880,55 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
     private boolean setChildren(RbacOrgInfo org, Collection<RbacOrgInfo> children) {
-        if (org instanceof EditableTreeNode) {
-            ((EditableTreeNode) org).setChildren((Collection) children);
+        Method setter = findCachedCompatibleSetter(org.getClass(), "setChildren", Collection.class, CHILDREN_SETTER_CACHE);
+
+        if (setter != null) {
+            ReflectionUtils.invokeMethod(setter, org, adaptChildrenCollection(children, setter.getParameterTypes()[0]));
             return true;
         }
 
-        return writeProperty(org, children, "setChildren", Collection.class, "children",
-                CHILDREN_SETTER_CACHE, CHILDREN_FIELD_CACHE);
+        Field field = findCachedField(org.getClass(), "children", Collection.class, CHILDREN_FIELD_CACHE);
+        if (field == null) {
+            return false;
+        }
+
+        ReflectionUtils.setField(field, org, adaptChildrenCollection(children, field.getType()));
+        return true;
+    }
+
+    private Collection<RbacOrgInfo> adaptChildrenCollection(Collection<RbacOrgInfo> children, Class<?> targetType) {
+        final Collection<RbacOrgInfo> safeChildren = children != null ? children : Collections.emptyList();
+
+        if (targetType.isInstance(safeChildren)) {
+            return safeChildren;
+        }
+
+        if (targetType.isAssignableFrom(ArrayList.class)) {
+            return new ArrayList<>(safeChildren);
+        }
+
+        if (targetType.isAssignableFrom(LinkedHashSet.class)) {
+            return new LinkedHashSet<>(safeChildren);
+        }
+
+        if (targetType.isAssignableFrom(HashSet.class)) {
+            return new HashSet<>(safeChildren);
+        }
+
+        if (targetType.isAssignableFrom(LinkedList.class)) {
+            return new LinkedList<>(safeChildren);
+        }
+
+        if (!targetType.isInterface() && !java.lang.reflect.Modifier.isAbstract(targetType.getModifiers())) {
+            Collection<RbacOrgInfo> targetChildren = (Collection<RbacOrgInfo>) BeanUtils.instantiateClass(targetType);
+            targetChildren.addAll(safeChildren);
+            return targetChildren;
+        }
+
+        throw new IllegalArgumentException("不支持的组织 children 集合类型: " + targetType.getName());
     }
 
     private boolean setNodePathOnCopy(RbacOrgInfo org, String nodePath) {
-        if (org instanceof EditableTreeNode) {
-            ((EditableTreeNode) org).setNodePath(nodePath);
-            return true;
-        }
-
         return writeProperty(org, nodePath, "setNodePath", CharSequence.class, "nodePath",
                 NODE_PATH_SETTER_CACHE, NODE_PATH_FIELD_CACHE);
     }

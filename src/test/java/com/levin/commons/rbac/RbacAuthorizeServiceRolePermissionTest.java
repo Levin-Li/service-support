@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -965,6 +966,75 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldAssembleOrgTreeWhenChildrenPropertyIsSet() {
+        StubRbacBaseService scopedService = new StubRbacBaseService(user);
+
+        SetOrg root = new SetOrg("A", null, "T1", "A");
+        SetOrg child = new SetOrg("A1", "A", "T1", "A1");
+
+        List<SetOrg> tree = new ArrayList<>(scopedService.assembleOrgTree(Arrays.asList(root, child), false, "A"));
+
+        assertEquals(1, tree.size(), "Set 类型 children 也应能正常组树");
+        assertNotSame(root, tree.get(0), "组树返回的根节点应为复制对象");
+        assertInstanceOf(Set.class, tree.get(0).getChildren(), "复制节点的 children 应保持 Set 类型");
+        assertEquals(1, tree.get(0).getChildren().size(), "根节点应挂载子节点");
+        assertEquals("A1", tree.get(0).getChildren().iterator().next().getId());
+        assertTrue(root.getChildren().isEmpty(), "组树过程不能污染原始 Set children");
+    }
+
+    @Test
+    void shouldAssembleLargeOrgTreeWithinReasonableTime() {
+        StubRbacBaseService scopedService = new StubRbacBaseService(user);
+        List<TestOrg> orgList = largeWideOrgTree("ROOT", "T1", 3000);
+
+        List<TestOrg> tree = assertTimeout(Duration.ofSeconds(3),
+                () -> new ArrayList<>(scopedService.assembleOrgTree(orgList, true, "ROOT")),
+                "大组织树组装应保持线性索引和挂载，不应出现明显性能退化");
+
+        assertEquals(1, tree.size(), "大组织树应返回一个根节点");
+        assertEquals(2999, tree.get(0).getChildren().size(), "根节点应挂载所有直接子节点");
+        assertEquals("/ROOT/", tree.get(0).getNodePath(), "根节点应正常构建 nodePath");
+    }
+
+    @Test
+    void shouldLoadUserAccessibleOrgListWithinReasonableTime() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U_PERF",
+                "perf-user",
+                "T1",
+                "OPS",
+                Collections.emptyList(),
+                5000,
+                "ROOT",
+                Collections.singletonList(scope("ROOT", true, OrgScope.Scope.All))
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setTenantList(Collections.singletonList(new TestTenant("T1", "Tenant1")))
+                .setOrgList(largeWideOrgTree("ROOT", "T1", 3000));
+
+        Collection<TestOrg> orgList = assertTimeout(Duration.ofSeconds(3),
+                () -> scopedService.loadUserAccessibleOrgList(scopedUser, true),
+                "用户可访问组织计算应复用索引，不应对大组织列表出现明显性能退化");
+
+        assertEquals(3000, orgList.size(), "允许根组织全部子树时，应返回完整组织集合");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCycleDetectedAndNodePathDisabled() {
+        StubRbacBaseService scopedService = new StubRbacBaseService(user);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> scopedService.assembleOrgTree(Arrays.asList(
+                        new TestOrg("A", "A1", "T1", "A"),
+                        new TestOrg("A1", "A", "T1", "A1")
+                ), false, "A"));
+
+        assertTrue(ex.getMessage().contains("循环引用"),
+                "即使关闭 nodePath 构建，父链出现环也应抛出循环引用异常");
+    }
+
+    @Test
     void shouldThrowExceptionWhenCycleDetectedWhileAssemblingTree() {
         StubRbacBaseService scopedService = new StubRbacBaseService(user);
 
@@ -1052,6 +1122,18 @@ class RbacAuthorizeServiceRolePermissionTest {
                 new TestOrg("B", null, "T1", "B"),
                 new TestOrg("B1", "B", "T1", "B1")
         );
+    }
+
+    private static List<TestOrg> largeWideOrgTree(String rootId, String tenantId, int size) {
+        List<TestOrg> orgList = new ArrayList<>(size);
+        orgList.add(new TestOrg(rootId, null, tenantId, rootId));
+
+        for (int i = 1; i < size; i++) {
+            String orgId = rootId + "-" + i;
+            orgList.add(new TestOrg(orgId, rootId, tenantId, orgId));
+        }
+
+        return orgList;
     }
 
     private static class TestAuthorizeService extends AbstractRbacAuthorizeService {
@@ -1426,6 +1508,63 @@ class RbacAuthorizeServiceRolePermissionTest {
         }
 
         public void setChildren(Collection<TestOrg> children) {
+            this.children = children;
+        }
+    }
+
+    private static class SetOrg implements RbacOrgInfo {
+        private String id;
+        private String parentId;
+        private String tenantId;
+        private String name;
+        private String nodePath;
+        private Set<SetOrg> children = new LinkedHashSet<>();
+
+        SetOrg() {
+        }
+
+        SetOrg(String id, String parentId, String tenantId, String name) {
+            this.id = id;
+            this.parentId = parentId;
+            this.tenantId = tenantId;
+            this.name = name;
+        }
+
+        @Override
+        public <ID extends Serializable> ID getId() {
+            return (ID) id;
+        }
+
+        @Override
+        public <TID extends Serializable> TID getTenantId() {
+            return (TID) tenantId;
+        }
+
+        @Override
+        public <ID extends Serializable> ID getParentId() {
+            return (ID) parentId;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String getNodePath() {
+            return nodePath;
+        }
+
+        @Override
+        public <ORG extends RbacOrgInfo> Set<ORG> getChildren() {
+            return (Set<ORG>) children;
+        }
+
+        public void setNodePath(String nodePath) {
+            this.nodePath = nodePath;
+        }
+
+        public void setChildren(Set<SetOrg> children) {
             this.children = children;
         }
     }
