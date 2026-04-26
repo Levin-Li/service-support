@@ -418,15 +418,6 @@ public interface RbacBaseService extends RbacBaseUserService {
         RbacUserInfo user = loadUser(userPrincipal);
         Assert.notNull(user, "用户({})不存在", userPrincipal);
 
-        Map<String, Object> transientExInfo = user.getTransientExInfo();
-
-        //缓存加载
-        DataScope tempDataScope = transientExInfo != null ? (DataScope) transientExInfo.get(DataScope.class.getName()) : null;
-
-        if (tempDataScope != null) {
-            return tempDataScope;
-        }
-
         final SimpleDataScope dataScope = new SimpleDataScope();
 
         //优先使用用户自定义的数据权限
@@ -474,11 +465,6 @@ public interface RbacBaseService extends RbacBaseUserService {
                 );
             }
 
-        }
-
-        //放入缓存
-        if (transientExInfo != null) {
-            transientExInfo.put(DataScope.class.getName(), dataScope);
         }
 
         return dataScope;

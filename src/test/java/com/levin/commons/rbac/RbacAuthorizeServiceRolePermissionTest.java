@@ -365,6 +365,47 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldRecalculateDataScopeWithoutTransientCache() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U7C",
+                "role-scope-refresh",
+                "T1",
+                "OPS",
+                Collections.singletonList("R_DYNAMIC"),
+                null
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser);
+        scopedService.registerRole(new TestRbacRole(
+                "R7C1",
+                "R_DYNAMIC",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                10,
+                Collections.singletonList(scope("A", true, OrgScope.Scope.All))
+        ));
+
+        assertEquals("A", scopedService.getUserDataScope(scopedUser).getOrgScopeList()
+                .iterator().next().getOrgId());
+
+        scopedService.registerRole(new TestRbacRole(
+                "R7C2",
+                "R_DYNAMIC",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                10,
+                Collections.singletonList(scope("B", true, OrgScope.Scope.All))
+        ));
+
+        assertEquals("B", scopedService.getUserDataScope(scopedUser).getOrgScopeList()
+                .iterator().next().getOrgId(),
+                "DataScope 不应再缓存在 user.transientExInfo 中，否则同一用户对象会读到旧角色范围");
+        assertFalse(scopedUser.getTransientExInfo().containsKey(DataScope.class.getName()));
+    }
+
+    @Test
     void shouldPreferUserOrgScopeOverRoleOrgScope() {
         TestRbacUser scopedUser = new TestRbacUser(
                 "U2",
