@@ -200,6 +200,42 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldEvaluateRoleAssignPreConditionWithTargetUserAndRole() {
+        TestRbacRole contextualRole = new TestRbacRole(
+                "R2C",
+                "R_CONTEXTUAL",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                100
+        ) {
+            @Override
+            public String getAssignPreCondition() {
+                return "_user.type == 'OPS' && _role.code == 'R_CONTEXTUAL'";
+            }
+        };
+
+        assertTrue(authorizeService.isRoleAssignPreConditionMatched(user, contextualRole),
+                "角色分配前置条件应使用目标用户 _user 和目标角色 _role 计算");
+
+        TestRbacUser financeUser = new TestRbacUser(
+                "U2C",
+                "finance-user",
+                "T1",
+                "FIN",
+                Collections.emptyList(),
+                100
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(financeUser);
+        TestAuthorizeService scopedAuthorizeService = new TestAuthorizeService();
+        scopedAuthorizeService.setRbacBaseService(scopedService);
+
+        assertFalse(scopedAuthorizeService.isRoleAssignPreConditionMatched(financeUser, contextualRole),
+                "目标用户不满足前置条件时应拒绝分配");
+    }
+
+    @Test
     void shouldRejectSaRoleForNonSuperAdmin() {
         // 业务规则：非超级管理员不能分配 R_SA。
         TestRbacRole saRole = new TestRbacRole(
@@ -374,7 +410,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.singletonList("sys:high:view"),
                 Collections.emptyList(),
                 100,
-                Collections.singletonList(scope("A", true, OrgScope.Scope.All))
+                Collections.singletonList(scope("A", true, OrgScope.ScopeMatchingPattern.All))
         ));
 
         assertEquals(100, scopedService.getUserConfidentialDataAccessLevel(scopedUser),
@@ -407,7 +443,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 10,
-                Collections.singletonList(scope("A", true, OrgScope.Scope.All))
+                Collections.singletonList(scope("A", true, OrgScope.ScopeMatchingPattern.All))
         ));
 
         assertEquals("A", scopedService.getUserDataScope(scopedUser).getOrgScopeList()
@@ -420,7 +456,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 10,
-                Collections.singletonList(scope("B", true, OrgScope.Scope.All))
+                Collections.singletonList(scope("B", true, OrgScope.ScopeMatchingPattern.All))
         ));
 
         assertEquals("B", scopedService.getUserDataScope(scopedUser).getOrgScopeList()
@@ -439,7 +475,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Arrays.asList("R_MANAGER"),
                 5000,
                 "B",
-                Collections.singletonList(scope("B", true, OrgScope.Scope.All))
+                Collections.singletonList(scope("B", true, OrgScope.ScopeMatchingPattern.All))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -451,7 +487,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 100,
-                Collections.singletonList(scope("A", true, OrgScope.Scope.All))
+                Collections.singletonList(scope("A", true, OrgScope.ScopeMatchingPattern.All))
         ));
 
         Collection<TestOrg> orgList = scopedService.loadUserOrgList(scopedUser, false);
@@ -462,7 +498,7 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldApplyAntPathOrgScopeWithDenyOverride() {
+    void shouldApplyPathPatternOrgScopeWithDenyOverride() {
         TestRbacUser scopedUser = new TestRbacUser(
                 "U3",
                 "cindy",
@@ -472,7 +508,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 5000,
                 "A",
                 Arrays.asList(
-                        scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.Scope.All),
+                        scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All),
                         customScope("A", false, "/A2/**")
                 )
         );
@@ -484,7 +520,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Arrays.asList("A", "A1", "B", "B1"),
                 orgList.stream().map(TestOrg::getId).collect(Collectors.toList()),
-                "allow all 后叠加 deny ant path 时，应移除命中的子树");
+                "allow all 后叠加 deny PathPattern 时，应移除命中的子树");
     }
 
     @Test
@@ -498,8 +534,8 @@ class RbacAuthorizeServiceRolePermissionTest {
                 5000,
                 "A",
                 Arrays.asList(
-                        scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.Scope.All),
-                        scope(OrgScope.ALL_ROOT_ORG, false, OrgScope.Scope.All)
+                        scope(OrgScope.ALL_ORG, true, OrgScope.ScopeMatchingPattern.All),
+                        scope(OrgScope.ALL_ORG, false, OrgScope.ScopeMatchingPattern.All)
                 )
         );
 
@@ -521,8 +557,8 @@ class RbacAuthorizeServiceRolePermissionTest {
                 5000,
                 "A",
                 Arrays.asList(
-                        scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.Scope.All),
-                        scope("A", true, OrgScope.Scope.OnlySelf)
+                        scope(OrgScope.ALL_ORG, true, OrgScope.ScopeMatchingPattern.All),
+                        scope("A", true, OrgScope.ScopeMatchingPattern.OnlySelf)
                 )
         );
 
@@ -544,7 +580,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope("T2", OrgScope.ALL_ROOT_ORG, true, OrgScope.Scope.All))
+                Collections.singletonList(scope("T2", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -558,7 +594,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Arrays.asList("C", "C1"),
                 scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
-                "OrgScope 指定 tenantExpression 时，应只返回命中的租户组织");
+                "OrgScope 指定 tenantMatchingExpression 时，应只返回命中的租户组织");
     }
 
     @Test
@@ -571,7 +607,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope("T2", OrgScope.ALL_ROOT_ORG, true, OrgScope.Scope.All))
+                Collections.singletonList(scope("T2", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -583,7 +619,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Collections.singletonList("T2"),
                 scopedService.loadUserAccessibleTenantList(scopedUser, true).stream().map(tenant -> Objects.toString(tenant.getId(), "")).collect(Collectors.toList()),
-                "loadUserCanAccessTenantList 应按 tenantExpression 返回可访问租户");
+                "loadUserCanAccessTenantList 应按 tenantMatchingExpression 返回可访问租户");
     }
 
     @Test
@@ -794,7 +830,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "P",
-                Collections.singletonList(scope(OrgScope.DEFAULT_TENANT, OrgScope.ALL_ROOT_ORG, true, OrgScope.Scope.All))
+                Collections.singletonList(scope(OrgScope.DEFAULT_TENANT, OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -819,7 +855,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope("", OrgScope.ALL_ROOT_ORG, true, OrgScope.Scope.All))
+                Collections.singletonList(scope("", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -833,7 +869,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Arrays.asList("P", "P1"),
                 scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
-                "tenantExpression 为空时，应只命中公共组织");
+                "tenantMatchingExpression 为空时，应只命中公共组织");
     }
 
     @Test
@@ -846,7 +882,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(customScope("A", true, "return org.name == 'A2' || relativeIdPath == '/A2/A21/'", OrgScope.ExpressionType.Groovy))
+                Collections.singletonList(customScope("A", true, "return _org.name == 'A2' || _relativeIdPath == '/A2/A21/'", OrgScope.ExpressionType.Groovy))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -856,7 +892,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Arrays.asList("A2", "A21"),
                 orgList.stream().map(TestOrg::getId).collect(Collectors.toList()),
-                "自定义 Groovy 表达式应支持通过 org 和相对路径过滤组织");
+                "自定义 Groovy 表达式应支持通过 _org 和相对路径过滤组织");
     }
 
     @Test
@@ -869,7 +905,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(customScope("A", true, "name == 'A1' or #relativeNamePath == '/A2/'", OrgScope.ExpressionType.SpringEL))
+                Collections.singletonList(customScope("A", true, "#_org.name == 'A1' or #_relativeNamePath == '/A2/'", OrgScope.ExpressionType.SpringEL))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -883,7 +919,7 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldDistinguishNameAntPathFromIdAntPath() {
+    void shouldDistinguishNamePathFromIdPath() {
         TestRbacUser scopedUser = new TestRbacUser(
                 "U321",
                 "helen",
@@ -892,7 +928,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(customScope("A", true, "/A2/", OrgScope.ExpressionType.NameAntPath))
+                Collections.singletonList(customScope("A", true, "/A2/", OrgScope.ExpressionType.NamePath))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -902,7 +938,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Collections.singletonList("A2"),
                 orgList.stream().map(TestOrg::getId).collect(Collectors.toList()),
-                "NameAntPath 应基于名称路径匹配，而不是基于组织 ID 路径匹配");
+                "NamePath 应基于名称路径匹配，而不是基于组织 ID 路径匹配");
     }
 
     @Test
@@ -915,7 +951,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(customScope("A", true, "/A2/A21/", OrgScope.ExpressionType.IdAntPath))
+                Collections.singletonList(customScope("A", true, "/A2/A21/", OrgScope.ExpressionType.IdPath))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -925,7 +961,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Collections.singletonList("A21"),
                 orgList.stream().map(TestOrg::getId).collect(Collectors.toList()),
-                "IdAntPath 应以 OrgScope.getOrgId() 作为起点构造相对路径");
+                "IdPath 应以 OrgScope.getOrgId() 作为起点构造相对路径");
 
         TestRbacUser absolutePathUser = new TestRbacUser(
                 "U323",
@@ -935,7 +971,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(customScope("A", true, "/A/A2/A21/", OrgScope.ExpressionType.IdAntPath))
+                Collections.singletonList(customScope("A", true, "/A/A2/A21/", OrgScope.ExpressionType.IdPath))
         );
 
         Collection<TestOrg> absolutePathResult = new StubRbacBaseService(absolutePathUser)
@@ -956,7 +992,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(customScope("A", true, "#user.loginName == 'grace' and #org.name == 'A1'", OrgScope.ExpressionType.SpringEL))
+                Collections.singletonList(customScope("A", true, "#_user.loginName == 'grace' and #_org.name == 'A1'", OrgScope.ExpressionType.SpringEL))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -966,7 +1002,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Collections.singletonList("A1"),
                 orgList.stream().map(TestOrg::getId).collect(Collectors.toList()),
-                "自定义表达式上下文应暴露当前用户变量 user");
+                "自定义表达式上下文应暴露当前用户变量 _user");
     }
 
     @Test
@@ -979,7 +1015,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.Scope.All))
+                Collections.singletonList(scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -1071,7 +1107,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "ROOT",
-                Collections.singletonList(scope("ROOT", true, OrgScope.Scope.All))
+                Collections.singletonList(scope("ROOT", true, OrgScope.ScopeMatchingPattern.All))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -1118,8 +1154,8 @@ class RbacAuthorizeServiceRolePermissionTest {
         StubRbacBaseService scopedService = new StubRbacBaseService(user);
 
         Collection<OrgScope> merged = scopedService.mergeOrgScopeList(Arrays.asList(
-                customScope("A", true, "/A2/", OrgScope.ExpressionType.IdAntPath),
-                customScope("A", true, "/A2/", OrgScope.ExpressionType.NameAntPath)
+                customScope("A", true, "/A2/", OrgScope.ExpressionType.IdPath),
+                customScope("A", true, "/A2/", OrgScope.ExpressionType.NamePath)
         ));
 
         assertEquals(2, merged.size(),
@@ -1131,27 +1167,27 @@ class RbacAuthorizeServiceRolePermissionTest {
         StubRbacBaseService scopedService = new StubRbacBaseService(user);
 
         Collection<OrgScope> merged = scopedService.mergeOrgScopeList(Arrays.asList(
-                customScope("T1", "A", true, "/A2/", OrgScope.ExpressionType.IdAntPath),
-                customScope("T2", "A", true, "/A2/", OrgScope.ExpressionType.IdAntPath)
+                customScope("T1", "A", true, "/A2/", OrgScope.ExpressionType.IdPath),
+                customScope("T2", "A", true, "/A2/", OrgScope.ExpressionType.IdPath)
         ));
 
         assertEquals(2, merged.size(),
-                "相同表达式文本但 tenantExpression 不同的规则不应被误合并");
+                "相同表达式文本但 tenantMatchingExpression 不同的规则不应被误合并");
     }
 
-    private static SimpleOrgScope scope(String orgId, boolean allow, OrgScope.Scope scope) {
+    private static SimpleOrgScope scope(String orgId, boolean allow, OrgScope.ScopeMatchingPattern scopeMatchingPattern) {
         return new SimpleOrgScope()
                 .setOrgId(orgId)
                 .setAllow(allow)
-                .setScope(scope);
+                .setOrgScopeMatchingPattern(scopeMatchingPattern);
     }
 
-    private static SimpleOrgScope scope(String tenantExpression, String orgId, boolean allow, OrgScope.Scope scope) {
+    private static SimpleOrgScope scope(String tenantMatchingExpression, String orgId, boolean allow, OrgScope.ScopeMatchingPattern scopeMatchingPattern) {
         return new SimpleOrgScope()
-                .setTenantExpression(tenantExpression)
+                .setTenantMatchingExpression(tenantMatchingExpression)
                 .setOrgId(orgId)
                 .setAllow(allow)
-                .setScope(scope);
+                .setOrgScopeMatchingPattern(scopeMatchingPattern);
     }
 
     private static SimpleOrgScope customScope(String orgId, boolean allow, String expression) {
@@ -1165,16 +1201,16 @@ class RbacAuthorizeServiceRolePermissionTest {
         return new SimpleOrgScope()
                 .setOrgId(orgId)
                 .setAllow(allow)
-                .setExpressionType(expressionType)
+                .setOrgScopeExpressionType(expressionType)
                 .setOrgScopeExpression(expression);
     }
 
-    private static SimpleOrgScope customScope(String tenantExpression, String orgId, boolean allow, String expression, OrgScope.ExpressionType expressionType) {
+    private static SimpleOrgScope customScope(String tenantMatchingExpression, String orgId, boolean allow, String expression, OrgScope.ExpressionType expressionType) {
         return new SimpleOrgScope()
-                .setTenantExpression(tenantExpression)
+                .setTenantMatchingExpression(tenantMatchingExpression)
                 .setOrgId(orgId)
                 .setAllow(allow)
-                .setExpressionType(expressionType)
+                .setOrgScopeExpressionType(expressionType)
                 .setOrgScopeExpression(expression);
     }
 

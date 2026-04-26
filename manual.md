@@ -303,7 +303,7 @@ RBAC 是这个项目最值得重点理解的模块。
 角色还可以声明分配约束：
 
 - `getExclusiveRoleList()` 表示不能和当前角色共存的角色编码表达式
-- `getCoexistRoleList()` 表示当前角色必须同时具备的角色编码表达式，缺失时不允许单独分配
+- `getCoexistRoleList()` 表示给用户分配当前角色时，最终角色集合里必须同时存在的角色编码表达式，缺失时不允许单独分配
 
 这两类表达式都可以使用 `*` / `?` 通配。保存用户最终角色集合前，可以使用 `findFirstExclusiveRolePair(...)` 和 `findFirstMissingCoexistRoleCodePair(...)` 做一致性校验。
 
@@ -503,10 +503,10 @@ public List<UserDto> queryUser() {
 
 关键字段：
 
-- `tenantExpression`
+- `tenantMatchingExpression`
 - `orgId`
 - `isAllow`
-- `expressionType`
+- `orgScopeExpressionType`
 - `orgScopeExpression`
 
 它的含义可以拆成两步：
@@ -514,7 +514,7 @@ public List<UserDto> queryUser() {
 1. 这条规则先决定作用于哪些租户
 2. 再在这些租户内，从某个组织起点开始匹配组织范围
 
-### 11.1 `tenantExpression`
+### 11.1 `tenantMatchingExpression`
 
 当前默认语义：
 
@@ -539,14 +539,17 @@ public List<UserDto> queryUser() {
 - `loadTenantOrgList(null, ...)`
   加载的是公共组织
 
-- `tenantExpression == ""`
+- `tenantMatchingExpression == ""`
   匹配的是公共组织
 
 - 对没有租户归属的用户，`DEFAULT_TENANT` 也会落到公共组织
 
 ### 11.2 `orgId`
 
-`orgId` 有三种常见取值：
+`orgId` 有四种常见取值：
+
+- `OrgScope.ALL_ORG`
+  所有组织
 
 - `OrgScope.ALL_ROOT_ORG`
   所有根组织
@@ -579,7 +582,7 @@ public List<UserDto> queryUser() {
 
 ### 12.1 标准范围
 
-`OrgScope.Scope` 支持：
+`OrgScope.ScopeMatchingPattern` 支持：
 
 - `OnlySelf`
 - `OnlyDirectChild`
@@ -591,16 +594,16 @@ public List<UserDto> queryUser() {
 
 ### 12.2 自定义表达式类型
 
-当 `Scope = Custom` 时，支持：
+当 `ScopeMatchingPattern = Custom` 时，支持：
 
-- `IdAntPath`
-- `NameAntPath`
+- `IdPath`
+- `NamePath`
 - `Groovy`
 - `SpringEL`
 
 ### 12.3 相对路径，不是绝对路径
 
-`IdAntPath` 和 `NameAntPath` 都是相对路径。
+`IdPath` 和 `NamePath` 都是相对路径。
 
 路径起点不是整棵树根节点，而是：
 
@@ -608,7 +611,7 @@ public List<UserDto> queryUser() {
 
 例如：
 
-- scope 根组织 = `A`
+- 组织范围根节点 = `A`
 - 目标组织链路 = `A -> A2 -> A21`
 
 那么：
@@ -622,22 +625,22 @@ public List<UserDto> queryUser() {
 
 当前自定义表达式默认可用上下文变量：
 
-- `user`
-- `org`
-- `rootOrg`
-- `scope`
-- `relativeIdPath`
-- `relativeNamePath`
+- `_user`
+- `_org`
+- `_rootOrg`
+- `_scope`
+- `_relativeIdPath`
+- `_relativeNamePath`
 
 因此你既可以写：
 
-- `#user.loginName == 'admin'`
-- `#relativeNamePath matches '.*/财务部/.*'`
+- `#_user.loginName == 'admin'`
+- `#_relativeNamePath matches '.*/财务部/.*'`
 
 也可以在 Groovy 中直接使用：
 
-- `user`
-- `org`
+- `_user`
+- `_org`
 
 ---
 
@@ -821,7 +824,7 @@ RBAC 默认实现已经做了一些性能优化，例如：
 不是。  
 这两个语义必须分开。
 
-### 误区二：`IdAntPath` / `NameAntPath` 是绝对路径
+### 误区二：`IdPath` / `NamePath` 是绝对路径
 
 不是。  
 它们是相对于 `OrgScope.getOrgId()` 的相对路径。

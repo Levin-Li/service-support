@@ -13,6 +13,7 @@ import java.util.Collections;
  *
  * @author echo
  */
+@Schema(title = "角色信息", description = "不设计继承模型,以降低复杂度")
 public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPublicObject {
 
     String ROLE_PREFIX = "R_";
@@ -45,27 +46,17 @@ public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPubl
     @Schema(title = "角色编码", description = "以R_开头")
     String getCode();
 
-    @Schema(title = "是否可被继承", description = "默认为false")
-    default boolean isInheritable() {
-        return false;
-    }
-
-    @Schema(title = "继承的角色编码列表", description = "可以使用*?通配符")
-    default Collection<String> getInheritedRoleList() {
-        return Collections.emptyList();
-    }
-
-    @Schema(title = "角色分配的前置条件", description = "默认为groovy脚本, 是指把角色分配给用户时, 必须先满足的条件, 一般是表达式,如 user.type = '2' ")
-    default String getRoleAssignPreCondition() {
+    @Schema(title = "角色分配的前置条件", description = "目的是用于约束角色分配, 默认为groovy脚本, 是指把角色分配给用户时, 必须先满足的条件, 一般是表达式, 如 _user.type == '2'; 默认要求支持 _user, _role 2个变量")
+    default String getAssignPreCondition() {
         return "";
     }
 
-    @Schema(title = "排斥的角色编码列表", description = "是指把角色分配给用户时,和这个角色不能共存的角色, 可以使用*?通配符")
+    @Schema(title = "排斥的角色编码列表", description = "把当前角色分配给用户时, 用户不能拥有这些角色中的任何一个, 否则不能分配该角色给用户, 可以使用*?通配符; 目的是用于约束角色分配")
     default Collection<String> getExclusiveRoleList() {
         return Collections.emptyList();
     }
 
-    @Schema(title = "必须共存的角色编码列表", description = "是指把角色分配给用户时,当前角色必须和列表内每个角色共存,否则不能单独分配, 可以使用*?通配符")
+    @Schema(title = "必须共存的角色编码列表", description = "把当前角色分配给用户时, 用户必须已经拥有全部的这些角色, 否则不能分配该角色给用户, 可以使用*?通配符; 目的是用于约束角色分配")
     default Collection<String> getCoexistRoleList() {
         return Collections.emptyList();
     }

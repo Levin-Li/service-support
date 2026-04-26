@@ -10,9 +10,11 @@ import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.http.server.PathContainer;
+import org.springframework.web.util.pattern.PathPattern;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -47,10 +49,9 @@ public interface RbacBaseService extends RbacBaseUserService {
 
     SpelExpressionParser ORG_SCOPE_SPEL_PARSER = new SpelExpressionParser();
 
-    /**
-     * 组织关系匹配器
-     */
-    AntPathMatcher ORG_SCOPE_PATH_MATCHER = new AntPathMatcher();
+    // 组织路径表达式统一使用 Spring PathPattern，而不是 AntPathMatcher。
+    Map<String, PathPattern> ORG_SCOPE_PATH_PATTERN_CACHE = new ConcurrentReferenceHashMap<>();
+    PathPatternParser ORG_SCOPE_PATH_PATTERN_PARSER = new PathPatternParser();
 
     /**
      * 用户类型
@@ -163,7 +164,7 @@ public interface RbacBaseService extends RbacBaseUserService {
 
         Assert.notNull(user, "用户({})不存在", userPrincipal);
 
-        // 顶级超级管理员直接拿最大组织结果，不再受 tenantExpression / orgScope 的候选收敛影响。
+        // 顶级超级管理员直接拿最大组织结果，不再受 tenantMatchingExpression / orgScope 的候选收敛影响。
         if (user.isTopSuperAdmin()) {
             return loadMaxAccessibleOrgList(onlyLoadEffectOrg);
         }
@@ -176,7 +177,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         final DataScope dataScope = getUserDataScope(user);
         final Collection<? extends OrgScope> orgScopeList = dataScope != null ? dataScope.getOrgScopeList() : Collections.emptyList();
 
-        // tenantExpression 负责决定组织范围作用于哪些租户，这里先把“可枚举租户”收敛出来，再按表达式挑选候选租户。
+        // tenantMatchingExpression 负责决定组织范围作用于哪些租户，这里先把“可枚举租户”收敛出来，再按表达式挑选候选租户。
         final Set<String> tenantIdSet = resolveScopedTenantIds(user, orgScopeList, loadAllTenantList(onlyLoadEffectOrg));
 
         final Collection<ORG> orgList = new LinkedHashSet<>();
@@ -191,7 +192,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         }
 
         if (tenantIdSet.contains(null)) {
-            // tenantExpression 命中了无租户场景时，还要把公共组织一起纳入候选集合。
+            // tenantMatchingExpression 命中了无租户场景时，还要把公共组织一起纳入候选集合。
             orgList.addAll(loadTenantOrgList(null, onlyLoadEffectOrg));
         }
 
@@ -498,12 +499,12 @@ public interface RbacBaseService extends RbacBaseUserService {
             }
 
             // 去重时不仅要看 orgId/allow/expression，还要保留表达式类型，
-            // 否则同一段文本在 IdAntPath、NameAntPath、Groovy、SpEL 之间会被误判成同一条规则。
+            // 否则同一段文本在 IdPath、NamePath、Groovy、SpEL 之间会被误判成同一条规则。
             final String scopeKey = String.join("_",
-                    String.valueOf(scope.getTenantExpression()),
+                    String.valueOf(scope.getTenantMatchingExpression()),
                     scope.getOrgId(),
                     String.valueOf(scope.isAllow()),
-                    String.valueOf(scope.getExpressionType()),
+                    String.valueOf(scope.getOrgScopeExpressionType()),
                     scope.getOrgScopeExpression());
 
             if (scopeMap.containsKey(scopeKey)) {
@@ -1118,7 +1119,7 @@ public interface RbacBaseService extends RbacBaseUserService {
                     continue;
                 }
 
-                if (!scope.isCustomScope()) {
+                if (!scope.isCustomOrgScope()) {
                     candidateOrgIds.stream()
                             .filter(orgId -> matchesScopeTenantByOrg(scope, user, orgMap.get(orgId)))
                             .forEach(matchedOrgIds::add);
@@ -1173,7 +1174,7 @@ public interface RbacBaseService extends RbacBaseUserService {
                                                                               Map<String, List<String>> childrenByParentId,
                                                                               Map<String, Set<String>> subtreeOrgIdsCache) {
 
-        switch (scope.getScope()) {
+        switch (scope.getOrgScopeMatchingPattern()) {
             case OnlySelf:
                 return orgMap.containsKey(scopeRootId)
                         ? new LinkedHashSet<>(Collections.singleton(scopeRootId))
@@ -1226,11 +1227,11 @@ public interface RbacBaseService extends RbacBaseUserService {
                                                                       Map<String, Set<String>> scopeRootIdsCache) {
 
         final String scopeCacheKey = String.join("@",
-                String.valueOf(scope.getTenantExpression()),
+                String.valueOf(scope.getTenantMatchingExpression()),
                 String.valueOf(scope.getOrgId()));
 
         return scopeRootIdsCache.computeIfAbsent(scopeCacheKey, key -> {
-            if (scope.isAllRootOrg()) {
+            if (scope.isAllOrg() || scope.isAllRootOrg()) {
                 return orgMap.values().stream()
                         .filter(Objects::nonNull)
                         .filter(org -> matchesScopeTenantByOrg(scope, user, org))
@@ -1256,13 +1257,13 @@ public interface RbacBaseService extends RbacBaseUserService {
         });
     }
 
-    // tenantExpression 统一收敛到这里：空串=无租户，DEFAULT_TENANT=当前用户租户，*=所有租户，其余按 Groovy 脚本求值。
+    // tenantMatchingExpression 统一收敛到这里：空串=无租户，DEFAULT_TENANT=当前用户租户，*=所有租户，其余按 Groovy 脚本求值。
     private boolean matchesScopeTenantByOrg(OrgScope scope, RbacUserInfo user, RbacOrgInfo org) {
         return org != null && matchesScopeTenantByTenantId(scope, user, (Serializable) org.getTenantId());
     }
 
     private boolean matchesScopeTenantByTenantId(OrgScope scope, RbacUserInfo user, Serializable tenantId) {
-        final String tenantExpr = StrUtil.nullToEmpty(scope.getTenantExpression()).trim();
+        final String tenantExpr = StrUtil.nullToEmpty(scope.getTenantMatchingExpression()).trim();
         final String tenantIdStr = tenantId == null ? null : Objects.toString(tenantId, "");
 
         if (scope.isNoTenant()) {
@@ -1287,10 +1288,10 @@ public interface RbacBaseService extends RbacBaseUserService {
         }
 
         final Map<String, Object> context = new LinkedHashMap<>();
-        context.put("tenant", tenantId);
-        context.put("tenantId", tenantIdStr);
-        context.put("user", user);
-        context.put("scope", scope);
+        context.put("_tenant", tenantId);
+        context.put("_tenantId", tenantIdStr);
+        context.put("_user", user);
+        context.put("_scope", scope);
 
         Object value = ExpressionUtils.evalGroovy(ORG_SCOPE_GROOVY_CLASS_CACHE, null, tenantExpr,
                 "org-scope-tenant-" + Integer.toHexString(tenantExpr.hashCode()) + ".groovy", context);
@@ -1350,7 +1351,7 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
     /**
-     * 基于用户数据范围里的 tenantExpression 计算可访问租户集合。
+     * 基于用户数据范围里的 tenantMatchingExpression 计算可访问租户集合。
      * 这里按“allow 收敛，再减 deny”处理，和组织授权的总语义保持一致。
      */
     private Set<String> resolveUserAccessibleTenantIds(RbacUserInfo user,
@@ -1474,7 +1475,7 @@ public interface RbacBaseService extends RbacBaseUserService {
             return false;
         }
 
-        switch (scope.getScope()) {
+        switch (scope.getOrgScopeMatchingPattern()) {
             case OnlySelf:
                 return "/".equals(relativeIdPath);
             case OnlyDirectChild:
@@ -1497,24 +1498,24 @@ public interface RbacBaseService extends RbacBaseUserService {
                                        String relativeIdPath,
                                        String relativeNamePath) {
 
-        final OrgScope.ExpressionType expressionType = scope.getExpressionType();
+        final OrgScope.ExpressionType expressionType = scope.getOrgScopeExpressionType();
 
-        if (expressionType == null || OrgScope.ExpressionType.IdAntPath.equals(expressionType)) {
-            return matchAntPath(scope.getOrgScopeExpression(), relativeIdPath);
+        if (expressionType == null || OrgScope.ExpressionType.IdPath.equals(expressionType)) {
+            return matchPathPatternExpression(scope.getOrgScopeExpression(), relativeIdPath);
         }
 
-        if (OrgScope.ExpressionType.NameAntPath.equals(expressionType)) {
-            return matchAntPath(scope.getOrgScopeExpression(), relativeNamePath);
+        if (OrgScope.ExpressionType.NamePath.equals(expressionType)) {
+            return matchPathPatternExpression(scope.getOrgScopeExpression(), relativeNamePath);
         }
 
         final Map<String, Object> context = new LinkedHashMap<>();
 
-        context.put("user", user);
-        context.put("org", org);
-        context.put("rootOrg", rootOrg);
-        context.put("scope", scope);
-        context.put("relativeIdPath", relativeIdPath);
-        context.put("relativeNamePath", relativeNamePath);
+        context.put("_user", user);
+        context.put("_org", org);
+        context.put("_rootOrg", rootOrg);
+        context.put("_scope", scope);
+        context.put("_relativeIdPath", relativeIdPath);
+        context.put("_relativeNamePath", relativeNamePath);
 
         // 自定义脚本是慢路径，优先复用编译结果，减少高频授权检查中的解析开销。
         Object value = OrgScope.ExpressionType.Groovy.equals(expressionType)
@@ -1530,18 +1531,31 @@ public interface RbacBaseService extends RbacBaseUserService {
         return ExpressionUtils.evalSpEL(rootObject, null, spelExpression, Collections.singletonList(context));
     }
 
-    private boolean matchAntPath(String expression, String relativePath) {
+    private boolean matchPathPatternExpression(String expression, String relativePath) {
 
         if (StrUtil.isBlank(expression) || StrUtil.isBlank(relativePath)) {
             return false;
         }
 
-        if (ORG_SCOPE_PATH_MATCHER.match(expression, relativePath)) {
+        if (matchPathPattern(expression, relativePath)) {
             return true;
         }
 
-        return !"/".equals(relativePath)
-                && ORG_SCOPE_PATH_MATCHER.match(expression, StrUtil.removeSuffix(relativePath, "/"));
+        if ("/".equals(relativePath)) {
+            return false;
+        }
+
+        final String alternatePath = relativePath.endsWith("/")
+                ? StrUtil.removeSuffix(relativePath, "/")
+                : relativePath + "/";
+
+        return matchPathPattern(expression, alternatePath);
+    }
+
+    private boolean matchPathPattern(String expression, String path) {
+        final PathPattern pathPattern = ORG_SCOPE_PATH_PATTERN_CACHE.computeIfAbsent(expression,
+                ORG_SCOPE_PATH_PATTERN_PARSER::parse);
+        return pathPattern.matches(PathContainer.parsePath(path));
     }
 
     private int getRelativeDepth(String relativePath) {

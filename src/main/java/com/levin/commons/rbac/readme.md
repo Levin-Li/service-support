@@ -10,8 +10,8 @@
 - 最小接入步骤
 - 超管与机密级别语义
 - `DataScope` / `OrgScope` 规则
-- `tenantExpression` / 公共组织语义
-- `IdAntPath` / `NameAntPath` / `Groovy` / `SpringEL`
+- `tenantMatchingExpression` / 公共组织语义
+- `IdPath` / `NamePath` / `Groovy` / `SpringEL`
 - 组织树装配与性能建议
 
 ### RBAC 核心概念

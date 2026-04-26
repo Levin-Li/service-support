@@ -2,8 +2,10 @@ package com.levin.commons.rbac;
 
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
+import com.levin.commons.utils.ExpressionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.util.PatternMatchUtils;
+import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.StringUtils;
 
 import jakarta.validation.constraints.NotNull;
@@ -25,6 +27,8 @@ import static com.levin.commons.rbac.RbacMiscUtils.isAllNull;
  */
 
 public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
+
+    Map<String, Class<Object>> ROLE_ASSIGN_GROOVY_CLASS_CACHE = new ConcurrentReferenceHashMap<>();
 
     /**
      * 获取权限分隔符
@@ -127,6 +131,31 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         }
 
         return Collections.emptyList();
+    }
+
+    @Operation(summary = "检查目标用户是否满足角色分配前置条件", description = "用于保存用户角色前校验目标用户和目标角色，不用于操作人角色授权判断")
+    default boolean isRoleAssignPreConditionMatched(Serializable targetUserPrincipal, RbacRoleInfo role) {
+
+        Assert.notNull(targetUserPrincipal, "目标用户不能为空");
+        Assert.notNull(role, "角色不能为空");
+
+        final String expression = role.getAssignPreCondition();
+
+        if (StrUtil.isBlank(expression)) {
+            return true;
+        }
+
+        final RbacUserInfo targetUser = getRbacBaseLoadService().loadUser(targetUserPrincipal);
+        Assert.notNull(targetUser, "目标用户({})不存在", targetUserPrincipal);
+
+        final Map<String, Object> context = new LinkedHashMap<>();
+        context.put("_user", targetUser);
+        context.put("_role", role);
+
+        Object value = ExpressionUtils.evalGroovy(ROLE_ASSIGN_GROOVY_CLASS_CACHE, null, expression,
+                "role-assign-pre-condition-" + Integer.toHexString(expression.hashCode()) + ".groovy", context);
+
+        return Boolean.TRUE.equals(value);
     }
 
     private static RbacRoleInfo findFirstMatchedRole(Map<String, RbacRoleInfo> roleMap, String rolePattern, RbacRoleInfo excludedRole) {
