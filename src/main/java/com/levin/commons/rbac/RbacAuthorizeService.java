@@ -3,6 +3,7 @@ package com.levin.commons.rbac;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
 
 import jakarta.validation.constraints.NotNull;
@@ -71,19 +72,76 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
 
             RbacRoleInfo mutexRole = role.getExclusiveRoleList().stream()
                     .filter(StringUtils::hasText)
-                    .map(map::get)
+                    .map(rolePattern -> findFirstMatchedRole(map, rolePattern, role))
                     .filter(Objects::nonNull)
                     .findFirst()
                     .orElse(null);
 
-            if (mutexRole != null
-                    && mutexRole != role) {
+            if (mutexRole != null) {
                 // 返回互斥角色
                 return Arrays.asList(role, mutexRole);
             }
         }
 
         return Collections.emptyList();
+    }
+
+    @Operation(summary = "找出第一组缺失共存角色的角色编码", description = "默认返回当前角色编码和缺失的共存角色编码表达式")
+    default Collection<String> findFirstMissingCoexistRoleCodePair(Collection<RbacRoleInfo> roles) {
+
+        if (isAllNull(roles)) {
+            return Collections.emptyList();
+        }
+
+        final Set<String> roleCodes = roles.stream()
+                .filter(Objects::nonNull)
+                .map(RbacRoleInfo::getCode)
+                .filter(StringUtils::hasText)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        if (roleCodes.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        for (RbacRoleInfo role : roles) {
+
+            if (role == null || isAllBlank(role.getCoexistRoleList())) {
+                continue;
+            }
+
+            final String roleCode = role.getCode();
+
+            if (!StringUtils.hasText(roleCode)) {
+                continue;
+            }
+
+            final String missingRolePattern = role.getCoexistRoleList().stream()
+                    .filter(StringUtils::hasText)
+                    .filter(rolePattern -> roleCodes.stream().noneMatch(code -> roleCodeMatch(rolePattern, code)))
+                    .findFirst()
+                    .orElse(null);
+
+            if (missingRolePattern != null) {
+                return Arrays.asList(roleCode, missingRolePattern);
+            }
+        }
+
+        return Collections.emptyList();
+    }
+
+    private static RbacRoleInfo findFirstMatchedRole(Map<String, RbacRoleInfo> roleMap, String rolePattern, RbacRoleInfo excludedRole) {
+        return roleMap.entrySet().stream()
+                .filter(entry -> roleCodeMatch(rolePattern, entry.getKey()))
+                .map(Map.Entry::getValue)
+                .filter(role -> role != excludedRole)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private static boolean roleCodeMatch(String rolePattern, String roleCode) {
+        return StringUtils.hasText(rolePattern)
+                && StringUtils.hasText(roleCode)
+                && PatternMatchUtils.simpleMatch(rolePattern.trim(), roleCode.trim());
     }
 
     /**

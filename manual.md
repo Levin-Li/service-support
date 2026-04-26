@@ -300,6 +300,13 @@ RBAC 是这个项目最值得重点理解的模块。
 
 这两者在建模上是不同字段，不应该互相代替。
 
+角色还可以声明分配约束：
+
+- `getExclusiveRoleList()` 表示不能和当前角色共存的角色编码表达式
+- `getCoexistRoleList()` 表示当前角色必须同时具备的角色编码表达式，缺失时不允许单独分配
+
+这两类表达式都可以使用 `*` / `?` 通配。保存用户最终角色集合前，可以使用 `findFirstExclusiveRolePair(...)` 和 `findFirstMissingCoexistRoleCodePair(...)` 做一致性校验。
+
 ### 7.3 权限
 
 权限表达式采用：

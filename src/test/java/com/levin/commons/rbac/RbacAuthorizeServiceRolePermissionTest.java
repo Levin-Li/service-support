@@ -163,7 +163,7 @@ class RbacAuthorizeServiceRolePermissionTest {
     void shouldFindFirstExclusiveRolePair() {
         // 业务规则：角色互斥配置生效时，应返回第一组冲突角色。
         TestRbacRole financeRole = new TestRbacRole("R1", "R_FINANCE", "T1",
-                Collections.emptyList(), Collections.singletonList("R_AUDIT"), 100);
+                Collections.emptyList(), Collections.singletonList("R_AUD*"), 100);
         TestRbacRole auditRole = new TestRbacRole("R2", "R_AUDIT", "T1",
                 Collections.emptyList(), Collections.emptyList(), 100);
 
@@ -173,6 +173,30 @@ class RbacAuthorizeServiceRolePermissionTest {
         assertEquals(2, pair.size(), "互斥角色冲突应返回两个角色");
         assertTrue(codes.contains("R_FINANCE"), "互斥角色结果应包含 R_FINANCE");
         assertTrue(codes.contains("R_AUDIT"), "互斥角色结果应包含 R_AUDIT");
+    }
+
+    @Test
+    void shouldFindFirstMissingCoexistRoleCodePair() {
+        TestRbacRole advancedRole = new TestRbacRole(
+                "R2A",
+                "R_ADVANCED",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                100,
+                Collections.emptyList(),
+                null,
+                Collections.singletonList("R_BASE_*")
+        );
+        TestRbacRole baseRole = new TestRbacRole("R2B", "R_BASE_USER", "T1",
+                Collections.emptyList(), Collections.emptyList(), 100);
+
+        Collection<String> missingPair = authorizeService.findFirstMissingCoexistRoleCodePair(Collections.singletonList(advancedRole));
+
+        assertIterableEquals(Arrays.asList("R_ADVANCED", "R_BASE_*"), missingPair,
+                "缺失共存角色时应返回当前角色编码和缺失的共存角色表达式");
+        assertTrue(authorizeService.findFirstMissingCoexistRoleCodePair(Arrays.asList(advancedRole, baseRole)).isEmpty(),
+                "补齐共存角色后不应再报告缺失");
     }
 
     @Test
@@ -1446,6 +1470,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         private final String tenantId;
         private final List<String> permissionList;
         private final List<String> exclusiveRoleList;
+        private final List<String> coexistRoleList;
         private final Integer confidentialLevel;
         private final Integer confidentialDataAccessLevel;
         private final Collection<SimpleOrgScope> orgScopeList;
@@ -1460,11 +1485,16 @@ class RbacAuthorizeServiceRolePermissionTest {
         }
 
         TestRbacRole(String id, String code, String tenantId, List<String> permissionList, List<String> exclusiveRoleList, Integer confidentialDataAccessLevel, Collection<SimpleOrgScope> orgScopeList, Integer confidentialLevel) {
+            this(id, code, tenantId, permissionList, exclusiveRoleList, confidentialDataAccessLevel, orgScopeList, confidentialLevel, Collections.emptyList());
+        }
+
+        TestRbacRole(String id, String code, String tenantId, List<String> permissionList, List<String> exclusiveRoleList, Integer confidentialDataAccessLevel, Collection<SimpleOrgScope> orgScopeList, Integer confidentialLevel, Collection<String> coexistRoleList) {
             this.id = id;
             this.code = code;
             this.tenantId = tenantId;
             this.permissionList = permissionList == null ? Collections.emptyList() : new ArrayList<>(permissionList);
             this.exclusiveRoleList = exclusiveRoleList == null ? Collections.emptyList() : new ArrayList<>(exclusiveRoleList);
+            this.coexistRoleList = coexistRoleList == null ? Collections.emptyList() : new ArrayList<>(coexistRoleList);
             this.confidentialLevel = confidentialLevel;
             this.confidentialDataAccessLevel = confidentialDataAccessLevel;
             this.orgScopeList = orgScopeList == null ? Collections.emptyList() : new ArrayList<>(orgScopeList);
@@ -1488,6 +1518,11 @@ class RbacAuthorizeServiceRolePermissionTest {
         @Override
         public Collection<String> getExclusiveRoleList() {
             return exclusiveRoleList;
+        }
+
+        @Override
+        public Collection<String> getCoexistRoleList() {
+            return coexistRoleList;
         }
 
         @Override

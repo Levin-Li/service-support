@@ -37,7 +37,7 @@ public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPubl
         throw new UnsupportedOperationException();
     }
 
-    @Schema(title = "是否是公共角色", description = "没有归属租户即为公共角色角色")
+    @Schema(title = "是否是公共角色", description = "没有归属租户即为公共角色")
     default boolean isPublicRole() {
         return RbacMiscUtils.isBlank(getTenantId());
     }
@@ -45,9 +45,9 @@ public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPubl
     @Schema(title = "角色编码", description = "以R_开头")
     String getCode();
 
-    @Schema(title = "是否可继承", description = "默认为true")
+    @Schema(title = "是否可被继承", description = "默认为false")
     default boolean isInheritable() {
-        return true;
+        return false;
     }
 
     @Schema(title = "继承的角色编码列表", description = "可以使用*?通配符")
@@ -62,6 +62,11 @@ public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPubl
 
     @Schema(title = "排斥的角色编码列表", description = "是指把角色分配给用户时,和这个角色不能共存的角色, 可以使用*?通配符")
     default Collection<String> getExclusiveRoleList() {
+        return Collections.emptyList();
+    }
+
+    @Schema(title = "必须共存的角色编码列表", description = "是指把角色分配给用户时,当前角色必须和列表内每个角色共存,否则不能单独分配, 可以使用*?通配符")
+    default Collection<String> getCoexistRoleList() {
         return Collections.emptyList();
     }
 
