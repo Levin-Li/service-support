@@ -409,6 +409,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         }
 
         return canAccessAllOrg(user, getUserDataScope(user));
+
     }
 
 

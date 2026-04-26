@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 )
 public interface OrgScope extends Serializable {
 
-    String ALL_ROOT_ORG = "_ALL_ROOT_ORG_";
+    String ALL_ROOT_ORG = "*";
 
     // 用户组织
     String USER_ORG = "_USER_ORG_";
@@ -42,7 +42,7 @@ public interface OrgScope extends Serializable {
     String DEFAULT_TENANT = "_DEFAULT_TENANT_";
 
     @Getter
-    @Schema(title = "范围")
+    @Schema(title = "组织范围")
     @GenNameConstant
     enum Scope implements EnumDesc {
 
@@ -132,7 +132,7 @@ public interface OrgScope extends Serializable {
     }
 
     @NotBlank
-    @Schema(title = "组织标识", description = "有3种情况, _ALL_ORG_, _USER_ORG_ 和具体的组织Id")
+    @Schema(title = "组织标识", description = "有3种情况, *, _USER_ORG_ 和具体的组织Id")
     String getOrgId();
 
     @Schema(title = "是否允许访问", description = "true: 允许, false: 拒绝")
