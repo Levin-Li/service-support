@@ -11,6 +11,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.util.ConcurrentReferenceHashMap;
+import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.http.server.PathContainer;
 import org.springframework.web.util.pattern.PathPattern;
@@ -156,6 +157,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      */
     @Operation(summary = "加载租户的组织列表", description = "性能扩展点：组织量大时应由子类在数据层按租户、状态、根节点或 nodePath 预裁剪。tenantId 为 null 时加载无租户组织, onlyEffectOrg 指定是否只加载有效组织, 要求方法返回只读对象")
     <ORG extends RbacOrgInfo> Collection<ORG> loadTenantOrgList(Serializable tenantId, boolean onlyLoadEffectOrg);
+
 
     @Operation(summary = "加载用户能访问的组织列表", description = "性能扩展点：默认实现会按租户加载候选组织后在内存中计算 DataScope；子类可覆盖为 SQL/缓存直接计算用户可访问组织。onlyEffect 可以指定是否只加载有效组织")
     default <ORG extends RbacOrgInfo> Collection<ORG> loadUserAccessibleOrgList(Serializable userPrincipal, boolean onlyLoadEffectOrg) {
@@ -804,15 +806,50 @@ public interface RbacBaseService extends RbacBaseUserService {
      */
     @Operation(summary = "根据角色代码加载角色列表", description = "性能扩展点：默认实现会加载租户角色列表后内存按 code 过滤；子类可覆盖为按 code 批量查询。不管角色是否处于有效状态,公共角色会并存")
     default <R extends RbacRoleInfo> Collection<R> loadTenantRoleListByCodes(final Serializable tenantId, Collection<String> roleCodeList) {
+
+        if (isAllBlank(roleCodeList)) {
+            return Collections.emptyList();
+        }
+
         return (Collection<R>) loadTenantRoleList(tenantId, false)
                 .stream()
+                .filter(Objects::nonNull)
 
                 // 过滤租户
-                .filter(r -> RbacMiscUtils.isBlank(tenantId) ? RbacMiscUtils.isBlank(r.getTenantId()) : tenantId.equals(r.getTenantId()))
+                .filter(r -> RbacMiscUtils.isBlank(tenantId)
+                        ? RbacMiscUtils.isBlank(r.getTenantId())
+                        : tenantId.equals(r.getTenantId()) || RbacMiscUtils.isBlank(r.getTenantId()))
 
                 //
                 .filter(r -> roleCodeList.contains(r.getCode()))
                 .collect(Collectors.toSet());
+    }
+
+    @Operation(summary = "根据角色编码表达式加载角色列表", description = "性能扩展点：默认实现会加载租户角色列表后用 * 通配表达式过滤；子类可覆盖为按 code 批量查询或缓存匹配。公共角色会并存")
+    default <R extends RbacRoleInfo> Collection<R> loadTenantRoleListByCodePatterns(final Serializable tenantId, Collection<String> roleCodePatternList) {
+
+        if (isAllBlank(roleCodePatternList)) {
+            return Collections.emptyList();
+        }
+
+        final Collection<String> patterns = roleCodePatternList.stream()
+                .filter(StrUtil::isNotBlank)
+                .map(String::trim)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        if (patterns.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return (Collection<R>) loadTenantRoleList(tenantId, false)
+                .stream()
+                .filter(Objects::nonNull)
+                .filter(r -> RbacMiscUtils.isBlank(tenantId)
+                        ? RbacMiscUtils.isBlank(r.getTenantId())
+                        : tenantId.equals(r.getTenantId()) || RbacMiscUtils.isBlank(r.getTenantId()))
+                .filter(r -> StrUtil.isNotBlank(r.getCode()))
+                .filter(r -> patterns.stream().anyMatch(pattern -> PatternMatchUtils.simpleMatch(pattern, r.getCode())))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     /**

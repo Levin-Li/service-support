@@ -51,12 +51,12 @@ public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPubl
         return "";
     }
 
-    @Schema(title = "排斥的角色编码列表", description = "把当前角色分配给用户时, 用户不能拥有这些角色中的任何一个, 否则不能分配该角色给用户, 可以使用*?通配符; 目的是用于约束角色分配")
+    @Schema(title = "排斥的角色编码列表", description = "把当前角色分配给用户时, 用户不能拥有这些角色中的任何一个, 否则不能分配该角色给用户, 可以使用 * 通配符; 目的是用于约束角色分配")
     default Collection<String> getExclusiveRoleList() {
         return Collections.emptyList();
     }
 
-    @Schema(title = "必须共存的角色编码列表", description = "把当前角色分配给用户时, 用户必须已经拥有全部的这些角色, 否则不能分配该角色给用户, 可以使用*?通配符; 目的是用于约束角色分配")
+    @Schema(title = "必须共存的角色编码列表", description = "把当前角色分配给用户时, 用户必须已经拥有全部的这些角色, 否则不能分配该角色给用户, 可以使用 * 通配符; 目的是用于约束角色分配")
     default Collection<String> getCoexistRoleList() {
         return Collections.emptyList();
     }

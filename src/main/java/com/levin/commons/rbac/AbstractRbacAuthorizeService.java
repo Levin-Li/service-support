@@ -172,6 +172,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
         RbacBaseService rbacBaseService = getRbacBaseLoadService();
 
         RbacUserInfo user = rbacBaseService.loadUser(principal);
+        Assert.notNull(user, "用户({})不存在", principal);
         principal = user;
 
         if (user.isTopSuperAdmin()) {
@@ -207,6 +208,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
         RbacBaseService rbacBaseService = getRbacBaseLoadService();
 
         RbacUserInfo user = rbacBaseService.loadUser(principal);
+        Assert.notNull(user, "用户({})不存在", principal);
 
         if (user.isTopSuperAdmin()) {
             return true;
@@ -234,7 +236,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
         //如果是角色，不是权限，按角色处理
         if (isRole(requirePermission)) {
 
-            boolean found = ownerRoleList.contains(requirePermission);
+            boolean found = !CollUtil.isEmpty(ownerRoleList) && ownerRoleList.contains(requirePermission);
 
             if (!found) {
                 Optional.ofNullable(matchErrorConsumer).orElse(emptyConsumer).accept(requirePermission, requirePermission + " role not authorized");
@@ -310,6 +312,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
         RbacBaseService rbacBaseService = getRbacBaseLoadService();
 
         RbacUserInfo user = rbacBaseService.loadUser(principal);
+        Assert.notNull(user, "用户({})不存在", principal);
 
         if (user.isTopSuperAdmin()) {
             return true;
@@ -459,8 +462,9 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
      */
     protected boolean textPatternMatch(@Nullable String pattern, @Nullable String str) {
 
-        return (!StringUtils.hasText(str))
-                || (StringUtils.hasText(pattern) && StrUtil.split(pattern, '|').stream().filter(StringUtils::hasText).anyMatch(p -> PatternMatchUtils.simpleMatch(p, str)));
+        return StringUtils.hasText(pattern)
+                && StringUtils.hasText(str)
+                && StrUtil.split(pattern, '|').stream().filter(StringUtils::hasText).anyMatch(p -> PatternMatchUtils.simpleMatch(p, str));
     }
 
     /**

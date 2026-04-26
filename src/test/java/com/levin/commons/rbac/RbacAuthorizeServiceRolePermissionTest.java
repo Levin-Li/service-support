@@ -167,10 +167,10 @@ class RbacAuthorizeServiceRolePermissionTest {
         TestRbacRole auditRole = new TestRbacRole("R2", "R_AUDIT", "T1",
                 Collections.emptyList(), Collections.emptyList(), 100);
 
-        Collection<RbacRoleInfo> pair = authorizeService.findFirstExclusiveRolePair(Arrays.asList(financeRole, auditRole));
-        Set<String> codes = pair.stream().map(RbacRoleInfo::getCode).collect(Collectors.toSet());
+        DataPair<TestRbacRole, TestRbacRole> pair = authorizeService.findFirstExclusiveRolePair(Arrays.asList(financeRole, auditRole));
+        assertNotNull(pair, "互斥角色冲突应返回角色对");
+        Set<String> codes = Arrays.asList(pair.getA(), pair.getB()).stream().map(RbacRoleInfo::getCode).collect(Collectors.toSet());
 
-        assertEquals(2, pair.size(), "互斥角色冲突应返回两个角色");
         assertTrue(codes.contains("R_FINANCE"), "互斥角色结果应包含 R_FINANCE");
         assertTrue(codes.contains("R_AUDIT"), "互斥角色结果应包含 R_AUDIT");
     }
@@ -191,12 +191,41 @@ class RbacAuthorizeServiceRolePermissionTest {
         TestRbacRole baseRole = new TestRbacRole("R2B", "R_BASE_USER", "T1",
                 Collections.emptyList(), Collections.emptyList(), 100);
 
-        Collection<String> missingPair = authorizeService.findFirstMissingCoexistRoleCodePair(Collections.singletonList(advancedRole));
+        DataPair<TestRbacRole, Collection<String>> missingPair = authorizeService.findFirstMissingCoexistRoleCodePair(Collections.singletonList(advancedRole));
 
-        assertIterableEquals(Arrays.asList("R_ADVANCED", "R_BASE_*"), missingPair,
-                "缺失共存角色时应返回当前角色编码和缺失的共存角色表达式");
-        assertTrue(authorizeService.findFirstMissingCoexistRoleCodePair(Arrays.asList(advancedRole, baseRole)).isEmpty(),
+        assertEquals("R_ADVANCED", missingPair.getA().getCode(), "缺失共存角色时应返回当前角色");
+        assertIterableEquals(Collections.singletonList("R_BASE_*"), missingPair.getB(),
+                "缺失共存角色时应返回缺失的共存角色表达式");
+        assertNull(authorizeService.findFirstMissingCoexistRoleCodePair(Arrays.asList(advancedRole, baseRole)),
                 "补齐共存角色后不应再报告缺失");
+    }
+
+    @Test
+    void shouldLoadMissingCoexistRoleCandidatesByWildcard() {
+        TestRbacRole advancedRole = new TestRbacRole(
+                "R2D",
+                "R_ADVANCED",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                100,
+                Collections.emptyList(),
+                null,
+                Collections.singletonList("R_BASE_*")
+        );
+        TestRbacRole baseRole = new TestRbacRole("R2E", "R_BASE_USER", "T1",
+                Collections.emptyList(), Collections.emptyList(), 100);
+
+        baseService.registerRole(advancedRole);
+        baseService.registerRole(baseRole);
+
+        DataPair<TestRbacRole, Collection<TestRbacRole>> missingPair =
+                authorizeService.findFirstMissingCoexistRolePair(user, Collections.singletonList(advancedRole));
+
+        assertEquals("R_ADVANCED", missingPair.getA().getCode(), "应返回缺失约束所属角色");
+        assertIterableEquals(Collections.singletonList("R_BASE_USER"),
+                missingPair.getB().stream().map(RbacRoleInfo::getCode).collect(Collectors.toList()),
+                "缺失共存角色对象应按通配表达式加载候选角色");
     }
 
     @Test
@@ -233,6 +262,35 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertFalse(scopedAuthorizeService.isRoleAssignPreConditionMatched(financeUser, contextualRole),
                 "目标用户不满足前置条件时应拒绝分配");
+    }
+
+    @Test
+    void shouldCheckRoleAssignmentWithAuthorizationPreConditionAndCoexistRules() {
+        TestRbacRole advancedRole = new TestRbacRole(
+                "R2F",
+                "R_ADVANCED",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                100,
+                Collections.emptyList(),
+                null,
+                Collections.singletonList("R_BASE_*")
+        ) {
+            @Override
+            public String getAssignPreCondition() {
+                return "_user.type == 'OPS'";
+            }
+        };
+        TestRbacRole baseRole = new TestRbacRole("R2G", "R_BASE_USER", "T1",
+                Collections.emptyList(), Collections.emptyList(), 100);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> authorizeService.checkRoleAssignment(user, user, Collections.singletonList(advancedRole)),
+                "缺少共存角色时，统一角色分派校验应拒绝");
+
+        assertDoesNotThrow(() -> authorizeService.checkRoleAssignment(user, user, Arrays.asList(advancedRole, baseRole)),
+                "操作人可分配、目标用户满足前置条件且共存角色齐全时应通过");
     }
 
     @Test
