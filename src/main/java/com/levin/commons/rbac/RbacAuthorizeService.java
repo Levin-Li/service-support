@@ -97,8 +97,13 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         return null;
     }
 
-    @Operation(summary = "找出第一组缺失共存角色的角色编码", description = "默认返回当前角色和缺失的共存角色编码表达式")
-    default <ROLE extends RbacRoleInfo> DataPair<ROLE, Collection<String>> findFirstMissingCoexistRoleCodePair(Collection<? extends RbacRoleInfo> roles) {
+    @Operation(summary = "找出第一组缺失共存角色", description = "默认返回当前角色和缺失的共存角色对象；如果共存角色编码表达式无法加载到角色对象，则抛出异常")
+    default <ROLE extends RbacRoleInfo> DataPair<ROLE, Collection<ROLE>> findFirstMissingCoexistRoleCodePair(Collection<? extends RbacRoleInfo> roles) {
+        return findFirstMissingCoexistRoleCodePair(null, roles);
+    }
+
+    @Operation(summary = "找出第一组缺失共存角色", description = "默认按目标用户租户返回当前角色和缺失的共存角色对象；如果共存角色编码表达式无法加载到角色对象，则抛出异常")
+    default <ROLE extends RbacRoleInfo> DataPair<ROLE, Collection<ROLE>> findFirstMissingCoexistRoleCodePair(Serializable targetUserPrincipal, Collection<? extends RbacRoleInfo> roles) {
 
         if (isAllNull(roles)) {
             return null;
@@ -112,6 +117,16 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
 
         if (roleCodes.isEmpty()) {
             return null;
+        }
+
+        final RbacBaseService rbacBaseService = getRbacBaseLoadService();
+        final RbacUserInfo targetUser;
+
+        if (targetUserPrincipal != null) {
+            targetUser = rbacBaseService.loadUser(targetUserPrincipal);
+            Assert.notNull(targetUser, "target user {} not found", targetUserPrincipal);
+        } else {
+            targetUser = null;
         }
 
         for (RbacRoleInfo role : roles) {
@@ -133,7 +148,20 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
                     .toList();
 
             if (!roleCodeList.isEmpty()) {
-                return DataPair.of((ROLE) role, roleCodeList);
+                final Serializable tenantId = targetUser != null ? targetUser.getTenantId() : role.getTenantId();
+                final Collection<ROLE> missingRoleList = rbacBaseService.loadTenantRoleListByCodePatterns(tenantId, roleCodeList);
+
+                for (String roleCodePattern : roleCodeList) {
+                    final boolean loaded = missingRoleList.stream()
+                            .filter(Objects::nonNull)
+                            .map(RbacRoleInfo::getCode)
+                            .anyMatch(loadedRoleCode -> roleCodeMatch(roleCodePattern, loadedRoleCode));
+
+                    Assert.isTrue(loaded, "角色{}({})配置的共存角色表达式[{}]无法加载到角色对象",
+                            role.getName(), role.getCode(), roleCodePattern);
+                }
+
+                return DataPair.of((ROLE) role, missingRoleList);
             }
         }
 
@@ -142,23 +170,10 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
 
     @Operation(summary = "找出第一组缺失共存角色对象", description = "默认按缺失的共存角色编码表达式在目标用户租户内加载候选角色对象")
     default <ROLE extends RbacRoleInfo> DataPair<ROLE, Collection<ROLE>> findFirstMissingCoexistRolePair(Serializable targetUserPrincipal, Collection<? extends RbacRoleInfo> roles) {
-
-        final DataPair<ROLE, Collection<String>> missingPair = findFirstMissingCoexistRoleCodePair(roles);
-
-        if (missingPair == null) {
-            return null;
-        }
-
-        Assert.notNull(targetUserPrincipal, "targetUserPrincipal is required");
-
-        final RbacBaseService rbacBaseService = getRbacBaseLoadService();
-        final RbacUserInfo targetUser = rbacBaseService.loadUser(targetUserPrincipal);
-        Assert.notNull(targetUser, "target user {} not found", targetUserPrincipal);
-
-        return DataPair.of(missingPair.getA(), rbacBaseService.loadTenantRoleListByCodePatterns(targetUser.getTenantId(), missingPair.getB()));
+        return findFirstMissingCoexistRoleCodePair(targetUserPrincipal, roles);
     }
 
-    @Operation(summary = "校验角色分派", description = "统一检查操作人是否可分配、目标用户是否满足角色前置条件、角色集合是否存在互斥或缺失共存角色")
+    @Operation(summary = "校验角色分配", description = "统一检查操作人是否可分配、目标用户是否满足角色前置条件、角色集合是否存在互斥或缺失共存角色")
     default void checkRoleAssignment(Serializable operatorPrincipal, Serializable targetUserPrincipal, Collection<? extends RbacRoleInfo> finalRoles) {
 
         Assert.notNull(operatorPrincipal, "操作用户不能为空");
@@ -170,26 +185,41 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
 
         final RbacBaseService rbacBaseService = getRbacBaseLoadService();
         final RbacUserInfo targetUser = rbacBaseService.loadUser(targetUserPrincipal);
+
         Assert.notNull(targetUser, "目标用户({})不存在", targetUserPrincipal);
 
         for (RbacRoleInfo role : finalRoles) {
+
             if (role == null) {
                 continue;
             }
 
-            Assert.isTrue(isRoleAuthorized(operatorPrincipal, role, null), "操作用户无权分配角色[{}]", role.getCode());
-            Assert.isTrue(isRoleAssignPreConditionMatched(targetUser, role), "目标用户不满足角色[{}]分配前置条件", role.getCode());
+            Assert.isTrue(isRoleAuthorized(operatorPrincipal, role, null), "操作用户无权分配角色{}({})", role.getName(), role.getCode());
+
+            Assert.isTrue(isRoleAssignPreConditionMatched(targetUser, role), "目标用户不满足角色{}({})分配前置条件", role.getName(), role.getCode());
         }
 
         final DataPair<? extends RbacRoleInfo, ? extends RbacRoleInfo> exclusivePair = findFirstExclusiveRolePair(finalRoles);
-        Assert.isNull(exclusivePair, "角色[{}]与角色[{}]互斥，不能同时分配",
-                exclusivePair == null ? null : exclusivePair.getA().getCode(),
-                exclusivePair == null ? null : exclusivePair.getB().getCode());
 
-        final DataPair<? extends RbacRoleInfo, Collection<String>> missingCoexistPair = findFirstMissingCoexistRoleCodePair(finalRoles);
-        Assert.isNull(missingCoexistPair, "角色[{}]缺少必须共存角色{}",
-                missingCoexistPair == null ? null : missingCoexistPair.getA().getCode(),
-                missingCoexistPair == null ? null : missingCoexistPair.getB());
+        if (exclusivePair != null) {
+            Assert.isNull(exclusivePair, "角色{}({})与角色{}({})互斥，不能同时分配",
+                    exclusivePair.getA().getName(), exclusivePair.getA().getCode(),
+                    exclusivePair.getB().getName(), exclusivePair.getB().getCode()
+            );
+        }
+
+        final DataPair<? extends RbacRoleInfo, ? extends Collection<? extends RbacRoleInfo>> missingCoexistPair = findFirstMissingCoexistRoleCodePair(targetUser, finalRoles);
+        if (missingCoexistPair != null) {
+            Assert.isNull(
+                    missingCoexistPair, "角色{}({})缺少必须共存的角色:{}",
+                    missingCoexistPair.getA().getName(),
+                    missingCoexistPair.getA().getCode(),
+                    missingCoexistPair.getB().stream()
+                            .filter(Objects::nonNull)
+                            .map(role -> role.getName() + "(" + role.getCode() + ")")
+                            .collect(Collectors.joining(", "))
+            );
+        }
     }
 
     @Operation(summary = "检查目标用户是否满足角色分配前置条件", description = "用于保存用户角色前校验目标用户和目标角色，不用于操作人角色授权判断")

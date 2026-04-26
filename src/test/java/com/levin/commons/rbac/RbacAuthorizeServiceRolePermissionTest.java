@@ -191,17 +191,20 @@ class RbacAuthorizeServiceRolePermissionTest {
         TestRbacRole baseRole = new TestRbacRole("R2B", "R_BASE_USER", "T1",
                 Collections.emptyList(), Collections.emptyList(), 100);
 
-        DataPair<TestRbacRole, Collection<String>> missingPair = authorizeService.findFirstMissingCoexistRoleCodePair(Collections.singletonList(advancedRole));
+        baseService.registerRole(baseRole);
+
+        DataPair<TestRbacRole, Collection<TestRbacRole>> missingPair = authorizeService.findFirstMissingCoexistRoleCodePair(Collections.singletonList(advancedRole));
 
         assertEquals("R_ADVANCED", missingPair.getA().getCode(), "缺失共存角色时应返回当前角色");
-        assertIterableEquals(Collections.singletonList("R_BASE_*"), missingPair.getB(),
-                "缺失共存角色时应返回缺失的共存角色表达式");
+        assertIterableEquals(Collections.singletonList("R_BASE_USER"),
+                missingPair.getB().stream().map(RbacRoleInfo::getCode).collect(Collectors.toList()),
+                "缺失共存角色时应返回缺失的共存角色对象");
         assertNull(authorizeService.findFirstMissingCoexistRoleCodePair(Arrays.asList(advancedRole, baseRole)),
                 "补齐共存角色后不应再报告缺失");
     }
 
     @Test
-    void shouldLoadMissingCoexistRoleCandidatesByWildcard() {
+    void shouldRejectMissingCoexistRoleWhenConfiguredRoleCannotBeLoaded() {
         TestRbacRole advancedRole = new TestRbacRole(
                 "R2D",
                 "R_ADVANCED",
@@ -211,9 +214,28 @@ class RbacAuthorizeServiceRolePermissionTest {
                 100,
                 Collections.emptyList(),
                 null,
+                Collections.singletonList("R_UNKNOWN_*")
+        );
+
+        assertThrows(IllegalArgumentException.class,
+                () -> authorizeService.findFirstMissingCoexistRoleCodePair(user, Collections.singletonList(advancedRole)),
+                "共存角色表达式无法加载到角色对象时应抛出异常");
+    }
+
+    @Test
+    void shouldLoadMissingCoexistRoleCandidatesByWildcard() {
+        TestRbacRole advancedRole = new TestRbacRole(
+                "R2E",
+                "R_ADVANCED",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                100,
+                Collections.emptyList(),
+                null,
                 Collections.singletonList("R_BASE_*")
         );
-        TestRbacRole baseRole = new TestRbacRole("R2E", "R_BASE_USER", "T1",
+        TestRbacRole baseRole = new TestRbacRole("R2F", "R_BASE_USER", "T1",
                 Collections.emptyList(), Collections.emptyList(), 100);
 
         baseService.registerRole(advancedRole);
@@ -287,7 +309,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> authorizeService.checkRoleAssignment(user, user, Collections.singletonList(advancedRole)),
-                "缺少共存角色时，统一角色分派校验应拒绝");
+                "缺少共存角色时，统一角色分配校验应拒绝");
 
         assertDoesNotThrow(() -> authorizeService.checkRoleAssignment(user, user, Arrays.asList(advancedRole, baseRole)),
                 "操作人可分配、目标用户满足前置条件且共存角色齐全时应通过");
