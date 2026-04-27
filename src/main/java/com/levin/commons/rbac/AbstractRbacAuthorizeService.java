@@ -16,7 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.expression.BeanFactoryResolver;
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.lang.Nullable;
+import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
 
@@ -55,6 +58,10 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
     final InheritableThreadLocal<RbacBaseService> userLoadServiceHolder = new InheritableThreadLocal<>();
 
     final ContextHolder<String, ResConditionAction> actionContextHolder = ContextHolder.buildContext(true);
+
+    final Map<String, Expression> verifyExpressionCache = new ConcurrentReferenceHashMap<>();
+
+    final SpelExpressionParser verifyExpressionParser = new SpelExpressionParser();
 
     protected ContextHolder<String, ResConditionAction> getActionContext() {
 
@@ -171,7 +178,9 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
 
         RbacBaseService rbacBaseService = getRbacBaseLoadService();
 
-        RbacUserInfo user = rbacBaseService.loadUser(principal);
+        RbacUserInfo user = principal instanceof RbacUserInfo
+                ? (RbacUserInfo) principal
+                : rbacBaseService.loadUser(principal);
         Assert.notNull(user, "用户({})不存在", principal);
         principal = user;
 
@@ -207,7 +216,9 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
 
         RbacBaseService rbacBaseService = getRbacBaseLoadService();
 
-        RbacUserInfo user = rbacBaseService.loadUser(principal);
+        RbacUserInfo user = principal instanceof RbacUserInfo
+                ? (RbacUserInfo) principal
+                : rbacBaseService.loadUser(principal);
         Assert.notNull(user, "用户({})不存在", principal);
 
         if (user.isTopSuperAdmin()) {
@@ -311,7 +322,9 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
 
         RbacBaseService rbacBaseService = getRbacBaseLoadService();
 
-        RbacUserInfo user = rbacBaseService.loadUser(principal);
+        RbacUserInfo user = principal instanceof RbacUserInfo
+                ? (RbacUserInfo) principal
+                : rbacBaseService.loadUser(principal);
         Assert.notNull(user, "用户({})不存在", principal);
 
         if (user.isTopSuperAdmin()) {
@@ -360,10 +373,16 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
 
         //表达式支持
         //3、表达式闭包
-        final Supplier<Boolean> expressFun = hasText(action.verifyExpression()) ? () -> (Boolean) ExpressionUtils.evalSpEL(null, action.verifyExpression(),
+        final Expression verifyExpression = hasText(action.verifyExpression())
+                ? verifyExpressionCache.computeIfAbsent(action.verifyExpression(), verifyExpressionParser::parseExpression)
+                : null;
+
+        final Supplier<Boolean> expressFun = verifyExpression != null ? () -> Boolean.TRUE.equals(ExpressionUtils.evalSpEL(null, null, verifyExpression, Collections.emptyList(),
                 (ctx) -> {
 
-                    ctx.setBeanResolver(new BeanFactoryResolver(getContext()));
+                    if (getContext() != null) {
+                        ctx.setBeanResolver(new BeanFactoryResolver(getContext()));
+                    }
 
                     // ctx.setVariable("stpLogic", StpUtil.stpLogic);
                     //设置环境变量
@@ -376,7 +395,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
                     ctx.setVariable("userType", user.getType());
                     ctx.setVariable("ownerRoleList", ownerRoleList);
                     ctx.setVariable("ownerPermissionList", ownerPermissionList);
-                }) : null;
+                })) : null;
 
         //合并闭包
         final Stream<Supplier<Boolean>> supplierStream = Stream.of(hasAnyRolesFun, hasPermissionFun, expressFun).filter(Objects::nonNull);

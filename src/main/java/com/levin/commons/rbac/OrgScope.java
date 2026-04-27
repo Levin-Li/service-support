@@ -31,8 +31,6 @@ public interface OrgScope extends Serializable {
 
     String ALL_ROOT_ORG = "/*";
 
-    String ALL_ORG = "/**";
-
     // 用户组织
     String USER_ORG = "_USER_ORG_";
 
@@ -41,6 +39,8 @@ public interface OrgScope extends Serializable {
 
     //默认租户, 对于saas用户(无租户Id), 则默认为无租户,对于有租户Id的用户,则默认为用户的租户Id
     String DEFAULT_TENANT = "_DEFAULT_TENANT_";
+
+    String TENANT_GROOVY_EXPRESSION_PREFIX = "#!groovy:";
 
     @Getter
     @Schema(title = "范围匹配模式")
@@ -97,12 +97,7 @@ public interface OrgScope extends Serializable {
         ;
     }
 
-    @Schema(title = "是否所有组织", description = "所有组织, 包括根组织")
-    default boolean isAllOrg() {
-        return ALL_ORG.equalsIgnoreCase(StrUtil.nullToEmpty(getOrgId()).trim());
-    }
-
-    @Schema(title = "是否所有根组织", description = "所有根组织, 仅根组织")
+    @Schema(title = "是否所有根组织", description = "所有根组织作为范围起点，具体匹配范围由 ScopeMatchingPattern 决定")
     default boolean isAllRootOrg() {
         return ALL_ROOT_ORG.equalsIgnoreCase(StrUtil.nullToEmpty(getOrgId()).trim());
     }
@@ -112,7 +107,7 @@ public interface OrgScope extends Serializable {
         return USER_ORG.equalsIgnoreCase(StrUtil.nullToEmpty(getOrgId()).trim());
     }
 
-    @Schema(title = "租户匹配表达式", description = "租户匹配表达式, 4种情况: 无租户, ALL_TENANT(匹配任何租户) , DEFAULT_TENANT(对于无租户的平台用户, 则默认为无租户,对于有租户Id的用户,则默认为用户的租户Id), Groovy脚本(租户和用户变量:_tenant,_user)")
+    @Schema(title = "租户匹配表达式", description = "租户匹配表达式: 空串表示无租户, ALL_TENANT(*) 匹配任何租户, DEFAULT_TENANT 表示用户默认租户, 普通文本按租户ID精确匹配, 可使用 Spring PathPattern, Groovy 脚本必须使用 #!groovy: 前缀(租户和用户变量:_tenant,_user,_scope)")
     default String getTenantMatchingExpression() {
         return DEFAULT_TENANT;
     }
@@ -133,7 +128,7 @@ public interface OrgScope extends Serializable {
     }
 
     @NotBlank
-    @Schema(title = "组织标识", description = "有4种情况, /** 表示所有组织, /* 表示所有根组织, _USER_ORG_ 表示用户默认组织, 或具体组织Id")
+    @Schema(title = "组织标识", description = "有3种情况: /* 表示所有根组织作为范围起点, _USER_ORG_ 表示用户默认组织, 或具体组织Id")
     String getOrgId();
 
     @Schema(title = "访问许可", description = "true: 允许, false: 拒绝")
@@ -148,12 +143,12 @@ public interface OrgScope extends Serializable {
 
     @Schema(title = "是否允许所有组织", description = "true: 允许, false: 拒绝")
     default boolean isAllowAllOrg() {
-        return isAllow() && isAllOrg() && getOrgScopeMatchingPattern() == ScopeMatchingPattern.All;
+        return isAllow() && isAllRootOrg() && getOrgScopeMatchingPattern() == ScopeMatchingPattern.All;
     }
 
     @Schema(title = "是否拒绝所有组织", description = "true: 拒绝, false: 允许")
     default boolean isDenyAllOrg() {
-        return isDeny() && isAllOrg() && getOrgScopeMatchingPattern() == ScopeMatchingPattern.All;
+        return isDeny() && isAllRootOrg() && getOrgScopeMatchingPattern() == ScopeMatchingPattern.All;
     }
 
     @Schema(title = "是否拒绝访问")

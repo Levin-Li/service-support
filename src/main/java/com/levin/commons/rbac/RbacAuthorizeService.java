@@ -13,7 +13,9 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.levin.commons.rbac.RbacMiscUtils.isAllBlank;
@@ -63,53 +65,85 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
     RbacBaseService getRbacBaseLoadService();
 
 
-    @Operation(summary = "找出第一组互斥的角色对", description = "默认返回第一组互斥的角色")
-    default <ROLE extends RbacRoleInfo> DataPair<ROLE, ROLE> findFirstExclusiveRolePair(Collection<? extends RbacRoleInfo> roles) {
+    @Operation(summary = "找出互斥的角色对", description = "默认返回第一组互斥的角色, 如果返回null表示无互斥的角色")
+    default <ROLE extends RbacRoleInfo> DataPair<ROLE, ROLE> findExclusiveRolePair(Serializable targetUserPrincipal, Collection<? extends ROLE> roleList) {
 
-        if (isAllNull(roles)) {
+        if (isAllNull(roleList)) {
             return null;
         }
 
-        // 获取角色代码
-        Map<String, RbacRoleInfo> map = roles.stream().filter(Objects::nonNull)
+        final Map<String, Pattern> singleCharRolePatternCache = new LinkedHashMap<>();
+        final BiPredicate<String, String> roleCodePatternMatcher = (rolePattern, roleCode) -> {
+
+            final String trimmedRolePattern = rolePattern != null ? rolePattern.trim() : null;
+
+            if (!StringUtils.hasText(trimmedRolePattern) || !StringUtils.hasText(roleCode)) {
+                return false;
+            }
+
+            if (trimmedRolePattern.indexOf('?') < 0) {
+                return PatternMatchUtils.simpleMatch(trimmedRolePattern, roleCode);
+            }
+
+            final Pattern regexPattern = singleCharRolePatternCache.computeIfAbsent(trimmedRolePattern, pattern -> {
+                final StringBuilder regex = new StringBuilder(pattern.length() * 2);
+                for (int i = 0; i < pattern.length(); i++) {
+                    final char ch = pattern.charAt(i);
+                    if (ch == '*') {
+                        regex.append(".*");
+                    } else if (ch == '?') {
+                        regex.append('.');
+                    } else {
+                        regex.append(Pattern.quote(String.valueOf(ch)));
+                    }
+                }
+                return Pattern.compile(regex.toString());
+            });
+
+            return regexPattern.matcher(roleCode).matches();
+        };
+
+        final Map<String, ROLE> roleMap = roleList.stream()
+                .filter(Objects::nonNull)
                 .filter(role -> StrUtil.isNotBlank(role.getCode()))
                 .collect(Collectors.toMap(RbacRoleInfo::getCode, role -> role, (current, ignored) -> current, LinkedHashMap::new));
 
-        for (RbacRoleInfo role : roles) {
+        for (ROLE role : roleList) {
 
-            if (role == null || (role.getExclusiveRoleList()) == null) {
+            if (role == null || isAllBlank(role.getExclusiveRoleList())) {
                 continue;
             }
 
-            RbacRoleInfo mutexRole = role.getExclusiveRoleList().stream()
-                    .filter(StringUtils::hasText)
-                    .map(rolePattern -> findFirstMatchedRole(map, rolePattern, role))
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElse(null);
+            for (String rolePattern : role.getExclusiveRoleList()) {
 
-            if (mutexRole != null) {
-                // 返回互斥角色
-                return DataPair.of((ROLE) role, (ROLE) mutexRole);
+                if (StrUtil.isBlank(rolePattern)) {
+                    continue;
+                }
+
+                final ROLE exclusiveRole = roleMap.entrySet().stream()
+                        .filter(entry -> roleCodePatternMatcher.test(rolePattern, entry.getKey()))
+                        .map(Map.Entry::getValue)
+                        .filter(matchRole -> matchRole != role)
+                        .findFirst()
+                        .orElse(null);
+
+                if (exclusiveRole != null) {
+                    return DataPair.of(role, exclusiveRole);
+                }
             }
         }
 
         return null;
     }
 
-    @Operation(summary = "找出第一组缺失共存角色", description = "默认返回当前角色和缺失的共存角色对象；如果共存角色编码表达式无法加载到角色对象，则抛出异常")
-    default <ROLE extends RbacRoleInfo> DataPair<ROLE, Collection<ROLE>> findFirstMissingCoexistRoleCodePair(Collection<? extends RbacRoleInfo> roles) {
-        return findFirstMissingCoexistRoleCodePair(null, roles);
-    }
+    @Operation(summary = "找出缺失的共存角色", description = "默认按目标用户租户返回当前角色和缺失的共存角色对象；如果共存角色编码表达式无法加载到角色对象，则抛出异常")
+    default <ROLE extends RbacRoleInfo> DataPair<ROLE, Collection<ROLE>> findMissingCoexistRolePair(Serializable targetUserPrincipal, Collection<? extends ROLE> roleList) {
 
-    @Operation(summary = "找出第一组缺失共存角色", description = "默认按目标用户租户返回当前角色和缺失的共存角色对象；如果共存角色编码表达式无法加载到角色对象，则抛出异常")
-    default <ROLE extends RbacRoleInfo> DataPair<ROLE, Collection<ROLE>> findFirstMissingCoexistRoleCodePair(Serializable targetUserPrincipal, Collection<? extends RbacRoleInfo> roles) {
-
-        if (isAllNull(roles)) {
+        if (isAllNull(roleList)) {
             return null;
         }
 
-        final Set<String> roleCodes = roles.stream()
+        final Set<String> roleCodes = roleList.stream()
                 .filter(Objects::nonNull)
                 .map(RbacRoleInfo::getCode)
                 .filter(StringUtils::hasText)
@@ -119,59 +153,140 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
             return null;
         }
 
+        Assert.notNull(targetUserPrincipal, "目标用户不能为空");
+
         final RbacBaseService rbacBaseService = getRbacBaseLoadService();
-        final RbacUserInfo targetUser;
+        final RbacUserInfo targetUser = targetUserPrincipal instanceof RbacUserInfo
+                ? (RbacUserInfo) targetUserPrincipal
+                : rbacBaseService.loadUser(targetUserPrincipal);
 
-        if (targetUserPrincipal != null) {
-            targetUser = rbacBaseService.loadUser(targetUserPrincipal);
-            Assert.notNull(targetUser, "target user {} not found", targetUserPrincipal);
-        } else {
-            targetUser = null;
-        }
+        Assert.notNull(targetUser, "目标用户({})不存在", targetUserPrincipal);
 
-        for (RbacRoleInfo role : roles) {
+        final Map<String, Pattern> singleCharRolePatternCache = new LinkedHashMap<>();
+        final BiPredicate<String, String> roleCodePatternMatcher = (rolePattern, roleCode) -> {
 
-            if (role == null || isAllBlank(role.getCoexistRoleList())) {
+            final String trimmedRolePattern = rolePattern != null ? rolePattern.trim() : null;
+
+            if (!StringUtils.hasText(trimmedRolePattern) || !StringUtils.hasText(roleCode)) {
+                return false;
+            }
+
+            if (trimmedRolePattern.indexOf('?') < 0) {
+                return PatternMatchUtils.simpleMatch(trimmedRolePattern, roleCode);
+            }
+
+            final Pattern regexPattern = singleCharRolePatternCache.computeIfAbsent(trimmedRolePattern, pattern -> {
+                final StringBuilder regex = new StringBuilder(pattern.length() * 2);
+                for (int i = 0; i < pattern.length(); i++) {
+                    final char ch = pattern.charAt(i);
+                    if (ch == '*') {
+                        regex.append(".*");
+                    } else if (ch == '?') {
+                        regex.append('.');
+                    } else {
+                        regex.append(Pattern.quote(String.valueOf(ch)));
+                    }
+                }
+                return Pattern.compile(regex.toString());
+            });
+
+            return regexPattern.matcher(roleCode).matches();
+        };
+
+        final Map<String, Collection<ROLE>> roleListByCodePattern = new LinkedHashMap<>();
+
+        for (ROLE role : roleList) {
+
+            if (role == null || StrUtil.isBlank(role.getCode()) || isAllBlank(role.getCoexistRoleList())) {
                 continue;
             }
 
-            final String roleCode = role.getCode();
+            final Set<String> effectiveRoleCodes = new LinkedHashSet<>(roleCodes);
+            final Map<String, ROLE> missingRoleMap = new LinkedHashMap<>();
+            final Set<String> checkedRoleCodes = new LinkedHashSet<>();
+            final Deque<ROLE> waitCheckRoles = new ArrayDeque<>();
 
-            if (!StringUtils.hasText(roleCode)) {
-                continue;
-            }
+            waitCheckRoles.add(role);
 
-            // 共存角色
-            List<String> roleCodeList = role.getCoexistRoleList().stream()
-                    .filter(StringUtils::hasText)
-                    .filter(rolePattern -> roleCodes.stream().noneMatch(code -> roleCodeMatch(rolePattern, code)))
-                    .toList();
+            while (!waitCheckRoles.isEmpty()) {
 
-            if (!roleCodeList.isEmpty()) {
-                final Serializable tenantId = targetUser != null ? targetUser.getTenantId() : role.getTenantId();
-                final Collection<ROLE> missingRoleList = rbacBaseService.loadTenantRoleListByCodePatterns(tenantId, roleCodeList);
+                final ROLE checkingRole = waitCheckRoles.poll();
 
-                for (String roleCodePattern : roleCodeList) {
-                    final boolean loaded = missingRoleList.stream()
-                            .filter(Objects::nonNull)
-                            .map(RbacRoleInfo::getCode)
-                            .anyMatch(loadedRoleCode -> roleCodeMatch(roleCodePattern, loadedRoleCode));
-
-                    Assert.isTrue(loaded, "角色{}({})配置的共存角色表达式[{}]无法加载到角色对象",
-                            role.getName(), role.getCode(), roleCodePattern);
+                if (checkingRole == null
+                        || StrUtil.isBlank(checkingRole.getCode())
+                        || !checkedRoleCodes.add(checkingRole.getCode())
+                        || isAllBlank(checkingRole.getCoexistRoleList())) {
+                    continue;
                 }
 
-                return DataPair.of((ROLE) role, missingRoleList);
+                final List<String> missingRoleCodePatterns = checkingRole.getCoexistRoleList().stream()
+                        .filter(StringUtils::hasText)
+                        .map(String::trim)
+                        .filter(rolePattern -> effectiveRoleCodes.stream().noneMatch(roleCode -> roleCodePatternMatcher.test(rolePattern, roleCode)))
+                        .collect(Collectors.toList());
+
+                if (missingRoleCodePatterns.isEmpty()) {
+                    continue;
+                }
+
+                final Collection<String> unloadedRoleCodePatterns = missingRoleCodePatterns.stream()
+                        .filter(rolePattern -> !roleListByCodePattern.containsKey(rolePattern))
+                        .collect(Collectors.toList());
+
+                if (!unloadedRoleCodePatterns.isEmpty()) {
+                    final Collection<ROLE> loadedRoleList = rbacBaseService.loadTenantRoleListByCodePatterns(targetUser.getTenantId(), unloadedRoleCodePatterns);
+
+                    for (String rolePattern : unloadedRoleCodePatterns) {
+                        final List<ROLE> matchedRoleList = loadedRoleList.stream()
+                                .filter(Objects::nonNull)
+                                .filter(loadedRole -> StrUtil.isNotBlank(loadedRole.getCode()))
+                                .filter(loadedRole -> roleCodePatternMatcher.test(rolePattern, loadedRole.getCode()))
+                                .collect(Collectors.toList());
+
+                        roleListByCodePattern.put(rolePattern, matchedRoleList);
+                    }
+                }
+
+                final Collection<ROLE> missingRoleList = missingRoleCodePatterns.stream()
+                        .map(roleListByCodePattern::get)
+                        .filter(Objects::nonNull)
+                        .flatMap(Collection::stream)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toCollection(LinkedHashSet::new));
+
+                for (String rolePattern : missingRoleCodePatterns) {
+                    final boolean loaded = !isAllNull(roleListByCodePattern.get(rolePattern));
+
+                    Assert.isTrue(loaded, "角色{}({})配置的共存角色表达式[{}]无法加载到角色对象",
+                            checkingRole.getName(), checkingRole.getCode(), rolePattern);
+                }
+
+                for (ROLE missingRole : missingRoleList) {
+
+                    if (missingRole == null || StrUtil.isBlank(missingRole.getCode())) {
+                        continue;
+                    }
+
+                    if (!roleCodes.contains(missingRole.getCode())) {
+                        missingRoleMap.putIfAbsent(missingRole.getCode(), missingRole);
+                    }
+
+                    if (effectiveRoleCodes.add(missingRole.getCode())
+                            && !checkedRoleCodes.contains(missingRole.getCode())) {
+                        waitCheckRoles.add(missingRole);
+                    }
+                }
             }
+
+            if (!missingRoleMap.isEmpty()) {
+                return DataPair.of(role, missingRoleMap.values());
+            }
+
         }
 
         return null;
     }
 
-    @Operation(summary = "找出第一组缺失共存角色对象", description = "默认按缺失的共存角色编码表达式在目标用户租户内加载候选角色对象")
-    default <ROLE extends RbacRoleInfo> DataPair<ROLE, Collection<ROLE>> findFirstMissingCoexistRolePair(Serializable targetUserPrincipal, Collection<? extends RbacRoleInfo> roles) {
-        return findFirstMissingCoexistRoleCodePair(targetUserPrincipal, roles);
-    }
 
     @Operation(summary = "校验角色分配", description = "统一检查操作人是否可分配、目标用户是否满足角色前置条件、角色集合是否存在互斥或缺失共存角色")
     default void checkRoleAssignment(Serializable operatorPrincipal, Serializable targetUserPrincipal, Collection<? extends RbacRoleInfo> finalRoles) {
@@ -184,7 +299,9 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         }
 
         final RbacBaseService rbacBaseService = getRbacBaseLoadService();
-        final RbacUserInfo targetUser = rbacBaseService.loadUser(targetUserPrincipal);
+        final RbacUserInfo targetUser = targetUserPrincipal instanceof RbacUserInfo
+                ? (RbacUserInfo) targetUserPrincipal
+                : rbacBaseService.loadUser(targetUserPrincipal);
 
         Assert.notNull(targetUser, "目标用户({})不存在", targetUserPrincipal);
 
@@ -199,7 +316,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
             Assert.isTrue(isRoleAssignPreConditionMatched(targetUser, role), "目标用户不满足角色{}({})分配前置条件", role.getName(), role.getCode());
         }
 
-        final DataPair<? extends RbacRoleInfo, ? extends RbacRoleInfo> exclusivePair = findFirstExclusiveRolePair(finalRoles);
+        final DataPair<? extends RbacRoleInfo, ? extends RbacRoleInfo> exclusivePair = findExclusiveRolePair(targetUser, finalRoles);
 
         if (exclusivePair != null) {
             Assert.isNull(exclusivePair, "角色{}({})与角色{}({})互斥，不能同时分配",
@@ -208,7 +325,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
             );
         }
 
-        final DataPair<? extends RbacRoleInfo, ? extends Collection<? extends RbacRoleInfo>> missingCoexistPair = findFirstMissingCoexistRoleCodePair(targetUser, finalRoles);
+        final DataPair<? extends RbacRoleInfo, ? extends Collection<? extends RbacRoleInfo>> missingCoexistPair = findMissingCoexistRolePair(targetUser, finalRoles);
         if (missingCoexistPair != null) {
             Assert.isNull(
                     missingCoexistPair, "角色{}({})缺少必须共存的角色:{}",
@@ -234,10 +351,18 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
             return true;
         }
 
-        final RbacUserInfo targetUser = getRbacBaseLoadService().loadUser(targetUserPrincipal);
+        final RbacBaseService rbacBaseService = getRbacBaseLoadService();
+        final RbacUserInfo targetUser = targetUserPrincipal instanceof RbacUserInfo
+                ? (RbacUserInfo) targetUserPrincipal
+                : rbacBaseService.loadUser(targetUserPrincipal);
         Assert.notNull(targetUser, "目标用户({})不存在", targetUserPrincipal);
 
         final Map<String, Object> context = new LinkedHashMap<>();
+        final RbacTenantInfo targetTenant = expression.contains("_tenant") && RbacMiscUtils.isNotBlank(targetUser.getTenantId())
+                ? rbacBaseService.loadTenant(targetUser.getTenantId())
+                : null;
+
+        context.put("_tenant", targetTenant);
         context.put("_user", targetUser);
         context.put("_role", role);
 
@@ -245,21 +370,6 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
                 "role-assign-pre-condition-" + Integer.toHexString(expression.hashCode()) + ".groovy", context);
 
         return Boolean.TRUE.equals(value);
-    }
-
-    private static RbacRoleInfo findFirstMatchedRole(Map<String, RbacRoleInfo> roleMap, String rolePattern, RbacRoleInfo excludedRole) {
-        return roleMap.entrySet().stream()
-                .filter(entry -> roleCodeMatch(rolePattern, entry.getKey()))
-                .map(Map.Entry::getValue)
-                .filter(role -> role != excludedRole)
-                .findFirst()
-                .orElse(null);
-    }
-
-    private static boolean roleCodeMatch(String rolePattern, String roleCode) {
-        return StringUtils.hasText(rolePattern)
-                && StringUtils.hasText(roleCode)
-                && PatternMatchUtils.simpleMatch(rolePattern.trim(), roleCode.trim());
     }
 
     /**
@@ -307,7 +417,9 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
 
         final RbacBaseService rbacBaseService = getRbacBaseLoadService();
 
-        RbacUserInfo userInfo = rbacBaseService.loadUser(principal);
+        RbacUserInfo userInfo = principal instanceof RbacUserInfo
+                ? (RbacUserInfo) principal
+                : rbacBaseService.loadUser(principal);
         Assert.notNull(userInfo, "用户({})不存在", principal);
 
         // 如果是顶级超级管理员
@@ -413,7 +525,9 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         }
 
         final RbacBaseService rbacBaseService = getRbacBaseLoadService();
-        RbacUserInfo userInfo = rbacBaseService.loadUser(principal);
+        RbacUserInfo userInfo = principal instanceof RbacUserInfo
+                ? (RbacUserInfo) principal
+                : rbacBaseService.loadUser(principal);
         Assert.notNull(userInfo, "用户({})不存在", principal);
 
         //如果是超级管理员
@@ -457,7 +571,9 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         }
 
         final RbacBaseService rbacBaseService = getRbacBaseLoadService();
-        RbacUserInfo userInfo = rbacBaseService.loadUser(principal);
+        RbacUserInfo userInfo = principal instanceof RbacUserInfo
+                ? (RbacUserInfo) principal
+                : rbacBaseService.loadUser(principal);
         Assert.notNull(userInfo, "用户({})不存在", principal);
         principal = userInfo;
 

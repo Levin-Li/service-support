@@ -50,7 +50,9 @@ public interface RbacBaseUserService {
     @Operation(summary = "获取用户的机密数据访问级别", description = "本实现类不包含角色的级别, 一般情况下不要调用本方法,请调用子类的方法")
     default Integer getUserConfidentialDataAccessLevel(Serializable userPrincipal) {
 
-        RbacUserInfo loadUser = loadUser(userPrincipal);
+        RbacUserInfo loadUser = userPrincipal instanceof RbacUserInfo
+                ? (RbacUserInfo) userPrincipal
+                : loadUser(userPrincipal);
 
         // 0 重要逻辑,任何角色都要检查机密数据级别,除了顶级SA账号, 其他账号都要检查
         if (loadUser.isTopSuperAdmin()) {

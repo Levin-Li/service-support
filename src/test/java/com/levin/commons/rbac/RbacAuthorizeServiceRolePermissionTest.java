@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -133,6 +134,90 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldAuthorizeByResAuthorizeWrapperAndCopyConditionAction() {
+        ResConditionActionObject sourceAction = new ResConditionActionObject()
+                .action("view")
+                .anyUserTypes(new String[]{"OPS"})
+                .anyRoles(new String[]{"R_USER"})
+                .verifyExpression("#user.loginName == 'alice'")
+                .confidentialLevel(100)
+                .remark("profile view");
+        ResAuthorize resAuthorize = RbacBaseAuthorizeService.newResAuthorize("sys", "profile", "self", sourceAction);
+        ResConditionAction copiedAction = RbacBaseAuthorizeService.newResConditionAction(resAuthorize);
+
+        assertEquals("view", copiedAction.action());
+        assertArrayEquals(new String[]{"OPS"}, copiedAction.anyUserTypes());
+        assertArrayEquals(new String[]{"R_USER"}, copiedAction.anyRoles());
+        assertEquals("#user.loginName == 'alice'", copiedAction.verifyExpression());
+        assertEquals(100, copiedAction.confidentialLevel());
+        assertEquals("profile view", copiedAction.remark());
+
+        assertTrue(authorizeService.isAuthorized(user, resAuthorize),
+                "ResAuthorize 包装入口应委托到 domain/type/res/action 授权");
+    }
+
+    @Test
+    void shouldEvaluateRoleAuthorizationCollectionWithAllOrAnyMode() {
+        TestRbacRole reportRole = new TestRbacRole(
+                "R1C",
+                "R_REPORT_MANAGER",
+                "T1",
+                Collections.singletonList("sys:report:*:assign"),
+                Collections.emptyList(),
+                100
+        );
+        TestRbacRole financeRole = new TestRbacRole(
+                "R1D",
+                "R_FINANCE_MANAGER",
+                "T1",
+                Collections.singletonList("sys:finance:*:assign"),
+                Collections.emptyList(),
+                100
+        );
+
+        baseService.registerRole(reportRole);
+        baseService.registerRole(financeRole);
+        baseService.setUserPermissions(Collections.singletonList("sys:report:*:assign"));
+
+        assertTrue(authorizeService.isRoleAuthorized(user, false, Arrays.asList(reportRole, financeRole), null),
+                "任一模式下，只要一个角色可分配就应通过");
+        assertFalse(authorizeService.isRoleAuthorized(user, true, Arrays.asList(reportRole, financeRole), null),
+                "全部模式下，任一角色不可分配都应失败");
+        assertTrue(authorizeService.isRoleAuthorized(user, true, Collections.emptyList(), null),
+                "空角色集合应视为无需校验");
+    }
+
+    @Test
+    void shouldApplyRoleAdminHierarchyRules() {
+        assertTrue(authorizeService.canAdmin(RbacRoleInfo.SA_ROLE, RbacRoleInfo.SAAS_ADMIN),
+                "超级管理员角色应能管理全部角色");
+        assertTrue(authorizeService.canAdmin(RbacRoleInfo.SAAS_ADMIN, RbacRoleInfo.ADMIN_ROLE),
+                "SaaS 管理员应能管理租户管理员角色");
+        assertFalse(authorizeService.canAdmin(RbacRoleInfo.ADMIN_ROLE, RbacRoleInfo.SAAS_ADMIN),
+                "租户管理员不能管理 SaaS 管理员角色");
+        assertFalse(authorizeService.canAdmin("R_USER", RbacRoleInfo.ADMIN_ROLE),
+                "普通角色不能管理租户管理员角色");
+        assertTrue(authorizeService.canAdmin("R_USER", "R_AUDITOR"),
+                "普通角色之间保持平权管理语义");
+    }
+
+    @Test
+    void shouldCacheConfidentialLevelSupplierWithinSingleCheck() {
+        AtomicInteger callCount = new AtomicInteger();
+
+        assertTrue(baseService.canAccessConfidentialData(() -> {
+            callCount.incrementAndGet();
+            return 100;
+        }, 10, 20, null));
+        assertEquals(1, callCount.get(), "单次密级检查中应缓存 supplier 结果，避免重复计算");
+
+        assertFalse(baseService.canAccessConfidentialDataByUser(user, 5001),
+                "要求密级超过用户访问级别时应拒绝");
+        assertTrue(baseService.canAccessConfidentialDataByUser(user, 5000),
+                "要求密级等于用户访问级别时应允许");
+    }
+
+    @Test
     void shouldMatchRoleExpressionAndReportUnauthorizedRole() {
         // 业务规则：角色表达式支持通配，未命中时返回 role not authorized 原因。
         List<String> errors = new ArrayList<>();
@@ -160,14 +245,42 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldFindFirstExclusiveRolePair() {
+    void shouldCacheVerifyExpressionForResourceAuthorization() {
+        authorizeService.addAction(
+                "sys:expr:item:view",
+                new ResConditionActionObject()
+                        .action("view")
+                        .verifyExpression("#user.type == 'OPS'")
+        );
+
+        assertTrue(authorizeService.isAuthorized(
+                user,
+                Collections.emptySet(),
+                Collections.emptySet(),
+                "sys:expr:item:view",
+                null
+        ));
+        assertEquals(1, authorizeService.verifyExpressionCacheSize(), "首次执行后应缓存已编译的 SpEL 表达式");
+
+        assertTrue(authorizeService.isAuthorized(
+                user,
+                Collections.emptySet(),
+                Collections.emptySet(),
+                "sys:expr:item:view",
+                null
+        ));
+        assertEquals(1, authorizeService.verifyExpressionCacheSize(), "重复执行同一表达式不应重复解析");
+    }
+
+    @Test
+    void shouldFindExclusiveRolePair() {
         // 业务规则：角色互斥配置生效时，应返回第一组冲突角色。
         TestRbacRole financeRole = new TestRbacRole("R1", "R_FINANCE", "T1",
                 Collections.emptyList(), Collections.singletonList("R_AUD*"), 100);
         TestRbacRole auditRole = new TestRbacRole("R2", "R_AUDIT", "T1",
                 Collections.emptyList(), Collections.emptyList(), 100);
 
-        DataPair<TestRbacRole, TestRbacRole> pair = authorizeService.findFirstExclusiveRolePair(Arrays.asList(financeRole, auditRole));
+        DataPair<TestRbacRole, TestRbacRole> pair = authorizeService.findExclusiveRolePair(user, Arrays.asList(financeRole, auditRole));
         assertNotNull(pair, "互斥角色冲突应返回角色对");
         Set<String> codes = Arrays.asList(pair.getA(), pair.getB()).stream().map(RbacRoleInfo::getCode).collect(Collectors.toSet());
 
@@ -176,7 +289,20 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldFindFirstMissingCoexistRoleCodePair() {
+    void shouldFindExclusiveRolePairWithSingleCharWildcard() {
+        TestRbacRole financeRole = new TestRbacRole("R1A", "R_FINANCE", "T1",
+                Collections.emptyList(), Collections.singletonList("R_AUDI?"), 100);
+        TestRbacRole auditRole = new TestRbacRole("R1B", "R_AUDIT", "T1",
+                Collections.emptyList(), Collections.emptyList(), 100);
+
+        DataPair<TestRbacRole, TestRbacRole> pair = authorizeService.findExclusiveRolePair(user, Arrays.asList(financeRole, auditRole));
+
+        assertNotNull(pair, "? 单字符通配应能命中 R_AUDIT");
+        assertEquals("R_AUDIT", pair.getB().getCode());
+    }
+
+    @Test
+    void shouldFindMissingCoexistRolePair() {
         TestRbacRole advancedRole = new TestRbacRole(
                 "R2A",
                 "R_ADVANCED",
@@ -193,13 +319,13 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         baseService.registerRole(baseRole);
 
-        DataPair<TestRbacRole, Collection<TestRbacRole>> missingPair = authorizeService.findFirstMissingCoexistRoleCodePair(Collections.singletonList(advancedRole));
+        DataPair<TestRbacRole, Collection<TestRbacRole>> missingPair = authorizeService.findMissingCoexistRolePair(user, Collections.singletonList(advancedRole));
 
         assertEquals("R_ADVANCED", missingPair.getA().getCode(), "缺失共存角色时应返回当前角色");
         assertIterableEquals(Collections.singletonList("R_BASE_USER"),
                 missingPair.getB().stream().map(RbacRoleInfo::getCode).collect(Collectors.toList()),
                 "缺失共存角色时应返回缺失的共存角色对象");
-        assertNull(authorizeService.findFirstMissingCoexistRoleCodePair(Arrays.asList(advancedRole, baseRole)),
+        assertNull(authorizeService.findMissingCoexistRolePair(user, Arrays.asList(advancedRole, baseRole)),
                 "补齐共存角色后不应再报告缺失");
     }
 
@@ -218,7 +344,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         );
 
         assertThrows(IllegalArgumentException.class,
-                () -> authorizeService.findFirstMissingCoexistRoleCodePair(user, Collections.singletonList(advancedRole)),
+                () -> authorizeService.findMissingCoexistRolePair(user, Collections.singletonList(advancedRole)),
                 "共存角色表达式无法加载到角色对象时应抛出异常");
     }
 
@@ -242,12 +368,116 @@ class RbacAuthorizeServiceRolePermissionTest {
         baseService.registerRole(baseRole);
 
         DataPair<TestRbacRole, Collection<TestRbacRole>> missingPair =
-                authorizeService.findFirstMissingCoexistRolePair(user, Collections.singletonList(advancedRole));
+                authorizeService.findMissingCoexistRolePair(user, Collections.singletonList(advancedRole));
 
         assertEquals("R_ADVANCED", missingPair.getA().getCode(), "应返回缺失约束所属角色");
         assertIterableEquals(Collections.singletonList("R_BASE_USER"),
                 missingPair.getB().stream().map(RbacRoleInfo::getCode).collect(Collectors.toList()),
                 "缺失共存角色对象应按通配表达式加载候选角色");
+    }
+
+    @Test
+    void shouldLoadMissingCoexistRoleCandidatesBySingleCharWildcard() {
+        TestRbacRole advancedRole = new TestRbacRole(
+                "R2G1",
+                "R_ADVANCED",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                100,
+                Collections.emptyList(),
+                null,
+                Collections.singletonList("R_BASE_?")
+        );
+        TestRbacRole baseRole = new TestRbacRole("R2G2", "R_BASE_A", "T1",
+                Collections.emptyList(), Collections.emptyList(), 100);
+        TestRbacRole longBaseRole = new TestRbacRole("R2G3", "R_BASE_AB", "T1",
+                Collections.emptyList(), Collections.emptyList(), 100);
+
+        baseService.registerRole(baseRole);
+        baseService.registerRole(longBaseRole);
+
+        DataPair<TestRbacRole, Collection<TestRbacRole>> missingPair =
+                authorizeService.findMissingCoexistRolePair(user, Collections.singletonList(advancedRole));
+
+        assertIterableEquals(Collections.singletonList("R_BASE_A"),
+                missingPair.getB().stream().map(RbacRoleInfo::getCode).collect(Collectors.toList()),
+                "? 单字符通配只应命中单个字符的角色编码");
+    }
+
+    @Test
+    void shouldResolveMissingCoexistRoleClosure() {
+        TestRbacRole advancedRole = new TestRbacRole(
+                "R2H",
+                "R_ADVANCED",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                100,
+                Collections.emptyList(),
+                null,
+                Collections.singletonList("R_BASE_*")
+        );
+        TestRbacRole baseRole = new TestRbacRole(
+                "R2I",
+                "R_BASE_USER",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                100,
+                Collections.emptyList(),
+                null,
+                Collections.singletonList("R_CORE_*")
+        );
+        TestRbacRole coreRole = new TestRbacRole("R2J", "R_CORE_USER", "T1",
+                Collections.emptyList(), Collections.emptyList(), 100);
+
+        baseService.registerRole(baseRole);
+        baseService.registerRole(coreRole);
+
+        DataPair<TestRbacRole, Collection<TestRbacRole>> missingPair =
+                authorizeService.findMissingCoexistRolePair(user, Collections.singletonList(advancedRole));
+
+        assertEquals("R_ADVANCED", missingPair.getA().getCode(), "应返回触发闭包缺失的原始角色");
+        assertIterableEquals(Arrays.asList("R_BASE_USER", "R_CORE_USER"),
+                missingPair.getB().stream().map(RbacRoleInfo::getCode).collect(Collectors.toList()),
+                "缺失共存角色应包含多级共存闭包");
+    }
+
+    @Test
+    void shouldStopCoexistClosureOnCycles() {
+        TestRbacRole roleA = new TestRbacRole(
+                "R2K",
+                "R_A",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                100,
+                Collections.emptyList(),
+                null,
+                Collections.singletonList("R_B")
+        );
+        TestRbacRole roleB = new TestRbacRole(
+                "R2L",
+                "R_B",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                100,
+                Collections.emptyList(),
+                null,
+                Collections.singletonList("R_A")
+        );
+
+        baseService.registerRole(roleB);
+
+        DataPair<TestRbacRole, Collection<TestRbacRole>> missingPair =
+                assertTimeoutPreemptively(Duration.ofSeconds(1),
+                        () -> authorizeService.findMissingCoexistRolePair(user, Collections.singletonList(roleA)));
+
+        assertIterableEquals(Collections.singletonList("R_B"),
+                missingPair.getB().stream().map(RbacRoleInfo::getCode).collect(Collectors.toList()),
+                "循环共存关系应在已知角色码上收敛，不应无限循环");
     }
 
     @Test
@@ -284,6 +514,28 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertFalse(scopedAuthorizeService.isRoleAssignPreConditionMatched(financeUser, contextualRole),
                 "目标用户不满足前置条件时应拒绝分配");
+    }
+
+    @Test
+    void shouldEvaluateRoleAssignPreConditionWithTenantContext() {
+        TestRbacRole tenantScopedRole = new TestRbacRole(
+                "R2C1",
+                "R_TENANT_CONTEXTUAL",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                100
+        ) {
+            @Override
+            public String getAssignPreCondition() {
+                return "_tenant != null && _tenant.id == 'T1' && _user.tenantId == _tenant.id && _role.tenantId == _tenant.id";
+            }
+        };
+
+        baseService.setTenantList(Collections.singletonList(new TestTenant("T1", "Tenant1")));
+
+        assertTrue(authorizeService.isRoleAssignPreConditionMatched(user, tenantScopedRole),
+                "角色分配前置条件应支持 _tenant、_user 和 _role 三个变量");
     }
 
     @Test
@@ -505,6 +757,145 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldRecalculateConfidentialLevelWithoutTransientCache() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U7B1",
+                "role-level-refresh",
+                "T1",
+                "OPS",
+                Collections.singletonList("R_DYNAMIC_LEVEL"),
+                null
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser);
+        scopedService.registerRole(new TestRbacRole(
+                "R7B11",
+                "R_DYNAMIC_LEVEL",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                10
+        ));
+
+        assertEquals(10, scopedService.getUserConfidentialDataAccessLevel(scopedUser));
+
+        scopedService.registerRole(new TestRbacRole(
+                "R7B12",
+                "R_DYNAMIC_LEVEL",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                80
+        ));
+
+        assertEquals(80, scopedService.getUserConfidentialDataAccessLevel(scopedUser),
+                "用户角色密级不应缓存在 user.transientExInfo 中，否则同一用户对象会读到旧角色密级");
+        assertTrue(scopedUser.getTransientExInfo().isEmpty());
+    }
+
+    @Test
+    void shouldLoadRoleCodesPermissionsAndRolesThroughDefaultHelpers() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U7B2",
+                "role-helper",
+                "T1",
+                "OPS",
+                Arrays.asList("R_HELPER", "R_PUBLIC"),
+                null
+        );
+        DefaultRoleHelperRbacBaseService scopedService = new DefaultRoleHelperRbacBaseService(scopedUser);
+        scopedService.registerRole(new TestRbacRole(
+                "R7B21",
+                "R_HELPER",
+                "T1",
+                Collections.singletonList("sys:helper:*:view"),
+                Collections.emptyList(),
+                10
+        ));
+        scopedService.registerRole(new TestRbacRole(
+                "R7B22",
+                "R_PUBLIC",
+                null,
+                Collections.singletonList("sys:public:*:view"),
+                Collections.emptyList(),
+                5
+        ));
+        scopedService.registerRole(new TestRbacRole(
+                "R7B23",
+                "R_OTHER_TENANT",
+                "T2",
+                Collections.singletonList("sys:other:*:view"),
+                Collections.emptyList(),
+                100
+        ));
+
+        assertEquals(new LinkedHashSet<>(Arrays.asList("R_HELPER", "R_PUBLIC")),
+                scopedService.loadUserRoleCodeList(scopedUser).stream().collect(Collectors.toCollection(LinkedHashSet::new)),
+                "默认角色编码加载应基于用户生效角色，并包含公共角色");
+        assertEquals(new LinkedHashSet<>(Arrays.asList("sys:helper:*:view", "sys:public:*:view")),
+                scopedService.loadUserPermissionExprList(scopedUser).stream().collect(Collectors.toCollection(LinkedHashSet::new)),
+                "默认权限汇总应基于用户生效角色");
+        assertEquals(new LinkedHashSet<>(Arrays.asList("R_HELPER", "R_PUBLIC")),
+                scopedService.loadTenantRoleListByCodes("T1", Arrays.asList("R_HELPER", "R_PUBLIC", "R_OTHER_TENANT"))
+                        .stream().map(RbacRoleInfo::getCode).collect(Collectors.toCollection(LinkedHashSet::new)),
+                "按 code 加载角色时应包含同租户和公共角色，排除其他租户角色");
+        assertIterableEquals(Collections.singletonList("R_HELPER"),
+                scopedService.loadTenantRoleListByCodePatterns("T1", Collections.singletonList("R_HELP?R"))
+                        .stream().map(RbacRoleInfo::getCode).collect(Collectors.toList()),
+                "按 code 表达式加载角色应支持 ? 单字符通配");
+        assertEquals(Collections.singleton("sys:helper:*:view"),
+                scopedService.loadRolePermissionList("T1", "R_HELPER")
+                        .stream().collect(Collectors.toSet()),
+                "varargs 权限加载入口应委托到集合入口");
+    }
+
+    @Test
+    void shouldCheckUserAdminRulesWithoutRecursiveConfidentialChecks() {
+        TestRbacUser operator = new TestRbacUser(
+                "U7B3_OP",
+                "tenant-admin",
+                "T1",
+                "OPS",
+                Collections.singletonList(RbacRoleInfo.ADMIN_ROLE),
+                100
+        );
+        TestRbacUser sameTenantTarget = new TestRbacUser(
+                "U7B3_TARGET",
+                "target",
+                "T1",
+                "OPS",
+                Collections.singletonList("R_USER"),
+                50
+        );
+        TestRbacUser crossTenantTarget = new TestRbacUser(
+                "U7B3_CROSS",
+                "cross",
+                "T2",
+                "OPS",
+                Collections.singletonList("R_USER"),
+                50
+        );
+        TestRbacUser saasTarget = new TestRbacUser(
+                "U7B3_SAAS",
+                "saas",
+                null,
+                "OPS",
+                Collections.singletonList("R_USER"),
+                50
+        );
+        MultiUserRbacBaseService scopedService = new MultiUserRbacBaseService(operator, sameTenantTarget, crossTenantTarget, saasTarget);
+
+        assertTrue(scopedService.canAdminUser(operator.getId(), sameTenantTarget.getId()),
+                "同租户且密级足够时应允许管理目标用户");
+        assertFalse(scopedService.canAdminUser(operator.getId(), crossTenantTarget.getId()),
+                "租户用户不能跨租户管理用户");
+        assertFalse(scopedService.canAdminUser(operator.getId(), saasTarget.getId()),
+                "租户用户不能管理无租户 SaaS 用户");
+        assertTrue(scopedService.canAdminUser(operator.getId(), operator.getId()),
+                "管理自己应快速通过");
+    }
+
+    @Test
     void shouldRecalculateDataScopeWithoutTransientCache() {
         TestRbacUser scopedUser = new TestRbacUser(
                 "U7C",
@@ -614,8 +1005,8 @@ class RbacAuthorizeServiceRolePermissionTest {
                 5000,
                 "A",
                 Arrays.asList(
-                        scope(OrgScope.ALL_ORG, true, OrgScope.ScopeMatchingPattern.All),
-                        scope(OrgScope.ALL_ORG, false, OrgScope.ScopeMatchingPattern.All)
+                        scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All),
+                        scope(OrgScope.ALL_ROOT_ORG, false, OrgScope.ScopeMatchingPattern.All)
                 )
         );
 
@@ -637,7 +1028,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 5000,
                 "A",
                 Arrays.asList(
-                        scope(OrgScope.ALL_ORG, true, OrgScope.ScopeMatchingPattern.All),
+                        scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All),
                         scope("A", true, OrgScope.ScopeMatchingPattern.OnlySelf)
                 )
         );
@@ -651,11 +1042,47 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldSupportCrossTenantOrgScopeByTenantId() {
+    void shouldUseAllRootOrgAsRangeStart() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U301A",
+                "root-only",
+                "T1",
+                "A",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Collections.singletonList(scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.OnlySelf))
+        );
+        TestRbacUser allFromRootUser = new TestRbacUser(
+                "U301B",
+                "all-from-root",
+                "T1",
+                "A",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Collections.singletonList(scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All))
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setOrgList(baseOrgTree());
+        StubRbacBaseService allFromRootService = new StubRbacBaseService(allFromRootUser)
+                .setOrgList(baseOrgTree());
+
+        assertIterableEquals(Arrays.asList("A", "B"),
+                scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
+                "ALL_ROOT_ORG + OnlySelf 应只返回所有根组织本身");
+        assertIterableEquals(Arrays.asList("A", "A1", "A2", "A21", "B", "B1"),
+                allFromRootService.loadUserOrgList(allFromRootUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
+                "ALL_ROOT_ORG + All 应从所有根组织起点扩展成所有组织");
+    }
+
+    @Test
+    void shouldSupportCrossTenantOrgScopeByTenantIdForPlatformUser() {
         TestRbacUser scopedUser = new TestRbacUser(
                 "U302",
                 "carol",
-                "T1",
+                null,
                 "A",
                 Collections.emptyList(),
                 5000,
@@ -674,15 +1101,253 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Arrays.asList("C", "C1"),
                 scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
-                "OrgScope 指定 tenantMatchingExpression 时，应只返回命中的租户组织");
+                "平台用户的 OrgScope 指定 tenantMatchingExpression 时，应只返回命中的租户组织");
     }
 
     @Test
-    void shouldLoadUserCanAccessTenantListByTenantExpression() {
+    void shouldSupportTenantPathPatternForPlatformUser() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U302P",
+                "platform-pattern",
+                null,
+                "PLATFORM",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Collections.singletonList(scope("tenant-*", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All))
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setTenantList(Arrays.asList(
+                        new TestTenant("tenant-a", "TenantA"),
+                        new TestTenant("tenant-b", "TenantB"),
+                        new TestTenant("other", "Other")
+                ))
+                .setOrgList(Arrays.asList(
+                        new TestOrg("A", null, "tenant-a", "A"),
+                        new TestOrg("A1", "A", "tenant-a", "A1"),
+                        new TestOrg("C", null, "tenant-b", "C"),
+                        new TestOrg("D", null, "other", "D")
+                ));
+
+        assertIterableEquals(Arrays.asList("tenant-a", "tenant-b"),
+                scopedService.loadUserAccessibleTenantList(scopedUser, true).stream().map(tenant -> Objects.toString(tenant.getId(), "")).collect(Collectors.toList()),
+                "平台用户的 tenantMatchingExpression 应支持 Spring PathPattern 匹配多个租户");
+        assertIterableEquals(Arrays.asList("A", "A1", "C"),
+                scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
+                "平台用户的 PathPattern 租户范围应只加载命中租户下的组织");
+    }
+
+    @Test
+    void shouldCalculateOrgScopePerTenantWhenOrgIdsOverlap() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U302D",
+                "platform-duplicate-org-id",
+                null,
+                "PLATFORM",
+                Collections.emptyList(),
+                5000,
+                "ROOT",
+                Arrays.asList(
+                        scope("T1", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All),
+                        scope("T2", "ROOT", true, OrgScope.ScopeMatchingPattern.OnlySelf)
+                )
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setTenantList(Arrays.asList(
+                        new TestTenant("T1", "Tenant1"),
+                        new TestTenant("T2", "Tenant2")
+                ))
+                .setOrgList(Arrays.asList(
+                        new TestOrg("ROOT", null, "T1", "T1Root"),
+                        new TestOrg("CHILD", "ROOT", "T1", "T1Child"),
+                        new TestOrg("ROOT", null, "T2", "T2Root"),
+                        new TestOrg("CHILD", "ROOT", "T2", "T2Child")
+                ));
+
+        List<String> accessibleOrgKeys = scopedService.loadUserOrgList(scopedUser, false).stream()
+                .map(org -> Objects.toString(org.getTenantId(), "") + ":" + Objects.toString(org.getId(), ""))
+                .collect(Collectors.toList());
+
+        assertIterableEquals(Arrays.asList("T1:ROOT", "T1:CHILD", "T2:ROOT"),
+                accessibleOrgKeys,
+                "跨租户组织 ID 重复时，应按租户独立计算组织范围，不能用全局 orgId map 互相污染: " + accessibleOrgKeys);
+    }
+
+    @Test
+    void shouldLimitTenantPathPatternToOwnTenantForTenantUser() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U302P1",
+                "tenant-pattern",
+                "tenant-a",
+                "OPS",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Collections.singletonList(scope("tenant-*", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All))
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setTenantList(Arrays.asList(
+                        new TestTenant("tenant-a", "TenantA"),
+                        new TestTenant("tenant-b", "TenantB")
+                ))
+                .setOrgList(Arrays.asList(
+                        new TestOrg("A", null, "tenant-a", "A"),
+                        new TestOrg("A1", "A", "tenant-a", "A1"),
+                        new TestOrg("C", null, "tenant-b", "C"),
+                        new TestOrg("C1", "C", "tenant-b", "C1")
+                ));
+
+        assertIterableEquals(Collections.singletonList("tenant-a"),
+                scopedService.loadUserAccessibleTenantList(scopedUser, true).stream().map(tenant -> Objects.toString(tenant.getId(), "")).collect(Collectors.toList()),
+                "普通租户用户即使命中 PathPattern，也只能访问自己的租户");
+        assertIterableEquals(Arrays.asList("A", "A1"),
+                scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
+                "普通租户用户的 PathPattern 组织范围不能扩展到其他租户");
+    }
+
+    @Test
+    void shouldSupportPrefixedTenantGroovyForPlatformUser() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U302G",
+                "platform-groovy",
+                null,
+                "PLATFORM",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Collections.singletonList(scope(OrgScope.TENANT_GROOVY_EXPRESSION_PREFIX + "_tenant?.startsWith('tenant-')",
+                        OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All))
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setTenantList(Arrays.asList(
+                        new TestTenant("tenant-a", "TenantA"),
+                        new TestTenant("tenant-b", "TenantB"),
+                        new TestTenant("other", "Other")
+                ))
+                .setOrgList(Arrays.asList(
+                        new TestOrg("A", null, "tenant-a", "A"),
+                        new TestOrg("C", null, "tenant-b", "C"),
+                        new TestOrg("D", null, "other", "D")
+                ));
+
+        assertIterableEquals(Arrays.asList("tenant-a", "tenant-b"),
+                scopedService.loadUserAccessibleTenantList(scopedUser, true).stream().map(tenant -> Objects.toString(tenant.getId(), "")).collect(Collectors.toList()),
+                "平台用户的 tenantMatchingExpression 应支持 #!groovy: 前缀脚本");
+        assertIterableEquals(Arrays.asList("A", "C"),
+                scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
+                "带 ? 的 Groovy 脚本不应被误判成 Spring PathPattern");
+    }
+
+    @Test
+    void shouldNotTreatUnprefixedTenantScriptAsGroovy() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U302G1",
+                "platform-unprefixed-script",
+                null,
+                "PLATFORM",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Collections.singletonList(scope("_tenant == 'T2'", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All))
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setTenantList(Collections.singletonList(new TestTenant("T2", "Tenant2")))
+                .setOrgList(Collections.singletonList(new TestOrg("C", null, "T2", "C")));
+
+        assertTrue(scopedService.loadUserAccessibleTenantList(scopedUser, true).isEmpty(),
+                "未带 #!groovy: 前缀的脚本不应被当成 Groovy 执行");
+        assertTrue(scopedService.loadUserOrgList(scopedUser, false).isEmpty(),
+                "未带 #!groovy: 前缀的脚本不应产生组织范围");
+    }
+
+    @Test
+    void shouldIgnoreTenantGroovyScopeForTenantUser() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U302G2",
+                "tenant-groovy",
+                "tenant-a",
+                "OPS",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Collections.singletonList(scope(OrgScope.TENANT_GROOVY_EXPRESSION_PREFIX + "_tenant == 'tenant-a'",
+                        OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All))
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setTenantList(Collections.singletonList(new TestTenant("tenant-a", "TenantA")))
+                .setOrgList(Collections.singletonList(new TestOrg("A", null, "tenant-a", "A")));
+
+        assertTrue(scopedService.loadUserAccessibleTenantList(scopedUser, true).isEmpty(),
+                "普通租户用户不通过 Groovy 租户表达式扩大组织范围");
+        assertTrue(scopedService.loadUserOrgList(scopedUser, false).isEmpty(),
+                "普通租户用户配置 Groovy 租户表达式时应忽略该 scope");
+    }
+
+    @Test
+    void shouldIgnoreCrossTenantOrgScopeForTenantUser() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U302A",
+                "tenant-carol",
+                "T1",
+                "A",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Collections.singletonList(scope("T2", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All))
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setTenantList(Arrays.asList(
+                        new TestTenant("T1", "Tenant1"),
+                        new TestTenant("T2", "Tenant2")
+                ))
+                .setOrgList(Arrays.asList(
+                        new TestOrg("A", null, "T1", "A"),
+                        new TestOrg("A1", "A", "T1", "A1"),
+                        new TestOrg("C", null, "T2", "C"),
+                        new TestOrg("C1", "C", "T2", "C1")
+                ));
+
+        assertTrue(scopedService.loadUserOrgList(scopedUser, false).isEmpty(),
+                "普通租户用户配置其他租户 OrgScope 时，应忽略该 scope，不应拿到跨租户组织");
+    }
+
+    @Test
+    void shouldIgnoreAllTenantDenyScopeForTenantUserDuringOrgCalculation() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U302B",
+                "tenant-dave",
+                "T1",
+                "OPS",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Arrays.asList(
+                        scope("A", true, OrgScope.ScopeMatchingPattern.All),
+                        scope(OrgScope.ALL_TENANT, OrgScope.ALL_ROOT_ORG, false, OrgScope.ScopeMatchingPattern.All)
+                )
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setOrgList(baseOrgTree());
+
+        assertIterableEquals(Arrays.asList("A", "A1", "A2", "A21"),
+                scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
+                "普通租户用户的计算阶段也应忽略 ALL_TENANT deny，不应把自己的合法组织范围清空");
+    }
+
+    @Test
+    void shouldLoadPlatformUserCanAccessTenantListByTenantExpression() {
         TestRbacUser scopedUser = new TestRbacUser(
                 "U3021",
                 "carol",
-                "T1",
+                null,
                 "A",
                 Collections.emptyList(),
                 5000,
@@ -699,7 +1364,31 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Collections.singletonList("T2"),
                 scopedService.loadUserAccessibleTenantList(scopedUser, true).stream().map(tenant -> Objects.toString(tenant.getId(), "")).collect(Collectors.toList()),
-                "loadUserCanAccessTenantList 应按 tenantMatchingExpression 返回可访问租户");
+                "平台用户 loadUserCanAccessTenantList 应按 tenantMatchingExpression 返回可访问租户");
+    }
+
+    @Test
+    void shouldIgnoreCrossTenantTenantScopeForTenantUser() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U3021A",
+                "tenant-carol",
+                "T1",
+                "A",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Collections.singletonList(scope("T2", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All))
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setTenantList(Arrays.asList(
+                        new TestTenant("T1", "Tenant1"),
+                        new TestTenant("T2", "Tenant2"),
+                        new TestTenant("T3", "Tenant3")
+                ));
+
+        assertTrue(scopedService.loadUserAccessibleTenantList(scopedUser, true).isEmpty(),
+                "普通租户用户配置其他租户 OrgScope 时，应忽略该 scope，不应拿到跨租户租户列表");
     }
 
     @Test
@@ -863,6 +1552,109 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldLoadOrgChildrenAndParentsWithoutLooping() {
+        StubRbacBaseService scopedService = new StubRbacBaseService(user)
+                .setOrgList(baseOrgTree());
+
+        assertIterableEquals(Arrays.asList("A1", "A2"),
+                scopedService.loadOrgChildren("T1", "A").stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
+                "直接下级组织加载应只返回 parentId 命中的子节点");
+        assertIterableEquals(Arrays.asList("A21", "A2", "A"),
+                scopedService.loadOrgParentList("T1", true, "A21", true).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
+                "父链加载包含自身时应按由近到远返回");
+        assertIterableEquals(Arrays.asList("A2", "A"),
+                scopedService.loadOrgParentList("T1", false, "A21", false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
+                "父链加载不包含自身时应从父节点开始返回");
+    }
+
+    @Test
+    void shouldRejectCyclicOrgParentChain() {
+        StubRbacBaseService scopedService = new StubRbacBaseService(user)
+                .setOrgList(Arrays.asList(
+                        new TestOrg("A", "B", "T1", "A"),
+                        new TestOrg("B", "A", "T1", "B")
+                ));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> scopedService.loadOrgParentList("T1", true, "A", false),
+                "父链存在循环引用时必须抛出异常，避免死循环");
+    }
+
+    @Test
+    void shouldCheckNormalUserOrgAccessibilityByAccessibleOrgSet() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U3025",
+                "org-operator",
+                "T1",
+                "OPS",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Collections.singletonList(scope("A", true, OrgScope.ScopeMatchingPattern.All))
+        );
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setOrgList(baseOrgTree());
+
+        assertDoesNotThrow(() -> scopedService.checkOrgAccessible(scopedUser, "T1", "A", "A1"),
+                "普通用户应能操作其可访问组织范围内的父子组织");
+        assertThrows(IllegalArgumentException.class,
+                () -> scopedService.checkOrgAccessible(scopedUser, "T1", "B", "B1"),
+                "普通用户不能操作不可访问组织");
+    }
+
+    @Test
+    void shouldDetectAllOrgAccessFromMergedDataScope() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U3026",
+                "all-org",
+                null,
+                "PLATFORM",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Collections.singletonList(scope(OrgScope.ALL_TENANT, OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All))
+        );
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser);
+
+        assertTrue(scopedService.canAccessAllOrg(scopedUser),
+                "允许所有租户的所有组织时，应快速判定为可访问全部组织");
+    }
+
+    @Test
+    void shouldKeepGlobalAllOrgCheckFalseWhenPlatformUserHasTenantDeny() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U3027",
+                "all-org-with-deny",
+                null,
+                "PLATFORM",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Arrays.asList(
+                        scope(OrgScope.ALL_TENANT, OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All),
+                        scope("T2", OrgScope.ALL_ROOT_ORG, false, OrgScope.ScopeMatchingPattern.All)
+                )
+        );
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setTenantList(Arrays.asList(
+                        new TestTenant("T1", "Tenant1"),
+                        new TestTenant("T2", "Tenant2")
+                ))
+                .setOrgList(Arrays.asList(
+                        new TestOrg("A", null, "T1", "A"),
+                        new TestOrg("C", null, "T2", "C")
+                ));
+
+        assertFalse(scopedService.canAccessAllOrg(scopedUser),
+                "平台用户存在任一租户 deny 时，不应被公开 canAccessAllOrg 判断为全局所有组织");
+        assertIterableEquals(Collections.singletonList("T1:A"),
+                scopedService.loadUserOrgList(scopedUser, false).stream()
+                        .map(org -> Objects.toString(org.getTenantId(), "") + ":" + Objects.toString(org.getId(), ""))
+                        .collect(Collectors.toList()),
+                "按租户计算时，T1 仍可全量直返，T2 被 deny 移除");
+    }
+
+    @Test
     void shouldCheckConfidentialLevelWhenSuperAdminAccessesCrossTenantOrg() {
         TestRbacUser superAdmin = new TestRbacUser(
                 "U3025_SA",
@@ -926,7 +1718,7 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldMatchOnlyPublicOrgWhenTenantExpressionIsBlank() {
+    void shouldIgnoreNoTenantOrgScopeForTenantUser() {
         TestRbacUser scopedUser = new TestRbacUser(
                 "U304",
                 "tenant-user",
@@ -947,9 +1739,8 @@ class RbacAuthorizeServiceRolePermissionTest {
                         new TestOrg("A1", "A", "T1", "A1")
                 ));
 
-        assertIterableEquals(Arrays.asList("P", "P1"),
-                scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
-                "tenantMatchingExpression 为空时，应只命中公共组织");
+        assertTrue(scopedService.loadUserOrgList(scopedUser, false).isEmpty(),
+                "普通租户用户配置无租户 OrgScope 时，应忽略该 scope，不应拿到公共组织");
     }
 
     @Test
@@ -1164,6 +1955,78 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldAssembleMultiLevelTreeWhenChildrenPropertyIsSet() {
+        StubRbacBaseService scopedService = new StubRbacBaseService(user);
+
+        SetOrg root = new SetOrg("A", null, "T1", "A");
+        SetOrg child = new SetOrg("A1", "A", "T1", "A1");
+        SetOrg grandChild = new SetOrg("A11", "A1", "T1", "A11");
+
+        List<SetOrg> tree = new ArrayList<>(scopedService.assembleOrgTree(Arrays.asList(root, child, grandChild), false, "A"));
+
+        assertEquals(1, tree.size(), "Set 类型 children 多层级也应正常组树");
+        SetOrg copiedChild = (SetOrg) tree.get(0).getChildren().iterator().next();
+        assertEquals("A1", copiedChild.getId());
+        assertInstanceOf(Set.class, copiedChild.getChildren(), "子节点的 children 也应保持 Set 类型");
+        assertEquals("A11", copiedChild.getChildren().iterator().next().getId(),
+                "多层级组织树不应只保留第一层 children");
+    }
+
+    @Test
+    void shouldAssembleOrgTreePerTenantWhenOrgIdsOverlap() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U_TREE_TENANT_DUP",
+                "tree-tenant-dup",
+                null,
+                "PLATFORM",
+                Collections.emptyList(),
+                5000,
+                "ROOT",
+                Arrays.asList(
+                        scope("T1", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All),
+                        scope("T2", "ROOT", true, OrgScope.ScopeMatchingPattern.OnlySelf)
+                )
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setTenantList(Arrays.asList(
+                        new TestTenant("T1", "Tenant1"),
+                        new TestTenant("T2", "Tenant2")
+                ))
+                .setOrgList(Arrays.asList(
+                        new TestOrg("ROOT", null, "T1", "T1Root"),
+                        new TestOrg("CHILD", "ROOT", "T1", "T1Child"),
+                        new TestOrg("ROOT", null, "T2", "T2Root"),
+                        new TestOrg("CHILD", "ROOT", "T2", "T2Child")
+                ));
+
+        List<TestOrg> tree = new ArrayList<>(scopedService.loadUserOrgList(scopedUser, true));
+
+        assertEquals(2, tree.size(), "不同租户组织 ID 重复时，不应在组树阶段互相覆盖");
+        assertIterableEquals(Arrays.asList("T1:ROOT", "T2:ROOT"),
+                tree.stream()
+                        .map(org -> Objects.toString(org.getTenantId(), "") + ":" + Objects.toString(org.getId(), ""))
+                        .collect(Collectors.toList()));
+
+        TestOrg t1Root = tree.stream()
+                .filter(org -> Objects.equals(org.getTenantId(), "T1"))
+                .findFirst()
+                .orElseThrow();
+        TestOrg t2Root = tree.stream()
+                .filter(org -> Objects.equals(org.getTenantId(), "T2"))
+                .findFirst()
+                .orElseThrow();
+
+        assertIterableEquals(Collections.singletonList("T1:CHILD"),
+                t1Root.getChildren().stream()
+                        .map(org -> Objects.toString(org.getTenantId(), "") + ":" + Objects.toString(org.getId(), ""))
+                        .collect(Collectors.toList()),
+                "T1 的子节点应挂在 T1 根节点下");
+        assertTrue(t2Root.getChildren().isEmpty(),
+                "T2 只授权 ROOT 本节点时，不应因为 T1 同名 CHILD 被错误挂载");
+    }
+
+    @Test
     void shouldAssembleLargeOrgTreeWithinReasonableTime() {
         StubRbacBaseService scopedService = new StubRbacBaseService(user);
         List<TestOrg> orgList = largeLayeredOrgTree("ROOT", "T1", 50000, 100);
@@ -1356,6 +2219,10 @@ class RbacAuthorizeServiceRolePermissionTest {
             return this;
         }
 
+        int verifyExpressionCacheSize() {
+            return verifyExpressionCache.size();
+        }
+
         @Override
         protected ResConditionAction getAction(String requirePermission) {
             return actionMap.get(requirePermission);
@@ -1495,6 +2362,119 @@ class RbacAuthorizeServiceRolePermissionTest {
                     .map(TestRbacRole::getPermissionList)
                     .flatMap(Collection::stream)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
+        }
+    }
+
+    private static class DefaultRoleHelperRbacBaseService implements RbacBaseService {
+        private final StubRbacBaseService delegate;
+
+        DefaultRoleHelperRbacBaseService(TestRbacUser user) {
+            delegate = new StubRbacBaseService(user);
+        }
+
+        void registerRole(TestRbacRole role) {
+            delegate.registerRole(role);
+        }
+
+        @Override
+        public String encryptUserPwd(String pwd) {
+            return delegate.encryptUserPwd(pwd);
+        }
+
+        @Override
+        public <U extends RbacUserInfo> U loadUser(Serializable tenantId, String account) {
+            return delegate.loadUser(tenantId, account);
+        }
+
+        @Override
+        public <U extends RbacUserInfo> U loadUser(Serializable userPrincipal) {
+            return delegate.loadUser(userPrincipal);
+        }
+
+        @Override
+        public <U extends RbacUserInfo> U auditUser(U userInfo) throws AuthorizationException {
+            return delegate.auditUser(userInfo);
+        }
+
+        @Override
+        public <U extends RbacUserInfo> U auditUserLogin(U userInfo, Serializable tenantId, String loginPwd, String loginDomain, String loginIp, String loginDeviceType, Map<String, Serializable> exLoginParams) throws AuthorizationException {
+            return delegate.auditUserLogin(userInfo, tenantId, loginPwd, loginDomain, loginIp, loginDeviceType, exLoginParams);
+        }
+
+        @Override
+        public <TENANT extends RbacTenantInfo> Collection<TENANT> loadAllTenantList(boolean onlyLoadEffectTenant) {
+            return delegate.loadAllTenantList(onlyLoadEffectTenant);
+        }
+
+        @Override
+        public <TENANT extends RbacTenantInfo> TENANT loadTenant(Serializable tenantPrincipal) {
+            return delegate.loadTenant(tenantPrincipal);
+        }
+
+        @Override
+        public <ORG extends RbacOrgInfo> ORG loadOrg(Serializable orgPrincipal) {
+            return delegate.loadOrg(orgPrincipal);
+        }
+
+        @Override
+        public <ORG extends RbacOrgInfo> Collection<ORG> loadTenantOrgList(Serializable tenantId, boolean onlyLoadEffectOrg) {
+            return delegate.loadTenantOrgList(tenantId, onlyLoadEffectOrg);
+        }
+
+        @Override
+        public <R extends RbacRoleInfo> R loadRole(Serializable rolePrincipal) {
+            return delegate.loadRole(rolePrincipal);
+        }
+
+        @Override
+        public <R extends RbacRoleInfo> Collection<R> loadTenantRoleList(Serializable tenantId, boolean onlyLoadEffectRole) {
+            return delegate.loadTenantRoleList(tenantId, onlyLoadEffectRole);
+        }
+
+        @Override
+        public Collection<String> loadUserRoleCodeList(Serializable userPrincipal) {
+            return RbacBaseService.super.loadUserRoleCodeList(userPrincipal);
+        }
+
+        @Override
+        public Collection<String> loadUserPermissionExprList(Serializable userPrincipal) {
+            return RbacBaseService.super.loadUserPermissionExprList(userPrincipal);
+        }
+
+        @Override
+        public Collection<String> loadRolePermissionList(Serializable tenantId, Collection<String> roleCodeList) {
+            return RbacBaseService.super.loadRolePermissionList(tenantId, roleCodeList);
+        }
+    }
+
+    private static class MultiUserRbacBaseService extends StubRbacBaseService {
+        private final Map<String, TestRbacUser> userMap = new LinkedHashMap<>();
+
+        MultiUserRbacBaseService(TestRbacUser firstUser, TestRbacUser... users) {
+            super(firstUser);
+            registerUser(firstUser);
+            Arrays.stream(users).forEach(this::registerUser);
+        }
+
+        private void registerUser(TestRbacUser user) {
+            userMap.put(Objects.toString(user.getId(), ""), user);
+        }
+
+        @Override
+        public <U extends RbacUserInfo> U loadUser(Serializable tenantId, String account) {
+            return (U) userMap.values().stream()
+                    .filter(user -> Objects.equals(user.getTenantId(), tenantId))
+                    .filter(user -> Objects.equals(user.getLoginName(), account))
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        @Override
+        public <U extends RbacUserInfo> U loadUser(Serializable userPrincipal) {
+            if (userPrincipal instanceof RbacUserInfo) {
+                return (U) userPrincipal;
+            }
+            return (U) userMap.get(Objects.toString(userPrincipal, ""));
         }
     }
 

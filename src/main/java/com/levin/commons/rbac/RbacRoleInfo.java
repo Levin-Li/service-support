@@ -46,22 +46,22 @@ public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPubl
     @Schema(title = "角色编码", description = "以R_开头")
     String getCode();
 
-    @Schema(title = "角色分配的前置条件", description = "目的是用于约束角色分配, 默认为groovy脚本, 是指把角色分配给用户时, 必须先满足的条件, 一般是表达式, 如 _user.type == '2'; 默认要求支持 _user, _role 2个变量")
+    @Schema(title = "角色分配的前置条件", description = "目的是用于约束角色分配, 默认为groovy脚本, 是指把角色分配给用户时, 必须先满足的条件, 一般是表达式, 如 _user.type == '2'; 默认要求支持 _tenant,  _user, _role 3个变量")
     default String getAssignPreCondition() {
         return "";
     }
 
-    @Schema(title = "排斥的角色编码列表", description = "把当前角色分配给用户时, 用户不能拥有这些角色中的任何一个, 否则不能分配该角色给用户, 可以使用 * 通配符; 目的是用于约束角色分配")
+    @Schema(title = "排斥的角色编码列表", description = "把当前角色分配给用户时, 用户不能拥有这些角色中的任何一个, 否则不能分配该角色给用户, 可以使用 * 和 ? 通配符; 目的是用于约束角色分配")
     default Collection<String> getExclusiveRoleList() {
         return Collections.emptyList();
     }
 
-    @Schema(title = "必须共存的角色编码列表", description = "把当前角色分配给用户时, 用户必须已经拥有全部的这些角色, 否则不能分配该角色给用户, 可以使用 * 通配符; 目的是用于约束角色分配")
+    @Schema(title = "必须共存的角色编码列表", description = "把当前角色分配给用户时, 用户必须已经拥有全部的这些角色, 否则不能分配该角色给用户, 可以使用 * 和 ? 通配符; 目的是用于约束角色分配;这里不用依赖,“依赖”更多是从角色自身依赖；“共存”是从用户分配的角度")
     default Collection<String> getCoexistRoleList() {
         return Collections.emptyList();
     }
 
-    @Schema(title = "授权列表")
+    @Schema(title = "授权列表", description = "可以支持*和|")
     default Collection<String> getPermissionList() {
         return Collections.emptyList();
     }

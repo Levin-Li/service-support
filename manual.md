@@ -305,7 +305,7 @@ RBAC 是这个项目最值得重点理解的模块。
 - `getExclusiveRoleList()` 表示不能和当前角色共存的角色编码表达式
 - `getCoexistRoleList()` 表示给用户分配当前角色时，最终角色集合里必须同时存在的角色编码表达式，缺失时不允许单独分配
 
-这两类表达式都可以使用 `*` 通配。保存用户最终角色集合前，可以使用 `checkRoleAssignment(...)` 统一校验操作人分配权限、目标用户前置条件、互斥角色和共存角色；如只需要定位问题，也可以单独使用 `findFirstExclusiveRolePair(...)`、`findFirstMissingCoexistRoleCodePair(...)` 和 `findFirstMissingCoexistRolePair(...)`。其中 `findFirstMissingCoexistRoleCodePair(...).getB()` 返回缺失的共存角色对象集合，如果配置的共存角色编码表达式无法加载到角色对象，会直接抛出异常。
+这两类表达式都可以使用 `*` 和 `?` 通配。保存用户最终角色集合前，可以使用 `checkRoleAssignment(...)` 统一校验操作人分配权限、目标用户前置条件、互斥角色和共存角色；如只需要定位问题，也可以单独使用 `findExclusiveRolePair(...)` 和 `findMissingCoexistRolePair(...)`。其中 `findMissingCoexistRolePair(...).getB()` 返回缺失的共存角色对象集合，如果配置的共存角色编码表达式无法加载到角色对象，会直接抛出异常。
 
 ### 7.3 权限
 
@@ -494,6 +494,7 @@ public List<UserDto> queryUser() {
 - 在一条调用链里应尽量只取一次
 
 同样，`getUserConfidentialDataAccessLevel(...)` 也不适合放在循环里频繁调用。
+默认实现不会写入 `user.transientExInfo` 做对象级缓存，避免用户角色变化后同一个用户对象继续读到旧密级；高频场景建议在子类中覆盖为角色缓存、SQL `max` 聚合或调用链级快照。
 
 ---
 
@@ -544,15 +545,16 @@ public List<UserDto> queryUser() {
 
 - 对没有租户归属的用户，`DEFAULT_TENANT` 也会落到公共组织
 
+`tenantMatchingExpression` 支持普通租户 ID 精确匹配，也支持 Spring PathPattern，例如 `tenant-*` 或 `/tenant-*`。Groovy 租户表达式必须使用 `#!groovy:` 前缀，例如 `#!groovy:_tenant?.startsWith('tenant-')`；未带前缀的脚本文本不会被当成 Groovy 执行。租户 Groovy 上下文提供 `_tenant`、`_user`、`_scope`。跨租户组织范围只对平台用户生效。普通租户用户即使被配置了其他租户、无租户、`ALL_TENANT` 或 Groovy 租户表达式的 `OrgScope`，默认实现也会忽略这条规则；普通租户用户只应用 `DEFAULT_TENANT`、明确等于自己租户 ID 的规则，或只能命中自己租户的 PathPattern。
+
 ### 11.2 `orgId`
 
-`orgId` 有四种常见取值：
-
-- `OrgScope.ALL_ORG`
-  所有组织
+`orgId` 有三种常见取值：
 
 - `OrgScope.ALL_ROOT_ORG`
-  所有根组织
+  所有根组织作为范围起点
+
+是否只命中根组织，还是命中根组织及其子树，由 `ScopeMatchingPattern` 决定：`ALL_ROOT_ORG + OnlySelf` 表示所有根组织，`ALL_ROOT_ORG + All` 表示所有组织。
 
 - `OrgScope.USER_ORG`
   用户所在组织
