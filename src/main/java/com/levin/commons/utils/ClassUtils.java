@@ -340,6 +340,10 @@ public final class ClassUtils {
         return invokeMethodByAnnotationTag(bean, false, PostConstruct.class, args);
     }
 
+    public static String resolvableType2GenericStr(ResolvableType type) {
+        return resolvableType2GenericStr(type, Class::getName);
+    }
+
     public static String resolvableType2GenericStr(ResolvableType type, Function<Class<?>, String> type2StrFun) {
         return resolvableType2GenericStr(type, new IdentityHashMap<>(), type2StrFun);
     }
@@ -351,7 +355,7 @@ public final class ClassUtils {
      * @param type2StrFun
      * @return
      */
-    public static String resolvableType2GenericStr(ResolvableType type, Map<Class<?>, Boolean> visited, Function<Class<?>, String> type2StrFun) {
+    private static String resolvableType2GenericStr(ResolvableType type, Map<Class<?>, Boolean> visited, Function<Class<?>, String> type2StrFun) {
 
         if (type2StrFun == null) {
             type2StrFun = Class::getSimpleName;
