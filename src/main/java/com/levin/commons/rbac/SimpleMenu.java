@@ -46,6 +46,9 @@ public class SimpleMenu
     @Schema(title = "名称")
     protected String name;
 
+    @Schema(title = "操作按钮列表")
+    protected List<OpButton> opButtonList;
+
     @Schema(title = "需要的授权，Json数组")
     @Column(length = 1800)
     protected List<String> requireAuthorizations;

@@ -1,9 +1,18 @@
 package com.levin.commons.rbac;
 
 import com.levin.commons.dao.domain.TreeObject;
+import com.levin.commons.service.domain.Castable;
 import com.levin.commons.service.domain.EnumDesc;
 import com.levin.commons.service.domain.SimpleIdentifiable;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
+import lombok.Data;
+import lombok.experimental.Accessors;
+import lombok.experimental.FieldNameConstants;
+
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 菜单
@@ -40,6 +49,40 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
         public String toString() {
             return nameAndDesc();
         }
+    }
+
+
+    @Data
+    @Accessors(chain = true)
+    @FieldNameConstants
+    @Schema(title = "操作按钮")
+    class OpButton implements Castable, Serializable {
+
+        @Schema(title = "api地址")
+        protected String apiUrl;
+
+        @Schema(title = "标签")
+        @Column(nullable = false)
+        protected String label;
+
+        @Schema(title = "需要权限")
+        protected String requireAuthorization;
+
+        @Schema(title = "是否禁用", description = "禁用后页面中不显示")
+        protected Boolean disabled;
+
+        @Schema(title = "备注")
+        protected String remark;
+
+        public boolean isDisabled() {
+            return disabled != null && disabled;
+        }
+    }
+
+
+    @Schema(title = "操作按钮列表", description = "通常是控制器中有CRUD.OP注解的方法")
+    default List<OpButton> getOpButtonList() {
+        return Collections.emptyList();
     }
 
     /**

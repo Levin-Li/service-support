@@ -365,13 +365,15 @@ public abstract class RbacUtils {
     public static <M extends MenuItem> List<M> getMenuItemByController(ApplicationContext context,
                                                                        @NonNull final String packageName, @NonNull final String actionName) {
 
-        List<MenuItem> menuItems = menuCache.get(packageName);
+        final String cacheKey = packageName + "#" + actionName;
+
+        List<MenuItem> menuItems = menuCache.get(cacheKey);
 
         if (menuItems != null) {
             return (List<M>) menuItems;
         }
 
-        synchronized (packageName.intern()) {
+        synchronized (cacheKey.intern()) {
 
             List<Object> controllers = SpringContextHolder.findBeanByPkgName(context, Controller.class, packageName);
 
@@ -401,9 +403,10 @@ public abstract class RbacUtils {
                 }
 
                 SimpleMenu menuRes = new SimpleMenu();
+                Map<Method, ResAuthorize> methodResAuthorizeMap = getClassResAuthorizeFormCache(type);
 
                 //查找任意一个方法的权限
-                ResAuthorize resAuthorize = getClassResAuthorizeFormCache(type).values().stream()
+                ResAuthorize resAuthorize = methodResAuthorizeMap.values().stream()
                         .filter(r -> actionName.equalsIgnoreCase(r.action()))
                         .findFirst()
                         .orElse(null);
@@ -415,34 +418,121 @@ public abstract class RbacUtils {
 
                 final ResPermission permission = resAuthorize == null ? null :
                         new ResPermission()
-                                .setDomain(packageName)
+                                .setDomain(resAuthorize.domain())
                                 .setType(resAuthorize.type())
 
                                 //.setRes(tagName)
                                 //不标识具体的资源
                                 .setRes(StringUtils.hasText(resAuthorize.res()) ? resAuthorize.res() : "")
 
-                                .setAction(actionName);
+                                .setAction(resAuthorize.action());
                 //@todo 设置权限
 
                 //设置默认权限
                 menuRes.setRequireAuthorizations(permission == null ? null : Arrays.asList(permission.toString()))
                         .setDomain(packageName)
                         //设置路径
-                        .setPath(Arrays.asList(mapping != null ? mapping.path() : new String[0]).stream().filter(StringUtils::hasText).findFirst().orElse(defaultName))
+                        .setPath(buildRequestPath(mapping, null, defaultName))
                         //设置菜单名称
                         .setName(StrUtil.firstNonBlank(crud.title(), tag == null ? null : tag.name(), defaultName))
                         .setRemark(StrUtil.firstNonBlank(crud.desc(), tag == null ? null : tag.description(), ""))
+                        .setOpButtonList(buildOpButtonList(packageName, mapping, methodResAuthorizeMap))
                 ;
 
                 menuItems.add(menuRes);
 
             }
 
-            menuCache.put(packageName, menuItems);
+            menuCache.put(cacheKey, menuItems);
         }
 
         return (List<M>) menuItems;
+    }
+
+    private static List<MenuItem.OpButton> buildOpButtonList(String packageName,
+                                                             RequestMapping controllerMapping,
+                                                             Map<Method, ResAuthorize> methodResAuthorizeMap) {
+        if (methodResAuthorizeMap == null || methodResAuthorizeMap.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        final List<MenuItem.OpButton> opButtonList = new ArrayList<>();
+
+        methodResAuthorizeMap.forEach((method, resAuthorize) -> {
+            if (method == null || resAuthorize == null) {
+                return;
+            }
+
+            CRUD.Op op = AnnotatedElementUtils.findMergedAnnotation(method, CRUD.Op.class);
+            if (op == null) {
+                return;
+            }
+
+            Operation operation = AnnotatedElementUtils.findMergedAnnotation(method, Operation.class);
+            RequestMapping methodMapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
+
+            final ResPermission permission = new ResPermission()
+                    .setDomain(resAuthorize.domain())
+                    .setType(resAuthorize.type())
+                    .setRes(StringUtils.hasText(resAuthorize.res()) ? resAuthorize.res() : "")
+                    .setAction(resAuthorize.action());
+
+            final MenuItem.OpButton opButton = new MenuItem.OpButton()
+                    .setApiUrl(buildRequestPath(controllerMapping, methodMapping, method.getName()))
+                    .setLabel(StrUtil.firstNonBlank(op.label(), op.name(), operation == null ? null : operation.summary(), method.getName()))
+                    .setRequireAuthorization(permission.toString())
+                    .setRemark(StrUtil.firstNonBlank(op.desc(), operation == null ? null : operation.description(), resAuthorize.remark(), ""))
+                    .setDisabled(false);
+
+            opButtonList.add(opButton);
+        });
+
+        opButtonList.sort(Comparator.comparing(MenuItem.OpButton::getApiUrl, Comparator.nullsLast(String::compareTo)));
+
+        return opButtonList.isEmpty() ? Collections.emptyList() : opButtonList;
+    }
+
+    private static String buildRequestPath(RequestMapping controllerMapping, RequestMapping methodMapping, String defaultPath) {
+        final String controllerPath = firstMappingPath(controllerMapping);
+        final String methodPath = firstMappingPath(methodMapping);
+
+        if (!StringUtils.hasText(controllerPath) && !StringUtils.hasText(methodPath)) {
+            return defaultPath;
+        }
+
+        if (!StringUtils.hasText(controllerPath)) {
+            return normalizePath(methodPath);
+        }
+
+        if (!StringUtils.hasText(methodPath)) {
+            return normalizePath(controllerPath);
+        }
+
+        return normalizePath(controllerPath) + "/" + normalizePath(methodPath).replaceFirst("^/+", "");
+    }
+
+    private static String firstMappingPath(RequestMapping mapping) {
+        if (mapping == null) {
+            return "";
+        }
+
+        return Arrays.stream(mapping.path())
+                .filter(StringUtils::hasText)
+                .findFirst()
+                .orElseGet(() -> Arrays.stream(mapping.value())
+                        .filter(StringUtils::hasText)
+                        .findFirst()
+                        .orElse(""));
+    }
+
+    private static String normalizePath(String path) {
+        if (!StringUtils.hasText(path)) {
+            return "";
+        }
+
+        String normalized = path.trim().replaceAll("/{2,}", "/");
+        normalized = normalized.startsWith("/") ? normalized : "/" + normalized;
+        return normalized.length() > 1 ? normalized.replaceAll("/+$", "") : normalized;
     }
 
 }

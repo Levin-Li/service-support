@@ -1,9 +1,17 @@
 package com.levin.commons.rbac;
 
 import com.levin.commons.service.exception.AuthorizationException;
+import com.levin.commons.ui.annotation.CRUD;
 import com.levin.commons.utils.ObjectWrapperUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.StaticApplicationContext;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.Serializable;
 import java.time.Duration;
@@ -850,6 +858,88 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldPreferTenantSpecificRoleWhenPublicRoleHasSameCode() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U7B3",
+                "role-shadow",
+                "T1",
+                "OPS",
+                Collections.singletonList("R_SHARED"),
+                null
+        );
+        DefaultRoleHelperRbacBaseService scopedService = new DefaultRoleHelperRbacBaseService(scopedUser);
+        scopedService.registerRole(new TestRbacRole(
+                "R7B31",
+                "R_SHARED",
+                null,
+                Collections.singletonList("sys:shared:public:view"),
+                Collections.emptyList(),
+                10
+        ));
+        scopedService.registerRole(new TestRbacRole(
+                "R7B32",
+                "R_SHARED",
+                "T1",
+                Collections.singletonList("sys:shared:tenant:view"),
+                Collections.emptyList(),
+                80
+        ));
+
+        assertEquals(Collections.singleton("sys:shared:tenant:view"),
+                scopedService.loadUserPermissionExprList(scopedUser).stream().collect(Collectors.toSet()),
+                "公共角色和租户角色编码相同时，用户生效角色应优先使用本租户角色，避免公共角色覆盖租户专属权限");
+        assertEquals(80, scopedService.getUserConfidentialDataAccessLevel(scopedUser),
+                "同编码公共角色和租户角色并存时，用户密级也应来自本租户角色");
+    }
+
+    @Test
+    void shouldBuildMenuOpButtonsFromCrudOpControllerMethods() {
+        StaticApplicationContext context = new StaticApplicationContext();
+        context.registerSingleton("menuController", MenuController.class);
+        context.refresh();
+
+        try {
+            List<SimpleMenu> menuList = RbacUtils.getMenuItemByController(
+                    context,
+                    RbacAuthorizeServiceRolePermissionTest.class.getPackageName(),
+                    "菜单入口"
+            );
+
+            assertEquals(1, menuList.size());
+            SimpleMenu menu = menuList.get(0);
+
+            assertEquals("菜单测试", menu.getName());
+            assertEquals("/api/menu", menu.getPath());
+            assertEquals(Collections.singletonList("sys:menu:page:菜单入口"), menu.getRequireAuthorizations());
+
+            List<MenuItem.OpButton> opButtonList = menu.getOpButtonList();
+            assertEquals(3, opButtonList.size(), "只有标注 @CRUD.Op 的控制器方法才应生成操作按钮");
+
+            MenuItem.OpButton createButton = opButtonList.get(0);
+            assertEquals("/api/menu/create", createButton.getApiUrl());
+            assertEquals("新增按钮", createButton.getLabel());
+            assertEquals("sys:menu:page:create", createButton.getRequireAuthorization());
+            assertEquals("新增备注", createButton.getRemark());
+            assertFalse(createButton.isDisabled());
+
+            MenuItem.OpButton deleteButton = opButtonList.get(1);
+            assertEquals("/api/menu/delete/{id}", deleteButton.getApiUrl());
+            assertEquals("deleteOp", deleteButton.getLabel());
+            assertEquals("sys:menu:page:删除", deleteButton.getRequireAuthorization());
+            assertEquals("删除记录", deleteButton.getRemark());
+            assertFalse(deleteButton.isDisabled());
+
+            MenuItem.OpButton updateButton = opButtonList.get(2);
+            assertEquals("/api/menu/update", updateButton.getApiUrl());
+            assertEquals("更新", updateButton.getLabel());
+            assertEquals("sys:menu:page:update", updateButton.getRequireAuthorization());
+            assertFalse(updateButton.isDisabled());
+        } finally {
+            context.close();
+        }
+    }
+
+    @Test
     void shouldCheckUserAdminRulesWithoutRecursiveConfidentialChecks() {
         TestRbacUser operator = new TestRbacUser(
                 "U7B3_OP",
@@ -992,6 +1082,135 @@ class RbacAuthorizeServiceRolePermissionTest {
         assertIterableEquals(Arrays.asList("A", "A1", "B", "B1"),
                 orgList.stream().map(TestOrg::getId).collect(Collectors.toList()),
                 "allow all 后叠加 deny PathPattern 时，应移除命中的子树");
+    }
+
+    @Test
+    void shouldApplyOnlyDirectChildScopeMatchingPattern() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U3A",
+                "direct-child",
+                "T1",
+                "A",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Collections.singletonList(scope("A", true, OrgScope.ScopeMatchingPattern.OnlyDirectChild))
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setOrgList(baseOrgTree());
+
+        Collection<TestOrg> orgList = scopedService.loadUserOrgList(scopedUser, false);
+
+        assertIterableEquals(Arrays.asList("A1", "A2"),
+                orgList.stream().map(TestOrg::getId).collect(Collectors.toList()),
+                "OnlyDirectChild 应只包含直接子节点，不包含本节点和孙节点");
+    }
+
+    @Test
+    void shouldApplySelfAndDirectChildScopeMatchingPattern() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U3B",
+                "self-and-direct-child",
+                "T1",
+                "A",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Collections.singletonList(scope("A", true, OrgScope.ScopeMatchingPattern.SelfAndDirectChild))
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setOrgList(baseOrgTree());
+
+        Collection<TestOrg> orgList = scopedService.loadUserOrgList(scopedUser, false);
+
+        assertIterableEquals(Arrays.asList("A", "A1", "A2"),
+                orgList.stream().map(TestOrg::getId).collect(Collectors.toList()),
+                "SelfAndDirectChild 应包含本节点和直接子节点，不包含孙节点");
+    }
+
+    @Test
+    void shouldApplyAllRootOrgWithDirectChildPatterns() {
+        TestRbacUser onlyDirectChildUser = new TestRbacUser(
+                "U3C",
+                "all-root-direct-child",
+                "T1",
+                "A",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Collections.singletonList(scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.OnlyDirectChild))
+        );
+        TestRbacUser selfAndDirectChildUser = new TestRbacUser(
+                "U3D",
+                "all-root-self-and-direct-child",
+                "T1",
+                "A",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Collections.singletonList(scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.SelfAndDirectChild))
+        );
+
+        StubRbacBaseService onlyDirectChildService = new StubRbacBaseService(onlyDirectChildUser)
+                .setOrgList(baseOrgTree());
+        StubRbacBaseService selfAndDirectChildService = new StubRbacBaseService(selfAndDirectChildUser)
+                .setOrgList(baseOrgTree());
+
+        assertIterableEquals(Arrays.asList("A1", "A2", "B1"),
+                onlyDirectChildService.loadUserOrgList(onlyDirectChildUser, false)
+                        .stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
+                "ALL_ROOT_ORG + OnlyDirectChild 应返回所有根组织的直接子节点，不包含根节点和孙节点");
+        assertIterableEquals(Arrays.asList("A", "A1", "A2", "B", "B1"),
+                selfAndDirectChildService.loadUserOrgList(selfAndDirectChildUser, false)
+                        .stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
+                "ALL_ROOT_ORG + SelfAndDirectChild 应返回所有根组织及直接子节点，不包含孙节点");
+    }
+
+    @Test
+    void shouldResolveUserOrgAsScopeRoot() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U3E",
+                "user-org-scope",
+                "T1",
+                "A",
+                Collections.emptyList(),
+                5000,
+                "A2",
+                Collections.singletonList(scope(OrgScope.USER_ORG, true, OrgScope.ScopeMatchingPattern.All))
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setOrgList(baseOrgTree());
+
+        assertIterableEquals(Arrays.asList("A2", "A21"),
+                scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
+                "_USER_ORG_ 应解析为用户默认组织，并按指定 ScopeMatchingPattern 继续扩展");
+    }
+
+    @Test
+    void shouldApplyStandardDenyScopeWithoutRemovingGrandchildren() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U3F",
+                "standard-deny",
+                "T1",
+                "A",
+                Collections.emptyList(),
+                5000,
+                "A",
+                Arrays.asList(
+                        scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingPattern.All),
+                        scope("A", false, OrgScope.ScopeMatchingPattern.SelfAndDirectChild)
+                )
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
+                .setOrgList(baseOrgTree());
+
+        assertIterableEquals(Arrays.asList("A21", "B", "B1"),
+                scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
+                "标准 deny scope 应按自身匹配模式移除节点，SelfAndDirectChild 不应误删孙节点");
     }
 
     @Test
@@ -2118,6 +2337,24 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "相同表达式文本但 tenantMatchingExpression 不同的规则不应被误合并");
     }
 
+    @Test
+    void shouldDropInvalidAndDuplicateOrgScopesWhenMerging() {
+        StubRbacBaseService scopedService = new StubRbacBaseService(user);
+        SimpleOrgScope validScope = scope("A", true, OrgScope.ScopeMatchingPattern.All);
+        SimpleOrgScope duplicateScope = scope("A", true, OrgScope.ScopeMatchingPattern.All);
+
+        Collection<OrgScope> merged = scopedService.mergeOrgScopeList(Arrays.asList(
+                null,
+                new SimpleOrgScope().setOrgId("").setAllow(true).setOrgScopeMatchingPattern(OrgScope.ScopeMatchingPattern.All),
+                new SimpleOrgScope().setOrgId("A").setAllow(true).setOrgScopeExpression(""),
+                validScope,
+                duplicateScope
+        ));
+
+        assertEquals(Collections.singletonList(validScope), new ArrayList<>(merged),
+                "合并组织范围时应丢弃空值、空 orgId、空表达式和完全重复项");
+    }
+
     private static SimpleOrgScope scope(String orgId, boolean allow, OrgScope.ScopeMatchingPattern scopeMatchingPattern) {
         return new SimpleOrgScope()
                 .setOrgId(orgId)
@@ -2155,6 +2392,44 @@ class RbacAuthorizeServiceRolePermissionTest {
                 .setAllow(allow)
                 .setOrgScopeExpressionType(expressionType)
                 .setOrgScopeExpression(expression);
+    }
+
+    @Controller
+    @CRUD(title = "菜单测试", desc = "菜单描述")
+    @Tag(name = "菜单Tag", description = "Tag描述")
+    @RequestMapping("/api/menu")
+    @ResAuthorize(domain = "sys", type = "menu", res = "page")
+    static class MenuController {
+
+        @GetMapping("/list")
+        @Operation(summary = "菜单入口", description = "主菜单")
+        public void list() {
+        }
+
+        @PostMapping("/create")
+        @CRUD.Op(label = "新增按钮", desc = "新增备注", level = CRUD.Level.Primary)
+        @Operation(summary = "新增", description = "创建记录")
+        @ResAuthorize(action = "create")
+        public void create() {
+        }
+
+        @RequestMapping("/delete/{id}")
+        @CRUD.Op(name = "deleteOp")
+        @Operation(summary = "删除", description = "删除记录")
+        public void delete() {
+        }
+
+        @PostMapping(path = "update/")
+        @CRUD.Op
+        @Operation(summary = "更新", description = "更新记录")
+        @ResAuthorize(action = "update")
+        public void update() {
+        }
+
+        @PostMapping("/export")
+        @Operation(summary = "导出", description = "不应生成按钮")
+        public void export() {
+        }
     }
 
     private static List<TestOrg> baseOrgTree() {
