@@ -15,7 +15,7 @@ import java.lang.annotation.*;
 @Documented
 @Inherited
 @Schema(title = "文件资源")
-public @interface FileRes {
+public @interface FileItem {
 
     @Schema(title = "类型")
     @GenNameConstant
