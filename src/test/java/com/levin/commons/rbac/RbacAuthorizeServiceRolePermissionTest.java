@@ -1,5 +1,7 @@
 package com.levin.commons.rbac;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.levin.commons.service.exception.AuthorizationException;
 import com.levin.commons.ui.annotation.CRUD;
 import com.levin.commons.utils.ObjectWrapperUtils;
@@ -12,8 +14,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.context.support.StaticWebApplicationContext;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -278,6 +282,190 @@ class RbacAuthorizeServiceRolePermissionTest {
                 null
         ));
         assertEquals(1, authorizeService.verifyExpressionCacheSize(), "重复执行同一表达式不应重复解析");
+    }
+
+    @Test
+    void shouldAllowBlankRequirementsAndReportUnknownPermissionAction() {
+        List<String> errors = new ArrayList<>();
+
+        assertTrue(authorizeService.isAuthorized(
+                user,
+                true,
+                Arrays.asList(null, "", " \t "),
+                (permission, reason) -> errors.add(reason)
+        ), "空权限要求应视为无需校验");
+
+        boolean authorized = authorizeService.isAuthorized(
+                user,
+                Collections.emptySet(),
+                Collections.emptySet(),
+                "sys:missing:item:view",
+                (require, reason) -> errors.add(require + "|" + reason)
+        );
+
+        assertFalse(authorized, "未注册的资源操作且用户没有直接匹配权限时应拒绝");
+        assertTrue(errors.stream().anyMatch(error -> error.contains("sys:missing:item:view") && error.contains("操作不存在")),
+                "未知权限应通过 matchErrorConsumer 暴露缺失操作原因");
+    }
+
+    @Test
+    void shouldAllowIgnoredAndAuthenticatedOnlyActionsWithoutExplicitPermission() {
+        authorizeService
+                .addAction("sys:health:ping:view",
+                        new ResConditionActionObject().action("view").ignored(true))
+                .addAction("sys:profile:self:view",
+                        new ResConditionActionObject().action("view").onlyRequireAuthenticated(true));
+
+        assertTrue(authorizeService.isAuthorized(
+                user,
+                Collections.emptySet(),
+                Collections.emptySet(),
+                "sys:health:ping:view",
+                null
+        ), "ignored 操作不应要求权限");
+        assertTrue(authorizeService.isAuthorized(
+                user,
+                Collections.emptySet(),
+                Collections.emptySet(),
+                "sys:profile:self:view",
+                null
+        ), "onlyRequireAuthenticated 操作在已登录用户上下文中应放行");
+    }
+
+    @Test
+    void shouldApplyUserTypeAndVerifyExpressionBoundaries() {
+        authorizeService.addAction(
+                "sys:approval:item:submit",
+                new ResConditionActionObject()
+                        .action("submit")
+                        .anyUserTypes(new String[]{"OPS"})
+                        .verifyExpression("#user.loginName == 'alice'")
+        );
+
+        TestRbacUser financeUser = new TestRbacUser(
+                "U_EXPR_FIN",
+                "alice",
+                "T1",
+                "FIN",
+                Collections.singletonList("R_USER"),
+                5000
+        );
+        TestRbacUser otherOpsUser = new TestRbacUser(
+                "U_EXPR_OPS",
+                "bob",
+                "T1",
+                "OPS",
+                Collections.singletonList("R_USER"),
+                5000
+        );
+
+        assertTrue(authorizeService.isAuthorized(
+                user,
+                Collections.emptySet(),
+                Collections.emptySet(),
+                "sys:approval:item:submit",
+                null
+        ), "用户类型和表达式都满足时应允许访问");
+        assertFalse(authorizeService.isAuthorized(
+                financeUser,
+                Collections.emptySet(),
+                Collections.emptySet(),
+                "sys:approval:item:submit",
+                null
+        ), "用户类型不匹配且没有直接权限命中时应拒绝");
+        assertTrue(authorizeService.isAuthorized(
+                financeUser,
+                Collections.emptySet(),
+                Collections.singleton("sys:approval:item:submit"),
+                "sys:approval:item:submit",
+                null
+        ), "直接拥有完全相同权限表达式时，当前快速匹配逻辑会在 action 条件前放行");
+        assertFalse(authorizeService.isAuthorized(
+                otherOpsUser,
+                Collections.emptySet(),
+                Collections.emptySet(),
+                "sys:approval:item:submit",
+                null
+        ), "OR 模式下没有权限且表达式不满足时应拒绝");
+    }
+
+    @Test
+    void shouldEvaluateEveryMatchedActionWhenRequiredPermissionIsWildcard() {
+        authorizeService
+                .addAction("sys:batch:item:read", new ResConditionActionObject().action("read"))
+                .addAction("sys:batch:item:delete", new ResConditionActionObject().action("delete"));
+        List<String> errors = new ArrayList<>();
+
+        assertFalse(authorizeService.isAuthorized(
+                user,
+                Collections.emptySet(),
+                Collections.singleton("sys:batch:item:read"),
+                "sys:batch:item:*",
+                (require, reason) -> errors.add(reason)
+        ), "通配权限匹配到多个操作时，任一具体操作缺权限都应拒绝");
+        assertTrue(errors.stream().anyMatch(error -> error.contains("sys:batch:item:delete")),
+                "通配权限失败时应报告未通过的具体操作");
+
+        assertTrue(authorizeService.isAuthorized(
+                user,
+                Collections.emptySet(),
+                Arrays.asList("sys:batch:item:read", "sys:batch:item:delete"),
+                "sys:batch:item:*",
+                null
+        ), "通配权限匹配到的所有具体操作都授权时才应通过");
+    }
+
+    @Test
+    void shouldCheckAnnotatedMethodAccessByResolvedResAuthorize() throws Exception {
+        Method viewMethod = MethodAccessController.class.getDeclaredMethod("view");
+        Method approveMethod = MethodAccessController.class.getDeclaredMethod("approve");
+        Method authenticatedOnlyMethod = MethodAccessController.class.getDeclaredMethod("authenticatedOnly");
+        Method ignoredMethod = MethodAccessController.class.getDeclaredMethod("ignored");
+
+        baseService.setUserPermissions(Collections.singleton("sys:method:case:查看"));
+        assertTrue(authorizeService.canAccess(user, MethodAccessController.class, viewMethod),
+                "方法访问应使用 @Operation.summary 作为默认 action");
+
+        baseService.setUserPermissions(Collections.emptyList());
+        assertFalse(authorizeService.canAccess(user, MethodAccessController.class, viewMethod),
+                "缺少方法对应权限时应拒绝访问");
+
+        baseService.setUserPermissions(Collections.singleton("sys:method:case:approve"));
+        assertTrue(authorizeService.canAccess(user, MethodAccessController.class, approveMethod),
+                "方法级 @ResAuthorize.action 非空时应覆盖 @Operation.summary");
+        baseService.setUserPermissions(Collections.singleton("sys:method:case:审批"));
+        assertFalse(authorizeService.canAccess(user, MethodAccessController.class, approveMethod),
+                "显式 action 覆盖后，不应再按 Operation.summary 授权");
+
+        baseService.setUserPermissions(Collections.emptyList());
+        assertTrue(authorizeService.canAccess(user, MethodAccessController.class, authenticatedOnlyMethod),
+                "onlyRequireAuthenticated 的方法应允许已登录用户访问");
+        assertTrue(authorizeService.canAccess(user, MethodAccessController.class, ignoredMethod),
+                "ignored 或无可用授权注解的方法应视为不需要方法权限");
+    }
+
+    @Test
+    void shouldApplyMethodAccessConfidentialAndTopSuperAdminRules() throws Exception {
+        Method secretMethod = MethodAccessController.class.getDeclaredMethod("secret");
+
+        baseService.setUserPermissions(Collections.singleton("sys:method:case:secret"));
+        assertFalse(authorizeService.canAccess(user, MethodAccessController.class, secretMethod),
+                "用户密级低于方法要求时，即使具备权限也应拒绝访问");
+
+        TestRbacUser topSuperAdmin = new TestRbacUser(
+                "U_TOP_SA",
+                RbacUserInfo.TOP_SA_ACCOUNT_NAME,
+                null,
+                "PLATFORM",
+                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                0
+        );
+        StubRbacBaseService scopedService = new StubRbacBaseService(topSuperAdmin);
+        TestAuthorizeService scopedAuthorizeService = new TestAuthorizeService();
+        scopedAuthorizeService.setRbacBaseService(scopedService);
+
+        assertTrue(scopedAuthorizeService.canAccess(topSuperAdmin, MethodAccessController.class, secretMethod),
+                "顶级超级管理员应绕过方法权限和密级限制");
     }
 
     @Test
@@ -613,6 +801,105 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldRejectRoleAssignmentWhenOperatorLacksRequiredPermission() {
+        TestRbacRole reportManagerRole = new TestRbacRole(
+                "R4_DENY",
+                "R_REPORT_MANAGER",
+                "T1",
+                Collections.singletonList("sys:member:*:assign"),
+                Collections.emptyList(),
+                100
+        );
+        List<String> errors = new ArrayList<>();
+        baseService.registerRole(reportManagerRole);
+
+        assertFalse(authorizeService.isRoleAuthorized(user, reportManagerRole, (permission, reason) -> errors.add(reason)),
+                "操作人缺少角色要求的权限时不能分配该角色");
+        assertThrows(IllegalArgumentException.class,
+                () -> authorizeService.checkRoleAssignment(user, user, Collections.singletonList(reportManagerRole)),
+                "统一角色分配校验也应拒绝缺少授权的操作人");
+        assertFalse(errors.isEmpty(), "角色分配授权失败时应提供匹配失败原因");
+    }
+
+    @Test
+    void shouldRejectRoleAssignmentWhenTargetPreConditionOrExclusiveRoleFails() {
+        TestRbacRole financeOnlyRole = new TestRbacRole(
+                "R4_PRE",
+                "R_FINANCE_ONLY",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                100
+        ) {
+            @Override
+            public String getAssignPreCondition() {
+                return "_user.type == 'FIN'";
+            }
+        };
+        TestRbacRole roleA = new TestRbacRole(
+                "R4_EX_A",
+                "R_EX_A",
+                "T1",
+                Collections.emptyList(),
+                Collections.singletonList("R_EX_B"),
+                100
+        );
+        TestRbacRole roleB = new TestRbacRole(
+                "R4_EX_B",
+                "R_EX_B",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                100
+        );
+
+        assertThrows(IllegalArgumentException.class,
+                () -> authorizeService.checkRoleAssignment(user, user, Collections.singletonList(financeOnlyRole)),
+                "目标用户不满足角色分配前置条件时应拒绝");
+        assertThrows(IllegalArgumentException.class,
+                () -> authorizeService.checkRoleAssignment(user, user, Arrays.asList(roleA, roleB)),
+                "最终角色集合包含互斥角色时应拒绝");
+    }
+
+    @Test
+    void shouldRejectSaasRoleForTenantOperatorAndAllowTopSuperAdminRoleAssignment() {
+        TestRbacRole saasAdminRole = new TestRbacRole(
+                "R4_SAAS",
+                RbacRoleInfo.SAAS_ADMIN,
+                null,
+                Collections.emptyList(),
+                Collections.emptyList(),
+                100
+        );
+        TestRbacRole protectedSaRole = new TestRbacRole(
+                "R4_SA",
+                RbacRoleInfo.SA_ROLE,
+                null,
+                Collections.singletonList("sys:*:*:*"),
+                Collections.emptyList(),
+                10000
+        );
+        TestRbacUser topSuperAdmin = new TestRbacUser(
+                "U_ROLE_TOP_SA",
+                RbacUserInfo.TOP_SA_ACCOUNT_NAME,
+                null,
+                "PLATFORM",
+                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                0
+        );
+        StubRbacBaseService scopedService = new StubRbacBaseService(topSuperAdmin);
+        TestAuthorizeService scopedAuthorizeService = new TestAuthorizeService();
+        scopedAuthorizeService.setRbacBaseService(scopedService);
+
+        assertFalse(authorizeService.isRoleAuthorized(user, saasAdminRole, null),
+                "租户用户不能分配公共 SaaS 管理员角色");
+        assertTrue(scopedAuthorizeService.isRoleAuthorized(topSuperAdmin, protectedSaRole, null),
+                "顶级超级管理员应能分配受保护的超级管理员角色");
+        assertDoesNotThrow(() -> scopedAuthorizeService.checkRoleAssignment(topSuperAdmin, topSuperAdmin, Collections.singletonList(protectedSaRole)),
+                "顶级超级管理员的统一角色分配校验应通过");
+    }
+
+    @Test
     void shouldRejectCrossTenantRoleAssignment() {
         // 业务规则：角色分配不允许跨租户。
         TestRbacRole roleInAnotherTenant = new TestRbacRole(
@@ -918,7 +1205,7 @@ class RbacAuthorizeServiceRolePermissionTest {
             MenuItem.OpButton createButton = opButtonList.get(0);
             assertEquals("/api/menu/create", createButton.getApiUrl());
             assertEquals("新增按钮", createButton.getLabel());
-            assertEquals("sys:menu:page:create", createButton.getRequireAuthorization());
+            assertEquals("sys:menu:page:新增", createButton.getRequireAuthorization());
             assertEquals("新增备注", createButton.getRemark());
             assertFalse(createButton.isDisabled());
 
@@ -932,8 +1219,39 @@ class RbacAuthorizeServiceRolePermissionTest {
             MenuItem.OpButton updateButton = opButtonList.get(2);
             assertEquals("/api/menu/update", updateButton.getApiUrl());
             assertEquals("更新", updateButton.getLabel());
-            assertEquals("sys:menu:page:update", updateButton.getRequireAuthorization());
+            assertEquals("sys:menu:page:更新", updateButton.getRequireAuthorization());
             assertFalse(updateButton.isDisabled());
+        } finally {
+            context.close();
+        }
+    }
+
+    @Test
+    void shouldExposeMenuAuthorizationsAndOpButtonsWhenSerialized() {
+        StaticWebApplicationContext context = new StaticWebApplicationContext();
+        context.registerSingleton("menuController", MenuController.class);
+        context.refresh();
+
+        try {
+            List<SimpleMenu> menuList = RbacUtils.getMenuItemByController(
+                    context,
+                    RbacAuthorizeServiceRolePermissionTest.class.getPackageName(),
+                    "菜单入口"
+            );
+
+            JsonNode menuNode = new ObjectMapper().valueToTree(menuList.get(0));
+
+            assertTrue(menuNode.has("requireAuthorizations"), "菜单序列化后必须保留 requireAuthorizations 字段");
+            assertEquals("sys:menu:page:菜单入口", menuNode.path("requireAuthorizations").get(0).asText());
+
+            assertTrue(menuNode.has("opButtonList"), "菜单序列化后必须保留 opButtonList 字段");
+            assertEquals(3, menuNode.path("opButtonList").size());
+            assertEquals("/api/menu/create", menuNode.path("opButtonList").get(0).path("apiUrl").asText());
+            assertEquals("sys:menu:page:新增", menuNode.path("opButtonList").get(0).path("requireAuthorization").asText());
+            assertEquals("/api/menu/delete/{id}", menuNode.path("opButtonList").get(1).path("apiUrl").asText());
+            assertEquals("sys:menu:page:删除", menuNode.path("opButtonList").get(1).path("requireAuthorization").asText());
+            assertEquals("/api/menu/update", menuNode.path("opButtonList").get(2).path("apiUrl").asText());
+            assertEquals("sys:menu:page:更新", menuNode.path("opButtonList").get(2).path("requireAuthorization").asText());
         } finally {
             context.close();
         }
@@ -2409,7 +2727,6 @@ class RbacAuthorizeServiceRolePermissionTest {
         @PostMapping("/create")
         @CRUD.Op(label = "新增按钮", desc = "新增备注", level = CRUD.Level.Primary)
         @Operation(summary = "新增", description = "创建记录")
-        @ResAuthorize(action = "create")
         public void create() {
         }
 
@@ -2422,13 +2739,48 @@ class RbacAuthorizeServiceRolePermissionTest {
         @PostMapping(path = "update/")
         @CRUD.Op
         @Operation(summary = "更新", description = "更新记录")
-        @ResAuthorize(action = "update")
         public void update() {
         }
 
         @PostMapping("/export")
         @Operation(summary = "导出", description = "不应生成按钮")
         public void export() {
+        }
+    }
+
+    @Controller
+    @Tag(name = "方法权限", description = "方法权限测试")
+    @RequestMapping("/api/method")
+    @ResAuthorize(domain = "sys", type = "method", res = "case")
+    static class MethodAccessController {
+
+        @GetMapping("/view")
+        @Operation(summary = "查看", description = "查看记录")
+        public void view() {
+        }
+
+        @PostMapping("/approve")
+        @Operation(summary = "审批", description = "审批记录")
+        @ResAuthorize(action = "approve")
+        public void approve() {
+        }
+
+        @PostMapping("/authenticated")
+        @Operation(summary = "登录可访问", description = "只要求登录")
+        @ResAuthorize(onlyRequireAuthenticated = true)
+        public void authenticatedOnly() {
+        }
+
+        @PostMapping("/ignored")
+        @Operation(summary = "忽略权限", description = "忽略授权")
+        @ResAuthorize(ignored = true)
+        public void ignored() {
+        }
+
+        @PostMapping("/secret")
+        @Operation(summary = "secret", description = "高密级操作")
+        @ResAuthorize(action = "secret", confidentialLevel = 6000)
+        public void secret() {
         }
     }
 
@@ -2486,7 +2838,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         return count;
     }
 
-    private static class TestAuthorizeService extends AbstractRbacAuthorizeService {
+    private static class TestAuthorizeService extends AbstractRbacAuthorizeService implements RbacMethodService {
         private final Map<String, ResConditionAction> actionMap = new LinkedHashMap<>();
 
         TestAuthorizeService addAction(String permission, ResConditionAction action) {
@@ -2512,6 +2864,12 @@ class RbacAuthorizeServiceRolePermissionTest {
                 }
             });
             return result;
+        }
+
+        @Override
+        public boolean canAccess(Serializable principal, Object beanOrClass, Method method) {
+            ResAuthorize resAuthorize = RbacUtils.getMethodResAuthorize(beanOrClass, method);
+            return resAuthorize == null || isAuthorized(principal, resAuthorize);
         }
     }
 

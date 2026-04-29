@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.levin.commons.dao.domain.ConfidentialObject;
 import com.levin.commons.dao.domain.ProxyWrapperObject;
 import com.levin.commons.utils.ExpressionUtils;
+import com.levin.commons.utils.PathPatternUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.BeanUtils;
@@ -13,9 +14,6 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.http.server.PathContainer;
-import org.springframework.web.util.pattern.PathPattern;
-import org.springframework.web.util.pattern.PathPatternParser;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -49,10 +47,6 @@ public interface RbacBaseService extends RbacBaseUserService {
     Map<String, Expression> ORG_SCOPE_SPEL_CACHE = new ConcurrentReferenceHashMap<>();
 
     SpelExpressionParser ORG_SCOPE_SPEL_PARSER = new SpelExpressionParser();
-
-    // 组织路径表达式和租户路径表达式统一使用 Spring PathPattern，而不是 AntPathMatcher。
-    Map<String, PathPattern> ORG_SCOPE_PATH_PATTERN_CACHE = new ConcurrentReferenceHashMap<>();
-    PathPatternParser ORG_SCOPE_PATH_PATTERN_PARSER = new PathPatternParser();
 
     /**
      * 用户类型
@@ -1693,12 +1687,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         if (StrUtil.isBlank(expression) || StrUtil.isBlank(tenantId)) {
             return false;
         }
-        return matchPathPatternExpression(normalizeTenantPath(expression), normalizeTenantPath(tenantId));
-    }
-
-    private String normalizeTenantPath(String value) {
-        final String path = StrUtil.nullToEmpty(value).trim();
-        return path.startsWith("/") ? path : "/" + path;
+        return PathPatternUtils.matchName(expression, tenantId);
     }
 
     private String resolveDefaultTenantId(RbacUserInfo user) {
@@ -1777,30 +1766,7 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
     private boolean matchPathPatternExpression(String expression, String relativePath) {
-
-        if (StrUtil.isBlank(expression) || StrUtil.isBlank(relativePath)) {
-            return false;
-        }
-
-        if (matchPathPattern(expression, relativePath)) {
-            return true;
-        }
-
-        if ("/".equals(relativePath)) {
-            return false;
-        }
-
-        final String alternatePath = relativePath.endsWith("/")
-                ? StrUtil.removeSuffix(relativePath, "/")
-                : relativePath + "/";
-
-        return matchPathPattern(expression, alternatePath);
-    }
-
-    private boolean matchPathPattern(String expression, String path) {
-        final PathPattern pathPattern = ORG_SCOPE_PATH_PATTERN_CACHE.computeIfAbsent(expression,
-                ORG_SCOPE_PATH_PATTERN_PARSER::parse);
-        return pathPattern.matches(PathContainer.parsePath(path));
+        return PathPatternUtils.matchPathWithOptionalTrailingSlash(expression, relativePath);
     }
 
     private int getRelativeDepth(String relativePath) {
