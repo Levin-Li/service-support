@@ -35,11 +35,40 @@ class FSMTest {
     }
 
     @Test
+    void shouldFilterAvailableEventNamesByExtraPredicates() {
+        assertEquals(new LinkedHashSet<>(Collections.singletonList("archive")),
+                FSM.getEventNames(TicketState.PendingReview, transition -> transition.to() == TicketState.Archived),
+                "附加条件满足时才应返回当前可触发事件");
+        assertTrue(FSM.getEventNames(TicketState.PendingReview, transition -> transition.to() == TicketState.Open).isEmpty(),
+                "附加条件不满足时不应返回事件");
+    }
+
+    @Test
     void shouldExposeAllEventsFromStateContract() {
         assertEquals(new LinkedHashSet<>(Arrays.asList("create", "pay", "close")), eventNames(OrderState.Created.allEvents()),
                 "State.allEvents 默认应从所有流转规则推导事件集合");
         assertEquals(new LinkedHashSet<>(Arrays.asList("create", "pay", "close")), eventNames(FSM.getAllEvents(OrderState.Created)),
                 "FSM.getAllEvents 应返回 State 约定的所有事件集合");
+    }
+
+    @Test
+    void shouldUseStateAllEventsAsCatalogWhenGettingAvailableEventNames() {
+        DocumentState draft = new DocumentState("draft");
+        DocumentState reviewed = new DocumentState("reviewed");
+        DocumentState published = new DocumentState("published");
+        List<DocumentState> states = Arrays.asList(draft, reviewed, published);
+
+        draft.setAllStates(states);
+        reviewed.setAllStates(states);
+        published.setAllStates(states);
+        reviewed.setTransitions(Collections.singletonList(FSM.transition("review", Collections.singletonList("draft"), reviewed)));
+        published.setTransitions(Collections.singletonList(FSM.transition("publish", Collections.singletonList("reviewed"), published)));
+        reviewed.setAllEvents(Collections.singletonList(FSM.Event.of("review")));
+
+        assertTrue(FSM.canFireEvent(reviewed, "publish"),
+                "流转规则本身仍允许 reviewed 通过 publish 进入 published");
+        assertTrue(FSM.getEventNames(reviewed).isEmpty(),
+                "getEventNames 应以 State.allEvents 作为事件目录，不暴露未声明事件");
     }
 
     @Test
@@ -135,6 +164,7 @@ class FSMTest {
     static class DocumentState implements FSM.State<DocumentState> {
         private final String name;
         private Collection<DocumentState> allStates = Collections.singletonList(this);
+        private Collection<? extends FSM.Event> allEvents;
         private Collection<? extends FSM.Transition> transitions = Collections.emptyList();
 
         DocumentState(String name) {
@@ -147,6 +177,10 @@ class FSMTest {
 
         void setTransitions(Collection<? extends FSM.Transition> transitions) {
             this.transitions = transitions;
+        }
+
+        void setAllEvents(Collection<? extends FSM.Event> allEvents) {
+            this.allEvents = allEvents;
         }
 
         @Override
@@ -162,6 +196,11 @@ class FSMTest {
         @Override
         public Collection<? extends DocumentState> allStates() {
             return allStates;
+        }
+
+        @Override
+        public Collection<? extends FSM.Event> allEvents() {
+            return allEvents == null ? FSM.State.super.allEvents() : allEvents;
         }
 
         @Override

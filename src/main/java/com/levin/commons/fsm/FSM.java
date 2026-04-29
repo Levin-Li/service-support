@@ -231,19 +231,37 @@ public interface FSM {
     }
 
     @Schema(title = "获取当前状态可以触发的事件", description = "")
-    static <S extends State<S>> Collection<String> getEventNames(S state) {
+    static <S extends State<S>> Collection<String> getEventNames(S state, @Nullable Predicate<TransitionX<S>>... exTransitPredicates) {
 
         if (state == null) {
             return Collections.emptyList();
         }
 
-        final Collection<String> result = new java.util.LinkedHashSet<>();
+        final Collection<? extends Event> allEvents = state.allEvents();
+        if (allEvents == null || allEvents.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        final Collection<String> fireableEventNames = new java.util.LinkedHashSet<>();
 
         getAllTransitions(state).stream()
                 .filter(transition -> isMatchedFrom(state, transition))
+                .filter(transition -> isMatchedExPredicates(transition, exTransitPredicates))
                 .map(Transition::event)
                 .filter(Objects::nonNull)
-                .forEach(result::add);
+                .forEach(fireableEventNames::add);
+
+        if (fireableEventNames.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        final Collection<String> result = new java.util.LinkedHashSet<>();
+
+        for (Event event : allEvents) {
+            if (event != null && fireableEventNames.contains(event.name())) {
+                result.add(event.name());
+            }
+        }
 
         return result;
     }
