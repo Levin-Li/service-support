@@ -1,9 +1,14 @@
 package com.levin.commons.fsm;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.levin.commons.service.domain.Castable;
 import com.levin.commons.utils.PathPatternUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,8 +42,16 @@ import java.util.function.Predicate;
         "Transition 流转规则（A 状态 + 某事件 → 变成 B 状态）;")
 public interface FSM {
 
+    @JsonAutoDetect(
+            // 只序列化字段
+            fieldVisibility = JsonAutoDetect.Visibility.ANY,
+            // 忽略所有 getter
+            getterVisibility = JsonAutoDetect.Visibility.NONE,
+            // 忽略 isXXX
+            isGetterVisibility = JsonAutoDetect.Visibility.NONE
+    )
     @Schema(title = "事件")
-    interface Event {
+    interface Event extends Serializable {
 
         @Schema(title = "事件名称")
         String name();
@@ -50,7 +63,7 @@ public interface FSM {
     }
 
     @Schema(title = "状态", description = "枚举类实现这个接口")
-    interface State<S extends State<S>> {
+    interface State<S extends State<S>> extends Serializable {
 
         @Schema(title = "状态名称")
         String name();
@@ -67,30 +80,60 @@ public interface FSM {
             }
             return Collections.singletonList((S) this);
         }
-
-        @Schema(title = "所有事件集合", description = "所有事件集合")
-        default Collection<? extends Event> allEvents() {
-            return Collections.emptyList();
-        }
-
     }
 
     @Schema(title = "流转规则")
-    interface Transition {
+    @JsonAutoDetect(
+            // 只序列化字段
+            fieldVisibility = JsonAutoDetect.Visibility.ANY,
+            // 忽略所有 getter
+            getterVisibility = JsonAutoDetect.Visibility.NONE,
+            // 忽略 isXXX
+            isGetterVisibility = JsonAutoDetect.Visibility.NONE
+    )
+    interface Transition extends Castable, Serializable {
 
         @Schema(title = "事件名称")
-        String eventName();
+        String event();
 
         @Schema(title = "源状态集合", description = "允许从这些状态流转到当前态, 从业务上更好理解,如为null或是空,则表示无限制,如果集合中的元素为null也是有意义,表示可以从空状态扭转到当前态;支持*?通配符")
         default Collection<String> from() {
             return Collections.emptyList();
         }
+
+        static Transition of(String event, String... from) {
+            return new SimpleTransition().event(event).form(Arrays.asList(from));
+        }
+
+        static Transition of(String event, Collection<String> from) {
+            return new SimpleTransition().event(event).form(from);
+        }
+
+        @Data
+        @Accessors(chain = true, fluent = true)
+        class SimpleTransition implements Transition {
+
+            String event;
+
+            Collection<String> form;
+        }
     }
 
     @Schema(title = "流转规则", description = "带目标状态的流转规则")
     interface TransitionX<S extends State<S>> extends Transition {
+
         @Schema(title = "目标状态名称")
         S to();
+
+        static <S extends State<S>> TransitionX<S> of(String event, Collection<String> from, S to) {
+            return new SimpleTransitionX().to(to).event(event).form(from).cast();
+        }
+
+        @Data
+        @Accessors(chain = true, fluent = true)
+        class SimpleTransitionX<S extends State<S>> extends SimpleTransition implements TransitionX<S> {
+            S to;
+        }
     }
 
     @Schema(title = "所有规则集合", description = "所有规则集合")
@@ -161,7 +204,7 @@ public interface FSM {
 
         getAllTransitions(state).stream()
                 .filter(transition -> isMatchedFrom(state, transition))
-                .map(Transition::eventName)
+                .map(Transition::event)
                 .filter(Objects::nonNull)
                 .forEach(result::add);
 
@@ -178,32 +221,13 @@ public interface FSM {
         final Collection<String> result = new java.util.LinkedHashSet<>();
 
         getAllTransitions(state).stream()
-                .map(Transition::eventName)
+                .map(Transition::event)
                 .filter(Objects::nonNull)
                 .forEach(result::add);
-
 
         return result;
     }
 
-    static <S extends State<S>> TransitionX<S> transition(String eventName, Collection<String> from, S to) {
-        return new TransitionX<>() {
-            @Override
-            public String eventName() {
-                return eventName;
-            }
-
-            @Override
-            public Collection<String> from() {
-                return from == null ? Collections.emptyList() : from;
-            }
-
-            @Override
-            public S to() {
-                return to;
-            }
-        };
-    }
 
     private static <S extends State<S>> TransitionX<S> toTransitionX(S targetState, Transition transition) {
 
@@ -211,12 +235,12 @@ public interface FSM {
             return (TransitionX<S>) transition;
         }
 
-        return transition(transition.eventName(), transition.from(), targetState);
+        return TransitionX.of(transition.event(), transition.from(), targetState);
     }
 
     private static <S extends State<S>> boolean isMatched(S sourceState, String eventName, TransitionX<S> transition, Predicate<TransitionX<S>>... exTransitPredicates) {
         return transition != null
-                && Objects.equals(transition.eventName(), eventName)
+                && Objects.equals(transition.event(), eventName)
                 && isMatchedFrom(sourceState, transition)
                 && isMatchedExPredicates(transition, exTransitPredicates);
     }
