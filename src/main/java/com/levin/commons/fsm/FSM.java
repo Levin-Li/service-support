@@ -6,6 +6,7 @@ import com.levin.commons.utils.PathPatternUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -60,6 +61,23 @@ public interface FSM {
         default String description() {
             return "";
         }
+
+        static Event of(String name) {
+            return new SimpleEvent().name(name);
+        }
+
+        static Event of(String name, String description) {
+            return new SimpleEvent().name(name).description(description);
+        }
+
+        @Data
+        @Accessors(chain = true, fluent = true)
+        class SimpleEvent implements Event {
+
+            String name;
+
+            String description = "";
+        }
     }
 
     @Schema(title = "状态", description = "枚举类实现这个接口")
@@ -79,6 +97,20 @@ public interface FSM {
                 return Arrays.asList(((Class<S>) ((Enum<?>) this).getDeclaringClass()).getEnumConstants());
             }
             return Collections.singletonList((S) this);
+        }
+
+        @Schema(title = "所有事件集合", description = "默认从所有流转规则推导事件名；需要事件描述或更高性能时可由实现类覆盖")
+        default Collection<? extends Event> allEvents() {
+            final Collection<String> eventNames = FSM.getAllEventNames((S) this);
+            if (eventNames.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            final Collection<Event> events = new ArrayList<>(eventNames.size());
+            for (String eventName : eventNames) {
+                events.add(Event.of(eventName));
+            }
+            return events;
         }
     }
 
@@ -102,11 +134,11 @@ public interface FSM {
         }
 
         static Transition of(String event, String... from) {
-            return new SimpleTransition().event(event).form(Arrays.asList(from));
+            return new SimpleTransition().event(event).from(Arrays.asList(from));
         }
 
         static Transition of(String event, Collection<String> from) {
-            return new SimpleTransition().event(event).form(from);
+            return new SimpleTransition().event(event).from(from);
         }
 
         @Data
@@ -115,7 +147,7 @@ public interface FSM {
 
             String event;
 
-            Collection<String> form;
+            Collection<String> from;
         }
     }
 
@@ -126,14 +158,19 @@ public interface FSM {
         S to();
 
         static <S extends State<S>> TransitionX<S> of(String event, Collection<String> from, S to) {
-            return new SimpleTransitionX().to(to).event(event).form(from).cast();
+            return new SimpleTransitionX().to(to).event(event).from(from).cast();
         }
 
         @Data
+        @EqualsAndHashCode(callSuper = true)
         @Accessors(chain = true, fluent = true)
         class SimpleTransitionX<S extends State<S>> extends SimpleTransition implements TransitionX<S> {
             S to;
         }
+    }
+
+    static <S extends State<S>> TransitionX<S> transition(String event, Collection<String> from, S to) {
+        return TransitionX.of(event, from, to);
     }
 
     @Schema(title = "所有规则集合", description = "所有规则集合")
@@ -226,6 +263,17 @@ public interface FSM {
                 .forEach(result::add);
 
         return result;
+    }
+
+    @Schema(title = "获取所有事件", description = "获取状态机约定的所有事件")
+    static <S extends State<S>> Collection<? extends Event> getAllEvents(S state) {
+
+        if (state == null) {
+            return Collections.emptyList();
+        }
+
+        final Collection<? extends Event> events = state.allEvents();
+        return events == null ? Collections.emptyList() : events;
     }
 
 

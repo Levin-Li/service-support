@@ -35,6 +35,14 @@ class FSMTest {
     }
 
     @Test
+    void shouldExposeAllEventsFromStateContract() {
+        assertEquals(new LinkedHashSet<>(Arrays.asList("create", "pay", "close")), eventNames(OrderState.Created.allEvents()),
+                "State.allEvents 默认应从所有流转规则推导事件集合");
+        assertEquals(new LinkedHashSet<>(Arrays.asList("create", "pay", "close")), eventNames(FSM.getAllEvents(OrderState.Created)),
+                "FSM.getAllEvents 应返回 State 约定的所有事件集合");
+    }
+
+    @Test
     void shouldSupportNonEnumStateObjects() {
         DocumentState draft = new DocumentState("draft");
         DocumentState reviewed = new DocumentState("reviewed");
@@ -61,6 +69,8 @@ class FSMTest {
                 "from 为空时，应允许从任意状态进入目标状态");
         assertTrue(FSM.canTransit(TicketState.PendingReview, TicketState.Archived, "archive"),
                 "? 通配符应能匹配单个字符状态名");
+        assertFalse(FSM.canTransit(TicketState.Open, TicketState.Archived, "archive"),
+                "from 条件不匹配时不应允许进入目标状态");
         assertTrue(FSM.canTransit(TicketState.PendingReview, TicketState.Escalated, "escalate"),
                 "* 通配符应能匹配状态名前缀");
         assertTrue(FSM.canTransit(TicketState.PendingReview, TicketState.Archived, "archive",
@@ -170,5 +180,13 @@ class FSMTest {
         public int hashCode() {
             return Objects.hash(name);
         }
+    }
+
+    private static Collection<String> eventNames(Collection<? extends FSM.Event> events) {
+        Collection<String> eventNames = new LinkedHashSet<>();
+        for (FSM.Event event : events) {
+            eventNames.add(event.name());
+        }
+        return eventNames;
     }
 }
