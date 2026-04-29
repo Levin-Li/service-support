@@ -20,55 +20,24 @@ class FSMTest {
                 "触发 pay 应返回 Paid");
         assertFalse(FSM.canTransit(OrderState.Closed, OrderState.Paid, "pay"),
                 "Closed 不应再通过 pay 回到 Paid");
-        assertEquals(new LinkedHashSet<>(Arrays.asList("pay", "close")), FSM.getEventNames(OrderState.Created),
+        assertEquals(new LinkedHashSet<>(Arrays.asList("pay", "close")), FSM.getEvents(OrderState.Created),
                 "Created 当前可触发 pay 和 close");
-        assertEquals(new LinkedHashSet<>(Arrays.asList("create", "pay", "close")), FSM.getAllEventNames(OrderState.Created),
+        assertEquals(new LinkedHashSet<>(Arrays.asList("create", "pay", "close")), FSM.getAllEvents(OrderState.Created),
                 "状态机全部事件应去重返回");
     }
 
     @Test
     void shouldGetAvailableEventNamesFromSingleEnumValue() {
-        assertEquals(new LinkedHashSet<>(Collections.singletonList("close")), FSM.getEventNames(OrderState.Paid),
+        assertEquals(new LinkedHashSet<>(Collections.singletonList("close")), FSM.getEvents(OrderState.Paid),
                 "Paid 这个枚举值当前只能触发 close");
         assertTrue(FSM.canFireEvent(OrderState.Paid, "close"));
         assertFalse(FSM.canFireEvent(OrderState.Paid, "pay"));
     }
 
     @Test
-    void shouldFilterAvailableEventNamesByExtraPredicates() {
-        assertEquals(new LinkedHashSet<>(Collections.singletonList("archive")),
-                FSM.getEventNames(TicketState.PendingReview, transition -> transition.to() == TicketState.Archived),
-                "附加条件满足时才应返回当前可触发事件");
-        assertTrue(FSM.getEventNames(TicketState.PendingReview, transition -> transition.to() == TicketState.Open).isEmpty(),
-                "附加条件不满足时不应返回事件");
-    }
-
-    @Test
-    void shouldExposeAllEventsFromStateContract() {
-        assertEquals(new LinkedHashSet<>(Arrays.asList("create", "pay", "close")), eventNames(OrderState.Created.allEvents()),
-                "State.allEvents 默认应从所有流转规则推导事件集合");
-        assertEquals(new LinkedHashSet<>(Arrays.asList("create", "pay", "close")), eventNames(FSM.getAllEvents(OrderState.Created)),
-                "FSM.getAllEvents 应返回 State 约定的所有事件集合");
-    }
-
-    @Test
-    void shouldUseStateAllEventsAsCatalogWhenGettingAvailableEventNames() {
-        DocumentState draft = new DocumentState("draft");
-        DocumentState reviewed = new DocumentState("reviewed");
-        DocumentState published = new DocumentState("published");
-        List<DocumentState> states = Arrays.asList(draft, reviewed, published);
-
-        draft.setAllStates(states);
-        reviewed.setAllStates(states);
-        published.setAllStates(states);
-        reviewed.setTransitions(Collections.singletonList(FSM.transition("review", Collections.singletonList("draft"), reviewed)));
-        published.setTransitions(Collections.singletonList(FSM.transition("publish", Collections.singletonList("reviewed"), published)));
-        reviewed.setAllEvents(Collections.singletonList(FSM.Event.of("review")));
-
-        assertTrue(FSM.canFireEvent(reviewed, "publish"),
-                "流转规则本身仍允许 reviewed 通过 publish 进入 published");
-        assertTrue(FSM.getEventNames(reviewed).isEmpty(),
-                "getEventNames 应以 State.allEvents 作为事件目录，不暴露未声明事件");
+    void shouldGetAllEventsFromTransitions() {
+        assertEquals(new LinkedHashSet<>(Arrays.asList("create", "pay", "close")), FSM.getAllEvents(OrderState.Created),
+                "FSM.getAllEvents 应从所有流转规则推导事件集合");
     }
 
     @Test
@@ -81,8 +50,8 @@ class FSMTest {
         draft.setAllStates(states);
         reviewed.setAllStates(states);
         published.setAllStates(states);
-        reviewed.setTransitions(Collections.singletonList(FSM.transition("review", Collections.singletonList("draft"), reviewed)));
-        published.setTransitions(Collections.singletonList(FSM.transition("publish", Collections.singletonList("reviewed"), published)));
+        reviewed.setTransitions(Collections.singletonList(FSM.TransitionX.of("review", Collections.singletonList("draft"), reviewed)));
+        published.setTransitions(Collections.singletonList(FSM.TransitionX.of("publish", Collections.singletonList("reviewed"), published)));
 
         assertTrue(FSM.canTransit(draft, reviewed, "review"));
         assertEquals(reviewed, FSM.fireEvent(draft, "review"));
@@ -103,9 +72,9 @@ class FSMTest {
         assertTrue(FSM.canTransit(TicketState.PendingReview, TicketState.Escalated, "escalate"),
                 "* 通配符应能匹配状态名前缀");
         assertTrue(FSM.canTransit(TicketState.PendingReview, TicketState.Archived, "archive",
-                transition -> transition.to() == TicketState.Archived));
+                transition -> transition.toState() == TicketState.Archived));
         assertFalse(FSM.canTransit(TicketState.PendingReview, TicketState.Archived, "archive",
-                transition -> transition.to() == TicketState.Done),
+                transition -> transition.toState() == TicketState.Done),
                 "额外 Predicate 不满足时应拒绝流转");
     }
 
@@ -113,21 +82,21 @@ class FSMTest {
         Created {
             @Override
             public Collection<? extends FSM.Transition> transitions() {
-                return Collections.singletonList(FSM.transition("create", Collections.singletonList((String) null), Created));
+                return Collections.singletonList(FSM.TransitionX.of("create", Collections.singletonList((String) null), Created));
             }
         },
         Paid {
             @Override
             public Collection<? extends FSM.Transition> transitions() {
-                return Collections.singletonList(FSM.transition("pay", Collections.singletonList("Created"), Paid));
+                return Collections.singletonList(FSM.TransitionX.of("pay", Collections.singletonList("Created"), Paid));
             }
         },
         Closed {
             @Override
             public Collection<? extends FSM.Transition> transitions() {
                 return Arrays.asList(
-                        FSM.transition("close", Collections.singletonList("Created"), Closed),
-                        FSM.transition("close", Collections.singletonList("Paid"), Closed)
+                        FSM.TransitionX.of("close", Collections.singletonList("Created"), Closed),
+                        FSM.TransitionX.of("close", Collections.singletonList("Paid"), Closed)
                 );
             }
         }
@@ -137,26 +106,31 @@ class FSMTest {
         Open {
             @Override
             public Collection<? extends FSM.Transition> transitions() {
-                return Collections.singletonList(FSM.transition("create", Collections.singletonList((String) null), Open));
+                return Collections.singletonList(FSM.TransitionX.of("create", Collections.singletonList((String) null), Open));
             }
         },
-        PendingReview,
+        PendingReview {
+            @Override
+            public Collection<? extends FSM.Transition> transitions() {
+                return Collections.emptyList();
+            }
+        },
         Done {
             @Override
             public Collection<? extends FSM.Transition> transitions() {
-                return Collections.singletonList(FSM.transition("finish", Collections.emptyList(), Done));
+                return Collections.singletonList(FSM.TransitionX.of("finish", Collections.emptyList(), Done));
             }
         },
         Escalated {
             @Override
             public Collection<? extends FSM.Transition> transitions() {
-                return Collections.singletonList(FSM.transition("escalate", Collections.singletonList("Pend*"), Escalated));
+                return Collections.singletonList(FSM.TransitionX.of("escalate", Collections.singletonList("Pend*"), Escalated));
             }
         },
         Archived {
             @Override
             public Collection<? extends FSM.Transition> transitions() {
-                return Collections.singletonList(FSM.transition("archive", Collections.singletonList("PendingRevie?"), Archived));
+                return Collections.singletonList(FSM.TransitionX.of("archive", Collections.singletonList("PendingRevie?"), Archived));
             }
         }
     }
@@ -164,7 +138,6 @@ class FSMTest {
     static class DocumentState implements FSM.State<DocumentState> {
         private final String name;
         private Collection<DocumentState> allStates = Collections.singletonList(this);
-        private Collection<? extends FSM.Event> allEvents;
         private Collection<? extends FSM.Transition> transitions = Collections.emptyList();
 
         DocumentState(String name) {
@@ -177,10 +150,6 @@ class FSMTest {
 
         void setTransitions(Collection<? extends FSM.Transition> transitions) {
             this.transitions = transitions;
-        }
-
-        void setAllEvents(Collection<? extends FSM.Event> allEvents) {
-            this.allEvents = allEvents;
         }
 
         @Override
@@ -196,11 +165,6 @@ class FSMTest {
         @Override
         public Collection<? extends DocumentState> allStates() {
             return allStates;
-        }
-
-        @Override
-        public Collection<? extends FSM.Event> allEvents() {
-            return allEvents == null ? FSM.State.super.allEvents() : allEvents;
         }
 
         @Override
@@ -221,11 +185,4 @@ class FSMTest {
         }
     }
 
-    private static Collection<String> eventNames(Collection<? extends FSM.Event> events) {
-        Collection<String> eventNames = new LinkedHashSet<>();
-        for (FSM.Event event : events) {
-            eventNames.add(event.name());
-        }
-        return eventNames;
-    }
 }

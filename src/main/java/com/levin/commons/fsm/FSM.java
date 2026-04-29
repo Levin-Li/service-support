@@ -87,9 +87,7 @@ public interface FSM {
         String name();
 
         @Schema(title = "流转规则集合", description = "进入当前状态的流转规则集合")
-        default Collection<? extends Transition> transitions() {
-            return Collections.emptyList();
-        }
+        Collection<? extends Transition> transitions();
 
         @Schema(title = "所有状态集合", description = "状态集合")
         default Collection<? extends S> allStates() {
@@ -97,20 +95,6 @@ public interface FSM {
                 return Arrays.asList(((Class<S>) ((Enum<?>) this).getDeclaringClass()).getEnumConstants());
             }
             return Collections.singletonList((S) this);
-        }
-
-        @Schema(title = "所有事件集合", description = "默认从所有流转规则推导事件名；需要事件描述或更高性能时可由实现类覆盖")
-        default Collection<? extends Event> allEvents() {
-            final Collection<String> eventNames = FSM.getAllEventNames((S) this);
-            if (eventNames.isEmpty()) {
-                return Collections.emptyList();
-            }
-
-            final Collection<Event> events = new ArrayList<>(eventNames.size());
-            for (String eventName : eventNames) {
-                events.add(Event.of(eventName));
-            }
-            return events;
         }
     }
 
@@ -129,16 +113,16 @@ public interface FSM {
         String event();
 
         @Schema(title = "源状态集合", description = "允许从这些状态流转到当前态, 从业务上更好理解,如为null或是空,则表示无限制,如果集合中的元素为null也是有意义,表示可以从空状态扭转到当前态;支持*?通配符")
-        default Collection<String> from() {
+        default Collection<String> fromStates() {
             return Collections.emptyList();
         }
 
-        static Transition of(String event, String... from) {
-            return new SimpleTransition().event(event).from(Arrays.asList(from));
+        static Transition of(String event, String... fromStates) {
+            return new SimpleTransition().event(event).fromStates(Arrays.asList(fromStates));
         }
 
-        static Transition of(String event, Collection<String> from) {
-            return new SimpleTransition().event(event).from(from);
+        static Transition of(String event, Collection<String> fromStates) {
+            return new SimpleTransition().event(event).fromStates(fromStates);
         }
 
         @Data
@@ -147,7 +131,7 @@ public interface FSM {
 
             String event;
 
-            Collection<String> from;
+            Collection<String> fromStates;
         }
     }
 
@@ -155,23 +139,22 @@ public interface FSM {
     interface TransitionX<S extends State<S>> extends Transition {
 
         @Schema(title = "目标状态名称")
-        S to();
+        S toState();
 
-        static <S extends State<S>> TransitionX<S> of(String event, Collection<String> from, S to) {
-            return new SimpleTransitionX().to(to).event(event).from(from).cast();
+        static <S extends State<S>> TransitionX<S> of(String event, Collection<String> fromStates, S toState) {
+            return new SimpleTransitionX().toState(toState).event(event).fromStates(fromStates).cast();
         }
 
         @Data
         @EqualsAndHashCode(callSuper = true)
         @Accessors(chain = true, fluent = true)
         class SimpleTransitionX<S extends State<S>> extends SimpleTransition implements TransitionX<S> {
-            S to;
+            S toState;
         }
     }
 
-    static <S extends State<S>> TransitionX<S> transition(String event, Collection<String> from, S to) {
-        return TransitionX.of(event, from, to);
-    }
+    /// ///////////////////////////////////////////////////////////////////////////////////////
+
 
     @Schema(title = "所有规则集合", description = "所有规则集合")
     static <S extends State<S>> Collection<? extends TransitionX<S>> getAllTransitions(S state) {
@@ -181,12 +164,15 @@ public interface FSM {
         }
 
         final Collection<? extends S> allStates = state.allStates();
+
         if (allStates == null || allStates.isEmpty()) {
             return Collections.emptyList();
         }
 
         final Collection<TransitionX<S>> result = new ArrayList<>();
+
         for (S targetState : allStates) {
+
             if (targetState == null || targetState.transitions() == null) {
                 continue;
             }
@@ -206,7 +192,7 @@ public interface FSM {
 
         return targetState != null
                 && getAllTransitions(targetState).stream()
-                .filter(transition -> Objects.equals(transition.to(), targetState))
+                .filter(transition -> Objects.equals(transition.toState(), targetState))
                 .anyMatch(transition -> isMatched(sourceState, eventName, transition, exTransitPredicates));
 
     }
@@ -225,49 +211,31 @@ public interface FSM {
         return state == null ? null :
                 getAllTransitions(state).stream()
                         .filter(transition -> isMatched(state, eventName, transition, exTransitPredicates))
-                        .map(TransitionX::to)
+                        .map(TransitionX::toState)
                         .findFirst()
                         .orElse(null);
     }
 
     @Schema(title = "获取当前状态可以触发的事件", description = "")
-    static <S extends State<S>> Collection<String> getEventNames(S state, @Nullable Predicate<TransitionX<S>>... exTransitPredicates) {
+    static <S extends State<S>> Collection<String> getEvents(S state) {
 
         if (state == null) {
             return Collections.emptyList();
         }
 
-        final Collection<? extends Event> allEvents = state.allEvents();
-        if (allEvents == null || allEvents.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        final Collection<String> fireableEventNames = new java.util.LinkedHashSet<>();
+        final Collection<String> result = new java.util.LinkedHashSet<>();
 
         getAllTransitions(state).stream()
                 .filter(transition -> isMatchedFrom(state, transition))
-                .filter(transition -> isMatchedExPredicates(transition, exTransitPredicates))
                 .map(Transition::event)
                 .filter(Objects::nonNull)
-                .forEach(fireableEventNames::add);
-
-        if (fireableEventNames.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        final Collection<String> result = new java.util.LinkedHashSet<>();
-
-        for (Event event : allEvents) {
-            if (event != null && fireableEventNames.contains(event.name())) {
-                result.add(event.name());
-            }
-        }
+                .forEach(result::add);
 
         return result;
     }
 
     @Schema(title = "获取所有可以触发的事件", description = "")
-    static <S extends State<S>> Collection<String> getAllEventNames(S state) {
+    static <S extends State<S>> Collection<String> getAllEvents(S state) {
 
         if (state == null) {
             return Collections.emptyList();
@@ -283,16 +251,7 @@ public interface FSM {
         return result;
     }
 
-    @Schema(title = "获取所有事件", description = "获取状态机约定的所有事件")
-    static <S extends State<S>> Collection<? extends Event> getAllEvents(S state) {
-
-        if (state == null) {
-            return Collections.emptyList();
-        }
-
-        final Collection<? extends Event> events = state.allEvents();
-        return events == null ? Collections.emptyList() : events;
-    }
+    /// ///////////////////////////////////////////////////////////////////////////////////////
 
 
     private static <S extends State<S>> TransitionX<S> toTransitionX(S targetState, Transition transition) {
@@ -301,7 +260,7 @@ public interface FSM {
             return (TransitionX<S>) transition;
         }
 
-        return TransitionX.of(transition.event(), transition.from(), targetState);
+        return TransitionX.of(transition.event(), transition.fromStates(), targetState);
     }
 
     private static <S extends State<S>> boolean isMatched(S sourceState, String eventName, TransitionX<S> transition, Predicate<TransitionX<S>>... exTransitPredicates) {
@@ -317,7 +276,7 @@ public interface FSM {
             return false;
         }
 
-        final Collection<String> from = transition.from();
+        final Collection<String> from = transition.fromStates();
 
         if (from == null || from.isEmpty()) {
             return true;
