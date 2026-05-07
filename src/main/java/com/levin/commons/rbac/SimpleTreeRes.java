@@ -25,12 +25,4 @@ public class SimpleTreeRes extends SimpleRes
     @Schema(title = "下级节点")
     List<Res> children;
 
-    @Schema(title = "是否有子节点")
-    boolean hasChildren;
-
-    @Override
-    public Boolean hasChildren() {
-        return hasChildren;
-    }
-
 }

@@ -10,11 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 
 
@@ -133,6 +129,34 @@ public interface FSM {
 
             Collection<String> fromStates;
         }
+
+        class TransitionBuilder {
+
+            List<Transition> transitions = new ArrayList<>();
+
+            public TransitionBuilder transition(String event, String... fromStates) {
+                transitions.add(Transition.of(event, fromStates));
+                return this;
+            }
+
+            public TransitionBuilder transition(String event, Collection<String> fromStates) {
+                transitions.add(Transition.of(event, fromStates));
+                return this;
+            }
+
+            public List<Transition> build() {
+                return transitions;
+            }
+        }
+    }
+
+
+    static Transition ofTransition(String event, String... fromStates) {
+        return Transition.of(event, fromStates);
+    }
+
+    static Transition.TransitionBuilder transitionBuilder() {
+        return new Transition.TransitionBuilder();
     }
 
     @Schema(title = "流转规则", description = "带目标状态的流转规则")
