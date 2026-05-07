@@ -33,10 +33,10 @@ public interface InjectConst {
     String USER_EMAIL = "userEmail";
 
     String OPERATOR_ACTION = "operatorAction";
-    ////////////////////////////////////////////////////////
+    /// /////////////////////////////////////////////////////
 
     //机密数据访问级别
-    String CONFIDENTIAL_DATA_ACCESS_LEVEL ="confidentialDataAccessLevel";
+    String CONFIDENTIAL_DATA_ACCESS_LEVEL = "confidentialDataAccessLevel";
 
     /**
      * 组织对象
@@ -49,11 +49,6 @@ public interface InjectConst {
     String ORG_ID = "orgId";
 
     /**
-     * 组织ID列表
-     */
-    String ORG_ID_LIST = "orgIdList";
-
-    /**
      * 组织路径
      */
     String ORG_PATH = "orgPath";
@@ -64,14 +59,31 @@ public interface InjectConst {
     String ORG_NAME = "orgName";
 
     /**
+     * 组织ID列表
+     */
+    String ORG_ID_LIST = "orgIdList";
+
+    /// ///////////////////////////////////////
+
+    /**
+     * 用户组织对象
+     */
+    String USER_ORG = "userOrg";
+
+    /**
+     * 用户组织ID
+     */
+    String USER_ORG_ID = "userOrgId";
+
+    /**
      * 用户的角色列表
      */
-    String ROLE_LIST = "roleList";
+    String USER_ROLE_LIST = "userRoleList";
 
     /**
      * 权限列表
      */
-    String PERMISSION_LIST = "permissionList";
+    String USER_PERMISSION_LIST = "userPermissionList";
 
     //////////////////////////////////////////////////////////////
 
@@ -109,6 +121,18 @@ public interface InjectConst {
 
 
     /**
+     * 模块对象
+     */
+    String USER_TENANT = "userTenant";
+
+
+    /**
+     * 模块对象
+     */
+    String USER_TENANT_ID = "userTenantId";
+
+
+    /**
      * 模块ID
      */
     String MODULE_ID = "moduleId";
@@ -136,7 +160,7 @@ public interface InjectConst {
      */
     String OCCUR_TIME = "occurTime";
 
-    ////////////////////////////////////////////////////////////////
+    /// /////////////////////////////////////////////////////////////
 
     String HTTP_HEADER_PREFIX = "_HH_";
     String HTTP_PARAM_PREFIX = "_HP_";
