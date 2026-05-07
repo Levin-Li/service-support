@@ -38,6 +38,22 @@ class ObjectWrapperUtilsTest {
     }
 
     @Test
+    void wrapper2ReadonlyShouldBlockSetterStyleMutation() {
+
+        FluentSetterBean readonly = ObjectWrapperUtils.wrapper2Readonly(new FluentSetterBean());
+
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> readonly.setName("new-name"));
+    }
+
+    @Test
+    void wrapper2ReadonlyShouldBlockNonBeanSetterStyleMutation() {
+
+        MultiArgumentSetterBean readonly = ObjectWrapperUtils.wrapper2Readonly(new MultiArgumentSetterBean());
+
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> readonly.setName(" new-name ", true));
+    }
+
+    @Test
     void wrapper2ReadonlyShouldFreezeCollectionProperties() {
 
         DemoBean original = new DemoBean();
@@ -232,6 +248,33 @@ class ObjectWrapperUtilsTest {
 
         public ArrayList<String> getTags() {
             return tags;
+        }
+    }
+
+    public static class FluentSetterBean {
+
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public FluentSetterBean setName(String name) {
+            this.name = name;
+            return this;
+        }
+    }
+
+    public static class MultiArgumentSetterBean {
+
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name, boolean trim) {
+            this.name = trim ? name.trim() : name;
         }
     }
 

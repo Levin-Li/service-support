@@ -288,7 +288,29 @@ public abstract class ObjectWrapperUtils {
      * @return {@code true} 表示该方法是写方法
      */
     private static boolean isReadonlyWriteMethod(Class<?> beanType, Method method) {
-        return beanType != null && getBeanMethodMetadata(beanType).writeMethods.contains(method);
+        return beanType != null
+                && (getBeanMethodMetadata(beanType).writeMethods.contains(method)
+                || isSetterStyleMethod(method));
+    }
+
+    /**
+     * 判断方法是否为 setter 风格的写方法。
+     * <p>
+     * JavaBean {@link Introspector} 只覆盖标准属性写方法；只读对象上调用非标准但语义明确的
+     * {@code setXxx(...)} 写方法时，同样应该被拦截。
+     *
+     * @param method 待判断方法
+     * @return {@code true} 表示方法名和参数形态符合 setter 写入语义
+     */
+    private static boolean isSetterStyleMethod(Method method) {
+        if (method == null
+                || method.getParameterCount() == 0
+                || method.getName().length() <= 3
+                || !method.getName().startsWith("set")) {
+            return false;
+        }
+
+        return Character.isUpperCase(method.getName().charAt(3));
     }
 
     /**
