@@ -49,11 +49,6 @@ public interface InjectConst {
     String ORG_ID = "orgId";
 
     /**
-     * 组织路径
-     */
-    String ORG_PATH = "orgPath";
-
-    /**
      * 组织名称
      */
     String ORG_NAME = "orgName";
