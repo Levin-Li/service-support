@@ -12,6 +12,6 @@
 
 项目完整使用手册请查看：
 
-- [manual.md](/Users/lilw/IdeaProjects/service-support/manual.md)
+- [manual.md](manual.md)
 
 如果你主要关注 RBAC，建议直接从 `manual.md` 中的 RBAC 章节开始阅读。
