@@ -1,6 +1,6 @@
 package com.levin.commons.rbac;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
+
 import com.levin.commons.service.domain.Identifiable;
 import io.swagger.v3.oas.annotations.media.Schema;
 

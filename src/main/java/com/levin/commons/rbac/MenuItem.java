@@ -5,7 +5,7 @@ import com.levin.commons.service.domain.Castable;
 import com.levin.commons.service.domain.EnumDesc;
 import com.levin.commons.service.domain.SimpleIdentifiable;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
@@ -62,10 +62,10 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
         protected String apiUrl;
 
         @Schema(title = "标签")
-        @Column(nullable = false)
         protected String label;
 
         @Schema(title = "需要权限")
+        @NotBlank
         protected String requireAuthorization;
 
         @Schema(title = "是否禁用", description = "禁用后页面中不显示")

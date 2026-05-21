@@ -30,7 +30,7 @@ public class SimpleOrgScope implements OrgScope {
     @Schema(title = "表达式类型")
     ExpressionType orgScopeExpressionType;
 
-    @Schema(title = "组织范围表达式", description = "Spring PathPattern 或是 Groovy/SpringEL 脚本")
+    @Schema(title = "组织范围表达式", description = "SpringPathPattern 或是 Groovy/SpringEL 脚本")
     String orgScopeExpression;
 
     public SimpleOrgScope setOrgScopeMatchingPattern(ScopeMatchingPattern orgScopeMatchingPattern) {

@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  * @author echo
  */
 
-@Schema(title = "组织范围", description = "组织范围, 约定路径匹配模式是Spring PathPattern , 不是 Ant Path")
+@Schema(title = "组织范围", description = "组织范围, 约定路径匹配模式是SpringPathPattern , 不是 Ant Path")
 @GenNameConstant
 @JsonAutoDetect(
         // 只序列化字段
@@ -79,14 +79,14 @@ public interface OrgScope extends Serializable {
     }
 
     @Getter
-    @Schema(title = "自定义表达式类型", description = "统一约定Spring PathPattern路径匹配规则,要求被匹配路径必须以/开头; 因为Spring PathPattern路径匹配的问题, 以下Spring PathPattern路径匹配时, 可能要匹配2次,一次不以[/]为结尾匹配, 一次以[/]为结尾匹配,  2次中有一次成功都视为匹配通过")
+    @Schema(title = "自定义表达式类型", description = "统一约定SpringPathPattern路径匹配规则,要求被匹配路径必须以/开头; 因为SpringPathPattern路径匹配的问题, 以下SpringPathPattern路径匹配时, 可能要匹配2次,一次不以[/]为结尾匹配, 一次以[/]为结尾匹配,  2次中有一次成功都视为匹配通过")
     @GenNameConstant
     enum ExpressionType implements EnumDesc {
 
-        @Schema(title = "基于Id的路径", description = "Spring PathPattern表达式")
+        @Schema(title = "基于Id的路径", description = "SpringPathPattern表达式")
         IdPath,
 
-        @Schema(title = "基于名称的路径", description = "Spring PathPattern表达式")
+        @Schema(title = "基于名称的路径", description = "SpringPathPattern表达式")
         NamePath,
 
         @Schema(title = "Groovy", description = "传入被匹配的节点和用户,支持的变量为: _org, _user")
@@ -107,7 +107,7 @@ public interface OrgScope extends Serializable {
         return USER_ORG.equalsIgnoreCase(StrUtil.nullToEmpty(getOrgId()).trim());
     }
 
-    @Schema(title = "租户匹配表达式", description = "租户匹配表达式: 空串表示无租户, ALL_TENANT(*) 匹配任何租户, DEFAULT_TENANT 表示用户默认租户, 普通文本按租户ID精确匹配, 可使用 Spring PathPattern, Groovy 脚本必须使用 #!groovy: 前缀(租户和用户变量:_tenant,_user,_scope)")
+    @Schema(title = "租户匹配表达式", description = "租户匹配表达式: 空串表示无租户, ALL_TENANT(*) 匹配任何租户, DEFAULT_TENANT 表示用户默认租户, 普通文本按租户ID精确匹配, 可使用*?匹配表达式(SpringPathPattern), Groovy 脚本必须使用 #!groovy: 前缀(租户和用户变量:_tenant,_user,_scope)")
     default String getTenantMatchingExpression() {
         return DEFAULT_TENANT;
     }
@@ -138,7 +138,7 @@ public interface OrgScope extends Serializable {
     ExpressionType getOrgScopeExpressionType();
 
     @NotBlank
-    @Schema(title = "组织范围表达式", description = "Spring PathPattern, Groovy或SpringEL")
+    @Schema(title = "组织范围表达式", description = "SpringPathPattern, Groovy或SpringEL")
     String getOrgScopeExpression();
 
     @Schema(title = "是否允许所有组织", description = "true: 允许, false: 拒绝")
