@@ -1,39 +1,42 @@
 package com.levin.commons.service.support;
 
 import cn.hutool.core.lang.Assert;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.deser.Deserializers;
-import com.levin.commons.conditional.ConditionalOn;
+import com.alibaba.fastjson2.JSONObject;
+import com.google.gson.JsonElement;
 import com.levin.commons.service.domain.EnumDesc;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.format.FormatterRegistry;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import jakarta.annotation.PostConstruct;
-import java.io.IOException;
-import java.util.List;
+import tools.jackson.databind.DeserializationConfig;
 
+import java.util.Map;
+import java.util.stream.Stream;
+
+/**
+ * @author lilw
+ */
 @Configuration
-@Slf4j
 @Order
-@ConditionalOn(action = ConditionalOn.Action.OnProperty, value = "com.levin.commons.service.support.DefaultSpringMvcEnumFormatterConfiguration!=disable")
+@ConditionalOnProperty(
+        name = "com.levin.commons.service.support.DefaultSpringMvcEnumFormatterConfiguration.enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class DefaultSpringMvcEnumFormatterConfiguration implements WebMvcConfigurer {
+
+    private static final Logger log = LoggerFactory.getLogger(DefaultSpringMvcEnumFormatterConfiguration.class);
 
     @PostConstruct
     public void init() {
-        log.info("*** Spring mvc 枚举值转换配置已经启用，可以使用 " + DefaultSpringMvcEnumFormatterConfiguration.class.getName() + "=disable 禁用");
+        log.info("*** 自定义[Spring mvc 枚举值转换]配置已经启用，可以使用 " + DefaultSpringMvcEnumFormatterConfiguration.class.getName() + ".enabled=false 禁用");
     }
 
     @Override
@@ -51,87 +54,87 @@ public class DefaultSpringMvcEnumFormatterConfiguration implements WebMvcConfigu
         log.info("*** 注册枚举值转换器({}) -> Spring mvc", EnumDesc.class.getName());
     }
 
-    @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        for (HttpMessageConverter<?> converter : converters) {
-            if (converter instanceof AbstractJackson2HttpMessageConverter) {
-                ObjectMapper o = ((AbstractJackson2HttpMessageConverter) converter).getObjectMapper();
-                log.info("*** 注册枚举值转换器({}) -> Jackson ObjectMapper", EnumModule.class.getName());
-                o.registerModule(new EnumModule());
-            }
+    @Bean
+    @ConditionalOnClass(name = "tools.jackson.databind.json.JsonMapper")
+    tools.jackson.databind.JacksonModule enumJacksonModule() {
+        return new EnumJacksonModule();
+    }
+
+    public static class EnumJacksonModule extends tools.jackson.databind.JacksonModule {
+
+        @Override
+        public String getModuleName() {
+            return EnumJacksonModule.class.getName();
+        }
+
+        @Override
+        public tools.jackson.core.Version version() {
+            return tools.jackson.core.Version.unknownVersion();
+        }
+
+        @Override
+        public void setupModule(SetupContext context) {
+            context.addDeserializers(new EnumJacksonDeserializers());
         }
     }
 
-    /**
-     * 反序列器
-     */
-    @AllArgsConstructor
-    static class EnumJsonDeserializer extends JsonDeserializer<Enum<?>> {
-
-        Class<Enum<?>> type = null;
+    static class EnumJacksonDeserializers implements tools.jackson.databind.deser.Deserializers  {
 
         @Override
-        public Enum<?> deserialize(JsonParser p, DeserializationContext ctx) throws IOException, JsonProcessingException {
+        public boolean hasDeserializerFor(DeserializationConfig config, Class<?> valueType) {
+
+            if (valueType == null) {
+                return false;
+            }
+
+            return Stream.of(Enum.class) .anyMatch(c -> c.isAssignableFrom(valueType));
+        }
+
+        @Override
+        public tools.jackson.databind.ValueDeserializer<?> findEnumDeserializer(tools.jackson.databind.JavaType type,
+                                                                                tools.jackson.databind.DeserializationConfig config,
+                                                                                tools.jackson.databind.BeanDescription.Supplier beanDesc) {
+
+            if (!type.isEnumType() || !EnumDesc.class.isAssignableFrom(type.getRawClass())) {
+                return null;
+            }
+
+            return new EnumJacksonDeserializer((Class<Enum<?>>) type.getRawClass());
+        }
+    }
+
+    static class EnumJacksonDeserializer extends tools.jackson.databind.ValueDeserializer<Enum<?>> {
+
+        private final Class<Enum<?>> type;
+
+        EnumJacksonDeserializer(Class<Enum<?>> type) {
+            this.type = type;
+        }
+
+        @Override
+        public Enum<?> deserialize(tools.jackson.core.JsonParser p, tools.jackson.databind.DeserializationContext ctx) {
 
             Class<Enum<?>> realType = type;
 
             if (realType == null) {
-                JavaType javaType = ctx.getContextualType();
+                tools.jackson.databind.JavaType javaType = ctx.getContextualType();
                 Assert.isTrue(javaType.isEnumType(), "not a enum type");
                 realType = (Class<Enum<?>>) javaType.getRawClass();
             }
 
-            if (p == null || p.hasToken(JsonToken.VALUE_NULL)) {
+            if (p == null || p.hasToken(tools.jackson.core.JsonToken.VALUE_NULL)) {
                 return null;
             }
 
             Object value = null;
 
-            if (p.hasToken(JsonToken.VALUE_STRING)) {
-                value = p.getText();
-            } else if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+            if (p.hasToken(tools.jackson.core.JsonToken.VALUE_STRING)) {
+                value = p.getString();
+            } else if (p.hasToken(tools.jackson.core.JsonToken.VALUE_NUMBER_INT)) {
                 value = p.getIntValue();
             }
 
             return EnumDesc.parse(realType, value);
-
-        }
-
-    }
-
-    /**
-     * 查找器
-     */
-    static class EnumDeserializers extends Deserializers.Base {
-        @Override
-        public JsonDeserializer<?> findEnumDeserializer(Class<?> type, DeserializationConfig config, BeanDescription beanDesc) {
-
-            if (!type.isEnum() || !EnumDesc.class.isAssignableFrom(type)) {
-                return null;
-            }
-
-            return new EnumJsonDeserializer((Class<Enum<?>>) type);
-        }
-    }
-
-    /**
-     * 模块
-     */
-    static class EnumModule extends Module {
-
-        @Override
-        public String getModuleName() {
-            return "EnumModule";
-        }
-
-        @Override
-        public Version version() {
-            return Version.unknownVersion();
-        }
-
-        @Override
-        public void setupModule(SetupContext context) {
-            context.addDeserializers(new EnumDeserializers());
         }
     }
 }

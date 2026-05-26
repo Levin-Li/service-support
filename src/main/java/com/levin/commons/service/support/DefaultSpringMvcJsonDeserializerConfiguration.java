@@ -1,36 +1,41 @@
 package com.levin.commons.service.support;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.levin.commons.conditional.ConditionalOn;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.format.FormatterRegistry;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import jakarta.annotation.PostConstruct;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import tools.jackson.databind.DeserializationConfig;
 
+import java.util.Map;
+import java.util.stream.Stream;
+
+/**
+ * @author lilw
+ */
 @Configuration
-@Slf4j
 @Order
-@ConditionalOn(action = ConditionalOn.Action.OnProperty, value = "com.levin.commons.service.support.DefaultSpringMvcJsonDeserializerConfiguration!=disable")
+@ConditionalOnProperty(
+        name = "com.levin.commons.service.support.DefaultSpringMvcJsonDeserializerConfiguration.enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class DefaultSpringMvcJsonDeserializerConfiguration implements WebMvcConfigurer {
+
+    private static final Logger log = LoggerFactory.getLogger(DefaultSpringMvcJsonDeserializerConfiguration.class);
 
     @PostConstruct
     public void init() {
-        log.info("*** Spring mvc [字符串转JSONObject] 配置已经启用，可以使用 " + DefaultSpringMvcJsonDeserializerConfiguration.class.getName() + "=disable 禁用");
+        log.info("*** 自定义[Spring mvc 字符串转JSONObject] 配置已经启用，可以使用 " + DefaultSpringMvcJsonDeserializerConfiguration.class.getName() + ".enabled=false 禁用");
     }
 
 
@@ -54,38 +59,44 @@ public class DefaultSpringMvcJsonDeserializerConfiguration implements WebMvcConf
 
     }
 
-    @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        for (HttpMessageConverter<?> converter : converters) {
-            if (converter instanceof AbstractJackson2HttpMessageConverter) {
-                ObjectMapper o = ((AbstractJackson2HttpMessageConverter) converter).getObjectMapper();
-
-                log.info("*** 注册[字符串到JsonObject]转换器({}) -> Jackson ObjectMapper", String2JsonObjectModule.class.getName());
-                o.registerModule(new String2JsonObjectModule());
-            }
-        }
+    @Bean
+    @ConditionalOnClass(name = "tools.jackson.databind.json.JsonMapper")
+    tools.jackson.databind.JacksonModule string2JsonObjectJacksonModule() {
+        return new String2JsonObjectJacksonModule();
     }
 
-    static class String2JsonObjectModule extends Module {
+    public static class String2JsonObjectJacksonModule extends tools.jackson.databind.JacksonModule {
 
         @Override
         public String getModuleName() {
-            return String2JsonObjectModule.class.getName();
+            return String2JsonObjectJacksonModule.class.getName();
         }
 
         @Override
-        public Version version() {
-            return Version.unknownVersion();
+        public tools.jackson.core.Version version() {
+            return tools.jackson.core.Version.unknownVersion();
         }
 
         @Override
         public void setupModule(SetupContext context) {
-            context.addDeserializers(new Deserializers.Base() {
+
+            context.addDeserializers(new tools.jackson.databind.deser.Deserializers() {
 
                 @Override
-                public JsonDeserializer<?> findBeanDeserializer(JavaType type, DeserializationConfig config, BeanDescription beanDesc) throws JsonMappingException {
+                public boolean hasDeserializerFor(DeserializationConfig config, Class<?> valueType) {
 
-                    //如果不是字符串类型，则不进行转换
+                    if (valueType == null) {
+                        return false;
+                    }
+
+                    return Stream.of(JsonElement.class, JSONObject.class, com.alibaba.fastjson.JSONObject.class, Map.class).anyMatch(c -> c.isAssignableFrom(valueType));
+                }
+
+                @Override
+                public tools.jackson.databind.ValueDeserializer<?> findBeanDeserializer(tools.jackson.databind.JavaType type,
+                                                                                        tools.jackson.databind.DeserializationConfig config,
+                                                                                        tools.jackson.databind.BeanDescription.Supplier beanDesc) {
+
                     if (type.isTypeOrSubTypeOf(JsonElement.class)) {
                         return googleJson;
                     } else if (type.isTypeOrSubTypeOf(JSONObject.class)) {
@@ -99,41 +110,41 @@ public class DefaultSpringMvcJsonDeserializerConfiguration implements WebMvcConf
                     return null;
                 }
 
-                final JsonDeserializer<JsonElement> googleJson = new JsonDeserializer<JsonElement>() {
-                    @Override
-                    public JsonElement deserialize(com.fasterxml.jackson.core.JsonParser p, DeserializationContext deserializationContext) throws IOException {
 
-                        if (p == null || p.hasToken(JsonToken.VALUE_NULL) || !p.hasToken(JsonToken.VALUE_STRING)) {
+                final tools.jackson.databind.ValueDeserializer<JsonElement> googleJson = new tools.jackson.databind.ValueDeserializer<JsonElement>() {
+                    @Override
+                    public JsonElement deserialize(tools.jackson.core.JsonParser p, tools.jackson.databind.DeserializationContext deserializationContext) {
+
+                        if (p == null || p.hasToken(tools.jackson.core.JsonToken.VALUE_NULL) || !p.hasToken(tools.jackson.core.JsonToken.VALUE_STRING)) {
                             return null;
                         }
-                        return JsonParser.parseString(p.getText());
+                        return JsonParser.parseString(p.getString());
                     }
                 };
 
-                final JsonDeserializer<JSONObject> fastJson2 = new JsonDeserializer<JSONObject>() {
+                final tools.jackson.databind.ValueDeserializer<JSONObject> fastJson2 = new tools.jackson.databind.ValueDeserializer<JSONObject>() {
                     @Override
-                    public JSONObject deserialize(com.fasterxml.jackson.core.JsonParser p, DeserializationContext deserializationContext) throws IOException {
+                    public JSONObject deserialize(tools.jackson.core.JsonParser p, tools.jackson.databind.DeserializationContext deserializationContext) {
 
-                        if (p == null || p.hasToken(JsonToken.VALUE_NULL) || !p.hasToken(JsonToken.VALUE_STRING)) {
+                        if (p == null || p.hasToken(tools.jackson.core.JsonToken.VALUE_NULL) || !p.hasToken(tools.jackson.core.JsonToken.VALUE_STRING)) {
                             return null;
                         }
-                        return JSONObject.parseObject(p.getText());
+                        return JSONObject.parseObject(p.getString());
                     }
                 };
 
-                final JsonDeserializer<com.alibaba.fastjson.JSONObject> fastJson1 = new JsonDeserializer<com.alibaba.fastjson.JSONObject>() {
+                final tools.jackson.databind.ValueDeserializer<com.alibaba.fastjson.JSONObject> fastJson1 = new tools.jackson.databind.ValueDeserializer<com.alibaba.fastjson.JSONObject>() {
                     @Override
-                    public com.alibaba.fastjson.JSONObject deserialize(com.fasterxml.jackson.core.JsonParser p, DeserializationContext deserializationContext) throws IOException {
+                    public com.alibaba.fastjson.JSONObject deserialize(tools.jackson.core.JsonParser p, tools.jackson.databind.DeserializationContext deserializationContext) {
 
-                        if (p == null || p.hasToken(JsonToken.VALUE_NULL) || !p.hasToken(JsonToken.VALUE_STRING)) {
+                        if (p == null || p.hasToken(tools.jackson.core.JsonToken.VALUE_NULL) || !p.hasToken(tools.jackson.core.JsonToken.VALUE_STRING)) {
                             return null;
                         }
-                        return com.alibaba.fastjson.JSONObject.parseObject(p.getText());
+                        return com.alibaba.fastjson.JSONObject.parseObject(p.getString());
                     }
                 };
             });
         }
     }
-
 
 }

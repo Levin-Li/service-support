@@ -1,9 +1,10 @@
 package com.levin.commons.service.support;
 
-import com.levin.commons.conditional.ConditionalOn;
-import com.levin.commons.conditional.ConditionalOnList;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
@@ -14,22 +15,28 @@ import java.util.List;
 
 import static org.springframework.beans.factory.config.BeanDefinition.ROLE_SUPPORT;
 
+/**
+ * @author lilw
+ */
 @Configuration
-@Slf4j
-@ConditionalOnList({
-        @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = VariableResolverManager.class),
-        @ConditionalOn(action = ConditionalOn.Action.OnProperty, value = "com.levin.commons.service.support.VariableResolverConfiguration != disable")
-})
+@ConditionalOnMissingBean(VariableResolverManager.class)
+@ConditionalOnProperty(
+        name = "com.levin.commons.service.support.VariableResolverConfiguration.enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class VariableResolverConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(VariableResolverConfiguration.class);
 
     @PostConstruct
     public void init() {
-
+        log.info("*** 变量解析器配置已经启用，可以使用 " + VariableResolverConfiguration.class.getName() + ".enabled=false 禁用");
     }
 
     @Bean
     @Role(ROLE_SUPPORT)
-    @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = VariableResolverManager.class)
+    @ConditionalOnMissingBean(VariableResolverManager.class)
     VariableResolverManager defaultVariableResolverManager() {
 
         log.debug("*** init default variable resolver manager ...");
@@ -39,7 +46,7 @@ public class VariableResolverConfiguration {
 
     @Bean
     @Role(ROLE_SUPPORT)
-    @ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = VariableInjector.class)
+    @ConditionalOnMissingBean(VariableInjector.class)
     VariableInjector defaultVariableInjector(@Autowired VariableResolverManager vrm) {
 
         log.debug("*** init default variable injector ...");

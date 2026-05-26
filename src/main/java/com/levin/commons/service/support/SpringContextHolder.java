@@ -1,6 +1,5 @@
 package com.levin.commons.service.support;
 
-import com.levin.commons.conditional.ConditionalOn;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopProxyUtils;
@@ -8,6 +7,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
@@ -20,6 +20,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 
 import jakarta.annotation.PostConstruct;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -29,11 +30,13 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * @author lilw
+ */
 @Configuration("com.levin.commons.service.support.SpringContextHolder")
 @Slf4j
-@ConditionalOn(action = ConditionalOn.Action.OnMissingBean, types = SpringContextHolder.class)
-public class SpringContextHolder implements EnvironmentAware,
-        BeanClassLoaderAware, ApplicationContextAware, BeanFactoryAware, ResourceLoaderAware {
+@ConditionalOnMissingBean(SpringContextHolder.class)
+public class SpringContextHolder implements EnvironmentAware, BeanClassLoaderAware, ApplicationContextAware, BeanFactoryAware, ResourceLoaderAware {
 
     @PostConstruct
     public void init() {
@@ -110,12 +113,13 @@ public class SpringContextHolder implements EnvironmentAware,
 
     /**
      * 查找bean
+     *
      * @param context
      * @param type
      * @param isMatchPackageNamePrefix
      * @param prefixList
-     * @return
      * @param <T>
+     * @return
      */
     private static <T> List<T> findBeans(ApplicationContext context, @NonNull Type type, boolean isMatchPackageNamePrefix, String... prefixList) {
 
