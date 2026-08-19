@@ -63,6 +63,50 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldMatchEmptyResourceIdWithWildcardPermissionSegment() {
+        assertTrue(authorizeService.simpleMatch(
+                "com.levin.oak.base:系统数据-角色::查询列表",
+                "*:系统数据-*:*:*"
+        ), "资源 ID 为空时，* 应匹配该权限分段");
+    }
+
+    @Test
+    void shouldRejectSpecificResourceIdForEmptyPermissionSegment() {
+        assertFalse(authorizeService.simpleMatch(
+                "com.levin.oak.base:系统数据-角色::查询列表",
+                "*:系统数据-*:role-42:查询列表"
+        ), "具体资源 ID 不能匹配空资源 ID");
+    }
+
+    @Test
+    void shouldKeepWildcardPermissionMatchingForNonEmptyResourceId() {
+        assertTrue(authorizeService.simpleMatch(
+                "com.levin.oak.base:系统数据-角色:role-42:查询列表",
+                "*:系统数据-*:*:查询*"
+        ), "非空资源 ID 的通配匹配不应回归");
+    }
+
+    @Test
+    void shouldMatchEmptyResourceIdOnlyWhenAlternativesContainWildcard() {
+        String requirePermission = "com.levin.oak.base:系统数据-角色::查询列表";
+
+        assertTrue(authorizeService.simpleMatch(
+                requirePermission,
+                "*:系统数据-*:role-42|*:查询列表"
+        ), "资源 ID 备选表达式包含 * 时应匹配空资源 ID");
+        assertFalse(authorizeService.simpleMatch(
+                requirePermission,
+                "*:系统数据-*:role-42|role-43:查询列表"
+        ), "资源 ID 备选表达式均为具体值时不应匹配空资源 ID");
+    }
+
+    @Test
+    void shouldKeepGeneralTextMatchingFailClosedForEmptyValues() {
+        assertFalse(authorizeService.textPatternMatch("*", ""),
+                "用户类型和角色等通用文本匹配仍应拒绝空值");
+    }
+
+    @Test
     void shouldHandleRequireAllAndRequireAnyPermissions() {
         // 业务规则：requireAll 需要全部命中，requireAny 命中任意一个即可通过。
         baseService.setUserPermissions(Arrays.asList("sys:user:*:read", "sys:order:*:view"));

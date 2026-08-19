@@ -487,6 +487,20 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
     }
 
     /**
+     * 权限表达式的单个分段匹配。
+     * <p>
+     * 权限的资源 ID 段允许为空；此时只有通配模式（例如 {@code *}）可以匹配它，
+     * 具体资源 ID 不能匹配。不要复用 {@link #textPatternMatch(String, String)}，
+     * 后者用于用户类型和角色等场景，应该继续拒绝空值。
+     */
+    private boolean permissionSegmentPatternMatch(@Nullable String pattern, @Nullable String str) {
+
+        return StringUtils.hasText(pattern)
+                && str != null
+                && StrUtil.split(pattern, '|').stream().filter(StringUtils::hasText).anyMatch(p -> PatternMatchUtils.simpleMatch(p, str));
+    }
+
+    /**
      * <p>
      * 权限表达式的匹配
      * 核心方法
@@ -545,7 +559,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
 
         //切割出单个比较项目
         return StrUtil.split(requirePermission, getPermissionDelimiter()).stream()
-                .allMatch(rp -> textPatternMatch(
+                .allMatch(rp -> permissionSegmentPatternMatch(
                                 //超过数组长度以后，总是取最后一个
                                 (ownerList[idx.updateAndGet(oldValue -> oldValue < ownerList.length - 1 ? oldValue + 1 : oldValue)])
                                 , trimWhitespace(rp)
