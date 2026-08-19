@@ -71,6 +71,22 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldMatchAllPermissionSegmentsWithSingleWildcard() {
+        assertTrue(authorizeService.simpleMatch(
+                "com.levin.oak.base:系统数据-角色::查询列表",
+                "*"
+        ), "单独的 * 应匹配权限表达式的全部分段");
+    }
+
+    @Test
+    void shouldReuseTrailingWildcardForOmittedPermissionSegments() {
+        assertTrue(authorizeService.simpleMatch(
+                "com.levin.oak.base:系统数据-角色::查询列表",
+                "com.levin.oak.base:系统数据-角色:*"
+        ), "末尾 * 应匹配后续省略的资源 ID 和操作分段");
+    }
+
+    @Test
     void shouldRejectSpecificResourceIdForEmptyPermissionSegment() {
         assertFalse(authorizeService.simpleMatch(
                 "com.levin.oak.base:系统数据-角色::查询列表",
