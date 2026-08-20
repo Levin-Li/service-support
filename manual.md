@@ -699,12 +699,14 @@ public List<UserDto> queryUsers() {
 - `ignored`：忽略授权检查。
 - `onlyRequireAuthenticated`：只要求认证。
 - `anyUserTypes`：任意用户类型满足即可。
-- `confidentialLevel`：要求用户可访问密级大于等于该值。
+- `confidentialLevel`：要求用户可访问密级大于等于该值；默认 `ConfidentialLevel.PLATFORM_PUBLIC_CODE`，不限制访问者的机密数据访问级别。
 - `isAndMode`：角色、权限、表达式是否都必须满足。
 - `anyRoles`：任意角色满足即可。
 - `verifyExpression`：SpEL 校验表达式。
 
 类和方法都可以标注。方法级配置可覆盖类级配置。
+
+`PLATFORM_PUBLIC` 只跳过机密数据访问级别比较，不跳过资源权限、角色、用户类型或认证判断；需要完全跳过授权时仍应明确使用 `ignored = true`。
 
 ## 18. RBAC 最小接入流程
 

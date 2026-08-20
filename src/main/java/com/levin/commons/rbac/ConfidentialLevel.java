@@ -42,6 +42,10 @@ public enum ConfidentialLevel implements EnumDesc {
     PLATFORM_EXPERT_LEVEL(13000),
     ;
 
+    /**
+     * {@link #PLATFORM_PUBLIC} 的编译期编码，供注解属性默认值使用。
+     */
+    public static final int PLATFORM_PUBLIC_CODE = Integer.MIN_VALUE;
 
     private final int level;
 

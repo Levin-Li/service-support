@@ -290,6 +290,31 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldAllowPlatformPublicLevelWithoutConfidentialAccessLevel() {
+        assertTrue(baseService.canAccessConfidentialData(
+                () -> null,
+                ConfidentialLevel.PLATFORM_PUBLIC.code()
+        ), "平台公开数据不应要求访问者具备机密数据访问级别");
+        assertFalse(baseService.canAccessConfidentialData(
+                () -> null,
+                ConfidentialLevel.PLATFORM_SHARED.code()
+        ), "平台共享数据仍应要求访问者具备对应机密数据访问级别");
+        assertTrue(baseService.canAccessConfidentialData(
+                () -> ConfidentialLevel.PLATFORM_SHARED.code(),
+                ConfidentialLevel.PLATFORM_SHARED.code()
+        ), "负数机密级别仍按数值比较");
+    }
+
+    @Test
+    void shouldDefaultAuthorizeActionsToPlatformPublicConfidentialLevel() throws NoSuchMethodException {
+        assertEquals(ConfidentialLevel.PLATFORM_PUBLIC.code(),
+                ((Integer) ResAuthorize.class.getDeclaredMethod("confidentialLevel").getDefaultValue()).intValue());
+        assertEquals(ConfidentialLevel.PLATFORM_PUBLIC.code(),
+                ((Integer) ResConditionAction.class.getDeclaredMethod("confidentialLevel").getDefaultValue()).intValue());
+        assertEquals(ConfidentialLevel.PLATFORM_PUBLIC.code(), new ResConditionActionObject().confidentialLevel());
+    }
+
+    @Test
     void shouldMatchRoleExpressionAndReportUnauthorizedRole() {
         // 业务规则：角色表达式支持通配，未命中时返回 role not authorized 原因。
         List<String> errors = new ArrayList<>();

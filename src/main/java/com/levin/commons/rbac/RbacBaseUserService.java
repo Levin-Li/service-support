@@ -99,8 +99,9 @@ public interface RbacBaseUserService {
 
         for (Integer requireDataConfidentialLevel : requireDataConfidentialLevels) {
 
-            //非机密数据, 允许访问
-            if (requireDataConfidentialLevel == null) {
+            //非机密数据或平台公开数据，不限制访问者的机密数据访问级别。
+            if (requireDataConfidentialLevel == null
+                    || requireDataConfidentialLevel == ConfidentialLevel.PLATFORM_PUBLIC.code()) {
                 continue;
             }
 

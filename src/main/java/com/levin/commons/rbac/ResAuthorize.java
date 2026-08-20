@@ -53,8 +53,8 @@ public @interface ResAuthorize {
     @Schema(title = "用户类型", description = "要求的用户类型，任意一个满足都视为验证通过")
     String[] anyUserTypes() default {};
 
-    @Schema(title = "保密级别", description = "要求用户的可访问级别必须大于等于这个值")
-    int confidentialLevel() default 0;
+    @Schema(title = "保密级别", description = "要求用户的可访问级别必须大于等于这个值；默认平台公开，不限制机密数据访问级别")
+    int confidentialLevel() default ConfidentialLevel.PLATFORM_PUBLIC_CODE;
 
     @Schema(title = "逻辑与模式", description = "权限，角色和表达式3个条件是否都必须满足，否则任意一个满足即视为验证通过, 注意不影响[用户类型]和[保密级别]")
     boolean isAndMode() default false;
