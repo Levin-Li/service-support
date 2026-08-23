@@ -432,10 +432,10 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
             };
         }
 
-        final boolean isSaasUser = userInfo.isSaasUser();
+        final boolean isPlatformUser = userInfo.isPlatformUser();
 
         //如果是租户用户
-        if (!isSaasUser) {
+        if (!isPlatformUser) {
 
             if (role.isPublicRole()) {
                 //如果角色是SAAS角色，则不能访问
@@ -474,7 +474,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         }
 
         //管理员要求也是管理员
-        if (RbacRoleInfo.ADMIN_ROLE.equals(roleCode) && !(isSaasUser || userInfo.isTenantAdmin())) {
+        if (RbacRoleInfo.ADMIN_ROLE.equals(roleCode) && !(isPlatformUser || userInfo.isTenantAdmin())) {
             return false;
         }
 

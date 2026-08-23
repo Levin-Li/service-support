@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import org.springframework.util.StringUtils;
+
 /**
  * 用户基本信息
  */
@@ -112,13 +114,31 @@ public interface RbacUserInfo
     }
 
     /**
-     * 是否SAAS用户
+     * 是否是平台用户。
+     * <p>
+     * 平台用户没有所属租户，租户 ID 为 {@code null} 或空白字符串。
      *
-     * @return
+     * @return 是否没有所属租户
      */
+    default boolean isPlatformUser() {
+        return !StringUtils.hasText(Objects.toString(getTenantId(), null));
+    }
+
+    /**
+     * 是否是租户用户。
+     *
+     * @return 是否属于某个具体租户
+     */
+    default boolean isTenantUser() {
+        return !isPlatformUser();
+    }
+
+    /**
+     * @deprecated 使用 {@link #isPlatformUser()} 代替；该方法名称不能准确表达“无所属租户”的语义。
+     */
+    @Deprecated
     default boolean isSaasUser() {
-        //租户ID为空
-        return getTenantId() == null || getTenantId().toString().trim().isEmpty();
+        return isPlatformUser();
     }
 
     /**
@@ -137,7 +157,7 @@ public interface RbacUserInfo
      * @return
      */
     default boolean isSuperAdmin() {
-        return isSaasUser() && hasRole(RbacRoleInfo.SA_ROLE);
+        return isPlatformUser() && hasRole(RbacRoleInfo.SA_ROLE);
     }
 
     /**
@@ -146,7 +166,7 @@ public interface RbacUserInfo
      * @return
      */
     default boolean isSaasAdmin() {
-        return isSaasUser() && hasRole(RbacRoleInfo.SAAS_ADMIN);
+        return isPlatformUser() && hasRole(RbacRoleInfo.SAAS_ADMIN);
     }
 
     /**
@@ -155,7 +175,7 @@ public interface RbacUserInfo
      * @return
      */
     default boolean isTenantAdmin() {
-        return !isSaasUser() && hasRole(RbacRoleInfo.ADMIN_ROLE);
+        return isTenantUser() && hasRole(RbacRoleInfo.ADMIN_ROLE);
     }
 
     /**

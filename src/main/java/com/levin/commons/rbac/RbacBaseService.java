@@ -450,7 +450,7 @@ public interface RbacBaseService extends RbacBaseUserService {
 
         final DataScope dataScope = getUserDataScope(user);
 
-        return user.isSaasUser()
+        return user.isPlatformUser()
                 ? canAccessAllOrg(user, dataScope)
                 : canAccessAllOrg(user, dataScope, resolveDefaultTenantId(user));
 
@@ -1384,7 +1384,7 @@ public interface RbacBaseService extends RbacBaseUserService {
             return false;
         }
 
-        if (user != null && !user.isSaasUser()
+        if (user != null && !user.isPlatformUser()
                 && !Objects.equals(resolveDefaultTenantId(user), tenantIdStr)) {
             return false;
         }
@@ -1604,7 +1604,7 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
     private boolean canApplyTenantScope(RbacUserInfo user, OrgScope scope) {
-        if (user == null || scope == null || user.isSaasUser()) {
+        if (user == null || scope == null || user.isPlatformUser()) {
             return true;
         }
 

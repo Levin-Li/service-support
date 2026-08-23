@@ -63,6 +63,28 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
+    void shouldDistinguishPlatformAndTenantUsers() {
+        TestRbacUser platformUser = new TestRbacUser(
+                "U_PLATFORM", "platform", null, "PLATFORM", Collections.emptyList(), null
+        );
+        TestRbacUser blankTenantUser = new TestRbacUser(
+                "U_BLANK", "blank", " ", "PLATFORM", Collections.emptyList(), null
+        );
+        TestRbacUser tenantUser = new TestRbacUser(
+                "U_TENANT", "tenant", "T1", "OPS", Collections.emptyList(), null
+        );
+
+        assertTrue(platformUser.isPlatformUser());
+        assertTrue(blankTenantUser.isPlatformUser());
+        assertFalse(platformUser.isTenantUser());
+        assertTrue(tenantUser.isTenantUser());
+        assertFalse(tenantUser.isPlatformUser());
+        assertEquals(platformUser.isPlatformUser(), platformUser.isSaasUser(),
+                "废弃别名必须保持兼容语义");
+    }
+
+    @Test
     void shouldMatchEmptyResourceIdWithWildcardPermissionSegment() {
         assertTrue(authorizeService.simpleMatch(
                 "com.levin.oak.base:系统数据-角色::查询列表",

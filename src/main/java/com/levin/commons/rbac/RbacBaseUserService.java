@@ -193,13 +193,13 @@ public interface RbacBaseUserService {
             return true;
         }
 
-        //6 目标用户是SAAS用户,操作人也要SAAS用户
-        if (targetUserInfo.isSaasUser()) {
-            return operatorInfo.isSaasUser();
+        //6 目标用户是平台用户,操作人也要平台用户
+        if (targetUserInfo.isPlatformUser()) {
+            return operatorInfo.isPlatformUser();
         }
 
         if (targetUserInfo.isTenantAdmin()) {
-            return operatorInfo.isSaasUser()
+            return operatorInfo.isPlatformUser()
                     || operatorInfo.isTenantAdmin();
         }
 

@@ -576,10 +576,14 @@ RBAC 是本库最核心、也最复杂的模块。
 
 常见身份判断：
 
+- `isPlatformUser()`：无所属租户的平台用户。
+- `isTenantUser()`：具有具体租户 ID 的租户用户。
 - `isTopSuperAdmin()`
 - `isSuperAdmin()`
 - `isSaasAdmin()`
 - `isTenantAdmin()`
+
+`isSaasUser()` 已废弃，保留为 `isPlatformUser()` 的兼容别名；新代码应使用更准确的平台/租户用户名称。
 
 顶级超管的默认语义较强：可以跳过大多数范围判断。普通超级管理员和 SaaS 管理员不等同于顶级超管。
 
@@ -707,6 +711,33 @@ public List<UserDto> queryUsers() {
 类和方法都可以标注。方法级配置可覆盖类级配置。
 
 `PLATFORM_PUBLIC` 只跳过机密数据访问级别比较，不跳过资源权限、角色、用户类型或认证判断；需要完全跳过授权时仍应明确使用 `ignored = true`。
+
+### 17.1 权限验证整体流程
+
+授权服务有两类入口，先区分入口再理解结果：
+
+1. **资源/方法操作入口**：`isAuthorized(principal, domain, type, res, action)`，或传入 `@ResAuthorize`。注解会先转换成 `ResConditionAction`，然后按操作配置执行完整验证链。
+2. **纯权限表达式入口**：`isAuthorized(principal, requirePermissionList, ...)`。用于一次检查一条或多条权限/角色表达式，支持“全部满足”或“任一满足”。空的需求列表会直接通过。
+
+资源/方法操作入口的实际顺序如下：
+
+1. 解析 `principal` 为 `RbacUserInfo`；用户不存在即拒绝。
+2. TopSuperAdmin 直接通过。
+3. `ignored` 或 `onlyRequireAuthenticated` 直接通过后续资源条件；公共入口仍要求能够解析出已认证用户。
+4. 检查 `confidentialLevel`。`PLATFORM_PUBLIC` 不限制机密数据访问级别；其他级别要求用户访问级别大于等于要求值。
+5. 普通 SuperAdmin 在通过机密级别检查后直接通过；SaaSAdmin 和 TenantAdmin 不享有这一通用短路。
+6. 若配置了 `anyUserTypes`，用户类型必须命中其中任一表达式；该条件始终是前置门槛，不受 `isAndMode` 影响。
+7. 组装三类可选业务条件：
+   - **权限条件**：将 `domain:type:res:action` 组装为权限表达式，并在用户拥有的权限中匹配。
+   - **角色条件**：`anyRoles` 中任一角色表达式匹配用户拥有的角色即可。
+   - **表达式条件**：执行 `verifyExpression`（SpEL），上下文包含 `user`、`action`、`resPrefix`、`userType`、`ownerRoleList` 和 `ownerPermissionList`，以及调用方提供的授权上下文。
+8. 对第 7 步实际存在的条件进行组合：`isAndMode = false` 时任一条件为真即可；`isAndMode = true` 时全部条件必须为真。
+
+> **配置注意：** 用户类型和机密级别是前置门槛，不参与第 8 步的 AND/OR 组合。若权限、角色和表达式三类条件都未配置，默认 OR 模式会拒绝（没有命中的条件）；AND 模式会通过空条件集合。因此业务操作应明确配置至少一种业务授权条件，或明确标注 `ignored` / `onlyRequireAuthenticated`。
+
+纯权限表达式入口会先去除空表达式，并对每一项按下面顺序处理：TopSuperAdmin 通过；用户角色或权限列表直接命中则通过；角色表达式未直接命中时按精确角色处理；其余表达式若对应已登记资源操作，则加载该操作并执行上述完整条件链；找不到操作时拒绝并通过 `matchErrorConsumer` 报告原因。多条需求由 `isRequireAllPermission` 决定使用全量匹配还是任一匹配。
+
+权限表达式的 `*`、`|`、空资源 ID（`::`）、单独 `*` 和末尾 `*` 的匹配规则见 [16.7 节](#167-重点空资源-id的权限匹配规则)。
 
 ## 18. RBAC 最小接入流程
 
