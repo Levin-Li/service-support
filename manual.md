@@ -585,6 +585,8 @@ RBAC 是本库最核心、也最复杂的模块。
 
 `isSaasUser()` 已废弃，保留为 `isPlatformUser()` 的兼容别名；新代码应使用更准确的平台/租户用户名称。
 
+变量注入场景使用 `InjectConst.IS_PLATFORM_USER`（`isPlatformUser`）和 `InjectConst.IS_TENANT_USER`（`isTenantUser`）；`InjectConst.IS_SAAS_USER` 已废弃但保留原键值以兼容已有表达式。
+
 顶级超管的默认语义较强：可以跳过大多数范围判断。普通超级管理员和 SaaS 管理员不等同于顶级超管。
 
 ### 16.2 角色 `RbacRoleInfo`

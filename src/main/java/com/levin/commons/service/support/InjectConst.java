@@ -14,6 +14,20 @@ public interface InjectConst {
 
     String IS_SAAS_ADMIN = "isSaasAdmin";
 
+    /**
+     * 平台用户：没有所属租户。
+     */
+    String IS_PLATFORM_USER = "isPlatformUser";
+
+    /**
+     * 租户用户：具有具体租户 ID。
+     */
+    String IS_TENANT_USER = "isTenantUser";
+
+    /**
+     * @deprecated 使用 {@link #IS_PLATFORM_USER} 代替。
+     */
+    @Deprecated
     String IS_SAAS_USER = "isSaasUser";
 
     String IS_TENANT_ADMIN = "isTenantAdmin";

@@ -3,6 +3,7 @@ package com.levin.commons.rbac;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.levin.commons.service.exception.AuthorizationException;
+import com.levin.commons.service.support.InjectConst;
 import com.levin.commons.ui.annotation.CRUD;
 import com.levin.commons.utils.ObjectWrapperUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -82,6 +83,10 @@ class RbacAuthorizeServiceRolePermissionTest {
         assertFalse(tenantUser.isPlatformUser());
         assertEquals(platformUser.isPlatformUser(), platformUser.isSaasUser(),
                 "废弃别名必须保持兼容语义");
+        assertEquals("isPlatformUser", InjectConst.IS_PLATFORM_USER);
+        assertEquals("isTenantUser", InjectConst.IS_TENANT_USER);
+        assertEquals("isSaasUser", InjectConst.IS_SAAS_USER,
+                "废弃注入键必须保持兼容值");
     }
 
     @Test
