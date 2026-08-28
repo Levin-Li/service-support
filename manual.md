@@ -741,6 +741,33 @@ public List<UserDto> queryUsers() {
 
 权限表达式的 `*`、`|`、空资源 ID（`::`）、单独 `*` 和末尾 `*` 的匹配规则见 [16.7 节](#167-重点空资源-id的权限匹配规则)。
 
+### 17.2 资源权限、数据范围与机密等级的关系
+
+三者是独立的授权门槛，不是一个方法自动完成的单一判断：
+
+```text
+请求一个带租户/组织目标的操作
+  ├─ 资源动作授权：isAuthorized(..., ResConditionAction)
+  │    ├─ 认证、TopSuperAdmin、ignored / onlyRequireAuthenticated
+  │    ├─ 动作要求的 confidentialLevel
+  │    └─ 用户类型 + 角色 + 权限表达式 + SpEL 条件
+  └─ 数据目标授权：checkOrgAccessible(user, tenantId, parentId, orgId)
+       ├─ 租户边界
+       ├─ DataScope 中的 tenantMatchingExpression
+       ├─ OrgScope 的 allow 命中集合减去 deny 命中集合
+       └─ SuperAdmin / SaaSAdmin 分支对目标租户、父组织、组织对象的机密级别检查
+```
+
+处理“读取/修改某租户或组织数据”的业务入口应同时执行两条链路；资源权限通过不表示可以访问任意组织，组织范围通过也不表示可以执行任意资源动作。
+
+`DataScope` 的来源顺序是：用户自身的组织范围优先于角色范围，用户自身的机密数据访问级别优先于生效角色的最高级别。普通租户用户只能把范围规则作用于自身租户；平台用户可以通过 `ALL_TENANT`、指定租户、通配表达式或带 `#!groovy:` 前缀的表达式扩展候选租户。无租户组织属于公共组织；当前默认实现中 `ALL_TENANT` 的组织范围也包含公共组织，而租户列表本身只枚举具备租户 ID 的对象。
+
+角色、租户和组织在参与默认授权计算前都会执行 `selfAudit()`；禁用、逻辑删除、过期或缺少 ID 的对象不会授予权限、扩大数据范围或作为可访问目标。
+
+身份快捷路径按强度递减：TopSuperAdmin 可跳过租户、组织、资源权限与机密等级门槛；普通 SuperAdmin / SaaSAdmin 可跳过组织范围，但仍须通过目标对象或资源动作的机密等级检查；TenantAdmin 的“全部组织”只限于其所属租户。
+
+> **实现注意：** 当前普通用户的 `checkOrgAccessible(...)` 分支以租户边界和已计算的组织范围集合判断目标组织；若业务要求普通用户也必须逐一校验目标租户、父组织或组织对象的 `confidentialLevel`，应在业务入口补充该校验，或将其明确提升为 `RbacBaseService` 的统一策略。
+
 ## 18. RBAC 最小接入流程
 
 ### 第一步：实现领域模型
@@ -856,6 +883,7 @@ public class DemoRbacService implements RbacBaseService {
 - `tenantMatchingExpression`
 - `orgId`
 - `isAllow`
+- `orgScopeMatchingMode`
 - `orgScopeExpressionType`
 - `orgScopeExpression`
 
@@ -911,15 +939,28 @@ public class DemoRbacService implements RbacBaseService {
 
 ### 20.4 标准匹配模式
 
-`ScopeMatchingPattern` 支持：
+`orgScopeMatchingMode` 是标准组织范围的唯一来源，不再从表达式字符串推断：
 
-- `OnlySelf`
-- `OnlyDirectChild`
-- `SelfAndDirectChild`
-- `All`
-- `Custom`
+| 模式 | 界面文案 | 匹配结果 |
+|---|---|---|
+| `OnlySelf` | 仅本节点 | 仅范围起点本身 |
+| `OnlyDirectChild` | 仅直接子节点 | 仅范围起点的一级子节点 |
+| `SelfAndDirectChild` | 本节点及直接子节点 | 范围起点及一级子节点 |
+| `All` | 本节点及所有子节点 | 范围起点及全部后代节点 |
+| `Custom` | 自定义表达式 | 由表达式类型和表达式内容决定 |
 
-标准模式会走树结构快路径。只有 `Custom` 才进入自定义表达式。
+前四种模式直接按组织树深度计算，`orgScopeExpressionType` 和 `orgScopeExpression` 应保持为空。只有 `Custom` 才进入表达式匹配，并且必须填写表达式。
+
+标准模式示例：
+
+```json
+{
+  "tenantMatchingExpression": "_DEFAULT_TENANT_",
+  "orgId": "SALES",
+  "isAllow": true,
+  "orgScopeMatchingMode": "OnlyDirectChild"
+}
+```
 
 ### 20.5 自定义表达式
 
@@ -948,6 +989,25 @@ A -> A2 -> A21
 
 ```text
 /A/A2/A21/
+```
+
+Custom 可以填写任意合法 Spring `PathPattern`，包括 `/`、`/*/`、`/*`、`/**`。这些文本在 Custom 模式下不会改变 `orgScopeMatchingMode`；模式始终由显式字段决定。
+
+无论 Custom 表达式写什么，候选组织都会先被限制为 `orgId` 对应根组织的子树，表达式不能跨到兄弟根组织、其他组织树或其他租户。例如 scope root 为 `A` 时，Custom `/**` 最多匹配 `A`、`A1`、`A2`、`A21`，不会匹配兄弟根 `B`。
+
+Custom `IdPath` / `NamePath` 的非尾斜杠表达式按规范化相对路径匹配，因此 `/*/*` 只匹配二级节点；表达式以 `/` 结尾时保留 Spring `PathPattern` 的尾斜杠语义。
+
+Custom 示例：
+
+```json
+{
+  "tenantMatchingExpression": "_DEFAULT_TENANT_",
+  "orgId": "A",
+  "isAllow": true,
+  "orgScopeMatchingMode": "Custom",
+  "orgScopeExpressionType": "IdPath",
+  "orgScopeExpression": "/*/*"
+}
 ```
 
 自定义表达式上下文通常包含：

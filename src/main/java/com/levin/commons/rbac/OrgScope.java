@@ -1,6 +1,5 @@
 package com.levin.commons.rbac;
 
-import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.levin.commons.annotation.GenNameConstant;
@@ -11,13 +10,12 @@ import lombok.Getter;
 import jakarta.validation.constraints.NotBlank;
 
 import java.io.Serializable;
-import java.util.stream.Stream;
 
 /**
  * @author echo
  */
 
-@Schema(title = "组织范围", description = "组织范围, 约定路径匹配模式是SpringPathPattern , 不是 Ant Path")
+@Schema(title = "组织范围", description = "标准 ScopeMatchingMode 按组织树层级计算；Custom 的 IdPath 和 NamePath 使用 Spring PathPattern，不是 Ant Path")
 @GenNameConstant
 @JsonAutoDetect(
         // 只序列化字段
@@ -42,35 +40,24 @@ public interface OrgScope extends Serializable {
 
     String TENANT_GROOVY_EXPRESSION_PREFIX = "#!groovy:";
 
-    @Getter
     @Schema(title = "范围匹配模式")
     @GenNameConstant
-    enum ScopeMatchingPattern implements EnumDesc {
+    enum ScopeMatchingMode implements EnumDesc {
 
         @Schema(title = "仅本节点", description = "不包含子节点")
-        OnlySelf("/"),
+        OnlySelf,
 
         @Schema(title = "仅直接子节点", description = "不包含本节点")
-        OnlyDirectChild("/*/"),
+        OnlyDirectChild,
 
         @Schema(title = "本节点及直接子节点", description = "本节点及直接子节点")
-        SelfAndDirectChild("/*"),
+        SelfAndDirectChild,
 
         @Schema(title = "本节点及所有子节点", description = "本节点及所有层级子节点")
-        All("/**"),
+        All,
 
-        @Schema(title = "自定义", description = "可以是其他自定义规则, 如 /**/*部门/, 或是Groovy,SpringEL脚本")
-        Custom(""),
-
-        ;
-
-        @Schema(title = "范围表达式")
-        private final String scopeExpression;
-
-        ScopeMatchingPattern(String scopeExpression) {
-            Assert.notNull(scopeExpression, "scopeExpression is null");
-            this.scopeExpression = scopeExpression;
-        }
+        @Schema(title = "自定义", description = "必须指定 IdPath、NamePath、Groovy 或 SpringEL 表达式")
+        Custom;
 
         @Override
         public String toString() {
@@ -79,7 +66,7 @@ public interface OrgScope extends Serializable {
     }
 
     @Getter
-    @Schema(title = "自定义表达式类型", description = "统一约定SpringPathPattern路径匹配规则,要求被匹配路径必须以/开头; 因为SpringPathPattern路径匹配的问题, 以下SpringPathPattern路径匹配时, 可能要匹配2次,一次不以[/]为结尾匹配, 一次以[/]为结尾匹配,  2次中有一次成功都视为匹配通过")
+    @Schema(title = "自定义表达式类型", description = "统一约定SpringPathPattern路径匹配规则,要求被匹配路径必须以/开头; IdPath 和 NamePath 会先去除非根路径的尾随 /，再执行一次匹配")
     @GenNameConstant
     enum ExpressionType implements EnumDesc {
 
@@ -97,7 +84,7 @@ public interface OrgScope extends Serializable {
         ;
     }
 
-    @Schema(title = "是否所有根组织", description = "所有根组织作为范围起点，具体匹配范围由 ScopeMatchingPattern 决定")
+    @Schema(title = "是否所有根组织", description = "所有根组织作为范围起点，具体匹配范围由 ScopeMatchingMode 决定")
     default boolean isAllRootOrg() {
         return ALL_ROOT_ORG.equalsIgnoreCase(StrUtil.nullToEmpty(getOrgId()).trim());
     }
@@ -141,14 +128,17 @@ public interface OrgScope extends Serializable {
     @Schema(title = "组织范围表达式", description = "SpringPathPattern, Groovy或SpringEL")
     String getOrgScopeExpression();
 
+    @Schema(title = "组织范围匹配模式", description = "标准模式直接按组织树层级计算；Custom 才使用组织范围表达式")
+    ScopeMatchingMode getOrgScopeMatchingMode();
+
     @Schema(title = "是否允许所有组织", description = "true: 允许, false: 拒绝")
     default boolean isAllowAllOrg() {
-        return isAllow() && isAllRootOrg() && getOrgScopeMatchingPattern() == ScopeMatchingPattern.All;
+        return isAllow() && isAllRootOrg() && getOrgScopeMatchingMode() == ScopeMatchingMode.All;
     }
 
     @Schema(title = "是否拒绝所有组织", description = "true: 拒绝, false: 允许")
     default boolean isDenyAllOrg() {
-        return isDeny() && isAllRootOrg() && getOrgScopeMatchingPattern() == ScopeMatchingPattern.All;
+        return isDeny() && isAllRootOrg() && getOrgScopeMatchingMode() == ScopeMatchingMode.All;
     }
 
     @Schema(title = "是否拒绝访问")
@@ -158,14 +148,7 @@ public interface OrgScope extends Serializable {
 
     @Schema(title = "是否是自定义范围")
     default boolean isCustomOrgScope() {
-        return ScopeMatchingPattern.Custom.equals(getOrgScopeMatchingPattern());
+        return ScopeMatchingMode.Custom.equals(getOrgScopeMatchingMode());
     }
 
-    @Schema(title = "是否是自定义范围")
-    default ScopeMatchingPattern getOrgScopeMatchingPattern() {
-        return Stream.of(ScopeMatchingPattern.values())
-                .filter(scopeMatchingPattern -> scopeMatchingPattern.getScopeExpression().equals(getOrgScopeExpression()))
-                .findFirst()
-                .orElse(ScopeMatchingPattern.Custom);
-    }
 }

@@ -92,6 +92,7 @@ public interface RbacBaseService extends RbacBaseUserService {
                 .orElse(Collections.emptyList())
                 .stream()
                 .filter(Objects::nonNull)
+                .filter(RbacCoreObject::selfAudit)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
         if (allTenantList.isEmpty()) {
@@ -174,7 +175,13 @@ public interface RbacBaseService extends RbacBaseUserService {
         final Collection<? extends OrgScope> orgScopeList = dataScope != null ? dataScope.getOrgScopeList() : Collections.emptyList();
 
         // tenantMatchingExpression 负责决定组织范围作用于哪些租户，这里先把“可枚举租户”收敛出来，再按表达式挑选候选租户。
-        final Set<String> tenantIdSet = resolveScopedTenantIds(user, orgScopeList, loadAllTenantList(onlyLoadEffectOrg));
+        final Collection<RbacTenantInfo> activeTenantList = Optional.ofNullable(loadAllTenantList(onlyLoadEffectOrg))
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(Objects::nonNull)
+                .filter(RbacCoreObject::selfAudit)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        final Set<String> tenantIdSet = resolveScopedTenantIds(user, orgScopeList, activeTenantList);
 
         final Collection<ORG> accessibleOrgList = new LinkedHashSet<>();
 
@@ -205,6 +212,7 @@ public interface RbacBaseService extends RbacBaseUserService {
                 .orElse(Collections.emptyList())
                 .stream()
                 .filter(Objects::nonNull)
+                .filter(RbacCoreObject::selfAudit)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
         if (tenantOrgList.isEmpty()) {
@@ -247,7 +255,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         final Collection<ORG> allOrgList = new LinkedHashSet<>();
 
         for (RbacTenantInfo tenant : Optional.ofNullable(loadAllTenantList(onlyLoadEffectOrg)).orElse(Collections.emptyList())) {
-            if (tenant == null) {
+            if (tenant == null || !tenant.selfAudit()) {
                 continue;
             }
 
@@ -256,6 +264,7 @@ public interface RbacBaseService extends RbacBaseUserService {
                     .orElse(Collections.emptyList())
                     .stream()
                     .filter(Objects::nonNull)
+                    .filter(RbacCoreObject::selfAudit)
                     .collect(Collectors.toCollection(LinkedHashSet::new)));
         }
 
@@ -263,6 +272,7 @@ public interface RbacBaseService extends RbacBaseUserService {
                 .orElse(Collections.emptyList())
                 .stream()
                 .filter(Objects::nonNull)
+                .filter(RbacCoreObject::selfAudit)
                 .collect(Collectors.toCollection(LinkedHashSet::new)));
 
         return allOrgList;
@@ -531,9 +541,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         for (OrgScope scope : orgScopeList) {
 
             //忽略无效数据
-            if (scope == null
-                    || StrUtil.isBlank(scope.getOrgId())
-                    || StrUtil.isBlank(scope.getOrgScopeExpression())) {
+            if (!isValidOrgScope(scope)) {
                 continue;
             }
 
@@ -543,6 +551,7 @@ public interface RbacBaseService extends RbacBaseUserService {
                     String.valueOf(scope.getTenantMatchingExpression()),
                     scope.getOrgId(),
                     String.valueOf(scope.isAllow()),
+                    String.valueOf(scope.getOrgScopeMatchingMode()),
                     String.valueOf(scope.getOrgScopeExpressionType()),
                     scope.getOrgScopeExpression());
 
@@ -558,6 +567,13 @@ public interface RbacBaseService extends RbacBaseUserService {
         }// 循环结束
 
         return result;
+    }
+
+    private boolean isValidOrgScope(OrgScope scope) {
+        return scope != null
+                && StrUtil.isNotBlank(scope.getOrgId())
+                && scope.getOrgScopeMatchingMode() != null
+                && (!scope.isCustomOrgScope() || StrUtil.isNotBlank(scope.getOrgScopeExpression()));
     }
 
     @Operation(summary = "加载直接下级组织", description = "性能扩展点：默认实现会加载租户组织列表后内存过滤；子类应优先覆盖为按 parentId 直接查询。orgPrincipal 参数可以是orgId 或是 RbacOrgInfo")
@@ -672,6 +688,27 @@ public interface RbacBaseService extends RbacBaseUserService {
         Assert.notNull(user, "用户({})不存在", userPrincipal);
 
         userPrincipal = user;
+
+        if (RbacMiscUtils.isNotBlank(tenantId)) {
+            final RbacTenantInfo tenant = loadTenant(tenantId);
+            if (tenant != null) {
+                Assert.isTrue(tenant.selfAudit(), "租户[{}]不可用", tenantId);
+            }
+        }
+
+        if (RbacMiscUtils.isNotBlank(parentId)) {
+            final RbacOrgInfo parentOrg = loadOrg(parentId);
+            if (parentOrg != null) {
+                Assert.isTrue(parentOrg.selfAudit(), "父组织机构[{}]不可用", parentId);
+            }
+        }
+
+        if (RbacMiscUtils.isNotBlank(orgId)) {
+            final RbacOrgInfo org = loadOrg(orgId);
+            if (org != null) {
+                Assert.isTrue(org.selfAudit(), "组织机构[{}]不可用", orgId);
+            }
+        }
 
         //优化效率
         // 只有顶级超级管理员可以完全跳过组织可访问性校验。
@@ -920,7 +957,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         final Map<String, RbacRoleInfo> roleByCode = new LinkedHashMap<>();
 
         for (RbacRoleInfo roleInfo : roleList) {
-            if (roleInfo == null || StrUtil.isBlank(roleInfo.getCode())) {
+            if (roleInfo == null || !roleInfo.selfAudit() || StrUtil.isBlank(roleInfo.getCode())) {
                 continue;
             }
 
@@ -1073,7 +1110,7 @@ public interface RbacBaseService extends RbacBaseUserService {
 
         // 无租户入参的公开判断保留“全局所有租户”的语义；按租户加载组织时使用带 tenantId 的重载。
         for (OrgScope scope : userDataScope.getOrgScopeList()) {
-            if (scope == null || StrUtil.isBlank(scope.getOrgId()) || StrUtil.isBlank(scope.getOrgScopeExpression())) {
+            if (!isValidOrgScope(scope)) {
                 continue;
             }
             if (!canApplyTenantScope(user, scope)) {
@@ -1101,7 +1138,7 @@ public interface RbacBaseService extends RbacBaseUserService {
 
         // 这里只消费已经算好的 DataScope，避免在高频调用链上重复触发 getUserDataScope(...)。
         for (OrgScope scope : userDataScope.getOrgScopeList()) {
-            if (scope == null || StrUtil.isBlank(scope.getOrgId()) || StrUtil.isBlank(scope.getOrgScopeExpression())) {
+            if (!isValidOrgScope(scope)) {
                 continue;
             }
             if (!canApplyTenantScope(user, scope)) {
@@ -1144,7 +1181,7 @@ public interface RbacBaseService extends RbacBaseUserService {
 
         for (OrgScope scope : orgScopeList) {
 
-            if (scope == null || StrUtil.isBlank(scope.getOrgId()) || StrUtil.isBlank(scope.getOrgScopeExpression())) {
+            if (!isValidOrgScope(scope)) {
                 continue;
             }
 
@@ -1288,7 +1325,7 @@ public interface RbacBaseService extends RbacBaseUserService {
                                                                               Map<String, List<String>> childrenByParentId,
                                                                               Map<String, Set<String>> subtreeOrgIdsCache) {
 
-        switch (scope.getOrgScopeMatchingPattern()) {
+        switch (scope.getOrgScopeMatchingMode()) {
             case OnlySelf:
                 return orgMap.containsKey(scopeRootId)
                         ? new LinkedHashSet<>(Collections.singleton(scopeRootId))
@@ -1526,7 +1563,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         boolean hasAllowAllTenant = false;
 
         for (OrgScope scope : orgScopeList) {
-            if (scope == null || StrUtil.isBlank(scope.getOrgId()) || StrUtil.isBlank(scope.getOrgScopeExpression())) {
+            if (!isValidOrgScope(scope)) {
                 continue;
             }
 
@@ -1709,7 +1746,7 @@ public interface RbacBaseService extends RbacBaseUserService {
             return false;
         }
 
-        switch (scope.getOrgScopeMatchingPattern()) {
+        switch (scope.getOrgScopeMatchingMode()) {
             case OnlySelf:
                 return "/".equals(relativeIdPath);
             case OnlyDirectChild:
@@ -1766,7 +1803,23 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
     private boolean matchPathPatternExpression(String expression, String relativePath) {
-        return PathPatternUtils.matchPathWithOptionalTrailingSlash(expression, relativePath);
+        final String pathToMatch = expression != null && expression.endsWith("/") && !"/".equals(expression)
+                ? relativePath
+                : normalizeRelativePathForPatternMatch(relativePath);
+        return PathPatternUtils.matchPath(expression, pathToMatch);
+    }
+
+    private String normalizeRelativePathForPatternMatch(String path) {
+        if (StrUtil.isBlank(path) || "/".equals(path)) {
+            return path;
+        }
+
+        int end = path.length();
+        while (end > 1 && path.charAt(end - 1) == '/') {
+            end--;
+        }
+
+        return end == path.length() ? path : path.substring(0, end);
     }
 
     private int getRelativeDepth(String relativePath) {

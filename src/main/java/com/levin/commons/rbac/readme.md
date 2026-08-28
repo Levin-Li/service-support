@@ -11,6 +11,7 @@
 - 最小接入步骤
 - 超管与机密级别语义
 - `DataScope` / `OrgScope` 规则
+- `ScopeMatchingMode` 标准范围与 Custom 表达式的分流
 - `tenantMatchingExpression` / 公共组织语义
 - `IdPath` / `NamePath` / `Groovy` / `SpringEL`
 - 组织树装配与性能建议

@@ -20,4 +20,12 @@ class PathPatternUtilsTest {
         assertTrue(PathPatternUtils.matchPathWithOptionalTrailingSlash("/*", "/A/"));
         assertFalse(PathPatternUtils.matchPathWithOptionalTrailingSlash("/*/", "/A/B"));
     }
+
+    @Test
+    void shouldKeepRawPathPatternTrailingSlashSemanticsSeparateFromOrgScopeSemantics() {
+        assertFalse(PathPatternUtils.matchPath("/*/", "/"));
+        assertFalse(PathPatternUtils.matchPath("/*/", "/A"));
+        assertTrue(PathPatternUtils.matchPath("/*/", "/A/"));
+        assertFalse(PathPatternUtils.matchPath("/*/", "/A/B/"));
+    }
 }
