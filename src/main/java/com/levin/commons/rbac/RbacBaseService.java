@@ -775,7 +775,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         Integer maxConfidentialDataAccessLevel = null;
 
         for (RbacRoleInfo role : loadTenantRoleListByCodes(userInfo.getTenantId(), roleCodeSet)) {
-            if (role == null || role.getConfidentialDataAccessLevel() == null) {
+            if (role == null || !role.selfAudit() || role.getConfidentialDataAccessLevel() == null) {
                 continue;
             }
             if (maxConfidentialDataAccessLevel == null

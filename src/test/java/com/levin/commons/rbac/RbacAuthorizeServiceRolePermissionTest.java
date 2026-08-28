@@ -1164,6 +1164,39 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldExcludeDisabledRolesFromConfidentialDataAccessLevel() {
+        TestRbacUser scopedUser = new TestRbacUser(
+                "U7B_DISABLED",
+                "role-level-user",
+                "T1",
+                "OPS",
+                Arrays.asList("R_EFFECTIVE", "R_DISABLED"),
+                null
+        );
+
+        StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser);
+        scopedService.registerRole(new TestRbacRole(
+                "R7B_ENABLED",
+                "R_EFFECTIVE",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                5
+        ));
+        scopedService.registerRole(new DisabledTestRbacRole(
+                "R7B_DISABLED",
+                "R_DISABLED",
+                "T1",
+                Collections.emptyList(),
+                Collections.emptyList(),
+                6
+        ));
+
+        assertEquals(5, scopedService.getUserConfidentialDataAccessLevel(scopedUser),
+                "禁用角色不能提高用户的机密数据访问级别");
+    }
+
+    @Test
     void shouldRecalculateConfidentialLevelWithoutTransientCache() {
         TestRbacUser scopedUser = new TestRbacUser(
                 "U7B1",
@@ -3389,6 +3422,19 @@ class RbacAuthorizeServiceRolePermissionTest {
         @Override
         public Map<String, Object> getTransientExInfo() {
             return transientExInfo;
+        }
+    }
+
+    private static class DisabledTestRbacRole extends TestRbacRole {
+
+        DisabledTestRbacRole(String id, String code, String tenantId, List<String> permissionList,
+                             List<String> exclusiveRoleList, Integer confidentialDataAccessLevel) {
+            super(id, code, tenantId, permissionList, exclusiveRoleList, confidentialDataAccessLevel);
+        }
+
+        @Override
+        public boolean isEnable() {
+            return false;
         }
     }
 
