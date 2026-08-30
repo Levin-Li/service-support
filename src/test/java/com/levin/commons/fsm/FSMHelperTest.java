@@ -1,0 +1,63 @@
+package com.levin.commons.fsm;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class FSMHelperTest {
+
+    @Test
+    void shouldCreateEventAndExposeEventSource() {
+        final FsmEvent event = FSMHelper.newFsmEvent("ACCEPT", FsmEventSource.System, "系统受理");
+
+        assertEquals("ACCEPT", event.name());
+        assertEquals("系统受理", event.description());
+        assertEquals(FsmEventSource.System, event.source());
+    }
+
+    @Test
+    void shouldReturnEventsForRulesThatStartFromCurrentState() {
+        final TestState draft = new TestState("DRAFT");
+        final TestState submitted = new TestState("SUBMITTED");
+        final FsmState<TestEvent, TestState> sourceState = draft;
+        final FsmState<TestEvent, TestState> targetState = submitted;
+
+        draft.transitionRules = List.of(FSMHelper.newFsmTransition(
+                sourceState, TestEvent.SUBMIT, targetState, state -> true));
+
+        assertEquals(List.of(TestEvent.SUBMIT), FSMHelper.canFireEvents(draft));
+        assertEquals(List.of("SUBMIT"), FSMHelper.canFireEventNames(draft));
+        assertEquals(List.of(TestEvent.SUBMIT), draft.canFireEvents());
+
+        final FSM<TestEvent, TestState> fsm = () -> List.of(draft, submitted);
+        assertEquals(List.of(draft, submitted), fsm.states());
+        assertEquals(List.of(TestEvent.SUBMIT), fsm.canFireEvents(draft));
+        assertTrue(FSMHelper.canFireEvents(submitted).isEmpty());
+    }
+
+    enum TestEvent implements FsmEvent {
+        SUBMIT
+    }
+
+    static class TestState implements FsmState<TestEvent, TestState> {
+        private final String name;
+        private List<? extends FsmStateTransitionRule<TestEvent, FsmState<TestEvent, TestState>>> transitionRules = List.of();
+
+        TestState(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String name() {
+            return name;
+        }
+
+        @Override
+        public List<? extends FsmStateTransitionRule<TestEvent, FsmState<TestEvent, TestState>>> transitionRules() {
+            return transitionRules;
+        }
+    }
+}

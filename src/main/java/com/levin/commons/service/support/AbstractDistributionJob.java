@@ -376,6 +376,8 @@ public abstract class AbstractDistributionJob<T> {
                 }
             }
 
+
+
             try {
                 //防止过快处理，占满CPU
                 long sleep = getSleepByPerBatch();

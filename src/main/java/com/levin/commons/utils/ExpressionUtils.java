@@ -5,6 +5,7 @@ import com.levin.commons.service.support.VariableResolver;
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.Script;
+import jakarta.validation.constraints.NotNull;
 import lombok.SneakyThrows;
 import org.codehaus.groovy.runtime.InvokerHelper;
 import org.springframework.expression.Expression;
@@ -15,7 +16,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.scripting.groovy.GroovyScriptEvaluator;
 import org.springframework.scripting.support.StaticScriptSource;
 
-import jakarta.validation.constraints.NotNull;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.*;
