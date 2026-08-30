@@ -18,8 +18,23 @@ public interface FSM<EVENT, STATE> extends Serializable {
      */
     List<FsmState<EVENT, STATE>> states();
 
+    /**
+     * 指定的状态 可以触发的事件名称列表
+     *
+     * @param fsmState
+     * @return
+     */
+    default List<String> canFireEventNames(FsmState<EVENT, STATE> fsmState) {
+        return FSMHelper.canFireEventNames(fsmState);
+    }
 
-   default List<EVENT> canFireEvents(FsmState<EVENT, STATE> fsmState){
+    /**
+     * 指定的状态 可以触发的事件列表
+     *
+     * @param fsmState
+     * @return
+     */
+    default List<EVENT> canFireEvents(FsmState<EVENT, STATE> fsmState) {
         return FSMHelper.canFireEvents(fsmState);
     }
 }
