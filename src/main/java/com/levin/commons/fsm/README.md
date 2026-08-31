@@ -10,8 +10,8 @@
 
 | 类型 | 职责 |
 | --- | --- |
-| `FSM<EVENT, STATE>` | 一个状态机定义；`states()` 返回全部有限状态。实现类建议使用枚举。 |
-| `FsmState<EVENT, STATE>` | 一个状态；`transitionRules()` 返回以当前状态为源状态的出向流转规则。 |
+| `FSM<EVENT>` | 一个状态机定义；`states()` 返回全部有限状态。实现类建议使用枚举。 |
+| `FsmState<EVENT>` | 一个状态；`transitionRules()` 返回以当前状态为源状态的出向流转规则。 |
 | `FsmStateTransitionRule<EVENT, STATE>` | 一条完整规则：源状态、事件、额外触发条件、目标状态。 |
 | `FsmEvent` | 事件元数据契约：名称、描述、来源。业务事件通常用枚举实现。 |
 | `FsmEventSource` | 事件来源：用户、管理、系统、定时、外部、消息、其他。 |
@@ -22,8 +22,8 @@
 状态必须是有限集合；实际设计中推荐让状态枚举实现 `FsmState`，并由状态机实现的 `states()` 返回全部枚举值。
 
 ```java
-public interface FSM<EVENT, STATE> {
-    List<FsmState<EVENT, STATE>> states();
+public interface FSM<EVENT> {
+    List<FsmState<EVENT>> states();
 }
 ```
 
@@ -34,10 +34,10 @@ public interface FSM<EVENT, STATE> {
 `FsmState.transitionRules()` 表示“**以当前状态为源状态**”的规则集合，而不是进入当前状态的规则集合。
 
 ```java
-public interface FsmState<EVENT, STATE> {
+public interface FsmState<EVENT> {
     String name();
 
-    List<? extends FsmStateTransitionRule<EVENT, FsmState<EVENT, STATE>>>
+    List<? extends FsmStateTransitionRule<EVENT, FsmState<EVENT>>>
             transitionRules();
 }
 ```

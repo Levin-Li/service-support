@@ -44,7 +44,18 @@ public final class FSMHelper {
 
     }
 
-    public static <EVENT, STATE> FsmStateTransitionRule<EVENT, STATE> newFsmTransition(STATE sourceState, EVENT event, STATE targetState, Predicate<STATE>... fireConditions) {
+    /**
+     * 创建新规则
+     *
+     * @param sourceState
+     * @param event
+     * @param targetState
+     * @param fireConditions
+     * @param <EVENT>
+     * @param <STATE>
+     * @return
+     */
+    public static <EVENT, STATE> FsmStateTransitionRule<EVENT, STATE> newFsmStateTransitionRule(STATE sourceState, EVENT event, STATE targetState, Predicate<STATE>... fireConditions) {
 
         return new SimpleFsmStateTransitionRule<EVENT, STATE>(
 
@@ -66,10 +77,9 @@ public final class FSMHelper {
      *
      * @param fsmState
      * @param <EVENT>
-     * @param <STATE>
      * @return
      */
-    public static <EVENT, STATE> List<String> canFireEventNames(FsmState<EVENT, STATE> fsmState) {
+    public static <EVENT> List<String> canFireEventNames(FsmState<EVENT> fsmState) {
         return canFireEvents(fsmState).stream().map(FSMHelper::toStringValue).collect(Collectors.toUnmodifiableList());
     }
 
@@ -78,12 +88,11 @@ public final class FSMHelper {
      *
      * @param fsmState
      * @param <EVENT>
-     * @param <STATE>
      * @return
      */
-    public static <EVENT, STATE> List<EVENT> canFireEvents(FsmState<EVENT, STATE> fsmState) {
+    public static <EVENT> List<EVENT> canFireEvents(FsmState<EVENT> fsmState) {
 
-        List<? extends FsmStateTransitionRule<EVENT, FsmState<EVENT, STATE>>> transitionRules = fsmState.transitionRules();
+        List<? extends FsmStateTransitionRule<EVENT, FsmState<EVENT>>> transitionRules = fsmState.transitionRules();
 
         if (transitionRules == null
                 || transitionRules.isEmpty()) {
@@ -139,14 +148,20 @@ public final class FSMHelper {
     }
 
 
+    /**
+     * 特定功能， 为了匹配 字符串和对象的比较
+     *
+     * @param value
+     * @return
+     */
     private static String toStringValue(Object value) {
 
         if (value == null) {
             return null;
         }
 
-        if (value instanceof FsmState<?, ?>) {
-            return ((FsmState<?, ?>) value).name().trim();
+        if (value instanceof FsmState<?>) {
+            return ((FsmState<?>) value).name().trim();
         } else if (value instanceof FsmEvent) {
             return ((FsmEvent) value).name().trim();
         } else {

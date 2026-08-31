@@ -9,14 +9,14 @@ import java.util.List;
  * @author lilw
  */
 @Schema(title = "有限状态机", description = "实现类建议是一个枚举类")
-public interface FSM<EVENT, STATE> extends Serializable {
+public interface FSM<EVENT> extends Serializable {
 
     /**
      * 获取有限的状态列表
      *
      * @return
      */
-    List<FsmState<EVENT, STATE>> states();
+    List<FsmState<EVENT>> states();
 
     /**
      * 指定的状态 可以触发的事件名称列表
@@ -24,7 +24,7 @@ public interface FSM<EVENT, STATE> extends Serializable {
      * @param fsmState
      * @return
      */
-    default List<String> canFireEventNames(FsmState<EVENT, STATE> fsmState) {
+    default List<String> canFireEventNames(FsmState<EVENT> fsmState) {
         return FSMHelper.canFireEventNames(fsmState);
     }
 
@@ -34,7 +34,7 @@ public interface FSM<EVENT, STATE> extends Serializable {
      * @param fsmState
      * @return
      */
-    default List<EVENT> canFireEvents(FsmState<EVENT, STATE> fsmState) {
+    default List<EVENT> canFireEvents(FsmState<EVENT> fsmState) {
         return FSMHelper.canFireEvents(fsmState);
     }
 }

@@ -22,17 +22,17 @@ class FSMHelperTest {
     void shouldReturnEventsForRulesThatStartFromCurrentState() {
         final TestState draft = new TestState("DRAFT");
         final TestState submitted = new TestState("SUBMITTED");
-        final FsmState<TestEvent, TestState> sourceState = draft;
-        final FsmState<TestEvent, TestState> targetState = submitted;
+        final FsmState<TestEvent> sourceState = draft;
+        final FsmState<TestEvent> targetState = submitted;
 
-        draft.transitionRules = List.of(FSMHelper.newFsmTransition(
+        draft.transitionRules = List.of(FSMHelper.newFsmStateTransitionRule(
                 sourceState, TestEvent.SUBMIT, targetState, state -> true));
 
         assertEquals(List.of(TestEvent.SUBMIT), FSMHelper.canFireEvents(draft));
         assertEquals(List.of("SUBMIT"), FSMHelper.canFireEventNames(draft));
         assertEquals(List.of(TestEvent.SUBMIT), draft.canFireEvents());
 
-        final FSM<TestEvent, TestState> fsm = () -> List.of(draft, submitted);
+        final FSM<TestEvent> fsm = () -> List.of(draft, submitted);
         assertEquals(List.of(draft, submitted), fsm.states());
         assertEquals(List.of(TestEvent.SUBMIT), fsm.canFireEvents(draft));
         assertTrue(FSMHelper.canFireEvents(submitted).isEmpty());
@@ -42,9 +42,9 @@ class FSMHelperTest {
         SUBMIT
     }
 
-    static class TestState implements FsmState<TestEvent, TestState> {
+    static class TestState implements FsmState<TestEvent> {
         private final String name;
-        private List<? extends FsmStateTransitionRule<TestEvent, FsmState<TestEvent, TestState>>> transitionRules = List.of();
+        private List<? extends FsmStateTransitionRule<TestEvent, FsmState<TestEvent>>> transitionRules = List.of();
 
         TestState(String name) {
             this.name = name;
@@ -56,7 +56,7 @@ class FSMHelperTest {
         }
 
         @Override
-        public List<? extends FsmStateTransitionRule<TestEvent, FsmState<TestEvent, TestState>>> transitionRules() {
+        public List<? extends FsmStateTransitionRule<TestEvent, FsmState<TestEvent>>> transitionRules() {
             return transitionRules;
         }
     }
