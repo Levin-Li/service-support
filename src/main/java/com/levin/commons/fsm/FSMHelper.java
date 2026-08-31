@@ -104,6 +104,31 @@ public final class FSMHelper {
 
     }
 
+    public static <S extends FsmState<EVENT>, EVENT extends FsmEvent> S fireEvent(S eventFsmState, String eventName) {
+
+        requireNonBlank(eventName, "eventName is blank");
+
+        //@todo
+        List<? extends FsmStateTransitionRule<EVENT, ? extends FsmState<EVENT>>> transitionRules = eventFsmState.transitionRules();
+
+        if (transitionRules != null) {
+            FsmState<EVENT> state = transitionRules.stream()
+                    .filter(rule -> isValueEquals(rule.event(), eventName))
+
+                    .findFirst()
+
+                    .map(FsmStateTransitionRule::targetState)
+
+                    .orElse(null);
+
+            if (state != null) {
+                return (S) state;
+            }
+        }
+
+        throw new IllegalStateException(String.format("[%s] can't fire [%s] event", eventFsmState.name(), eventName));
+    }
+
     /**
      * 特别方法，用于比较 2个状态值 或是 2个事件是否相等
      *
@@ -169,6 +194,7 @@ public final class FSMHelper {
 
         return value;
     }
+
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////
 

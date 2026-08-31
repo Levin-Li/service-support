@@ -90,6 +90,9 @@ List<String> eventNames = FSMHelper.canFireEventNames(fsmState);
 
 // 判断指定事件名称能否触发
 boolean canSubmit = fsmState.canFireEvent("SUBMIT");
+
+// 触发事件并返回目标状态；没有匹配规则时抛 IllegalStateException
+FsmState<EventType> targetState = fsmState.fireEvent("SUBMIT");
 ```
 
 查询步骤如下：

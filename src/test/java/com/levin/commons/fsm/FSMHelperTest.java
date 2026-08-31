@@ -6,6 +6,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FSMHelperTest {
@@ -34,6 +35,8 @@ class FSMHelperTest {
         assertEquals(List.of(TestEvent.SUBMIT), draft.canFireEvents());
         assertTrue(draft.canFireEvent("SUBMIT"));
         assertFalse(draft.canFireEvent("ACCEPT"));
+        assertEquals(submitted, draft.fireEvent("SUBMIT"));
+        assertThrows(IllegalStateException.class, () -> submitted.fireEvent("SUBMIT"));
 
         final FSM<TestEvent> fsm = () -> List.of(draft, submitted);
         assertEquals(List.of(draft, submitted), fsm.allStates());

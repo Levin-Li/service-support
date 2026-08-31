@@ -32,4 +32,9 @@ public interface FsmState<EVENT extends FsmEvent> extends Serializable {
         return FSMHelper.canFireEvents(this);
     }
 
+    @Schema(title = "触发事件", description = "返回事件发生后的状态")
+    default FsmState<EVENT> fireEvent(String eventName) {
+        return FSMHelper.fireEvent(this, eventName);
+    }
+
 }
