@@ -120,6 +120,8 @@ public final class FSMHelper {
 
                     .filter(Objects::nonNull)
 
+                    .filter(rule -> isValueEquals(rule.sourceState(), eventFsmState))
+
                     .filter(rule -> isValueEquals(rule.event(), eventName))
 
                     .findFirst()

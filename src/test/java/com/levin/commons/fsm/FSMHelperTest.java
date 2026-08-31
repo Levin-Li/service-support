@@ -18,6 +18,9 @@ class FSMHelperTest {
         assertEquals("ACCEPT", event.name());
         assertEquals("系统受理", event.description());
         assertEquals(FsmEventSource.System, event.source());
+        assertEquals(FsmEventSource.User, FSMHelper.newUserFsmEvent("SUBMIT").source());
+        assertThrows(IllegalArgumentException.class, () -> FSMHelper.newUserFsmEvent("  "));
+        assertThrows(NullPointerException.class, () -> FSMHelper.newFsmEvent("SUBMIT", null, "提交"));
     }
 
     @Test
@@ -41,6 +44,38 @@ class FSMHelperTest {
         final FSM<TestEvent> fsm = () -> List.of(draft, submitted);
         assertEquals(List.of(draft, submitted), fsm.allStates());
         assertTrue(FSMHelper.canFireEvents(submitted).isEmpty());
+    }
+
+    @Test
+    void shouldMatchEquivalentStateNamesAndRejectMismatchedSourceRules() {
+        final TestState draft = new TestState("DRAFT");
+        final TestState sameNameDraft = new TestState("DRAFT");
+        final TestState submitted = new TestState("SUBMITTED");
+
+        draft.transitionRules = List.of(FSMHelper.newFsmStateTransitionRule(
+                sameNameDraft, TestEvent.SUBMIT, submitted));
+        assertEquals(List.of(TestEvent.SUBMIT), draft.canFireEvents(),
+                "同名状态对象应按状态名称视为同一个源状态");
+        assertEquals(submitted, draft.fireEvent("SUBMIT"));
+
+        draft.transitionRules = List.of(FSMHelper.newFsmStateTransitionRule(
+                submitted, TestEvent.SUBMIT, draft));
+        assertTrue(draft.canFireEvents().isEmpty(), "源状态不匹配时不应暴露事件");
+        assertThrows(IllegalStateException.class, () -> draft.fireEvent("SUBMIT"),
+                "源状态不匹配时不应实际触发事件");
+    }
+
+    @Test
+    void shouldRejectIncompleteTransitionRules() {
+        final TestState draft = new TestState("DRAFT");
+        final TestState submitted = new TestState("SUBMITTED");
+
+        assertThrows(NullPointerException.class,
+                () -> FSMHelper.newFsmStateTransitionRule(null, TestEvent.SUBMIT, submitted));
+        assertThrows(NullPointerException.class,
+                () -> FSMHelper.newFsmStateTransitionRule(draft, null, submitted));
+        assertThrows(NullPointerException.class,
+                () -> FSMHelper.newFsmStateTransitionRule(draft, TestEvent.SUBMIT, null));
     }
 
     enum TestEvent implements FsmEvent {
