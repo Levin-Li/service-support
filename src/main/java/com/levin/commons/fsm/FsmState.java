@@ -17,6 +17,7 @@ public interface FsmState<EVENT> extends Serializable {
     @Schema(title = "以当前状态为源状态的流转规则集合", description = "")
     List<? extends FsmStateTransitionRule<EVENT, FsmState<EVENT>>> transitionRules();
 
+
     /**
      * 可以触发的事件名称列表
      *

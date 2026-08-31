@@ -37,4 +37,5 @@ public interface FSM<EVENT> extends Serializable {
     default List<EVENT> canFireEvents(FsmState<EVENT> fsmState) {
         return FSMHelper.canFireEvents(fsmState);
     }
+
 }
