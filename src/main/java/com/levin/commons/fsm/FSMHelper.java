@@ -73,7 +73,7 @@ public final class FSMHelper {
      * @return
      */
     public static <EVENT extends FsmEvent> List<String> canFireEventNames(FsmState<EVENT> sourceState) {
-        return canFireEvents(sourceState).stream().map(FSMHelper::toStringValue).toList();
+        return canFireEvents(sourceState).stream().map(FSMHelper::toStringValue).filter(Objects::nonNull).toList();
     }
 
     /**
@@ -94,11 +94,15 @@ public final class FSMHelper {
 
         return transitionRules.stream()
 
+                .filter(Objects::nonNull)
+
                 //源相等
                 .filter(rule -> isValueEquals(rule.sourceState(), sourceState))
 
                 //取事件
                 .map(FsmStateTransitionRule::event)
+
+                .filter(Objects::nonNull)
 
                 .toList();
 
@@ -113,6 +117,9 @@ public final class FSMHelper {
 
         if (transitionRules != null) {
             FsmState<EVENT> state = transitionRules.stream()
+
+                    .filter(Objects::nonNull)
+
                     .filter(rule -> isValueEquals(rule.event(), eventName))
 
                     .findFirst()
