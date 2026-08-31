@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -75,24 +74,24 @@ public final class FSMHelper {
     /**
      * 是否能触发事件
      *
-     * @param fsmState
+     * @param sourceState
      * @param <EVENT>
      * @return
      */
-    public static <EVENT> List<String> canFireEventNames(FsmState<EVENT> fsmState) {
-        return canFireEvents(fsmState).stream().map(FSMHelper::toStringValue).collect(Collectors.toUnmodifiableList());
+    public static <EVENT> List<String> canFireEventNames(FsmState<EVENT> sourceState) {
+        return canFireEvents(sourceState).stream().map(FSMHelper::toStringValue).toList();
     }
 
     /**
      * 指定的状态能够触发的事件列表，可用于前端展示
      *
-     * @param fsmState
+     * @param sourceState
      * @param <EVENT>
      * @return
      */
-    public static <EVENT> List<EVENT> canFireEvents(FsmState<EVENT> fsmState) {
+    public static <EVENT> List<EVENT> canFireEvents(FsmState<EVENT> sourceState) {
 
-        List<? extends FsmStateTransitionRule<EVENT, FsmState<EVENT>>> transitionRules = fsmState.transitionRules();
+        List<? extends FsmStateTransitionRule<EVENT, ? extends FsmState<EVENT>>> transitionRules = sourceState.transitionRules();
 
         if (transitionRules == null
                 || transitionRules.isEmpty()) {
@@ -102,17 +101,12 @@ public final class FSMHelper {
         return transitionRules.stream()
 
                 //源相等
-                .filter(rule -> rule.sourceState() == null || isValueEquals(rule.sourceState(), fsmState))
-
-                //
-
-                .filter(rule -> rule.fireCondition() == null || rule.fireCondition().test(fsmState))
-
+                .filter(rule -> isValueEquals(rule.sourceState(), sourceState))
 
                 //取事件
-                .map(rule -> rule.event())
+                .map(FsmStateTransitionRule::event)
 
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
 
     }
 

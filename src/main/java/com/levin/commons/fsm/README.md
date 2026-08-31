@@ -10,24 +10,24 @@
 
 | 类型 | 职责 |
 | --- | --- |
-| `FSM<EVENT>` | 一个状态机定义；`states()` 返回全部有限状态。实现类建议使用枚举。 |
+| `FSM<EVENT>` | 一个状态机定义；`allStates()` 返回全部有限状态。实现类建议使用枚举。 |
 | `FsmState<EVENT>` | 一个状态；`transitionRules()` 返回以当前状态为源状态的出向流转规则。 |
-| `FsmStateTransitionRule<EVENT, STATE>` | 一条完整规则：源状态、事件、额外触发条件、目标状态。 |
+| `FsmStateTransitionRule<EVENT, STATE>` | 一条完整规则：源状态、事件、目标状态。 |
 | `FsmEvent` | 事件元数据契约：名称、描述、来源。业务事件通常用枚举实现。 |
 | `FsmEventSource` | 事件来源：用户、管理、系统、定时、外部、消息、其他。 |
 | `FSMHelper` | 默认事件/规则创建，以及可触发事件查询工具。 |
 
 ## 有限状态集合
 
-状态必须是有限集合；实际设计中推荐让状态枚举实现 `FsmState`，并由状态机实现的 `states()` 返回全部枚举值。
+状态必须是有限集合；实际设计中推荐让状态枚举实现 `FsmState`，并由状态机实现的 `allStates()` 返回全部枚举值。
 
 ```java
 public interface FSM<EVENT> {
-    List<FsmState<EVENT>> states();
+    List<FsmState<EVENT>> allStates();
 }
 ```
 
-`states()` 是状态机的全量状态目录。调用方不应只依据局部规则推测状态集合。
+`allStates()` 是状态机的全量状态目录。调用方不应只依据局部规则推测状态集合。
 
 ## 状态与出向规则
 
@@ -47,13 +47,11 @@ public interface FsmState<EVENT> {
 ```java
 STATE sourceState();
 EVENT event();
-Predicate<STATE> fireCondition();
 STATE targetState();
 ```
 
-- `sourceState` 可以为 `null`，用于描述从初始空状态出发的规则。
+- `sourceState` 可在规则接口中为 `null`，用于描述从初始空状态出发的规则。
 - `event` 不可为空。
-- `fireCondition` 是除源状态匹配以外的附加条件；未提供条件时默认通过。
 - `targetState` 不可为空。
 
 ## 创建事件与规则
@@ -68,11 +66,9 @@ FsmEvent submit = FSMHelper.newUserFsmEvent("SUBMIT");
 FsmEvent accept = FSMHelper.newFsmEvent(
         "ACCEPT", FsmEventSource.System, "系统受理");
 
-// 创建规则；多个 Predicate 必须同时满足
+// 创建规则
 FsmStateTransitionRule<EventType, StateType> rule =
-        FSMHelper.newFsmTransition(sourceState, event, targetState,
-                state -> hasPermission(state),
-                state -> dataIsComplete(state));
+        FSMHelper.newFsmStateTransitionRule(sourceState, event, targetState);
 ```
 
 业务事件优先使用枚举实现 `FsmEvent`。如果需要使用字符串事件或状态，比较时会转换为名称文本处理；具体比较细节由 `FSMHelper` 统一处理。
@@ -94,11 +90,8 @@ List<String> eventNames = FSMHelper.canFireEventNames(fsmState);
 查询步骤如下：
 
 1. 读取当前状态的 `transitionRules()`。
-2. 保留源状态为空，或与当前状态匹配的规则。
-3. 执行规则的 `fireCondition`。
-4. 返回通过筛选的事件列表，保持规则声明顺序。
-
-`FSM.canFireEvents(fsmState)` 是相同查询的状态机入口。
+2. 保留源状态与当前状态匹配的规则。
+3. 返回通过筛选的事件列表，保持规则声明顺序。
 
 ## 事件来源与界面呈现
 

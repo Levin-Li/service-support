@@ -26,15 +26,14 @@ class FSMHelperTest {
         final FsmState<TestEvent> targetState = submitted;
 
         draft.transitionRules = List.of(FSMHelper.newFsmStateTransitionRule(
-                sourceState, TestEvent.SUBMIT, targetState, state -> true));
+                sourceState, TestEvent.SUBMIT, targetState));
 
         assertEquals(List.of(TestEvent.SUBMIT), FSMHelper.canFireEvents(draft));
         assertEquals(List.of("SUBMIT"), FSMHelper.canFireEventNames(draft));
         assertEquals(List.of(TestEvent.SUBMIT), draft.canFireEvents());
 
         final FSM<TestEvent> fsm = () -> List.of(draft, submitted);
-        assertEquals(List.of(draft, submitted), fsm.states());
-        assertEquals(List.of(TestEvent.SUBMIT), fsm.canFireEvents(draft));
+        assertEquals(List.of(draft, submitted), fsm.allStates());
         assertTrue(FSMHelper.canFireEvents(submitted).isEmpty());
     }
 
