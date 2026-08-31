@@ -1,6 +1,7 @@
 # 有限状态机（FSM）
 
-本包提供一个轻量的有限状态机模型。状态集合由 `FSM` 统一提供；每个状态声明从自身出发的流转规则；`FSMHelper` 负责创建默认事件、默认规则，以及查询某状态当前可以触发的事件。
+本包提供一个轻量的有限状态机模型。状态集合由 `FSM` 统一提供；每个状态声明从自身出发的流转规则；`FSMHelper`
+负责创建默认事件、默认规则，以及查询某状态当前可以触发的事件。
 
 ```text
 当前状态 --(事件 + 附加触发条件)--> 目标状态
@@ -8,14 +9,14 @@
 
 ## 核心模型
 
-| 类型 | 职责 |
-| --- | --- |
-| `FSM<EVENT>` | 一个状态机定义；`allStates()` 返回全部有限状态。实现类建议使用枚举。 |
-| `FsmState<EVENT>` | 一个状态；`transitionRules()` 返回以当前状态为源状态的出向流转规则。 |
-| `FsmStateTransitionRule<EVENT, STATE>` | 一条完整规则：源状态、事件、目标状态。 |
-| `FsmEvent` | 事件元数据契约：名称、描述、来源。业务事件通常用枚举实现。 |
-| `FsmEventSource` | 事件来源：用户、管理、系统、定时、外部、消息、其他。 |
-| `FSMHelper` | 默认事件/规则创建，以及可触发事件查询工具。 |
+| 类型                                     | 职责                                           |
+|----------------------------------------|----------------------------------------------|
+| `FSM<EVENT>`                           | 一个状态机定义；`allStates()` 返回全部有限状态。实现类建议使用枚举。    |
+| `FsmState<EVENT>`                      | 一个状态；`transitionRules()` 返回以当前状态为源状态的出向流转规则。 |
+| `FsmStateTransitionRule<EVENT, STATE>` | 一条完整规则：源状态、事件、目标状态。                          |
+| `FsmEvent`                             | 事件元数据契约：名称、描述、来源。业务事件通常用枚举实现。                |
+| `FsmEventSource`                       | 事件来源：用户、管理、系统、定时、外部、消息、其他。                   |
+| `FSMHelper`                            | 默认事件/规则创建，以及可触发事件查询工具。                       |
 
 ## 有限状态集合
 
@@ -71,7 +72,8 @@ FsmStateTransitionRule<EventType, StateType> rule =
         FSMHelper.newFsmStateTransitionRule(sourceState, event, targetState);
 ```
 
-业务事件优先使用枚举实现 `FsmEvent`。如果需要使用字符串事件或状态，比较时会转换为名称文本处理；具体比较细节由 `FSMHelper` 统一处理。
+业务事件优先使用枚举实现 `FsmEvent`。如果需要使用字符串事件或状态，比较时会转换为名称文本处理；具体比较细节由 `FSMHelper`
+统一处理。
 
 ## 查询可触发事件
 
@@ -95,4 +97,5 @@ List<String> eventNames = FSMHelper.canFireEventNames(fsmState);
 
 ## 事件来源与界面呈现
 
-通常只有 `FsmEventSource.User` 的事件应作为普通界面操作呈现。`System`、`Timer`、`External`、`Message` 等事件由后端流程、定时任务或外部输入触发，不应默认渲染为用户按钮。`Admin` 是否展示取决于当前用户的管理权限。
+通常只有 `FsmEventSource.User` 的事件应作为普通界面操作呈现。`System`、`Timer`、`External`、`Message`
+等事件由后端流程、定时任务或外部输入触发，不应默认渲染为用户按钮。`Admin` 是否展示取决于当前用户的管理权限。

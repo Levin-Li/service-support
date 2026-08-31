@@ -14,7 +14,7 @@ import java.io.Serializable;
         getterVisibility = JsonAutoDetect.Visibility.NONE,
         isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @Schema(title = "状态转移规则")
-public interface FsmStateTransitionRule<EVENT, STATE> extends Castable, Serializable {
+public interface FsmStateTransitionRule<EVENT extends FsmEvent, STATE extends FsmState<EVENT>> extends Castable, Serializable {
 
     @NotNull
     @Schema(title = "源状态", description = "可为空, 有些初始态是空")

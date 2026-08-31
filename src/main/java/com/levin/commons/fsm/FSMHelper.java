@@ -2,9 +2,9 @@ package com.levin.commons.fsm;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * 有限状态机的流转与查询工具。
@@ -53,7 +53,7 @@ public final class FSMHelper {
      * @param <STATE>
      * @return
      */
-    public static <EVENT, STATE> FsmStateTransitionRule<EVENT, STATE> newFsmStateTransitionRule(STATE sourceState, EVENT event, STATE targetState) {
+    public static <EVENT extends FsmEvent, STATE extends FsmState<EVENT>> FsmStateTransitionRule<EVENT, STATE> newFsmStateTransitionRule(STATE sourceState, EVENT event, STATE targetState) {
 
         return new SimpleFsmStateTransitionRule<>(
 
@@ -72,7 +72,7 @@ public final class FSMHelper {
      * @param <EVENT>
      * @return
      */
-    public static <EVENT> List<String> canFireEventNames(FsmState<EVENT> sourceState) {
+    public static <EVENT extends FsmEvent> List<String> canFireEventNames(FsmState<EVENT> sourceState) {
         return canFireEvents(sourceState).stream().map(FSMHelper::toStringValue).toList();
     }
 
@@ -83,7 +83,7 @@ public final class FSMHelper {
      * @param <EVENT>
      * @return
      */
-    public static <EVENT> List<EVENT> canFireEvents(FsmState<EVENT> sourceState) {
+    public static <EVENT extends FsmEvent> List<EVENT> canFireEvents(FsmState<EVENT> sourceState) {
 
         List<? extends FsmStateTransitionRule<EVENT, ? extends FsmState<EVENT>>> transitionRules = sourceState.transitionRules();
 
@@ -175,8 +175,9 @@ public final class FSMHelper {
     private record SimpleFsmEvent(String name, FsmEventSource source, String description) implements FsmEvent {
     }
 
-    private record SimpleFsmStateTransitionRule<EVENT, STATE>(STATE sourceState, EVENT event,
-                                                              STATE targetState) implements FsmStateTransitionRule<EVENT, STATE> {
+    private record SimpleFsmStateTransitionRule<EVENT extends FsmEvent, STATE extends FsmState<EVENT>>(
+            STATE sourceState, EVENT event,
+            STATE targetState) implements FsmStateTransitionRule<EVENT, STATE> {
     }
 
 

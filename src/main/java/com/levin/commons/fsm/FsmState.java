@@ -9,7 +9,7 @@ import java.util.List;
  * @author lilw
  */
 @Schema(title = "状态", description = "")
-public interface FsmState<EVENT> extends Serializable {
+public interface FsmState<EVENT extends FsmEvent> extends Serializable {
 
     @Schema(title = "状态名称")
     String name();

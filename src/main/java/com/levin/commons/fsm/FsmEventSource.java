@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * 状态机事件的发起来源。
+ *
  * @author lilw
  */
 @Schema(title = "状态机事件来源")
