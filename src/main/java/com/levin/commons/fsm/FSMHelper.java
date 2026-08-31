@@ -49,23 +49,17 @@ public final class FSMHelper {
      * @param sourceState
      * @param event
      * @param targetState
-     * @param fireConditions
      * @param <EVENT>
      * @param <STATE>
      * @return
      */
-    public static <EVENT, STATE> FsmStateTransitionRule<EVENT, STATE> newFsmStateTransitionRule(STATE sourceState, EVENT event, STATE targetState, Predicate<STATE>... fireConditions) {
+    public static <EVENT, STATE> FsmStateTransitionRule<EVENT, STATE> newFsmStateTransitionRule(STATE sourceState, EVENT event, STATE targetState) {
 
-        return new SimpleFsmStateTransitionRule<EVENT, STATE>(
+        return new SimpleFsmStateTransitionRule<>(
 
                 requireNonBlank(sourceState, "sourceState is blank"),
 
                 requireNonBlank(event, "event is blank"),
-
-                //多个条件合并
-                (fireConditions == null || Stream.of(fireConditions).allMatch(Objects::isNull)) ?
-                        (state) -> true
-                        : (state) -> Stream.of(fireConditions).filter(Objects::nonNull).allMatch(statePredicate -> statePredicate.test(state)),
 
                 requireNonBlank(targetState, "targetState is blank")
         );
@@ -182,7 +176,6 @@ public final class FSMHelper {
     }
 
     private record SimpleFsmStateTransitionRule<EVENT, STATE>(STATE sourceState, EVENT event,
-                                                              Predicate<STATE> fireCondition,
                                                               STATE targetState) implements FsmStateTransitionRule<EVENT, STATE> {
     }
 
