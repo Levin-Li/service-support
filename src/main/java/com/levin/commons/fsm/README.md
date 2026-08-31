@@ -87,6 +87,9 @@ List<EventType> events = fsmState.canFireEvents();
 
 // 获取事件名称，便于展示
 List<String> eventNames = FSMHelper.canFireEventNames(fsmState);
+
+// 判断指定事件名称能否触发
+boolean canSubmit = fsmState.canFireEvent("SUBMIT");
 ```
 
 查询步骤如下：
