@@ -1057,7 +1057,7 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldSkipSelfAuditForNewRolesButKeepItForPersistedRoles() {
+    void shouldLeaveRoleAvailabilityValidationToAuthorizationCaller() {
         TestRbacUser topSuperAdmin = new TestRbacUser(
                 "U_ROLE_DISABLED_TOP_SA",
                 RbacUserInfo.TOP_SA_ACCOUNT_NAME,
@@ -1069,6 +1069,14 @@ class RbacAuthorizeServiceRolePermissionTest {
         TestRbacRole newRole = new TestRbacRole(
                 null,
                 "R_TEAM_ADMIN",
+                null,
+                Collections.emptyList(),
+                Collections.emptyList(),
+                0
+        );
+        TestRbacRole newRoleWithoutCode = new TestRbacRole(
+                null,
+                null,
                 null,
                 Collections.emptyList(),
                 Collections.emptyList(),
@@ -1087,10 +1095,12 @@ class RbacAuthorizeServiceRolePermissionTest {
         authorizeService.setRbacBaseService(new StubRbacBaseService(topSuperAdmin));
 
         assertTrue(authorizeService.isRoleAuthorized(topSuperAdmin, newRole, null),
-                "新建角色没有 ID 时不应触发持久化角色的 selfAudit 校验");
+                "新建角色可用性应由创建调用方检查");
         assertThrows(IllegalArgumentException.class,
-                () -> authorizeService.isRoleAuthorized(topSuperAdmin, disabledPersistedRole, null),
-                "已有禁用角色仍必须通过 selfAudit 校验");
+                () -> authorizeService.isRoleAuthorized(topSuperAdmin, newRoleWithoutCode, null),
+                "新建角色缺少 code 时必须在落库前拒绝，不能把 null 更新到 base_role.code");
+        assertTrue(authorizeService.isRoleAuthorized(topSuperAdmin, disabledPersistedRole, null),
+                "已持久化角色的启用、删除和过期状态也应由调用方检查");
     }
 
     @Test
