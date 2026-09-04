@@ -411,7 +411,11 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
 
         Assert.notNull(principal, "无用户主体");
         Assert.notNull(role, "角色为空");
-        Assert.isTrue(role.selfAudit(), "角色[{}]不可用", role.getCode());
+
+        // 新建角色尚未持久化时没有 ID，角色可用性由创建调用方校验。
+        if (role.getId() != null) {
+            Assert.isTrue(role.selfAudit(), "角色[{}]不可用", role.getCode());
+        }
 
         final String roleCode = role.getCode();
         Assert.notBlank(roleCode, "角色的编码为空");

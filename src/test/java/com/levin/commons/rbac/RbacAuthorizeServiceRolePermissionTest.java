@@ -1057,6 +1057,43 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldSkipSelfAuditForNewRolesButKeepItForPersistedRoles() {
+        TestRbacUser topSuperAdmin = new TestRbacUser(
+                "U_ROLE_DISABLED_TOP_SA",
+                RbacUserInfo.TOP_SA_ACCOUNT_NAME,
+                null,
+                "PLATFORM",
+                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                0
+        );
+        TestRbacRole newRole = new TestRbacRole(
+                null,
+                "R_TEAM_ADMIN",
+                null,
+                Collections.emptyList(),
+                Collections.emptyList(),
+                0
+        );
+        DisabledTestRbacRole disabledPersistedRole = new DisabledTestRbacRole(
+                "R_DISABLED_ASSIGN",
+                "R_TEAM_ADMIN",
+                null,
+                Collections.emptyList(),
+                Collections.emptyList(),
+                0
+        );
+
+        TestAuthorizeService authorizeService = new TestAuthorizeService();
+        authorizeService.setRbacBaseService(new StubRbacBaseService(topSuperAdmin));
+
+        assertTrue(authorizeService.isRoleAuthorized(topSuperAdmin, newRole, null),
+                "新建角色没有 ID 时不应触发持久化角色的 selfAudit 校验");
+        assertThrows(IllegalArgumentException.class,
+                () -> authorizeService.isRoleAuthorized(topSuperAdmin, disabledPersistedRole, null),
+                "已有禁用角色仍必须通过 selfAudit 校验");
+    }
+
+    @Test
     void shouldCheckConfidentialLevelBeforeGrantingSaasAdminRoleAuthorization() {
         TestRbacUser saasAdmin = new TestRbacUser(
                 "U7",
