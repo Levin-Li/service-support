@@ -12,6 +12,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -47,9 +48,9 @@ public class SimpleMenu
     protected String name;
 
     @Schema(title = "操作按钮列表")
-    protected List<OpButton> opButtonList;
+    protected Set<OpButton> opButtonList;
 
-    @Schema(title = "需要的授权，Json数组")
+    @Schema(title = "额外的资源权限",description = "")
     @Column(length = 1800)
     protected List<String> requireAuthorizations;
 

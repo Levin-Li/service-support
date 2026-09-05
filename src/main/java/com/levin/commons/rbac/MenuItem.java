@@ -7,12 +7,14 @@ import com.levin.commons.service.domain.SimpleIdentifiable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 菜单
@@ -56,17 +58,18 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
     @Accessors(chain = true)
     @FieldNameConstants
     @Schema(title = "操作按钮")
+    @EqualsAndHashCode(of = "opName") // 非常重要
     class OpButton implements Castable, Serializable {
 
-        @Schema(title = "api地址")
-        protected String apiUrl;
+        @Schema(title = "操作名称", description = "在单个页面中，它是唯一的,操作名称不可重复")
+        protected String opName;
 
         @Schema(title = "标签")
         protected String label;
 
-        @Schema(title = "需要权限")
+        @Schema(title = "需要的资源权限列表", description = "操作也可以不需要具体的资源权限")
         @NotBlank
-        protected String requireAuthorization;
+        protected List<String> requireAuthorizations;
 
         @Schema(title = "是否禁用", description = "禁用后页面中不显示")
         protected Boolean disabled;
@@ -80,9 +83,9 @@ public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
     }
 
 
-    @Schema(title = "操作按钮列表", description = "通常是控制器中有CRUD.OP注解的方法")
-    default List<OpButton> getOpButtonList() {
-        return Collections.emptyList();
+    @Schema(title = "操作按钮列表", description = "通常是对应控制器中有CRUD.OP注解的方法；那也可能是界面自己命名的操作，关联多个资源权限")
+    default Set<OpButton> getOpButtonList() {
+        return Collections.emptySet();
     }
 
     /**
