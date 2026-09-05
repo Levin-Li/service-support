@@ -449,14 +449,14 @@ public abstract class RbacUtils {
         return (List<M>) menuItems;
     }
 
-    private static List<MenuItem.OpButton> buildOpButtonList(String packageName,
-                                                             RequestMapping controllerMapping,
-                                                             Map<Method, ResAuthorize> methodResAuthorizeMap) {
+    private static Set<MenuItem.OpButton> buildOpButtonList(String packageName,
+                                                            RequestMapping controllerMapping,
+                                                            Map<Method, ResAuthorize> methodResAuthorizeMap) {
         if (methodResAuthorizeMap == null || methodResAuthorizeMap.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
 
-        final List<MenuItem.OpButton> opButtonList = new ArrayList<>();
+        final Set<MenuItem.OpButton> opButtonList = new HashSet<>();
 
         methodResAuthorizeMap.forEach((method, resAuthorize) -> {
             if (method == null || resAuthorize == null) {
@@ -478,18 +478,18 @@ public abstract class RbacUtils {
                     .setAction(resAuthorize.action());
 
             final MenuItem.OpButton opButton = new MenuItem.OpButton()
-                    .setApiUrl(buildRequestPath(controllerMapping, methodMapping, method.getName()))
+                    //   .setApiUrl(buildRequestPath(controllerMapping, methodMapping, method.getName()))
                     .setLabel(StrUtil.firstNonBlank(op.label(), op.name(), operation == null ? null : operation.summary(), method.getName()))
-                    .setRequireAuthorization(permission.toString())
+                    .setRequireAuthorizations(List.of(permission.toString()))
                     .setRemark(StrUtil.firstNonBlank(op.desc(), operation == null ? null : operation.description(), resAuthorize.remark(), ""))
                     .setDisabled(false);
 
             opButtonList.add(opButton);
         });
 
-        opButtonList.sort(Comparator.comparing(MenuItem.OpButton::getApiUrl, Comparator.nullsLast(String::compareTo)));
+        // opButtonList.sort(Comparator.comparing(MenuItem.OpButton::getOpName, Comparator.nullsLast(String::compareTo)));
 
-        return opButtonList.isEmpty() ? Collections.emptyList() : opButtonList;
+        return opButtonList.isEmpty() ? Collections.emptySet() : opButtonList;
     }
 
     private static String buildRequestPath(RequestMapping controllerMapping, RequestMapping methodMapping, String defaultPath) {
