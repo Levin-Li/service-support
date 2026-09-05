@@ -47,10 +47,10 @@ public class SimpleMenu
     @Schema(title = "名称")
     protected String name;
 
-    @Schema(title = "操作按钮列表")
+    @Schema(title = "操作按钮列表", description = "操作按钮的[操作名称]不能重复")
     protected Set<OpButton> opButtonList;
 
-    @Schema(title = "额外的资源权限",description = "")
+    @Schema(title = "额外的资源权限", description = "")
     @Column(length = 1800)
     protected List<String> requireAuthorizations;
 

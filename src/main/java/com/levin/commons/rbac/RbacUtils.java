@@ -479,6 +479,7 @@ public abstract class RbacUtils {
 
             final MenuItem.OpButton opButton = new MenuItem.OpButton()
                     //   .setApiUrl(buildRequestPath(controllerMapping, methodMapping, method.getName()))
+                    .setOpName(StrUtil.firstNonBlank(op.name(), op.label(), op.desc()))
                     .setLabel(StrUtil.firstNonBlank(op.label(), op.name(), operation == null ? null : operation.summary(), method.getName()))
                     .setRequireAuthorizations(List.of(permission.toString()))
                     .setRemark(StrUtil.firstNonBlank(op.desc(), operation == null ? null : operation.description(), resAuthorize.remark(), ""))
