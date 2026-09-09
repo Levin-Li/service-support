@@ -13,9 +13,6 @@ public interface SignReq extends Castable, Serializable {
     @Schema(title = "客户端ID")
     String getClientId();
 
-    @Schema(title = "客户端密钥")
-    String getClientSecret();
-
     @Schema(title = "一次使用临时字符串")
     String getNonceStr();
 

@@ -36,10 +36,6 @@ public class DefaultSignatureReq implements SignReq {
     @NotBlank
     String clientId;
 
-    @Schema(title = "应用密钥")
-    @NotBlank
-    String clientSecret;
-
     @Schema(title = "一次使用临时字符串")
     @NotBlank
     String nonceStr;
