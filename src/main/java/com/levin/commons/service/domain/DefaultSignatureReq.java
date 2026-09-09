@@ -10,6 +10,7 @@ import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
 import jakarta.validation.constraints.NotBlank;
+
 import java.util.UUID;
 
 /**
@@ -30,10 +31,6 @@ import java.util.UUID;
 public class DefaultSignatureReq implements SignReq {
 
     private static final long serialVersionUID = -944707546677849710L;
-
-    @Schema(title = "请求标识", description = "请求标识，用于跟踪请求，便于调试")
-    @Builder.Default
-    String traceId = UUID.randomUUID().toString().replace("-", "");
 
     @Schema(title = "应用标识")
     @NotBlank
@@ -58,10 +55,5 @@ public class DefaultSignatureReq implements SignReq {
     @Schema(title = "签名串")
     @NotBlank
     String sign;
-
-    @Override
-    public final boolean requireSignVerification() {
-        return true;
-    }
 
 }

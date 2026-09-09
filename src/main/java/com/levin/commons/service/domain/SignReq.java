@@ -2,8 +2,13 @@ package com.levin.commons.service.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Desc("客户端接入请求")
-public interface SignReq extends ServiceReq {
+import java.io.Serializable;
+
+/**
+ * @author lilw
+ */
+@Schema(title = "客户端接入请求")
+public interface SignReq extends Castable, Serializable {
 
     @Schema(title = "客户端ID")
     String getClientId();
