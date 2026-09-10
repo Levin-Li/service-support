@@ -23,7 +23,7 @@
 ```xml
 <groupId>com.levin.commons</groupId>
 <artifactId>service-support</artifactId>
-<version>2.0.0-SNAPSHOT</version>
+<version>2.2.0-SNAPSHOT</version>
 <maven.compiler.release>17</maven.compiler.release>
 ```
 
@@ -81,7 +81,7 @@ JAVA_HOME=/Users/lilw/Library/Java/JavaVirtualMachines/corretto-21.0.5/Contents/
 <dependency>
     <groupId>com.levin.commons</groupId>
     <artifactId>service-support</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.2.0-SNAPSHOT</version>
 </dependency>
 ```
 
