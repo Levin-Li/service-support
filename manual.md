@@ -753,18 +753,18 @@ public List<UserDto> queryUsers() {
   │    └─ 用户类型 + 角色 + 权限表达式 + SpEL 条件
   └─ 数据目标授权：checkOrgAccessible(user, tenantId, parentId, orgId)
        ├─ 租户边界
-       ├─ DataScope 中的 tenantMatchingExpression
-       ├─ OrgScope 的 allow 命中集合减去 deny 命中集合
+       ├─ DataScope 中的租户允许/拒绝集合
+       ├─ 组织允许匹配集合减去拒绝匹配集合
        └─ SuperAdmin / SaaSAdmin 分支对目标租户、父组织、组织对象的机密级别检查
 ```
 
-处理“读取/修改某租户或组织数据”的业务入口应同时执行两条链路；资源权限通过不表示可以访问任意组织，组织范围通过也不表示可以执行任意资源动作。
+组织管理入口应同时执行动作授权与 `checkOrgAccessible` 校验。一般业务数据读取使用适用的 `canAccessTenant`、`canAccessDomain`、`canAccessOrg` 和机密级别判断，或等价的查询过滤；不要把带父节点、根节点管理约束的 `checkOrgAccessible` 当成通用读取校验。资源权限通过不表示可以访问任意组织，组织范围通过也不表示可以执行任意资源动作。
 
-`DataScope` 的来源顺序是：用户自身的组织范围优先于角色范围，用户自身的机密数据访问级别优先于生效角色的最高级别。普通租户用户只能把范围规则作用于自身租户；平台用户可以通过 `ALL_TENANT`、指定租户、通配表达式或带 `#!groovy:` 前缀的表达式扩展候选租户。无租户组织属于公共组织；当前默认实现中 `ALL_TENANT` 的组织范围也包含公共组织，而租户列表本身只枚举具备租户 ID 的对象。
+`DataScope` 的六个集合字段分别采用用户非 null 值（包括空集合），否则继承生效角色对应集合的并集。普通租户用户始终受自身租户边界约束；普通平台用户通过 `_ALL_`、`_NONE_`、指定租户或 `Groovy#` 配置授权租户。`_ALL_` 不包含无租户数据。
 
 角色、租户和组织在参与默认授权计算前都会执行 `selfAudit()`；禁用、逻辑删除、过期或缺少 ID 的对象不会授予权限、扩大数据范围或作为可访问目标。
 
-身份快捷路径按强度递减：TopSuperAdmin 可跳过租户、组织、资源权限与机密等级门槛；普通 SuperAdmin / SaaSAdmin 可跳过组织范围，但仍须通过目标对象或资源动作的机密等级检查；TenantAdmin 的“全部组织”只限于其所属租户。
+身份快捷路径只作用于对应的授权门槛：TopSuperAdmin 可跳过租户/组织范围规则和机密等级；普通 SuperAdmin / SaaSAdmin 可跳过租户/组织范围规则，但既有列表及管理校验仍执行对象密级检查。身份边界和显式目标的存在性、状态检查先于组织管理快捷返回；TenantAdmin 的全部组织权限只限于已通过租户资格判断的自身租户。领域判断没有管理员自动放行分支。
 
 > **实现注意：** 当前普通用户的 `checkOrgAccessible(...)` 分支以租户边界和已计算的组织范围集合判断目标组织；若业务要求普通用户也必须逐一校验目标租户、父组织或组织对象的 `confidentialLevel`，应在业务入口补充该校验，或将其明确提升为 `RbacBaseService` 的统一策略。
 
@@ -779,7 +779,7 @@ public List<UserDto> queryUsers() {
 - `RbacTenantInfo`
 - `RbacOrgInfo`
 
-如果只做简单权限，可先让组织和租户字段返回空值，但要清楚这意味着你没有启用完整数据范围语义。
+若只使用动作/角色授权，可暂不接入数据范围查询，但仍须准确填写用户归属。用户租户 ID 为空会被识别为平台用户，不能用空租户 ID 表示“关闭租户权限”；组织 ID 为空表示无组织归属。范围集合返回 null 表示继承角色，返回空集合表示显式空授权，两者也不能混用。
 
 ### 第二步：实现用户服务
 
@@ -854,170 +854,145 @@ public class DemoRbacService implements RbacBaseService {
 
 ## 19. 数据范围 `DataScope`
 
-`DataScope` 描述两个维度：
+`DataScope` 分别声明租户、领域、组织的允许/拒绝集合，以及机密数据访问级别。
+用户和角色均实现该接口。领域对应 `DomainObject.getDomainId()`，不是域名或资源权限表达式。
 
-- 组织范围：`getOrgScopeList()`
-- 机密数据访问级别：`getConfidentialDataAccessLevel()`
+### 19.1 用户与角色的合并
 
-用户和角色都可以携带 `DataScope`。
+六个 `Set<String>` 字段独立选择来源：
 
-默认合并规则：
+| 用户字段 | 有效配置 |
+|---|---|
+| `null` | 生效角色对应集合的并集 |
+| 空集合 `[]` | 用户明确的空集合，替代角色配置 |
+| 非空集合 | 用户配置，替代角色配置 |
 
-- 用户自己声明组织范围时，优先使用用户范围。
-- 用户未声明组织范围时，回退到角色范围。
-- 用户自己声明机密数据访问级别时，优先使用用户值。
-- 用户未声明时，从角色中取最大可访问密级。
+不能用 `isEmpty()` 判断是否继承。接口默认返回的空集合以及默认租户集合也是已定义值；需要继承角色的用户实现必须返回 `null`，持久化适配不能提前把 `null` 变成空集合。
 
-性能注意：
-
-- `getUserDataScope(...)` 不是零成本方法。
-- 不要在循环中反复调用。
-- 高频场景建议在业务层做调用链级缓存或 SQL 预聚合。
-
-## 20. 组织范围 `OrgScope`
-
-`OrgScope` 是 RBAC 数据范围的核心。
-
-关键字段：
-
-- `tenantMatchingExpression`
-- `orgId`
-- `isAllow`
-- `orgScopeMatchingMode`
-- `orgScopeExpressionType`
-- `orgScopeExpression`
-
-计算可以理解为两步：
-
-1. 先匹配租户。
-2. 再在租户内匹配组织。
-
-### 20.1 租户表达式
-
-`tenantMatchingExpression` 常见取值：
-
-- 空字符串：无租户，也就是公共组织。
-- `OrgScope.DEFAULT_TENANT`：用户默认租户；无租户用户会落到公共组织。
-- `OrgScope.ALL_TENANT`：所有租户。
-- 普通文本：租户 ID 精确匹配。
-- Spring PathPattern：例如 `tenant-*` 或 `/tenant-*`。
-- Groovy：必须使用 `#!groovy:` 前缀。
-
-租户 Groovy 上下文：
-
-- `_tenant`
-- `_user`
-- `_scope`
-
-普通租户用户默认只能应用自己租户内的规则。跨租户范围主要服务平台用户或 SaaS 管理员场景。
-
-### 20.2 组织起点
-
-`orgId` 常见取值：
-
-- `OrgScope.ALL_ROOT_ORG`：所有根组织作为起点。
-- `OrgScope.USER_ORG`：用户所在组织作为起点。
-- 普通组织 ID：指定组织作为起点。
-
-`ALL_ROOT_ORG` 是否表示所有根节点还是所有组织，取决于匹配模式：
-
-- `ALL_ROOT_ORG + OnlySelf`：所有根组织。
-- `ALL_ROOT_ORG + All`：所有组织。
-
-### 20.3 allow / deny
-
-默认结果：
-
-```text
-最终可访问组织 = allow 命中集合 - deny 命中集合
-```
-
-特殊短路：
-
-- 命中 `isDenyAllOrg()`，直接返回空。
-- 存在 `isAllowAllOrg()` 且没有 deny，直接返回全部候选组织。
-
-### 20.4 标准匹配模式
-
-`orgScopeMatchingMode` 是标准组织范围的唯一来源，不再从表达式字符串推断：
-
-| 模式 | 界面文案 | 匹配结果 |
+| 接口字段 | 默认返回值 | 对角色配置的影响 |
 |---|---|---|
-| `OnlySelf` | 仅本节点 | 仅范围起点本身 |
-| `OnlyDirectChild` | 仅直接子节点 | 仅范围起点的一级子节点 |
-| `SelfAndDirectChild` | 本节点及直接子节点 | 范围起点及一级子节点 |
-| `All` | 本节点及所有子节点 | 范围起点及全部后代节点 |
-| `Custom` | 自定义表达式 | 由表达式类型和表达式内容决定 |
+| `getTenantScopeList()` | `Set.of("_DEFAULT_")` | 替代角色租户允许集合 |
+| 其余五个范围 getter | `Set.of()` | 分别替代角色对应集合 |
+| `getConfidentialDataAccessLevel()` | `null` | 回退到生效角色的最高级别 |
 
-前四种模式直接按组织树深度计算，`orgScopeExpressionType` 和 `orgScopeExpression` 应保持为空。只有 `Custom` 才进入表达式匹配，并且必须填写表达式。
+集合字段本身不能是空字符串；原始存储中的空字符串须由适配层转换为未定义的 `null`。集合内部的 `null`、空字符串和空白规则属于配置错误，不能通过清理这些元素触发角色继承。
 
-标准模式示例：
+允许为空表示没有允许的目标；拒绝为空表示没有排除项。用户拒绝集合为空时，角色拒绝不会保留。选择各自来源后，每一维度计算：
+
+```text
+有效范围 = 允许规则匹配的目标并集 − 拒绝规则匹配的目标并集
+```
+
+这里减的是匹配结果，而不是规则字符串；允许全部组织、拒绝某部门时，两条不同字符串仍会发生权限扣除。
+
+机密级别沿用用户非 null 值优先，否则取生效角色最大值；顶级超级管理员保留最高访问级别。获取角色不能经“可见角色”的密级过滤反向调用密级计算。
+
+### 19.2 租户范围与身份边界
+
+租户范围使用 `getTenantScopeList()`、`getDeniedTenantScopeList()`：
+
+| 编码 | 含义 |
+|---|---|
+| `_ALL_` | 所有具备租户 ID 的租户，不包含无租户数据 |
+| `_DEFAULT_` | 用户所属租户；平台用户对应无租户 |
+| `_NONE_` | 租户 ID 为空的数据 |
+| `Groovy#脚本` | 使用 `_tenant`、`_user` 匹配租户 |
+| 其他字符串 | 具体租户 ID，按精确值匹配 |
+
+只有平台用户可以跨租户。普通租户用户即使配置其他租户、`_ALL_`、`_NONE_` 或 Groovy，也不能超出自身租户。平台身份提供跨租户资格，普通平台用户仍须匹配授权范围；既有平台管理员快捷策略单独处理。
+
+租户列表只枚举真实租户对象。无租户数据应通过单点范围检查处理，不创建虚构租户。拒绝租户内某组织不会让该租户从可访问租户列表消失。
+
+### 19.3 领域范围与业务接入
+
+领域允许/拒绝集合只接受具体领域 ID，不借用租户的 `_ALL_` 或 `_NONE_` 作为特殊标记。空/未知领域不会自动获得授权。
+
+`canAccessTenant`、`canAccessDomain`、`canAccessOrg` 是数据范围判断入口，不能代替资源动作授权或机密级别检查。业务数据查询需要显式接入适用维度的过滤；新增领域字段不会自动给任意 DAO 查询加条件。没有某维度的对象无需凭空检查该维度；具备组织/租户维度但 ID 为空的数据按对应 None 规则处理。
+
+### 19.4 服务接口职责
+
+| 方法 | 职责 |
+|---|---|
+| `getUserDataScope(user)` | 合并用户/生效角色并返回不可变快照；不能修改返回集合 |
+| `canAccessTenant(user, tenantId)` | 检查身份边界和租户范围；具体租户还须存在且有效 |
+| `canAccessDomain(user, domainId)` | 判断具体领域 ID 是否在允许范围且未被拒绝 |
+| `canAccessOrg(user, tenantId, orgId)` | 检查目标租户资格以及组织范围；空组织按 None 处理 |
+| `canAccessAllOrg(user, tenantId)` | 检查指定租户内非空组织的完整范围覆盖 |
+| `canAccessAllOrg(user)` | 租户用户检查自身租户；平台用户保留全局覆盖语义 |
+| `loadUserAccessibleTenantList(user, onlyEffective)` | 枚举可访问的真实租户对象，不返回虚构的 None 租户 |
+| `loadUserAccessibleOrgList(user, onlyEffective)` | 按租户隔离计算可访问的真实组织列表 |
+| `checkOrgAccessible(user, tenantId, parentId, orgId)` | 组织管理校验，包含父节点及根节点管理限制 |
+
+普通平台用户的全局 `canAccessAllOrg(user)` 要求明确包含 `_ALL_` 和 `_NONE_`，组织允许包含 `_ALL_ROOT_|SelfAndAllChild` 且没有租户/组织拒绝规则，同时检查当前有效组织的实际覆盖情况；孤儿节点和未选中的独立环不能被当作已授权。全量判断是保守的明确授权判断，不是对任意复杂脚本做等价证明。
+
+范围单点方法不执行通用的对象密级过滤；普通 SuperAdmin / SaaSAdmin 的列表接口保留密级过滤，所以单点范围为 true 不保证该对象会出现在密级过滤后的列表中。
+
+## 20. 组织范围 `DataScope.OrgScope`
+
+组织允许/拒绝集合分别为 `getOrgScopeList()`、`getDeniedOrgScopeList()`，每项采用字符串：
+
+```text
+起点组织|匹配模式
+```
+
+### 20.1 起点与匹配模式
+
+| 起点 | 含义 |
+|---|---|
+| `_DEFAULT_` | 用户归属组织；无归属时匹配无组织数据 |
+| `_NONE_` | 组织 ID 为空的数据，忽略匹配模式 |
+| `_ALL_ROOT_` | 当前目标租户的所有根组织，不包含无组织数据 |
+| 具体组织 ID | 当前目标租户中的指定组织 |
+
+| 模式 | 范围 |
+|---|---|
+| `Self` | 起点本身 |
+| `DirectChild` | 直接子节点，不含起点 |
+| `SelfAndDirectChild` | 起点及直接子节点 |
+| `SelfAndAllChild` | 起点及全部后代 |
+| `IdPath#表达式` | 相对起点的 ID 路径匹配 |
+| `NamePath#表达式` | 相对起点的名称路径匹配 |
+| `Groovy#脚本` | 组织脚本匹配，支持 `_org`、`_user` |
+
+例如：
 
 ```json
 {
-  "tenantMatchingExpression": "_DEFAULT_TENANT_",
-  "orgId": "SALES",
-  "isAllow": true,
-  "orgScopeMatchingMode": "OnlyDirectChild"
+  "tenantScopeList": ["tenant-a"],
+  "deniedTenantScopeList": [],
+  "orgScopeList": ["_ALL_ROOT_|SelfAndAllChild"],
+  "deniedOrgScopeList": ["finance|SelfAndAllChild"]
 }
 ```
 
-### 20.5 自定义表达式
+含义是允许 tenant-a 的组织，但排除 finance 及全部下级。是否有业务操作权限仍需另行校验。
 
-`ExpressionType` 支持：
+`_NONE_|Self` 只检查组织 ID 是否为空。格式仍要求 `|`，None 后的模式不参与匹配。解析只在第一个 `|` 处分割，因此 Groovy 中的 `||` 会完整保留。
 
-- `IdPath`
-- `NamePath`
-- `Groovy`
-- `SpringEL`
+### 20.2 路径与租户隔离
 
-`IdPath` 和 `NamePath` 是相对路径，不是整棵树绝对路径。
-
-例如组织链路是：
+`IdPath#`、`NamePath#` 使用 Spring PathPattern。对于 `A -> A2 -> A21`，起点 A 到 A21 的相对 ID 路径是 `/A2/A21/`，不包含起点 A。
 
 ```text
-A -> A2 -> A21
+A|IdPath#/*/*
 ```
 
-如果范围起点是 `A`，目标是 `A21`：
+表示在 A 子树中匹配二级节点。非尾斜杠表达式使用规范化路径；尾斜杠表达式保持 PathPattern 的尾斜杠语义。组织候选必须限定在目标租户和起点子树内，路径或脚本不得通过恒真条件扩展到兄弟组织树或其他租户。
 
-```text
-相对 ID 路径: /A2/A21/
-```
+### 20.3 从旧协议升级
 
-不是：
+旧顶层 `OrgScope`、`SimpleOrgScope`、`SimpleDataScope` 已移除，消费者需要迁移到新接口；有效用户范围通过 `getUserDataScope(...)` 获取。旧 `Collection<OrgScope>` getter 不能与新 `Set<String>` getter 仅凭返回类型重载兼容。
 
-```text
-/A/A2/A21/
-```
+- `OnlySelf` → `Self`；`OnlyDirectChild` → `DirectChild`；`All` → `SelfAndAllChild`。
+- `Custom + IdPath/NamePath/Groovy` → 对应的 `IdPath#/NamePath#/Groovy#` 字符串。
+- 原 `isAllow` 改为放入允许集合或拒绝集合。
+- `_USER_ORG_` → `_DEFAULT_`；`/*` 起点 → `_ALL_ROOT_`。
+- 租户 `_DEFAULT_TENANT_` → `_DEFAULT_`；`#!groovy:` → `Groovy#`。
+- 旧租户 `*` 若包含无租户数据，需要显式组合 `_ALL_` 与 `_NONE_`。
 
-Custom 可以填写任意合法 Spring `PathPattern`，包括 `/`、`/*/`、`/*`、`/**`。这些文本在 Custom 模式下不会改变 `orgScopeMatchingMode`；模式始终由显式字段决定。
+旧租户路径通配、组织 SpringEL 不再作为新范围协议支持。旧配置若对不同租户绑定不同组织策略，不能简单拆为两个并集，否则可能扩大授权；应逐项检查是否可等价表达。核心不自动双轨解析旧规则，迁移应保留原配置以便回退。
 
-无论 Custom 表达式写什么，候选组织都会先被限制为 `orgId` 对应根组织的子树，表达式不能跨到兄弟根组织、其他组织树或其他租户。例如 scope root 为 `A` 时，Custom `/**` 最多匹配 `A`、`A1`、`A2`、`A21`，不会匹配兄弟根 `B`。
-
-Custom `IdPath` / `NamePath` 的非尾斜杠表达式按规范化相对路径匹配，因此 `/*/*` 只匹配二级节点；表达式以 `/` 结尾时保留 Spring `PathPattern` 的尾斜杠语义。
-
-Custom 示例：
-
-```json
-{
-  "tenantMatchingExpression": "_DEFAULT_TENANT_",
-  "orgId": "A",
-  "isAllow": true,
-  "orgScopeMatchingMode": "Custom",
-  "orgScopeExpressionType": "IdPath",
-  "orgScopeExpression": "/*/*"
-}
-```
-
-自定义表达式上下文通常包含：
-
-- `_user`
-- `_org`
-- `_rootOrg`
-- `_scope`
-- `_relativeIdPath`
-- `_relativeNamePath`
+多数服务方法签名保留，旧 `mergeOrgScopeList` 已移除。管理员组织查询现在也经过统一租户边界和租户内组织加载，不再调用 `loadMaxAccessibleOrgList` 的覆盖实现；依赖该扩展点优化的下游应改为覆盖 `loadTenantOrgList` 或 `loadUserAccessibleOrgList`。`canAccessAllOrg` 只表示非空组织范围完整覆盖，不能省略租户、状态、无组织数据或机密级别条件。
 
 ## 21. 组织列表与组织树
 
@@ -1064,6 +1039,39 @@ Custom 示例：
 
 业务实现明确知道组织对象类型时，建议覆盖 `copyOrgNodeForAssembleTree(...)`，用构造器或 mapper 复制必要字段，减少反射成本。
 
+范围计算采用以下短路顺序（保留管理员例外和身份边界）：
+
+1. 空允许集合直接返回无权限，不执行拒绝脚本。
+2. 租户保留编码和精确 ID 匹配先于 Groovy；拒绝命中后不执行允许脚本。
+3. 真实租户全部拒绝时跳过租户枚举；无租户仍单独判断。`_ALL_` 与 `_NONE_` 同时拒绝时不加载租户或组织候选。
+4. 组织先计算拒绝结果。结构模式先于路径、Groovy；实际候选全部被拒绝时不再计算允许范围。
+5. 部分组织被拒绝时，不对这些节点执行允许表达式；保留完整组织图，以免破坏后代的路径和祖先关系。
+6. 单个组织检查只对目标节点执行允许和拒绝表达式，目标已被拒绝则立即返回。
+
+`_ALL_ROOT_` 不包括孤儿节点或不属于根树的独立环，不能仅看到这个编码就认定所有数据都被拒绝；短路依据是实际候选覆盖结果。规则集合是匹配条件的并集，不承诺脚本求值顺序或求值次数；脚本应只返回判断结果，不依赖副作用。
+
+性能回归保留五万节点、百层组织树的两秒上限，分别验证树装配、允许范围计算和全树拒绝；另用加载次数及抛错脚本验证不应执行的路径确实被跳过。字段定义和格式校验仍先执行，短路不等于接受非法配置。
+
+本次本机 Surefire 单用例耗时（包含测试数据准备；不是生产延迟承诺）：
+
+| 五万节点、百层场景 | 耗时 | 断言上限 |
+|---|---:|---:|
+| 组织树装配 | 0.252 秒 | 2 秒 |
+| 允许范围计算 | 0.096 秒 | 2 秒 |
+| 全树拒绝并跳过允许脚本 | 0.062 秒 | 2 秒 |
+| 同一起点 20 条不命中 ID 路径规则 | 0.710 秒 | 2 秒 |
+
+同时断言：全部租户和无租户均拒绝时，候选租户与组织加载次数均为 0；单点目标已拒绝时不执行任何允许脚本。
+
+多规则路径匹配在单次计算内复用当前起点的子树、父路径和已解析的 `PathContainer`。ID 规则不读取名称；同起点名称规则增多不会重复生成整套名称路径。切换起点丢弃旧缓存，后续请求重新计算，组织更名、迁移或授权变更不会复用旧路径。缓存最多保留当前起点子树需要的路径，空间仍随节点数与路径长度增长，不是常量内存。
+
+原版与新版的同环境重复测量、中位数、内存分配及原始样本见[性能对比报告](docs/benchmarks/datascope-2026-09-11/report.md)。
+
+以上测试验证默认内存匹配算法，不代表数据库查询或生产并发吞吐。默认 `canAccessOrg` 仍加载目标租户的组织列表；高频业务可覆盖该接口或列表接口，使用有租户边界的索引查询/缓存，并保持六字段覆盖、拒绝优先及失效策略。不要直接缓存用户授权结果而不处理角色、组织和租户变化。
+
+
+
+
 ## 22. 角色与权限列表
 
 角色列表有两个视角：
@@ -1102,7 +1110,7 @@ Custom 示例：
 - 可跳过组织范围。
 - 可跳过租户范围。
 - 可跳过机密级别约束。
-- 直接返回最大候选结果。
+- 从有效租户/组织中获取最大候选结果，显式目标的存在性与状态检查仍保留。
 
 ### 23.2 SuperAdmin / SaaSAdmin
 
@@ -1112,7 +1120,7 @@ Custom 示例：
 
 ### 23.3 TenantAdmin
 
-`isTenantAdmin()` 默认不是全局豁免身份。通常仍要参与租户、组织、角色和数据范围判断。
+`isTenantAdmin()` 必须先通过自身租户的资格判断，随后组织范围可按本租户全部组织处理。它不能突破租户边界，也不自动取得领域权限或跨租户角色管理权限。
 
 ## 24. 资源扫描与菜单
 
@@ -1141,7 +1149,7 @@ Custom 示例：
 
 ### 25.2 把 `IdPath` / `NamePath` 当绝对路径
 
-它们是相对于 `OrgScope.getOrgId()` 的路径。
+它们是相对于 `DataScope.OrgScope.startOrg()` 的路径。
 
 ### 25.3 把无租户和公共组织拆开理解
 
@@ -1149,7 +1157,7 @@ Custom 示例：
 
 ### 25.4 认为 SuperAdmin 等于 TopSuperAdmin
 
-只有 TopSuperAdmin 能无条件跳过全部检查。
+TopSuperAdmin 可跳过范围规则和密级限制，但显式目标的存在性、状态和租户身份边界检查仍保留；领域检查没有管理员自动放行。
 
 ### 25.5 在循环中重复计算数据范围
 
@@ -1172,18 +1180,15 @@ Custom 示例：
 - 只读对象包装
 - UI 模型转换
 
-当前已验证过的命令：
+本次完整验证命令（显式开启测试和注解处理）：
 
 ```bash
-JAVA_HOME=/Users/lilw/Library/Java/JavaVirtualMachines/corretto-21.0.5/Contents/Home \
-  mvn -q clean -P '!01-跳过测试' -Dtest=ObjectWrapperUtilsTest test
+mvn -o -Dmaven.compiler.proc=full -Dmaven.test.skip=false -DskipTests=false clean verify
 ```
 
-`ObjectWrapperUtilsTest` 结果：
+2026-09-11 使用 Maven 3.9.15 / JDK 25.0.2、编译目标 Java 17 验证：207 个测试，0 失败、0 错误、0 跳过；其中 RBAC 主回归 152 个、DataScope 协议测试 8 个。JAR 和源码包构建成功。本机离线依赖已缓存；首次构建未缓存时去掉 `-o`。
 
-```text
-tests=17, errors=0, failures=0, skipped=0
-```
+范围测试覆盖六字段的 null/空集合/非空集合覆盖、失效角色、快照隔离和 JSON 字段、租户与组织拒绝独立计算、平台身份边界、无归属数据、路径和脚本、同 ID 跨租户隔离、孤儿节点和组织环。
 
 完整测试前建议：
 
@@ -1248,7 +1253,6 @@ mvn clean
 - `src/main/java/com/levin/commons/rbac/RbacBaseService.java`
 - `src/main/java/com/levin/commons/rbac/RbacAuthorizeService.java`
 - `src/main/java/com/levin/commons/rbac/AbstractRbacAuthorizeService.java`
-- `src/main/java/com/levin/commons/rbac/OrgScope.java`
 - `src/main/java/com/levin/commons/rbac/DataScope.java`
 - `src/main/java/com/levin/commons/rbac/RbacUserInfo.java`
 - `src/main/java/com/levin/commons/rbac/RbacRoleInfo.java`

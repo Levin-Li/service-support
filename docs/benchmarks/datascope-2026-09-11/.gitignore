@@ -1,0 +1,4 @@
+*.log
+metadata.json
+environment.txt
+__pycache__/

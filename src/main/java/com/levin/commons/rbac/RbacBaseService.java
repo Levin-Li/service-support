@@ -5,12 +5,9 @@ import cn.hutool.core.util.StrUtil;
 import com.levin.commons.dao.domain.ConfidentialObject;
 import com.levin.commons.dao.domain.ProxyWrapperObject;
 import com.levin.commons.utils.ExpressionUtils;
-import com.levin.commons.utils.PathPatternUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.ReflectionUtils;
@@ -42,11 +39,6 @@ public interface RbacBaseService extends RbacBaseUserService {
 
     // 自定义 Groovy 规则的编译结果可以跨请求复用，避免每次重新编译脚本。
     Map<String, Class<Object>> ORG_SCOPE_GROOVY_CLASS_CACHE = new ConcurrentReferenceHashMap<>();
-
-    // SpEL 解析本身也有成本，这里缓存编译后的表达式对象。
-    Map<String, Expression> ORG_SCOPE_SPEL_CACHE = new ConcurrentReferenceHashMap<>();
-
-    SpelExpressionParser ORG_SCOPE_SPEL_PARSER = new SpelExpressionParser();
 
     /**
      * 用户类型
@@ -83,44 +75,19 @@ public interface RbacBaseService extends RbacBaseUserService {
      */
     @Operation(summary = "加载用户能访问的租户列表", description = "性能扩展点：默认实现会先加载候选租户再在内存中按数据范围过滤；子类可覆盖为按用户、租户表达式或缓存直接裁剪。onlyEffectOrg 可以指定是否只加载有效租户")
     default <TENANT extends RbacTenantInfo> Collection<TENANT> loadUserAccessibleTenantList(Serializable userPrincipal, boolean onlyLoadEffectTenant) {
-
-        final RbacUserInfo user = loadUser(userPrincipal);
-
-        Assert.notNull(user, "用户({})不存在", userPrincipal);
-
-        final Collection<TENANT> allTenantList = (Collection<TENANT>) Optional.ofNullable(loadAllTenantList(onlyLoadEffectTenant))
-                .orElse(Collections.emptyList())
-                .stream()
-                .filter(Objects::nonNull)
-                .filter(RbacCoreObject::selfAudit)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        if (allTenantList.isEmpty()) {
+        final RbacUserInfo user = requireScopeUser(userPrincipal);
+        final DataScope scope = getUserDataScope(user);
+        if (hasNoEnumerableTenantScope(user, scope)) {
             return Collections.emptyList();
         }
-
-        // 只有顶级超级管理员可以跳过所有范围判断直接拿到最大结果。
-        if (user.isTopSuperAdmin()) {
-            return allTenantList;
+        final List<TENANT> result = new ArrayList<>();
+        for (TENANT tenant : this.<TENANT>loadAllTenantListSafe(onlyLoadEffectTenant)) {
+            if (canAccessTenant(user, scope, tenant.getId(), tenant)) {
+                result.add(tenant);
+            }
         }
-
-        // 普通超级管理员和 SaaS 管理员不再走 DataScope 过滤，只补一层机密级别过滤即可。
-        if (user.isSuperAdmin() || user.isSaasAdmin()) {
-            return filterByConfidentialAccess(user, allTenantList);
-        }
-
-        final DataScope dataScope = getUserDataScope(user);
-        final Collection<? extends OrgScope> orgScopeList = dataScope != null ? dataScope.getOrgScopeList() : Collections.emptyList();
-        final Set<String> accessibleTenantIds = resolveUserAccessibleTenantIds(user, orgScopeList, allTenantList);
-
-        if (accessibleTenantIds.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return allTenantList.stream()
-                .filter(tenant -> accessibleTenantIds.contains(Objects.toString(tenant.getId(), "")))
-                .collect(Collectors.toList());
-
+        return isGlobalScopeAdmin(user) && !user.isTopSuperAdmin()
+                ? filterByConfidentialAccess(user, result) : result;
     }
 
     /**
@@ -156,94 +123,33 @@ public interface RbacBaseService extends RbacBaseUserService {
 
     @Operation(summary = "加载用户能访问的组织列表", description = "性能扩展点：默认实现会按租户加载候选组织后在内存中计算 DataScope；子类可覆盖为 SQL/缓存直接计算用户可访问组织。onlyEffect 可以指定是否只加载有效组织")
     default <ORG extends RbacOrgInfo> Collection<ORG> loadUserAccessibleOrgList(Serializable userPrincipal, boolean onlyLoadEffectOrg) {
-
-        RbacUserInfo user = loadUser(userPrincipal);
-
-        Assert.notNull(user, "用户({})不存在", userPrincipal);
-
-        // 顶级超级管理员直接拿最大组织结果，不再受 tenantMatchingExpression / orgScope 的候选收敛影响。
-        if (user.isTopSuperAdmin()) {
-            return loadMaxAccessibleOrgList(onlyLoadEffectOrg);
+        final RbacUserInfo user = requireScopeUser(userPrincipal);
+        final DataScope scope = getUserDataScope(user);
+        final Set<String> tenantIds = new LinkedHashSet<>();
+        if (!hasNoEnumerableTenantScope(user, scope)) {
+            for (RbacTenantInfo tenant : loadAllTenantListSafe(onlyLoadEffectOrg)) {
+                if (canAccessTenant(user, scope, tenant.getId(), tenant)) {
+                    tenantIds.add(scopeId(tenant.getId()));
+                }
+            }
         }
-
-        // 普通超级管理员和 SaaS 管理员直接取最大候选组织，再按机密级别做过滤。
-        if (user.isSuperAdmin() || user.isSaasAdmin()) {
-            return filterByConfidentialAccess(user, loadMaxAccessibleOrgList(onlyLoadEffectOrg));
+        if (canAccessTenant(user, scope, null, null)) {
+            tenantIds.add(null);
         }
-
-        final DataScope dataScope = getUserDataScope(user);
-        final Collection<? extends OrgScope> orgScopeList = dataScope != null ? dataScope.getOrgScopeList() : Collections.emptyList();
-
-        // tenantMatchingExpression 负责决定组织范围作用于哪些租户，这里先把“可枚举租户”收敛出来，再按表达式挑选候选租户。
-        final Collection<RbacTenantInfo> activeTenantList = Optional.ofNullable(loadAllTenantList(onlyLoadEffectOrg))
-                .orElse(Collections.emptyList())
-                .stream()
-                .filter(Objects::nonNull)
-                .filter(RbacCoreObject::selfAudit)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-        final Set<String> tenantIdSet = resolveScopedTenantIds(user, orgScopeList, activeTenantList);
-
-        final Collection<ORG> accessibleOrgList = new LinkedHashSet<>();
-
-        for (String tenantId : tenantIdSet) {
-            if (tenantId == null) {
+        final List<ORG> result = new ArrayList<>();
+        for (String tenantId : tenantIds) {
+            if (!hasOrgAdminScope(user, tenantId) && scope.getOrgScopeList().isEmpty()) {
                 continue;
             }
-            addAccessibleOrgListInTenant(user, dataScope, orgScopeList, tenantId, onlyLoadEffectOrg, accessibleOrgList);
+            final Map<String, ORG> orgMap = scopedOrgMap(tenantId, onlyLoadEffectOrg);
+            final Set<String> allowed = hasOrgAdminScope(user, tenantId)
+                    ? orgMap.keySet() : accessibleOrgIds(user, scope, tenantId, orgMap);
+            orgMap.forEach((orgId, org) -> {
+                if (allowed.contains(orgId)) result.add(org);
+            });
         }
-
-        if (tenantIdSet.contains(null)) {
-            // tenantMatchingExpression 命中了无租户场景时，还要把公共组织一起纳入候选集合。
-            addAccessibleOrgListInTenant(user, dataScope, orgScopeList, null, onlyLoadEffectOrg, accessibleOrgList);
-        }
-
-        return accessibleOrgList.isEmpty() ? Collections.emptyList() : accessibleOrgList;
-
-    }
-
-    private <ORG extends RbacOrgInfo> void addAccessibleOrgListInTenant(RbacUserInfo user,
-                                                                        DataScope dataScope,
-                                                                        Collection<? extends OrgScope> orgScopeList,
-                                                                        Serializable tenantId,
-                                                                        boolean onlyLoadEffectOrg,
-                                                                        Collection<ORG> accessibleOrgList) {
-
-        final Collection<ORG> tenantOrgList = (Collection<ORG>) Optional.ofNullable(loadTenantOrgList(tenantId, onlyLoadEffectOrg))
-                .orElse(Collections.emptyList())
-                .stream()
-                .filter(Objects::nonNull)
-                .filter(RbacCoreObject::selfAudit)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        if (tenantOrgList.isEmpty()) {
-            return;
-        }
-
-        if (canAccessAllOrg(user, dataScope, tenantId)) {
-            accessibleOrgList.addAll(tenantOrgList);
-            return;
-        }
-
-        final Map<String, ORG> orgMap = tenantOrgList.stream()
-                .filter(org -> RbacMiscUtils.isNotBlank(org.getId()))
-                .collect(Collectors.toMap(org -> Objects.toString(org.getId(), ""),
-                        Function.identity(),
-                        (left, right) -> left,
-                        LinkedHashMap::new));
-
-        if (orgMap.isEmpty()) {
-            return;
-        }
-
-        final Set<String> accessibleOrgIds = calcAccessibleOrgIds(user, orgScopeList, tenantOrgList, orgMap);
-
-        if (accessibleOrgIds.isEmpty()) {
-            return;
-        }
-
-        tenantOrgList.stream()
-                .filter(org -> accessibleOrgIds.contains(Objects.toString(org.getId(), "")))
-                .forEach(accessibleOrgList::add);
+        return isGlobalScopeAdmin(user) && !user.isTopSuperAdmin()
+                ? filterByConfidentialAccess(user, result) : result;
     }
 
     /**
@@ -447,133 +353,118 @@ public interface RbacBaseService extends RbacBaseUserService {
      */
     @Operation(summary = "是否能访问所有组织", description = "性能扩展点：建议子类覆盖为基于用户标记、角色缓存或权限缓存的 O(1) 判断，避免重复解析 DataScope")
     default boolean canAccessAllOrg(Serializable userPrincipal) {
-
-        RbacUserInfo user = loadUser(userPrincipal);
-
-        Assert.notNull(user, "用户({})不存在", userPrincipal);
-
-        if (user.isTopSuperAdmin()
-                || (user.isTenantAdmin() && RbacMiscUtils.isNotBlank(user.getTenantId()))) {
-            // 顶级超级管理员可以直接视为全量可访问；租户管理员仍按本租户的全组织处理。
+        final RbacUserInfo user = requireScopeUser(userPrincipal);
+        if (!user.isPlatformUser()) {
+            return canAccessAllOrg(user, user.getTenantId());
+        }
+        // 保留平台用户的全局语义：不仅覆盖当前枚举对象，也覆盖全部租户及无租户组织。
+        if (isGlobalScopeAdmin(user)) {
             return true;
         }
-
-        final DataScope dataScope = getUserDataScope(user);
-
-        return user.isPlatformUser()
-                ? canAccessAllOrg(user, dataScope)
-                : canAccessAllOrg(user, dataScope, resolveDefaultTenantId(user));
-
+        final DataScope scope = getUserDataScope(user);
+        if (!scope.getTenantScopeList().contains(DataScope.TenantScope.All.getExpression())
+                || !scope.getTenantScopeList().contains(DataScope.TenantScope.None.getExpression())
+                || !scope.getDeniedTenantScopeList().isEmpty() || !declaresAllOrg(scope)) {
+            return false;
+        }
+        for (RbacTenantInfo tenant : loadAllTenantListSafe(true)) {
+            if (!coversAllExistingOrg(user, scope, tenant.getId())) return false;
+        }
+        return coversAllExistingOrg(user, scope, null);
     }
 
+    /** 判断目标租户内所有非空组织是否被完整授权。 */
+    default boolean canAccessAllOrg(Serializable userPrincipal, Serializable tenantId) {
+        final RbacUserInfo user = requireScopeUser(userPrincipal);
+        final DataScope scope = getUserDataScope(user);
+        return canAccessTenant(user, scope, tenantId, null)
+                && (hasOrgAdminScope(user, tenantId) || (declaresAllOrg(scope)
+                && coversAllExistingOrg(user, scope, tenantId)));
+    }
 
-    @Operation(summary = "获取用户数据权限", description = "性能扩展点：默认实现会合并用户和角色数据范围；子类可覆盖为缓存后的 DataScope 或一次性查询结果。优先使用用户的数据权限,没有才获取角色上的定义的数据权限")
+    /** 只判断租户范围资格；业务操作权限和机密级别仍须单独校验。 */
+    default boolean canAccessTenant(Serializable userPrincipal, Serializable tenantId) {
+        final RbacUserInfo user = requireScopeUser(userPrincipal);
+        return canAccessTenant(user, getUserDataScope(user), tenantId, null);
+    }
+
+    /** 领域目前只支持具体非空 ID，没有全部领域或无领域标记。 */
+    default boolean canAccessDomain(Serializable userPrincipal, String domainId) {
+        final RbacUserInfo user = requireScopeUser(userPrincipal);
+        if (StrUtil.isBlank(domainId)) {
+            return false;
+        }
+        final DataScope scope = getUserDataScope(user);
+        return !scope.getDeniedDomainScopeList().contains(domainId)
+                && scope.getDomainScopeList().contains(domainId);
+    }
+
+    /** 组织范围判断包含目标租户资格；空组织 ID 按 None 规则判断。 */
+    default boolean canAccessOrg(Serializable userPrincipal, Serializable tenantId, Serializable orgId) {
+        final RbacUserInfo user = requireScopeUser(userPrincipal);
+        final DataScope scope = getUserDataScope(user);
+        if (!canAccessTenant(user, scope, tenantId, null)) {
+            return false;
+        }
+        if (scopeId(orgId) == null) {
+            return hasOrgAdminScope(user, tenantId)
+                    || (!scope.getOrgScopeList().isEmpty()
+                    && !matchesNoOrg(scope.getDeniedOrgScopeList(), user, tenantId)
+                    && matchesNoOrg(scope.getOrgScopeList(), user, tenantId));
+        }
+        if (!hasOrgAdminScope(user, tenantId) && scope.getOrgScopeList().isEmpty()) return false;
+        final Map<String, RbacOrgInfo> orgMap = scopedOrgMap(tenantId, true);
+        return orgMap.containsKey(scopeId(orgId)) && (hasOrgAdminScope(user, tenantId)
+                || accessibleOrgIds(user, scope, tenantId, orgMap, scopeId(orgId)).contains(scopeId(orgId)));
+    }
+
+    @Operation(summary = "获取用户数据权限", description = "六个范围字段独立覆盖：用户非null（包括空集合）替代角色，null继承生效角色并集。返回不可变快照")
     default DataScope getUserDataScope(Serializable userPrincipal) {
+        final RbacUserInfo user = requireScopeUser(userPrincipal);
+        final boolean needsRoles = user.getTenantScopeList() == null || user.getDeniedTenantScopeList() == null
+                || user.getDomainScopeList() == null || user.getDeniedDomainScopeList() == null
+                || user.getOrgScopeList() == null || user.getDeniedOrgScopeList() == null
+                || user.getConfidentialDataAccessLevel() == null;
+        final Collection<RbacRoleInfo> roles = needsRoles ? loadUserOwnerRoleList(user) : Collections.emptyList();
+        Integer level = user.isTopSuperAdmin() ? Integer.valueOf(Integer.MAX_VALUE) : user.getConfidentialDataAccessLevel();
+        if (level == null) {
+            level = roles.stream().filter(Objects::nonNull).filter(RbacCoreObject::selfAudit)
+                    .map(RbacRoleInfo::getConfidentialDataAccessLevel).filter(Objects::nonNull)
+                    .max(Integer::compareTo).orElse(null);
+        }
+        return new EffectiveDataScope(
+                resolveScopeField(user, roles, DataScope::getTenantScopeList, "tenant"),
+                resolveScopeField(user, roles, DataScope::getDeniedTenantScopeList, "tenant"),
+                resolveScopeField(user, roles, DataScope::getDomainScopeList, "domain"),
+                resolveScopeField(user, roles, DataScope::getDeniedDomainScopeList, "domain"),
+                resolveScopeField(user, roles, DataScope::getOrgScopeList, "org"),
+                resolveScopeField(user, roles, DataScope::getDeniedOrgScopeList, "org"), level);
+    }
 
-        RbacUserInfo user = loadUser(userPrincipal);
-        Assert.notNull(user, "用户({})不存在", userPrincipal);
-
-        final SimpleDataScope dataScope = new SimpleDataScope();
-
-        //优先使用用户自定义的数据权限
-        dataScope.setConfidentialDataAccessLevel(user.getConfidentialDataAccessLevel());
-
-
-        //优先使用用户自定义的组织数据权限
-        dataScope.setOrgScopeList(mergeOrgScopeList(user.getOrgScopeList()));
-
-        //
-        final boolean notUserOrgScope = isAllNull(dataScope.getOrgScopeList());
-
-
-        if (notUserOrgScope || dataScope.getConfidentialDataAccessLevel() == null) {
-
-            // 这里必须使用“生效角色”而不是“可见角色”，否则一旦角色可见性再按机密级别过滤，就会和用户机密级别计算互相递归。
-            final Collection<RbacRoleInfo> roleList = loadUserOwnerRoleList(user);
-
-            if (dataScope.getConfidentialDataAccessLevel() == null) {
-
-                OptionalInt max = roleList.stream()
-                        .filter(Objects::nonNull)
-                        .filter(role -> role.getConfidentialDataAccessLevel() != null)
-                        .mapToInt(RbacRoleInfo::getConfidentialDataAccessLevel)
-                        .max();
-
-                //获取最高权限
-                if (max.isPresent()) {
-                    dataScope.setConfidentialDataAccessLevel(max.getAsInt());
+    private Set<String> resolveScopeField(DataScope user, Collection<RbacRoleInfo> roles,
+                                          Function<DataScope, Set<String>> getter, String dimension) {
+        Set<String> configured = getter.apply(user);
+        final Set<String> result = new LinkedHashSet<>();
+        if (configured != null) {
+            result.addAll(configured);
+        } else {
+            roles.stream().filter(Objects::nonNull).filter(RbacCoreObject::selfAudit)
+                    .map(getter).filter(Objects::nonNull).forEach(result::addAll);
+        }
+        final Set<String> normalized = new LinkedHashSet<>();
+        for (String rule : result) {
+            Assert.isTrue(StrUtil.isNotBlank(rule), "数据范围规则不能为空");
+            if ("org".equals(dimension)) {
+                normalized.add(DataScope.OrgScope.format(DataScope.OrgScope.parse(rule)));
+            } else {
+                if ("tenant".equals(dimension) && rule.startsWith(DataScope.TenantScope.Groovy.getExpression())) {
+                    Assert.isTrue(StrUtil.isNotBlank(rule.substring(DataScope.TenantScope.Groovy.getExpression().length())),
+                            "租户 Groovy 表达式不能为空");
                 }
+                normalized.add(rule);
             }
-
-            if (notUserOrgScope) {
-                dataScope.setOrgScopeList(
-                        //合并
-                        mergeOrgScopeList(
-                                //角色权限
-                                roleList.stream()
-                                        .filter(Objects::nonNull)
-                                        .map(RbacRoleInfo::getOrgScopeList)
-                                        .filter(Objects::nonNull)
-                                        .flatMap(Collection::stream)
-                                        .collect(Collectors.toList())
-                        )
-                );
-            }
-
         }
-
-        return dataScope;
-    }
-
-
-    @Operation(summary = "合并组织权限列表", description = "性能扩展点：默认实现只过滤无效项并去除完全重复项，不跨租户折叠 allow-all/deny-all；若数据范围已在存储层归并或缓存，子类可覆盖。")
-    default Collection<OrgScope> mergeOrgScopeList(Collection<OrgScope> orgScopeList) {
-
-        if (orgScopeList == null || orgScopeList.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        final Collection<OrgScope> result = new ArrayList<>(orgScopeList.size());
-
-        final Map<String, OrgScope> scopeMap = new HashMap<>();
-
-        //用普通循环
-        for (OrgScope scope : orgScopeList) {
-
-            //忽略无效数据
-            if (!isValidOrgScope(scope)) {
-                continue;
-            }
-
-            // 去重时不仅要看 orgId/allow/expression，还要保留表达式类型，
-            // 否则同一段文本在 IdPath、NamePath、Groovy、SpEL 之间会被误判成同一条规则。
-            final String scopeKey = String.join("_",
-                    String.valueOf(scope.getTenantMatchingExpression()),
-                    scope.getOrgId(),
-                    String.valueOf(scope.isAllow()),
-                    String.valueOf(scope.getOrgScopeMatchingMode()),
-                    String.valueOf(scope.getOrgScopeExpressionType()),
-                    scope.getOrgScopeExpression());
-
-            if (scopeMap.containsKey(scopeKey)) {
-                //如果有重复的,则忽略
-                continue;
-            }
-            //添加
-            scopeMap.put(scopeKey, scope);
-
-            result.add(scope);
-
-        }// 循环结束
-
-        return result;
-    }
-
-    private boolean isValidOrgScope(OrgScope scope) {
-        return scope != null
-                && StrUtil.isNotBlank(scope.getOrgId())
-                && scope.getOrgScopeMatchingMode() != null
-                && (!scope.isCustomOrgScope() || StrUtil.isNotBlank(scope.getOrgScopeExpression()));
+        return Collections.unmodifiableSet(normalized);
     }
 
     @Operation(summary = "加载直接下级组织", description = "性能扩展点：默认实现会加载租户组织列表后内存过滤；子类应优先覆盖为按 parentId 直接查询。orgPrincipal 参数可以是orgId 或是 RbacOrgInfo")
@@ -682,90 +573,56 @@ public interface RbacBaseService extends RbacBaseUserService {
      */
     @Operation(summary = "检查用户组织可访问性", description = "性能扩展点：默认实现可能加载用户可访问组织列表后做内存 contains；子类可覆盖为 exists 查询或权限缓存判断。")
     default void checkOrgAccessible(Serializable userPrincipal, Serializable tenantId, Serializable parentId, Serializable orgId) {
-
-        RbacUserInfo user = loadUser(userPrincipal);
-
-        Assert.notNull(user, "用户({})不存在", userPrincipal);
-
-        userPrincipal = user;
-
-        if (RbacMiscUtils.isNotBlank(tenantId)) {
-            final RbacTenantInfo tenant = loadTenant(tenantId);
-            if (tenant != null) {
-                Assert.isTrue(tenant.selfAudit(), "租户[{}]不可用", tenantId);
+        final RbacUserInfo user = requireScopeUser(userPrincipal);
+        Assert.isTrue(withinTenantBoundary(user, tenantId), "非关联的租户[{}]", tenantId);
+        final RbacTenantInfo tenant = scopeId(tenantId) == null ? null : loadTenant(tenantId);
+        if (scopeId(tenantId) != null) {
+            Assert.notNull(tenant, "租户[{}]不存在", tenantId);
+            Assert.isTrue(Objects.equals(scopeId(tenant.getId()), scopeId(tenantId)), "非关联的租户[{}]", tenantId);
+            Assert.isTrue(tenant.selfAudit(), "租户[{}]不可用", tenantId);
+        }
+        // 必须在目标租户内解析组织，不能通过全局 loadOrg(id) 借用其他租户的同 ID 节点。
+        final Map<String, RbacOrgInfo> targetOrgs = new LinkedHashMap<>();
+        for (RbacOrgInfo org : Optional.ofNullable(loadTenantOrgList(tenantId, false)).orElse(Collections.emptyList())) {
+            if (org != null && Objects.equals(scopeId(org.getTenantId()), scopeId(tenantId))) {
+                targetOrgs.putIfAbsent(scopeId(org.getId()), org);
             }
         }
-
-        if (RbacMiscUtils.isNotBlank(parentId)) {
-            final RbacOrgInfo parentOrg = loadOrg(parentId);
-            if (parentOrg != null) {
-                Assert.isTrue(parentOrg.selfAudit(), "父组织机构[{}]不可用", parentId);
-            }
+        final RbacOrgInfo parent = scopeId(parentId) == null ? null : targetOrgs.get(scopeId(parentId));
+        final RbacOrgInfo org = scopeId(orgId) == null ? null : targetOrgs.get(scopeId(orgId));
+        if (scopeId(parentId) != null) {
+            Assert.notNull(parent, "父组织机构[{}]不存在于租户[{}]", parentId, tenantId);
+            Assert.isTrue(parent.selfAudit(), "父组织机构[{}]不可用", parentId);
         }
-
-        if (RbacMiscUtils.isNotBlank(orgId)) {
-            final RbacOrgInfo org = loadOrg(orgId);
-            if (org != null) {
-                Assert.isTrue(org.selfAudit(), "组织机构[{}]不可用", orgId);
-            }
+        if (scopeId(orgId) != null) {
+            Assert.notNull(org, "组织机构[{}]不存在于租户[{}]", orgId, tenantId);
+            Assert.isTrue(org.selfAudit(), "组织机构[{}]不可用", orgId);
         }
-
-        //优化效率
-        // 只有顶级超级管理员可以完全跳过组织可访问性校验。
+        final DataScope scope = getUserDataScope(user);
+        Assert.isTrue(canAccessTenant(user, scope, tenantId, tenant), "租户[{}]未授权", tenantId);
         if (user.isTopSuperAdmin()) {
             return;
         }
-
-        // 普通超级管理员和 SaaS 管理员直接按目标对象的机密级别做校验，不再受租户相等和 DataScope 限制。
         if (user.isSuperAdmin() || user.isSaasAdmin()) {
-            final Integer userConfidentialAccessLevel = getUserConfidentialDataAccessLevel(user);
-
-            if (RbacMiscUtils.isNotBlank(tenantId)) {
-                final RbacTenantInfo tenant = loadTenant(tenantId);
-                Assert.notNull(tenant, "租户[{}]不存在", tenantId);
-                Assert.isTrue(canAccessConfidentialData(() -> userConfidentialAccessLevel, tenant.getConfidentialLevel()), "租户[{}]未授权", tenantId);
+            final Integer level = getUserConfidentialDataAccessLevel(user);
+            for (ConfidentialObject target : Arrays.asList(tenant, parent, org)) {
+                Assert.isTrue(target == null || canAccessConfidentialData(() -> level, target.getConfidentialLevel()),
+                        "目标租户或组织未授权");
             }
-
-            if (RbacMiscUtils.isNotBlank(parentId)) {
-                final RbacOrgInfo parentOrg = loadOrg(parentId);
-                Assert.notNull(parentOrg, "父组织机构[{}]不存在", parentId);
-                Assert.isTrue(canAccessConfidentialData(() -> userConfidentialAccessLevel, parentOrg.getConfidentialLevel()), "父组织机构[{}]未授权", parentId);
-            }
-
-            if (RbacMiscUtils.isNotBlank(orgId)) {
-                final RbacOrgInfo org = loadOrg(orgId);
-                Assert.notNull(org, "组织机构[{}]不存在", orgId);
-                Assert.isTrue(canAccessConfidentialData(() -> userConfidentialAccessLevel, org.getConfidentialLevel()), "组织机构[{}]未授权", orgId);
-            }
-
             return;
         }
-
-        //租户ID必须相等
-        Assert.isTrue(RbacMiscUtils.isBlank(tenantId) || user.getTenantId().equals(tenantId), "非关联的租户[{}]", tenantId);
-
-        //优化效率
-        if (user.isTenantAdmin()) {
+        if (hasOrgAdminScope(user, tenantId)) {
             return;
         }
-
-        //只有租户管理员可以操作根节点
-        Assert.isTrue(RbacMiscUtils.isNotBlank(parentId) || user.isTenantAdmin(), "组织机构上级节点不能为空");
-
-        Collection<RbacOrgInfo> orgList = loadUserOrgList(user, false);
-
-        Assert.isTrue(orgList != null && !orgList.isEmpty(), "无可用的组织机构，请检查是否授权");
-        final Set<String> accessibleOrgIdSet = orgList.stream()
-                .filter(Objects::nonNull)
-                .map(RbacOrgInfo::getId)
-                .filter(Objects::nonNull)
-                .map(String::valueOf)
-                .collect(Collectors.toSet());
-
-        Assert.isTrue(RbacMiscUtils.isBlank(parentId) || accessibleOrgIdSet.contains(Objects.toString(parentId, "")), "父组织机构[{}]未授权", parentId);
-
-        Assert.isTrue(RbacMiscUtils.isBlank(orgId) || accessibleOrgIdSet.contains(Objects.toString(orgId, "")), "组织机构[{}]未授权", orgId);
-
+        // 根节点管理仍保留给管理员；跨租户数据访问资格不授予根节点管理权限。
+        Assert.isTrue(scopeId(parentId) != null, "组织机构上级节点不能为空");
+        final Map<String, RbacOrgInfo> effectiveOrgs = new LinkedHashMap<>();
+        targetOrgs.forEach((id, node) -> {
+            if (id != null && node.selfAudit()) effectiveOrgs.put(id, node);
+        });
+        final Set<String> allowed = accessibleOrgIds(user, scope, tenantId, effectiveOrgs);
+        Assert.isTrue(allowed.contains(scopeId(parentId)), "父组织机构[{}]未授权", parentId);
+        Assert.isTrue(scopeId(orgId) == null || allowed.contains(scopeId(orgId)), "组织机构[{}]未授权", orgId);
     }
 
     /**
@@ -777,51 +634,17 @@ public interface RbacBaseService extends RbacBaseUserService {
     @Override
     @Operation(summary = "获取用户的机密数据访问级别", description = "性能扩展点：当用户本身没有定义访问级别时默认会扫描用户生效角色；子类可覆盖为缓存字段或预聚合查询，尽量不要多次调用")
     default Integer getUserConfidentialDataAccessLevel(Serializable userPrincipal) {
-
-        RbacUserInfo userInfo = userPrincipal instanceof RbacUserInfo
-                ? (RbacUserInfo) userPrincipal
-                : loadUser(userPrincipal);
-
-        // 0 重要逻辑,任何角色都要检查机密数据级别,除了顶级SA账号, 其他账号都要检查
-        if (userInfo.isTopSuperAdmin()) {
+        final RbacUserInfo user = requireScopeUser(userPrincipal);
+        if (user.isTopSuperAdmin()) {
             return Integer.MAX_VALUE;
         }
-
-        //优先使用用户自身的数据访问级别
-        if (userInfo.getConfidentialDataAccessLevel() != null) {
-            return userInfo.getConfidentialDataAccessLevel();
+        if (user.getConfidentialDataAccessLevel() != null) {
+            return user.getConfidentialDataAccessLevel();
         }
-
-        if (isAllBlank(userInfo.getRoleList())) {
-            return null;
-        }
-
-        //获取用户角色
-        // 计算用户自身机密级别时必须基于“生效角色”，不能对角色列表再做机密过滤，否则会形成递归。
-        // 这里用角色 code 批量加载，便于子类覆盖为 SQL max 或角色缓存查询，同时避免写入 user.transientExInfo 造成同一用户对象上的旧值污染。
-        final Set<String> roleCodeSet = userInfo.getRoleList().stream()
-                .filter(Objects::nonNull)
-                .map(Objects::toString)
-                .filter(StrUtil::isNotBlank)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        if (roleCodeSet.isEmpty()) {
-            return null;
-        }
-
-        Integer maxConfidentialDataAccessLevel = null;
-
-        for (RbacRoleInfo role : loadTenantRoleListByCodes(userInfo.getTenantId(), roleCodeSet)) {
-            if (role == null || !role.selfAudit() || role.getConfidentialDataAccessLevel() == null) {
-                continue;
-            }
-            if (maxConfidentialDataAccessLevel == null
-                    || role.getConfidentialDataAccessLevel() > maxConfidentialDataAccessLevel) {
-                maxConfidentialDataAccessLevel = role.getConfidentialDataAccessLevel();
-            }
-        }
-
-        return maxConfidentialDataAccessLevel;
+        // 与数据范围快照使用同一批生效角色，不经过可见角色过滤，避免递归和同码角色语义分叉。
+        return loadUserOwnerRoleList(user).stream().filter(Objects::nonNull).filter(RbacCoreObject::selfAudit)
+                .map(RbacRoleInfo::getConfidentialDataAccessLevel).filter(Objects::nonNull)
+                .max(Integer::compareTo).orElse(null);
     }
 
     /**
@@ -1099,204 +922,241 @@ public interface RbacBaseService extends RbacBaseUserService {
                 .collect(Collectors.toSet());
     }
 
-    private boolean canAccessAllOrg(RbacUserInfo user, DataScope userDataScope) {
-        if (userDataScope == null
-                || userDataScope.getOrgScopeList() == null
-                || userDataScope.getOrgScopeList().isEmpty()) {
-            return false;
-        }
-
-        boolean hasAllowAll = false;
-
-        // 无租户入参的公开判断保留“全局所有租户”的语义；按租户加载组织时使用带 tenantId 的重载。
-        for (OrgScope scope : userDataScope.getOrgScopeList()) {
-            if (!isValidOrgScope(scope)) {
-                continue;
-            }
-            if (!canApplyTenantScope(user, scope)) {
-                continue;
-            }
-            if (scope.isDeny()) {
-                return false;
-            }
-            if (scope.isAllowAllOrg() && scope.isAllTenant()) {
-                hasAllowAll = true;
-            }
-        }
-
-        return hasAllowAll;
+    private RbacUserInfo requireScopeUser(Serializable principal) {
+        RbacUserInfo user = principal instanceof RbacUserInfo ? (RbacUserInfo) principal : loadUser(principal);
+        Assert.notNull(user, "用户({})不存在", principal);
+        return user;
     }
 
-    private boolean canAccessAllOrg(RbacUserInfo user, DataScope userDataScope, Serializable tenantId) {
-        if (userDataScope == null
-                || userDataScope.getOrgScopeList() == null
-                || userDataScope.getOrgScopeList().isEmpty()) {
-            return false;
-        }
-
-        boolean hasAllowAll = false;
-
-        // 这里只消费已经算好的 DataScope，避免在高频调用链上重复触发 getUserDataScope(...)。
-        for (OrgScope scope : userDataScope.getOrgScopeList()) {
-            if (!isValidOrgScope(scope)) {
-                continue;
-            }
-            if (!canApplyTenantScope(user, scope)) {
-                continue;
-            }
-            if (!matchesScopeTenantByTenantId(scope, user, tenantId)) {
-                continue;
-            }
-            if (scope.isDeny()) {
-                return false;
-            }
-            if (scope.isAllowAllOrg()) {
-                hasAllowAll = true;
-            }
-        }
-
-        return hasAllowAll;
+    private String scopeId(Object id) {
+        return id == null || StrUtil.isBlank(id.toString()) ? null : id.toString();
     }
 
-    private <ORG extends RbacOrgInfo> Set<String> calcAccessibleOrgIds(RbacUserInfo user,
-                                                                       Collection<? extends OrgScope> orgScopeList,
-                                                                       Collection<ORG> tenantOrgList,
-                                                                       Map<String, ORG> orgMap) {
+    private boolean isGlobalScopeAdmin(RbacUserInfo user) {
+        return user.isTopSuperAdmin() || user.isSuperAdmin() || user.isSaasAdmin();
+    }
 
-        if (orgScopeList == null || orgScopeList.isEmpty()) {
-            return Collections.emptySet();
+    private boolean withinTenantBoundary(RbacUserInfo user, Serializable tenantId) {
+        return user.isPlatformUser() || Objects.equals(scopeId(user.getTenantId()), scopeId(tenantId));
+    }
+
+    private boolean hasOrgAdminScope(RbacUserInfo user, Serializable tenantId) {
+        return withinTenantBoundary(user, tenantId) && (isGlobalScopeAdmin(user)
+                || (user.isTenantAdmin() && scopeId(user.getTenantId()) != null
+                && Objects.equals(scopeId(user.getTenantId()), scopeId(tenantId))));
+    }
+
+    private boolean declaresAllOrg(DataScope scope) {
+        return scope.getOrgScopeList().contains(DataScope.StartOrg.AllRoot.getExpression() + "|"
+                + DataScope.OrgMatchingMode.SelfAndAllChild.getExpression())
+                && scope.getDeniedOrgScopeList().isEmpty();
+    }
+
+    private boolean coversAllExistingOrg(RbacUserInfo user, DataScope scope, Serializable tenantId) {
+        final Map<String, RbacOrgInfo> orgMap = scopedOrgMap(tenantId, true);
+        // 即使声明了所有根节点，孤儿节点或孤立环也不在任何根树内，不能据此跳过数据过滤。
+        return accessibleOrgIds(user, scope, tenantId, orgMap).containsAll(orgMap.keySet());
+    }
+
+    private <TENANT extends RbacTenantInfo> Collection<TENANT> loadAllTenantListSafe(boolean onlyEffective) {
+        return (Collection<TENANT>) Optional.ofNullable(loadAllTenantList(onlyEffective)).orElse(Collections.emptyList())
+                .stream().filter(Objects::nonNull).filter(RbacCoreObject::selfAudit).collect(Collectors.toList());
+    }
+
+    private boolean canAccessTenant(RbacUserInfo user, DataScope scope, Serializable tenantId, RbacTenantInfo tenant) {
+        if (!withinTenantBoundary(user, tenantId)) {
+            return false;
         }
-
-        // 为标准范围预先建立父子索引，避免每个 scope 都全表扫描组织树。
-        final Map<String, List<String>> childrenByParentId = buildChildrenByParentId(orgMap);
-        // 同一个 root 的整棵子树可能被多个 scope 复用，缓存后代集合以降低重复遍历成本。
-        final Map<String, Set<String>> subtreeOrgIdsCache = new HashMap<>();
-        // scope 根节点解析也可能重复出现，这里按 orgId 做一次调用级缓存。
-        final Map<String, Set<String>> scopeRootIdsCache = new HashMap<>();
-
-        final List<OrgScope> allowScopes = new ArrayList<>();
-        final List<OrgScope> denyScopes = new ArrayList<>();
-
-        boolean hasAllowAll = false;
-
-        for (OrgScope scope : orgScopeList) {
-
-            if (!isValidOrgScope(scope)) {
-                continue;
+        if (!isGlobalScopeAdmin(user) && (scope.getTenantScopeList().isEmpty()
+                || matchesStaticTenantRules(scope.getDeniedTenantScopeList(), user, tenantId))) {
+            return false;
+        }
+        if (scopeId(tenantId) != null) {
+            tenant = tenant != null ? tenant : loadTenant(tenantId);
+            if (tenant == null || !tenant.selfAudit() || !Objects.equals(scopeId(tenant.getId()), scopeId(tenantId))) {
+                return false;
             }
+        }
+        return isGlobalScopeAdmin(user) || (!matchesTenantRules(scope.getDeniedTenantScopeList(), user, tenantId, tenant)
+                && matchesTenantRules(scope.getTenantScopeList(), user, tenantId, tenant));
+    }
 
-            if (!canApplyTenantScope(user, scope)) {
-                continue;
+    /** 这里只排除真实租户；无租户数据仍需独立判断，不能把 All 当作 None。 */
+    private boolean hasNoEnumerableTenantScope(RbacUserInfo user, DataScope scope) {
+        return !isGlobalScopeAdmin(user) && (scope.getTenantScopeList().isEmpty()
+                || scope.getDeniedTenantScopeList().contains(DataScope.TenantScope.All.getExpression())
+                || (!user.isPlatformUser()
+                && matchesStaticTenantRules(scope.getDeniedTenantScopeList(), user, user.getTenantId())));
+    }
+
+    private boolean matchesStaticTenantRules(Set<String> rules, RbacUserInfo user, Serializable tenantId) {
+        final String target = scopeId(tenantId);
+        return (target != null && (rules.contains(DataScope.TenantScope.All.getExpression())
+                || (!target.startsWith(DataScope.TenantScope.Groovy.getExpression())
+                && !target.equals(DataScope.TenantScope.None.getExpression())
+                && !target.equals(DataScope.TenantScope.Default.getExpression()) && rules.contains(target))))
+                || (target == null && rules.contains(DataScope.TenantScope.None.getExpression()))
+                || (Objects.equals(scopeId(user.getTenantId()), target)
+                && rules.contains(DataScope.TenantScope.Default.getExpression()));
+    }
+
+    private boolean matchesTenantRules(Set<String> rules, RbacUserInfo user, Serializable tenantId, RbacTenantInfo tenant) {
+        if (matchesStaticTenantRules(rules, user, tenantId)) return true;
+        for (String rule : rules) {
+            if (rule.startsWith(DataScope.TenantScope.Groovy.getExpression())) {
+                Map<String, Object> context = new LinkedHashMap<>();
+                context.put("_user", user);
+                context.put("_tenant", tenant);
+                if (evalScopeGroovy(rule.substring(DataScope.TenantScope.Groovy.getExpression().length()), context)) return true;
             }
+        }
+        return false;
+    }
 
-            if (scope.isDenyAllOrg() && scope.isAllTenant()) {
-                return Collections.emptySet();
+    private <ORG extends RbacOrgInfo> Map<String, ORG> scopedOrgMap(Serializable tenantId, boolean onlyEffective) {
+        final Map<String, ORG> result = new LinkedHashMap<>();
+        for (ORG org : this.<ORG>loadTenantOrgListSafe(tenantId, onlyEffective)) {
+            if (scopeId(org.getId()) != null && Objects.equals(scopeId(tenantId), scopeId(org.getTenantId()))) {
+                result.putIfAbsent(scopeId(org.getId()), org);
             }
+        }
+        return result;
+    }
 
-            if (scope.isAllowAllOrg() && scope.isAllTenant()) {
-                hasAllowAll = true;
+    private <ORG extends RbacOrgInfo> Collection<ORG> loadTenantOrgListSafe(Serializable tenantId, boolean onlyEffective) {
+        return (Collection<ORG>) Optional.ofNullable(loadTenantOrgList(tenantId, onlyEffective)).orElse(Collections.emptyList())
+                .stream().filter(Objects::nonNull).filter(RbacCoreObject::selfAudit).collect(Collectors.toList());
+    }
+
+    private boolean matchesNoOrg(Set<String> rules, RbacUserInfo user, Serializable tenantId) {
+        for (String rule : rules) {
+            DataScope.OrgScope parsed = DataScope.OrgScope.parse(rule);
+            if (DataScope.StartOrg.None.getExpression().equals(parsed.startOrg())
+                    || (DataScope.StartOrg.Default.getExpression().equals(parsed.startOrg())
+                    && scopeId(user.getOrgId()) == null
+                    && Objects.equals(scopeId(user.getTenantId()), scopeId(tenantId)))) {
+                return true;
             }
+        }
+        return false;
+    }
 
-            if (scope.isAllow()) {
-                allowScopes.add(scope);
+    private <ORG extends RbacOrgInfo> Set<String> accessibleOrgIds(RbacUserInfo user, DataScope scope,
+                                                                  Serializable tenantId, Map<String, ORG> orgMap) {
+        return accessibleOrgIds(user, scope, tenantId, orgMap, null);
+    }
+
+    private <ORG extends RbacOrgInfo> Set<String> accessibleOrgIds(RbacUserInfo user, DataScope scope,
+                                                                  Serializable tenantId, Map<String, ORG> orgMap,
+                                                                  String requiredOrgId) {
+        if (orgMap.isEmpty() || scope.getOrgScopeList().isEmpty()) return Collections.emptySet();
+        final Map<String, List<String>> children = buildChildrenByParentId(orgMap);
+        final Set<String> nonTargets;
+        if (requiredOrgId == null) {
+            nonTargets = Collections.emptySet();
+        } else {
+            nonTargets = new HashSet<>(orgMap.keySet());
+            nonTargets.remove(requiredOrgId);
+        }
+        final Set<String> denied = matchedOrgIds(scope.getDeniedOrgScopeList(), user, tenantId,
+                orgMap, children, nonTargets);
+        if (requiredOrgId != null) {
+            if (denied.contains(requiredOrgId)) return Collections.emptySet();
+            // 允许和拒绝均只求值目标节点，完整树仍用于计算路径和祖先关系。
+            denied.addAll(nonTargets);
+        }
+        // AllRoot 不覆盖孤儿或孤立环，必须确认实际候选被拒绝后才能直接返回。
+        if (denied.size() == orgMap.size()) return Collections.emptySet();
+        return matchedOrgIds(scope.getOrgScopeList(), user, tenantId, orgMap, children, denied);
+    }
+
+    private <ORG extends RbacOrgInfo> Set<String> matchedOrgIds(Set<String> rules, RbacUserInfo user,
+                                                               Serializable tenantId, Map<String, ORG> orgMap,
+                                                               Map<String, List<String>> children, Set<String> excluded) {
+        final Set<String> matched = new LinkedHashSet<>();
+        final List<DataScope.OrgScope> ordered = rules.stream().map(DataScope.OrgScope::parse)
+                .sorted(Comparator.comparingInt(scope -> scope.orgMatchingMode().startsWith(DataScope.OrgMatchingMode.Groovy.getExpression()) ? 2
+                        : scope.orgMatchingMode().contains("#") ? 1 : 0))
+                .collect(Collectors.toList());
+        String cachedRoot = null;
+        Set<String> candidates = Collections.emptySet();
+        OrgScopePaths paths = null;
+        for (DataScope.OrgScope scope : ordered) {
+            final String start = scope.startOrg();
+            if (DataScope.StartOrg.None.getExpression().equals(start)) continue;
+            final Set<String> roots = new LinkedHashSet<>();
+            if (DataScope.StartOrg.Default.getExpression().equals(start)) {
+                if (Objects.equals(scopeId(user.getTenantId()), scopeId(tenantId)) && scopeId(user.getOrgId()) != null) {
+                    roots.add(scopeId(user.getOrgId()));
+                }
+            } else if (DataScope.StartOrg.AllRoot.getExpression().equals(start)) {
+                orgMap.forEach((id, org) -> {
+                    if (scopeId(org.getParentId()) == null) roots.add(id);
+                });
             } else {
-                denyScopes.add(scope);
+                roots.add(start);
             }
+            final String mode = scope.orgMatchingMode();
+            for (String root : roots) {
+                if (!orgMap.containsKey(root)) continue;
+                if (DataScope.OrgMatchingMode.Self.getExpression().equals(mode)) {
+                    matched.add(root);
+                } else if (DataScope.OrgMatchingMode.DirectChild.getExpression().equals(mode)) {
+                    matched.addAll(children.getOrDefault(root, Collections.emptyList()));
+                } else if (DataScope.OrgMatchingMode.SelfAndDirectChild.getExpression().equals(mode)) {
+                    matched.add(root);
+                    matched.addAll(children.getOrDefault(root, Collections.emptyList()));
+                } else {
+                    if (!root.equals(cachedRoot)) {
+                        candidates = collectDescendantOrgIds(Collections.singleton(root), orgMap, children);
+                        validateSelectedOrgTreeAcyclic(candidates, orgMap);
+                        cachedRoot = root;
+                        paths = null;
+                    }
+                    if (DataScope.OrgMatchingMode.SelfAndAllChild.getExpression().equals(mode)) {
+                        matched.addAll(candidates);
+                    } else {
+                        if (paths == null) paths = new OrgScopePaths(root, orgMap);
+                        for (String id : candidates) {
+                            if (excluded.contains(id) || matched.contains(id)) continue;
+                            if (matchesOrgExpression(mode, user, scope, orgMap.get(root), orgMap.get(id), paths)) {
+                                matched.add(id);
+                            }
+                        }
+                    }
+                }
+            }
+            matched.removeAll(excluded);
+            if (matched.size() + excluded.size() == orgMap.size()) break;
         }
-
-        if (allowScopes.isEmpty()) {
-            return Collections.emptySet();
-        }
-
-        if (hasAllowAll && denyScopes.isEmpty()) {
-            return new LinkedHashSet<>(orgMap.keySet());
-        }
-
-        final Map<String, String> relativeIdPathCache = new HashMap<>();
-        final Map<String, String> relativeNamePathCache = new HashMap<>();
-
-        // 先收敛允许集合，再按明确 deny 进行过滤，避免 deny 为空时的额外处理。
-        final Set<String> allowOrgIds = collectMatchedOrgIds(allowScopes, user, orgMap,
-                childrenByParentId, subtreeOrgIdsCache, scopeRootIdsCache,
-                relativeIdPathCache, relativeNamePathCache);
-
-        if (allowOrgIds.isEmpty() || denyScopes.isEmpty()) {
-            return allowOrgIds;
-        }
-
-        final Set<String> denyOrgIds = collectMatchedOrgIds(
-                denyScopes,
-                user,
-                orgMap,
-                childrenByParentId,
-                subtreeOrgIdsCache,
-                scopeRootIdsCache,
-                relativeIdPathCache,
-                relativeNamePathCache
-        );
-
-        if (denyOrgIds.isEmpty()) {
-            return allowOrgIds;
-        }
-
-        allowOrgIds.removeAll(denyOrgIds);
-
-        return allowOrgIds;
+        return matched;
     }
 
-    private <ORG extends RbacOrgInfo> Set<String> collectMatchedOrgIds(Collection<? extends OrgScope> scopeList,
-                                                                       RbacUserInfo user,
-                                                                       Map<String, ORG> orgMap,
-                                                                       Map<String, List<String>> childrenByParentId,
-                                                                       Map<String, Set<String>> subtreeOrgIdsCache,
-                                                                       Map<String, Set<String>> scopeRootIdsCache,
-                                                                       Map<String, String> relativeIdPathCache,
-                                                                       Map<String, String> relativeNamePathCache) {
-
-        final Set<String> matchedOrgIds = new LinkedHashSet<>();
-
-        for (OrgScope scope : scopeList) {
-            final Set<String> scopeRootIds = resolveScopeRootIds(scope, user, orgMap, scopeRootIdsCache);
-
-            if (scopeRootIds.isEmpty()) {
-                continue;
-            }
-
-            for (String scopeRootId : scopeRootIds) {
-                // 标准范围直接走树索引，自定义范围仅在 scope root 的子树内做表达式判断。
-                final Set<String> candidateOrgIds = collectScopeCandidateOrgIds(scope, scopeRootId, orgMap, childrenByParentId, subtreeOrgIdsCache);
-
-                if (candidateOrgIds.isEmpty()) {
-                    continue;
-                }
-
-                if (!scope.isCustomOrgScope()) {
-                    candidateOrgIds.stream()
-                            .filter(orgId -> matchesScopeTenantByOrg(scope, user, orgMap.get(orgId)))
-                            .forEach(matchedOrgIds::add);
-                    continue;
-                }
-
-                for (String orgId : candidateOrgIds) {
-                    if (StrUtil.isBlank(orgId)) {
-                        continue;
-                    }
-
-                    if (!matchesScopeTenantByOrg(scope, user, orgMap.get(orgId))) {
-                        continue;
-                    }
-
-                    if (matchesScope(scope, user, scopeRootId, orgId, orgMap, relativeIdPathCache, relativeNamePathCache)) {
-                        matchedOrgIds.add(orgId);
-                    }
-                }
-            }
+    private boolean matchesOrgExpression(String mode, RbacUserInfo user, DataScope.OrgScope scope,
+                                           RbacOrgInfo root, RbacOrgInfo org, OrgScopePaths paths) {
+        if (mode.startsWith(DataScope.OrgMatchingMode.IdPath.getExpression())) {
+            return paths.matches(mode.substring(DataScope.OrgMatchingMode.IdPath.getExpression().length()), scopeId(org.getId()), false);
         }
-
-        return matchedOrgIds;
+        if (mode.startsWith(DataScope.OrgMatchingMode.NamePath.getExpression())) {
+            return paths.matches(mode.substring(DataScope.OrgMatchingMode.NamePath.getExpression().length()), scopeId(org.getId()), true);
+        }
+        Assert.isTrue(mode.startsWith(DataScope.OrgMatchingMode.Groovy.getExpression()), "无效的组织匹配模式[{}]", mode);
+        Map<String, Object> context = new LinkedHashMap<>();
+        context.put("_user", user);
+        context.put("_org", org);
+        context.put("_rootOrg", root);
+        context.put("_scope", scope);
+        context.put("_relativeIdPath", paths.path(scopeId(org.getId()), false));
+        context.put("_relativeNamePath", paths.path(scopeId(org.getId()), true));
+        return evalScopeGroovy(mode.substring(DataScope.OrgMatchingMode.Groovy.getExpression().length()), context);
     }
 
-    // 先把父子关系索引出来，后续标准 scope 就不需要对组织集合做重复全表扫描。
+    private boolean evalScopeGroovy(String expression, Map<String, Object> context) {
+        Assert.isTrue(StrUtil.isNotBlank(expression), "Groovy范围表达式不能为空");
+        return Boolean.TRUE.equals(ExpressionUtils.evalGroovy(ORG_SCOPE_GROOVY_CLASS_CACHE, null, expression,
+                "data-scope-" + Integer.toHexString(expression.hashCode()) + ".groovy", context));
+    }
+
     private <ORG extends RbacOrgInfo> Map<String, List<String>> buildChildrenByParentId(Map<String, ORG> orgMap) {
         final Map<String, List<String>> childrenByParentId = new HashMap<>();
 
@@ -1316,571 +1176,6 @@ public interface RbacBaseService extends RbacBaseUserService {
         }
 
         return childrenByParentId;
-    }
-
-    // 标准 scope 直接通过树索引拿候选节点，自定义 scope 则把 root 子树作为表达式匹配范围。
-    private <ORG extends RbacOrgInfo> Set<String> collectScopeCandidateOrgIds(OrgScope scope,
-                                                                              String scopeRootId,
-                                                                              Map<String, ORG> orgMap,
-                                                                              Map<String, List<String>> childrenByParentId,
-                                                                              Map<String, Set<String>> subtreeOrgIdsCache) {
-
-        switch (scope.getOrgScopeMatchingMode()) {
-            case OnlySelf:
-                return orgMap.containsKey(scopeRootId)
-                        ? new LinkedHashSet<>(Collections.singleton(scopeRootId))
-                        : Collections.emptySet();
-            case OnlyDirectChild:
-                return new LinkedHashSet<>(childrenByParentId.getOrDefault(scopeRootId, Collections.emptyList()));
-            case SelfAndDirectChild:
-                final Set<String> selfAndChildren = new LinkedHashSet<>();
-                if (orgMap.containsKey(scopeRootId)) {
-                    selfAndChildren.add(scopeRootId);
-                }
-                selfAndChildren.addAll(childrenByParentId.getOrDefault(scopeRootId, Collections.emptyList()));
-                return selfAndChildren;
-            case All:
-            case Custom:
-            default:
-                return subtreeOrgIdsCache.computeIfAbsent(scopeRootId,
-                        key -> collectSubtreeOrgIds(key, orgMap, childrenByParentId));
-        }
-    }
-
-    // root 子树会被 allow/deny/custom 多次复用，因此单独抽成缓存友好的 helper。
-    private <ORG extends RbacOrgInfo> Set<String> collectSubtreeOrgIds(String rootId,
-                                                                       Map<String, ORG> orgMap,
-                                                                       Map<String, List<String>> childrenByParentId) {
-        if (StrUtil.isBlank(rootId) || !orgMap.containsKey(rootId)) {
-            return Collections.emptySet();
-        }
-
-        final Set<String> subtreeOrgIds = new LinkedHashSet<>();
-        final Deque<String> stack = new ArrayDeque<>();
-        stack.push(rootId);
-
-        while (!stack.isEmpty()) {
-            final String orgId = stack.pop();
-
-            if (!subtreeOrgIds.add(orgId)) {
-                continue;
-            }
-
-            childrenByParentId.getOrDefault(orgId, Collections.emptyList()).forEach(stack::push);
-        }
-
-        return subtreeOrgIds;
-    }
-
-    private <ORG extends RbacOrgInfo> Set<String> resolveScopeRootIds(OrgScope scope,
-                                                                      RbacUserInfo user,
-                                                                      Map<String, ORG> orgMap,
-                                                                      Map<String, Set<String>> scopeRootIdsCache) {
-
-        final String scopeCacheKey = String.join("@",
-                String.valueOf(scope.getTenantMatchingExpression()),
-                String.valueOf(scope.getOrgId()));
-
-        return scopeRootIdsCache.computeIfAbsent(scopeCacheKey, key -> {
-            if (scope.isAllRootOrg()) {
-                return orgMap.values().stream()
-                        .filter(Objects::nonNull)
-                        .filter(org -> matchesScopeTenantByOrg(scope, user, org))
-                        .filter(org -> isBlank(org.getParentId()) || !orgMap.containsKey(Objects.toString(org.getParentId(), "")))
-                        .map(RbacOrgInfo::getId)
-                        .filter(orgId -> RbacMiscUtils.isNotBlank((Serializable) orgId))
-                        .map(String::valueOf)
-                        .collect(Collectors.toCollection(LinkedHashSet::new));
-            }
-
-            if (scope.isUserOrg()) {
-                return normalizeOrgIdSet(Collections.singletonList(user.getOrgId()))
-                        .stream()
-                        .filter(orgId -> matchesScopeTenantByOrg(scope, user, orgMap.get(orgId)))
-                        .collect(Collectors.toCollection(LinkedHashSet::new));
-            }
-
-            return normalizeOrgIdSet(Collections.singletonList(scope.getOrgId()))
-                    .stream()
-                    .filter(orgMap::containsKey)
-                    .filter(orgId -> matchesScopeTenantByOrg(scope, user, orgMap.get(orgId)))
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
-        });
-    }
-
-    // tenantMatchingExpression 统一收敛到这里：空串=无租户，DEFAULT_TENANT=当前用户租户，*=所有租户，路径模式按 Spring PathPattern，#!groovy: 前缀按 Groovy 脚本求值。
-    private boolean matchesScopeTenantByOrg(OrgScope scope, RbacUserInfo user, RbacOrgInfo org) {
-        return org != null && matchesScopeTenantByTenantId(scope, user, (Serializable) org.getTenantId());
-    }
-
-    private boolean matchesScopeTenantByTenantId(OrgScope scope, RbacUserInfo user, Serializable tenantId) {
-        final String tenantExpr = StrUtil.nullToEmpty(scope.getTenantMatchingExpression()).trim();
-        final String tenantIdStr = tenantId == null ? null : Objects.toString(tenantId, "");
-
-        if (!canApplyTenantScope(user, scope)) {
-            return false;
-        }
-
-        if (user != null && !user.isPlatformUser()
-                && !Objects.equals(resolveDefaultTenantId(user), tenantIdStr)) {
-            return false;
-        }
-
-        if (scope.isNoTenant()) {
-            return RbacMiscUtils.isBlank(tenantId);
-        }
-
-        if (scope.isAllTenant()) {
-            return true;
-        }
-
-        if (scope.isDefaultTenant()) {
-            return Objects.equals(resolveDefaultTenantId(user), tenantIdStr);
-        }
-
-        // 普通文本默认按租户标识精确匹配，Groovy 必须显式使用 #!groovy: 前缀。
-        if (Objects.equals(tenantExpr, tenantIdStr)) {
-            return true;
-        }
-
-        if (isTenantGroovyExpression(tenantExpr)) {
-            return evalTenantGroovyExpression(tenantExpr, tenantId, user, scope);
-        }
-
-        if (isTenantPathPatternExpression(tenantExpr)) {
-            return matchTenantPathPatternExpression(tenantExpr, tenantIdStr);
-        }
-
-        if (isLiteralTenantExpression(tenantExpr)) {
-            return false;
-        }
-
-        return false;
-    }
-
-    private boolean evalTenantGroovyExpression(String tenantExpr,
-                                               Serializable tenantId,
-                                               RbacUserInfo user,
-                                               OrgScope scope) {
-        final Map<String, Object> context = new LinkedHashMap<>();
-        context.put("_tenant", tenantId);
-        context.put("_user", user);
-        context.put("_scope", scope);
-
-        final String groovyExpression = getTenantGroovyExpressionBody(tenantExpr);
-
-        if (StrUtil.isBlank(groovyExpression)) {
-            return false;
-        }
-
-        Object value = ExpressionUtils.evalGroovy(ORG_SCOPE_GROOVY_CLASS_CACHE, null, groovyExpression,
-                "org-scope-tenant-" + Integer.toHexString(groovyExpression.hashCode()) + ".groovy", context);
-
-        return Boolean.TRUE.equals(value);
-    }
-
-    private Set<String> resolveScopedTenantIds(RbacUserInfo user,
-                                               Collection<? extends OrgScope> orgScopeList,
-                                               Collection<? extends RbacTenantInfo> allTenantList) {
-        final Set<String> candidateTenantIds = new LinkedHashSet<>();
-        final Set<String> enumerableTenantIds = resolveUserAccessibleTenantIds(user, orgScopeList, allTenantList);
-
-        final String defaultTenantId = resolveDefaultTenantId(user);
-
-        if (orgScopeList == null || orgScopeList.isEmpty()) {
-            if (defaultTenantId != null) {
-                candidateTenantIds.add(defaultTenantId);
-            } else {
-                candidateTenantIds.add(null);
-            }
-            return candidateTenantIds;
-        }
-
-        for (OrgScope scope : orgScopeList) {
-            if (scope == null) {
-                continue;
-            }
-
-            if (!canApplyTenantScope(user, scope)) {
-                continue;
-            }
-
-            if (scope.isNoTenant()) {
-                candidateTenantIds.add(null);
-                continue;
-            }
-
-            if (scope.isDefaultTenant()) {
-                candidateTenantIds.add(defaultTenantId);
-                continue;
-            }
-
-            // ALL_TENANT 和 Groovy 表达式都需要在“可枚举租户”集合上求值。
-            if (defaultTenantId != null) {
-                enumerableTenantIds.add(defaultTenantId);
-            }
-
-            for (String tenantId : enumerableTenantIds) {
-                if (matchesScopeTenantByTenantId(scope, user, tenantId)) {
-                    candidateTenantIds.add(tenantId);
-                }
-            }
-
-            if (matchesScopeTenantByTenantId(scope, user, null)) {
-                candidateTenantIds.add(null);
-            }
-        }
-
-        return candidateTenantIds;
-    }
-
-    /**
-     * 基于用户数据范围里的 tenantMatchingExpression 计算可访问租户集合。
-     * 这里按“allow 收敛，再减 deny”处理，和组织授权的总语义保持一致。
-     */
-    private Set<String> resolveUserAccessibleTenantIds(RbacUserInfo user,
-                                                       Collection<? extends OrgScope> orgScopeList,
-                                                       Collection<? extends RbacTenantInfo> allTenantList) {
-        final Set<String> allTenantIds = Optional.ofNullable(allTenantList)
-                .orElse(Collections.emptyList())
-                .stream()
-                .filter(Objects::nonNull)
-                .map(RbacTenantInfo::getId)
-                .filter(tenantId -> RbacMiscUtils.isNotBlank((Serializable) tenantId))
-                .map(String::valueOf)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        final String defaultTenantId = resolveDefaultTenantId(user);
-
-        if (orgScopeList == null || orgScopeList.isEmpty()) {
-            return defaultTenantId == null
-                    ? Collections.emptySet()
-                    : new LinkedHashSet<>(Collections.singleton(defaultTenantId));
-        }
-
-        final List<OrgScope> allowScopes = new ArrayList<>();
-        final List<OrgScope> denyScopes = new ArrayList<>();
-        boolean hasAllowAllTenant = false;
-
-        for (OrgScope scope : orgScopeList) {
-            if (!isValidOrgScope(scope)) {
-                continue;
-            }
-
-            if (!canApplyTenantScope(user, scope)) {
-                continue;
-            }
-
-            if (scope.isNoTenant()) {
-                continue;
-            }
-
-            if (scope.isDenyAllOrg() && scope.isAllTenant()) {
-                return Collections.emptySet();
-            }
-
-            if (scope.isAllowAllOrg() && scope.isAllTenant()) {
-                hasAllowAllTenant = true;
-            }
-
-            if (scope.isAllow()) {
-                allowScopes.add(scope);
-            } else {
-                denyScopes.add(scope);
-            }
-        }
-
-        if (allowScopes.isEmpty()) {
-            return Collections.emptySet();
-        }
-
-        if (hasAllowAllTenant && denyScopes.isEmpty()) {
-            return allTenantIds;
-        }
-
-        final Set<String> allowTenantIds = collectMatchedTenantIds(allowScopes, user, allTenantIds, defaultTenantId);
-        if (allowTenantIds.isEmpty() || denyScopes.isEmpty()) {
-            return allowTenantIds;
-        }
-
-        final Set<String> denyTenantIds = collectMatchedTenantIds(denyScopes, user, allTenantIds, defaultTenantId);
-        allowTenantIds.removeAll(denyTenantIds);
-        return allowTenantIds;
-    }
-
-    private Set<String> collectMatchedTenantIds(Collection<? extends OrgScope> scopeList,
-                                                RbacUserInfo user,
-                                                Set<String> allTenantIds,
-                                                String defaultTenantId) {
-        final Set<String> matchedTenantIds = new LinkedHashSet<>();
-
-        for (OrgScope scope : scopeList) {
-            if (scope == null || scope.isNoTenant()) {
-                continue;
-            }
-
-            if (!canApplyTenantScope(user, scope)) {
-                continue;
-            }
-
-            if (scope.isDefaultTenant()) {
-                if (defaultTenantId != null) {
-                    matchedTenantIds.add(defaultTenantId);
-                }
-                continue;
-            }
-
-            for (String tenantId : allTenantIds) {
-                if (matchesScopeTenantByTenantId(scope, user, tenantId)) {
-                    matchedTenantIds.add(tenantId);
-                }
-            }
-        }
-
-        return matchedTenantIds;
-    }
-
-    private boolean canApplyTenantScope(RbacUserInfo user, OrgScope scope) {
-        if (user == null || scope == null || user.isPlatformUser()) {
-            return true;
-        }
-
-        final String defaultTenantId = resolveDefaultTenantId(user);
-
-        if (StrUtil.isBlank(defaultTenantId)) {
-            return false;
-        }
-
-        if (scope.isDefaultTenant()) {
-            return true;
-        }
-
-        final String tenantExpr = StrUtil.nullToEmpty(scope.getTenantMatchingExpression()).trim();
-
-        if (scope.isNoTenant() || scope.isAllTenant()) {
-            return false;
-        }
-
-        if (Objects.equals(tenantExpr, defaultTenantId)) {
-            return true;
-        }
-
-        if (isTenantGroovyExpression(tenantExpr)) {
-            return false;
-        }
-
-        return isTenantPathPatternExpression(tenantExpr)
-                && matchTenantPathPatternExpression(tenantExpr, defaultTenantId);
-    }
-
-    private boolean isLiteralTenantExpression(String tenantExpr) {
-        return StrUtil.isNotBlank(tenantExpr)
-                && !isTenantGroovyExpression(tenantExpr)
-                && !isTenantPathPatternExpression(tenantExpr)
-                && tenantExpr.chars().noneMatch(ch -> Character.isWhitespace(ch)
-                || ch == '=' || ch == '!' || ch == '&' || ch == '|'
-                || ch == '(' || ch == ')' || ch == '{' || ch == '}'
-                || ch == ';' || ch == '+' || ch == '<' || ch == '>');
-    }
-
-    private boolean isTenantGroovyExpression(String tenantExpr) {
-        final String expression = StrUtil.nullToEmpty(tenantExpr).trim();
-        return expression.regionMatches(true,
-                0,
-                OrgScope.TENANT_GROOVY_EXPRESSION_PREFIX,
-                0,
-                OrgScope.TENANT_GROOVY_EXPRESSION_PREFIX.length());
-    }
-
-    private String getTenantGroovyExpressionBody(String tenantExpr) {
-        return StrUtil.nullToEmpty(tenantExpr)
-                .trim()
-                .substring(OrgScope.TENANT_GROOVY_EXPRESSION_PREFIX.length())
-                .trim();
-    }
-
-    private boolean isTenantPathPatternExpression(String tenantExpr) {
-        if (StrUtil.isBlank(tenantExpr)) {
-            return false;
-        }
-
-        final String expression = tenantExpr.trim();
-
-        if (isTenantGroovyExpression(expression)) {
-            return false;
-        }
-
-        if (expression.chars().anyMatch(Character::isWhitespace)) {
-            return false;
-        }
-
-        return expression.startsWith("/")
-                || expression.indexOf('*') >= 0
-                || expression.indexOf('?') >= 0
-                || (expression.indexOf('{') >= 0 && expression.indexOf('}') > expression.indexOf('{'));
-    }
-
-    private boolean matchTenantPathPatternExpression(String expression, String tenantId) {
-        if (StrUtil.isBlank(expression) || StrUtil.isBlank(tenantId)) {
-            return false;
-        }
-        return PathPatternUtils.matchName(expression, tenantId);
-    }
-
-    private String resolveDefaultTenantId(RbacUserInfo user) {
-        return RbacMiscUtils.isBlank(user.getTenantId()) ? null : Objects.toString(user.getTenantId(), "");
-    }
-
-    private <ORG extends RbacOrgInfo> boolean matchesScope(OrgScope scope,
-                                                           RbacUserInfo user,
-                                                           String scopeRootId,
-                                                           String orgId,
-                                                           Map<String, ORG> orgMap,
-                                                           Map<String, String> relativeIdPathCache,
-                                                           Map<String, String> relativeNamePathCache) {
-
-        final String cacheKey = scopeRootId + "->" + orgId;
-        final String relativeIdPath = relativeIdPathCache.computeIfAbsent(cacheKey, key -> buildRelativePath(scopeRootId, orgId, orgMap, false));
-
-        if (relativeIdPath == null) {
-            return false;
-        }
-
-        switch (scope.getOrgScopeMatchingMode()) {
-            case OnlySelf:
-                return "/".equals(relativeIdPath);
-            case OnlyDirectChild:
-                return getRelativeDepth(relativeIdPath) == 1;
-            case SelfAndDirectChild:
-                return "/".equals(relativeIdPath) || getRelativeDepth(relativeIdPath) == 1;
-            case All:
-                return true;
-            case Custom:
-            default:
-                final String relativeNamePath = relativeNamePathCache.computeIfAbsent(cacheKey, key -> buildRelativePath(scopeRootId, orgId, orgMap, true));
-                return matchesCustomScope(scope, user, orgMap.get(scopeRootId), orgMap.get(orgId), relativeIdPath, relativeNamePath);
-        }
-    }
-
-    private boolean matchesCustomScope(OrgScope scope,
-                                       RbacUserInfo user,
-                                       RbacOrgInfo rootOrg,
-                                       RbacOrgInfo org,
-                                       String relativeIdPath,
-                                       String relativeNamePath) {
-
-        final OrgScope.ExpressionType expressionType = scope.getOrgScopeExpressionType();
-
-        if (expressionType == null || OrgScope.ExpressionType.IdPath.equals(expressionType)) {
-            return matchPathPatternExpression(scope.getOrgScopeExpression(), relativeIdPath);
-        }
-
-        if (OrgScope.ExpressionType.NamePath.equals(expressionType)) {
-            return matchPathPatternExpression(scope.getOrgScopeExpression(), relativeNamePath);
-        }
-
-        final Map<String, Object> context = new LinkedHashMap<>();
-
-        context.put("_user", user);
-        context.put("_org", org);
-        context.put("_rootOrg", rootOrg);
-        context.put("_scope", scope);
-        context.put("_relativeIdPath", relativeIdPath);
-        context.put("_relativeNamePath", relativeNamePath);
-
-        // 自定义脚本是慢路径，优先复用编译结果，减少高频授权检查中的解析开销。
-        Object value = OrgScope.ExpressionType.Groovy.equals(expressionType)
-                ? ExpressionUtils.evalGroovy(ORG_SCOPE_GROOVY_CLASS_CACHE, null, scope.getOrgScopeExpression(),
-                "org-scope-" + Integer.toHexString(scope.getOrgScopeExpression().hashCode()) + ".groovy", context)
-                : evalCachedSpEL(org, scope.getOrgScopeExpression(), context);
-
-        return Boolean.TRUE.equals(value);
-    }
-
-    private Object evalCachedSpEL(Object rootObject, String expression, Map<String, Object> context) {
-        final Expression spelExpression = ORG_SCOPE_SPEL_CACHE.computeIfAbsent(expression, ORG_SCOPE_SPEL_PARSER::parseExpression);
-        return ExpressionUtils.evalSpEL(rootObject, null, spelExpression, Collections.singletonList(context));
-    }
-
-    private boolean matchPathPatternExpression(String expression, String relativePath) {
-        final String pathToMatch = expression != null && expression.endsWith("/") && !"/".equals(expression)
-                ? relativePath
-                : normalizeRelativePathForPatternMatch(relativePath);
-        return PathPatternUtils.matchPath(expression, pathToMatch);
-    }
-
-    private String normalizeRelativePathForPatternMatch(String path) {
-        if (StrUtil.isBlank(path) || "/".equals(path)) {
-            return path;
-        }
-
-        int end = path.length();
-        while (end > 1 && path.charAt(end - 1) == '/') {
-            end--;
-        }
-
-        return end == path.length() ? path : path.substring(0, end);
-    }
-
-    private int getRelativeDepth(String relativePath) {
-        if ("/".equals(relativePath)) {
-            return 0;
-        }
-
-        return (int) Arrays.stream(relativePath.split("/"))
-                .filter(StrUtil::isNotBlank)
-                .count();
-    }
-
-    private <ORG extends RbacOrgInfo> String buildRelativePath(String rootId,
-                                                               String orgId,
-                                                               Map<String, ORG> orgMap,
-                                                               boolean useNamePath) {
-
-        if (StrUtil.isBlank(rootId) || StrUtil.isBlank(orgId)) {
-            return null;
-        }
-
-        if (rootId.equals(orgId)) {
-            return "/";
-        }
-
-        final List<String> segments = new ArrayList<>();
-        // 组织路径是沿父链向上回溯，一旦重复遇到节点就说明组织树存在环，需要立即失败而不是静默吞掉。
-        final Set<String> visited = new LinkedHashSet<>();
-
-        ORG current = orgMap.get(orgId);
-
-        while (current != null) {
-
-            final String currentId = Objects.toString(current.getId(), "");
-
-            if (!visited.add(currentId)) {
-                throwOrgCycleException(currentId, visited, orgMap);
-            }
-
-            if (rootId.equals(currentId)) {
-                Collections.reverse(segments);
-                return "/" + String.join("/", segments) + "/";
-            }
-
-            segments.add(currentSegment(useNamePath, current));
-
-            final Serializable parentId = current.getParentId();
-
-            if (isBlank(parentId)) {
-                return null;
-            }
-
-            final String parentIdStr = Objects.toString(parentId, "");
-            current = orgMap.get(parentIdStr);
-        }
-
-        return null;
-    }
-
-    private String currentSegment(boolean useNamePath, RbacOrgInfo org) {
-        return StrUtil.blankToDefault(useNamePath ? org.getName() : Objects.toString(org.getId(), ""), "");
     }
 
     private Set<String> normalizeOrgIdSet(Collection<?> orgIds) {

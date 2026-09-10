@@ -1196,7 +1196,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.singletonList("sys:high:view"),
                 Collections.emptyList(),
                 100,
-                Collections.singletonList(scope("A", true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("A", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         ));
 
         assertEquals(100, scopedService.getUserConfidentialDataAccessLevel(scopedUser),
@@ -1397,27 +1397,26 @@ class RbacAuthorizeServiceRolePermissionTest {
             assertEquals("/api/menu", menu.getPath());
             assertEquals(Collections.singletonList("sys:menu:page:菜单入口"), menu.getRequireAuthorizations());
 
-            List<MenuItem.OpButton> opButtonList = menu.getOpButtonList();
+            Set<MenuItem.OpButton> opButtonList = menu.getOpButtonList();
             assertEquals(3, opButtonList.size(), "只有标注 @CRUD.Op 的控制器方法才应生成操作按钮");
 
-            MenuItem.OpButton createButton = opButtonList.get(0);
-            assertEquals("/api/menu/create", createButton.getApiUrl());
+            MenuItem.OpButton createButton = opButtonList.stream().filter(button -> "新增按钮".equals(button.getLabel())).findFirst().orElseThrow();
+            assertEquals("新增按钮", createButton.getOpName());
             assertEquals("新增按钮", createButton.getLabel());
-            assertEquals("sys:menu:page:新增", createButton.getRequireAuthorization());
+            assertEquals(List.of("sys:menu:page:新增"), createButton.getRequireAuthorizations());
             assertEquals("新增备注", createButton.getRemark());
             assertFalse(createButton.isDisabled());
 
-            MenuItem.OpButton deleteButton = opButtonList.get(1);
-            assertEquals("/api/menu/delete/{id}", deleteButton.getApiUrl());
+            MenuItem.OpButton deleteButton = opButtonList.stream().filter(button -> "deleteOp".equals(button.getLabel())).findFirst().orElseThrow();
+            assertEquals("deleteOp", deleteButton.getOpName());
             assertEquals("deleteOp", deleteButton.getLabel());
-            assertEquals("sys:menu:page:删除", deleteButton.getRequireAuthorization());
+            assertEquals(List.of("sys:menu:page:删除"), deleteButton.getRequireAuthorizations());
             assertEquals("删除记录", deleteButton.getRemark());
             assertFalse(deleteButton.isDisabled());
 
-            MenuItem.OpButton updateButton = opButtonList.get(2);
-            assertEquals("/api/menu/update", updateButton.getApiUrl());
+            MenuItem.OpButton updateButton = opButtonList.stream().filter(button -> "更新".equals(button.getLabel())).findFirst().orElseThrow();
             assertEquals("更新", updateButton.getLabel());
-            assertEquals("sys:menu:page:更新", updateButton.getRequireAuthorization());
+            assertEquals(List.of("sys:menu:page:更新"), updateButton.getRequireAuthorizations());
             assertFalse(updateButton.isDisabled());
         } finally {
             context.close();
@@ -1444,12 +1443,14 @@ class RbacAuthorizeServiceRolePermissionTest {
 
             assertTrue(menuNode.has("opButtonList"), "菜单序列化后必须保留 opButtonList 字段");
             assertEquals(3, menuNode.path("opButtonList").size());
-            assertEquals("/api/menu/create", menuNode.path("opButtonList").get(0).path("apiUrl").asText());
-            assertEquals("sys:menu:page:新增", menuNode.path("opButtonList").get(0).path("requireAuthorization").asText());
-            assertEquals("/api/menu/delete/{id}", menuNode.path("opButtonList").get(1).path("apiUrl").asText());
-            assertEquals("sys:menu:page:删除", menuNode.path("opButtonList").get(1).path("requireAuthorization").asText());
-            assertEquals("/api/menu/update", menuNode.path("opButtonList").get(2).path("apiUrl").asText());
-            assertEquals("sys:menu:page:更新", menuNode.path("opButtonList").get(2).path("requireAuthorization").asText());
+            Map<String, JsonNode> buttons = new LinkedHashMap<>();
+            menuNode.path("opButtonList").forEach(button -> buttons.put(button.path("label").asText(), button));
+            assertEquals(Set.of("新增按钮", "deleteOp", "更新"), buttons.keySet());
+            assertEquals("新增按钮", buttons.get("新增按钮").path("opName").asText());
+            assertEquals("deleteOp", buttons.get("deleteOp").path("opName").asText());
+            assertEquals("sys:menu:page:新增", buttons.get("新增按钮").path("requireAuthorizations").get(0).asText());
+            assertEquals("sys:menu:page:删除", buttons.get("deleteOp").path("requireAuthorizations").get(0).asText());
+            assertEquals("sys:menu:page:更新", buttons.get("更新").path("requireAuthorizations").get(0).asText());
         } finally {
             context.close();
         }
@@ -1520,11 +1521,11 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 10,
-                Collections.singletonList(scope("A", true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("A", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         ));
 
-        assertEquals("A", scopedService.getUserDataScope(scopedUser).getOrgScopeList()
-                .iterator().next().getOrgId());
+        assertEquals("A|SelfAndAllChild", scopedService.getUserDataScope(scopedUser).getOrgScopeList()
+                .iterator().next());
 
         scopedService.registerRole(new TestRbacRole(
                 "R7C2",
@@ -1533,11 +1534,11 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 10,
-                Collections.singletonList(scope("B", true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("B", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         ));
 
-        assertEquals("B", scopedService.getUserDataScope(scopedUser).getOrgScopeList()
-                .iterator().next().getOrgId(),
+        assertEquals("B|SelfAndAllChild", scopedService.getUserDataScope(scopedUser).getOrgScopeList()
+                .iterator().next(),
                 "DataScope 不应再缓存在 user.transientExInfo 中，否则同一用户对象会读到旧角色范围");
         assertFalse(scopedUser.getTransientExInfo().containsKey(DataScope.class.getName()));
     }
@@ -1552,7 +1553,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Arrays.asList("R_MANAGER"),
                 5000,
                 "B",
-                Collections.singletonList(scope("B", true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("B", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -1564,7 +1565,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 100,
-                Collections.singletonList(scope("A", true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("A", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         ));
 
         Collection<TestOrg> orgList = scopedService.loadUserOrgList(scopedUser, false);
@@ -1585,7 +1586,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 5000,
                 "A",
                 Arrays.asList(
-                        scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All),
+                        scope("_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild),
                         customScope("A", false, "/A2/**")
                 )
         );
@@ -1610,7 +1611,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope("A", true, OrgScope.ScopeMatchingMode.OnlyDirectChild))
+                Collections.singletonList(scope("A", true, DataScope.OrgMatchingMode.DirectChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -1633,7 +1634,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope("A", true, OrgScope.ScopeMatchingMode.SelfAndDirectChild))
+                Collections.singletonList(scope("A", true, DataScope.OrgMatchingMode.SelfAndDirectChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -1656,7 +1657,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.OnlyDirectChild))
+                Collections.singletonList(scope("_ALL_ROOT_", true, DataScope.OrgMatchingMode.DirectChild))
         );
         TestRbacUser selfAndDirectChildUser = new TestRbacUser(
                 "U3D",
@@ -1666,7 +1667,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.SelfAndDirectChild))
+                Collections.singletonList(scope("_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndDirectChild))
         );
 
         StubRbacBaseService onlyDirectChildService = new StubRbacBaseService(onlyDirectChildUser)
@@ -1694,7 +1695,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A2",
-                Collections.singletonList(scope(OrgScope.USER_ORG, true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("_DEFAULT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -1702,7 +1703,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Arrays.asList("A2", "A21"),
                 scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
-                "_USER_ORG_ 应解析为用户默认组织，并按指定 ScopeMatchingMode 继续扩展");
+                "_DEFAULT_ 应解析为用户默认组织，并按指定 ScopeMatchingMode 继续扩展");
     }
 
     @Test
@@ -1716,8 +1717,8 @@ class RbacAuthorizeServiceRolePermissionTest {
                 5000,
                 "A",
                 Arrays.asList(
-                        scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All),
-                        scope("A", false, OrgScope.ScopeMatchingMode.SelfAndDirectChild)
+                        scope("_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild),
+                        scope("A", false, DataScope.OrgMatchingMode.SelfAndDirectChild)
                 )
         );
 
@@ -1740,8 +1741,8 @@ class RbacAuthorizeServiceRolePermissionTest {
                 5000,
                 "A",
                 Arrays.asList(
-                        scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All),
-                        scope(OrgScope.ALL_ROOT_ORG, false, OrgScope.ScopeMatchingMode.All)
+                        scope("_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild),
+                        scope("_ALL_ROOT_", false, DataScope.OrgMatchingMode.SelfAndAllChild)
                 )
         );
 
@@ -1763,8 +1764,8 @@ class RbacAuthorizeServiceRolePermissionTest {
                 5000,
                 "A",
                 Arrays.asList(
-                        scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All),
-                        scope("A", true, OrgScope.ScopeMatchingMode.OnlySelf)
+                        scope("_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild),
+                        scope("A", true, DataScope.OrgMatchingMode.Self)
                 )
         );
 
@@ -1786,7 +1787,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.OnlySelf))
+                Collections.singletonList(scope("_ALL_ROOT_", true, DataScope.OrgMatchingMode.Self))
         );
         TestRbacUser allFromRootUser = new TestRbacUser(
                 "U301B",
@@ -1796,7 +1797,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -1822,7 +1823,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope("T2", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("T2", "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -1836,11 +1837,11 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Arrays.asList("C", "C1"),
                 scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
-                "平台用户的 OrgScope 指定 tenantMatchingExpression 时，应只返回命中的租户组织");
+                "平台用户的 OrgScope 指定 tenantScopeList 时，应只返回命中的租户组织");
     }
 
     @Test
-    void shouldSupportTenantPathPatternForPlatformUser() {
+    void shouldSupportTenantSelectionScriptForPlatformUser() {
         TestRbacUser scopedUser = new TestRbacUser(
                 "U302P",
                 "platform-pattern",
@@ -1849,7 +1850,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope("tenant-*", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("Groovy#_tenant?.id?.startsWith('tenant-')", "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -1867,10 +1868,10 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Arrays.asList("tenant-a", "tenant-b"),
                 scopedService.loadUserAccessibleTenantList(scopedUser, true).stream().map(tenant -> Objects.toString(tenant.getId(), "")).collect(Collectors.toList()),
-                "平台用户的 tenantMatchingExpression 应支持 Spring PathPattern 匹配多个租户");
+                "平台用户的 tenantScopeList 应支持 Groovy# 匹配多个租户");
         assertIterableEquals(Arrays.asList("A", "A1", "C"),
                 scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
-                "平台用户的 PathPattern 租户范围应只加载命中租户下的组织");
+                "平台用户的 脚本租户范围应只加载命中租户下的组织");
     }
 
     @Test
@@ -1884,8 +1885,8 @@ class RbacAuthorizeServiceRolePermissionTest {
                 5000,
                 "ROOT",
                 Arrays.asList(
-                        scope("T1", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All),
-                        scope("T2", "ROOT", true, OrgScope.ScopeMatchingMode.OnlySelf)
+                        customScope("T1", "_ALL_ROOT_", true, "_org.tenantId == 'T1'", DataScope.OrgMatchingMode.Groovy),
+                        scope("T2", "ROOT", true, DataScope.OrgMatchingMode.Self)
                 )
         );
 
@@ -1911,7 +1912,7 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldLimitTenantPathPatternToOwnTenantForTenantUser() {
+    void shouldLimitTenantSelectionScriptToOwnTenantForTenantUser() {
         TestRbacUser scopedUser = new TestRbacUser(
                 "U302P1",
                 "tenant-pattern",
@@ -1920,7 +1921,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope("tenant-*", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("Groovy#_tenant?.id?.startsWith('tenant-')", "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -1937,10 +1938,10 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Collections.singletonList("tenant-a"),
                 scopedService.loadUserAccessibleTenantList(scopedUser, true).stream().map(tenant -> Objects.toString(tenant.getId(), "")).collect(Collectors.toList()),
-                "普通租户用户即使命中 PathPattern，也只能访问自己的租户");
+                "普通租户用户即使命中租户脚本，也只能访问自己的租户");
         assertIterableEquals(Arrays.asList("A", "A1"),
                 scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
-                "普通租户用户的 PathPattern 组织范围不能扩展到其他租户");
+                "普通租户用户的 脚本组织范围不能扩展到其他租户");
     }
 
     @Test
@@ -1953,8 +1954,8 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope(OrgScope.TENANT_GROOVY_EXPRESSION_PREFIX + "_tenant?.startsWith('tenant-')",
-                        OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("Groovy#" + "_tenant?.id?.startsWith('tenant-')",
+                        "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -1971,7 +1972,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Arrays.asList("tenant-a", "tenant-b"),
                 scopedService.loadUserAccessibleTenantList(scopedUser, true).stream().map(tenant -> Objects.toString(tenant.getId(), "")).collect(Collectors.toList()),
-                "平台用户的 tenantMatchingExpression 应支持 #!groovy: 前缀脚本");
+                "平台用户的 tenantScopeList 应支持 Groovy# 前缀脚本");
         assertIterableEquals(Arrays.asList("A", "C"),
                 scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
                 "带 ? 的 Groovy 脚本不应被误判成 Spring PathPattern");
@@ -1987,7 +1988,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope("_tenant == 'T2'", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("_tenant?.id == 'T2'", "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -1995,13 +1996,13 @@ class RbacAuthorizeServiceRolePermissionTest {
                 .setOrgList(Collections.singletonList(new TestOrg("C", null, "T2", "C")));
 
         assertTrue(scopedService.loadUserAccessibleTenantList(scopedUser, true).isEmpty(),
-                "未带 #!groovy: 前缀的脚本不应被当成 Groovy 执行");
+                "未带 Groovy# 前缀的脚本不应被当成 Groovy 执行");
         assertTrue(scopedService.loadUserOrgList(scopedUser, false).isEmpty(),
-                "未带 #!groovy: 前缀的脚本不应产生组织范围");
+                "未带 Groovy# 前缀的脚本不应产生组织范围");
     }
 
     @Test
-    void shouldIgnoreTenantGroovyScopeForTenantUser() {
+    void shouldAllowTenantGroovyWithinOwnTenant() {
         TestRbacUser scopedUser = new TestRbacUser(
                 "U302G2",
                 "tenant-groovy",
@@ -2010,18 +2011,18 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope(OrgScope.TENANT_GROOVY_EXPRESSION_PREFIX + "_tenant == 'tenant-a'",
-                        OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("Groovy#" + "_tenant?.id == 'tenant-a'",
+                        "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
                 .setTenantList(Collections.singletonList(new TestTenant("tenant-a", "TenantA")))
                 .setOrgList(Collections.singletonList(new TestOrg("A", null, "tenant-a", "A")));
 
-        assertTrue(scopedService.loadUserAccessibleTenantList(scopedUser, true).isEmpty(),
-                "普通租户用户不通过 Groovy 租户表达式扩大组织范围");
-        assertTrue(scopedService.loadUserOrgList(scopedUser, false).isEmpty(),
-                "普通租户用户配置 Groovy 租户表达式时应忽略该 scope");
+        assertEquals(1, scopedService.loadUserAccessibleTenantList(scopedUser, true).size(),
+                "普通用户的脚本可以匹配自身租户");
+        assertEquals(1, scopedService.loadUserOrgList(scopedUser, false).size(),
+                "普通用户只可看到自身租户组织");
     }
 
     @Test
@@ -2034,7 +2035,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope("T2", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("T2", "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -2054,7 +2055,7 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldIgnoreAllTenantDenyScopeForTenantUserDuringOrgCalculation() {
+    void shouldApplyOrganizationDenialWithinOwnTenant() {
         TestRbacUser scopedUser = new TestRbacUser(
                 "U302B",
                 "tenant-dave",
@@ -2064,17 +2065,17 @@ class RbacAuthorizeServiceRolePermissionTest {
                 5000,
                 "A",
                 Arrays.asList(
-                        scope("A", true, OrgScope.ScopeMatchingMode.All),
-                        scope(OrgScope.ALL_TENANT, OrgScope.ALL_ROOT_ORG, false, OrgScope.ScopeMatchingMode.All)
+                        scope("A", true, DataScope.OrgMatchingMode.SelfAndAllChild),
+                        scope("_ALL_", "_ALL_ROOT_", false, DataScope.OrgMatchingMode.SelfAndAllChild)
                 )
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
                 .setOrgList(baseOrgTree());
 
-        assertIterableEquals(Arrays.asList("A", "A1", "A2", "A21"),
+        assertIterableEquals(Collections.emptyList(),
                 scopedService.loadUserOrgList(scopedUser, false).stream().map(org -> Objects.toString(org.getId(), "")).collect(Collectors.toList()),
-                "普通租户用户的计算阶段也应忽略 ALL_TENANT deny，不应把自己的合法组织范围清空");
+                "独立组织拒绝范围在自身租户内同样生效");
     }
 
     @Test
@@ -2087,7 +2088,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope("T2", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("T2", "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -2099,7 +2100,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Collections.singletonList("T2"),
                 scopedService.loadUserAccessibleTenantList(scopedUser, true).stream().map(tenant -> Objects.toString(tenant.getId(), "")).collect(Collectors.toList()),
-                "平台用户 loadUserCanAccessTenantList 应按 tenantMatchingExpression 返回可访问租户");
+                "平台用户 loadUserCanAccessTenantList 应按 tenantScopeList 返回可访问租户");
     }
 
     @Test
@@ -2112,7 +2113,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope("T2", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("T2", "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -2168,7 +2169,7 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldFallbackToDefaultTenantWhenNoOrgScopeForTenantList() {
+    void shouldNotInferTenantGrantWhenUserAndRolesHaveNoConfiguration() {
         TestRbacUser scopedUser = new TestRbacUser(
                 "U3022",
                 "doris",
@@ -2184,9 +2185,9 @@ class RbacAuthorizeServiceRolePermissionTest {
                         new TestTenant("T2", "Tenant2")
                 ));
 
-        assertIterableEquals(Collections.singletonList("T1"),
+        assertIterableEquals(Collections.emptyList(),
                 scopedService.loadUserAccessibleTenantList(scopedUser, true).stream().map(tenant -> Objects.toString(tenant.getId(), "")).collect(Collectors.toList()),
-                "没有显式组织范围时，租户访问应回落到用户默认租户");
+                "用户和角色均没有租户授权时，不应隐式授权默认租户");
     }
 
     @Test
@@ -2325,7 +2326,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope("A", true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("A", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
                 .setOrgList(baseOrgTree());
@@ -2347,7 +2348,8 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 100,
                 "T1_ROOT",
-                Collections.singletonList(scope(OrgScope.ALL_TENANT, OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All))
+                Arrays.asList(scope("_ALL_", "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild),
+                        scope("_NONE_", "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
         StubRbacBaseService scopedService = new StubRbacBaseService(platformUser)
                 .setTenantList(Arrays.asList(
@@ -2399,8 +2401,11 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "T1",
                 "OPS",
                 Collections.singletonList(RbacRoleInfo.ADMIN_ROLE),
-                100
+                100,
+                "T1_ROOT",
+                List.of(scope("_DEFAULT_", "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
+        assertDoesNotThrow(() -> scopedService.checkOrgAccessible(tenantAdmin, "T1", null, "T1_ROOT"));
         assertThrows(IllegalArgumentException.class,
                 () -> scopedService.checkOrgAccessible(tenantAdmin, "T1", null, "T1_DISABLED"),
                 "即使租户管理员绕过组织范围，仍不能操作 selfAudit 未通过的目标组织");
@@ -2435,7 +2440,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.singletonList("R_TENANT_REPORTER"),
                 null,
                 "T1_ROOT",
-                Collections.singletonList(scope(OrgScope.DEFAULT_TENANT, "T1_ROOT", true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("_DEFAULT_", "T1_ROOT", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
         StubRbacBaseService tenantService = new StubRbacBaseService(tenantUser)
                 .setTenantList(tenantList)
@@ -2480,7 +2485,8 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.singletonList("R_PLATFORM_REPORTER"),
                 null,
                 "T1_ROOT",
-                Collections.singletonList(scope(OrgScope.ALL_TENANT, OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All))
+                Arrays.asList(scope("_ALL_", "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild),
+                        scope("_NONE_", "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
         StubRbacBaseService platformService = new StubRbacBaseService(platformUser)
                 .setTenantList(tenantList)
@@ -2537,16 +2543,9 @@ class RbacAuthorizeServiceRolePermissionTest {
 
     @Test
     void shouldDetectAllOrgAccessFromMergedDataScope() {
-        TestRbacUser scopedUser = new TestRbacUser(
-                "U3026",
-                "all-org",
-                null,
-                "PLATFORM",
-                Collections.emptyList(),
-                5000,
-                "A",
-                Collections.singletonList(scope(OrgScope.ALL_TENANT, OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All))
-        );
+        ScopeUser scopedUser = new ScopeUser(null, List.of());
+        scopedUser.fields[0] = Set.of("_ALL_", "_NONE_");
+        scopedUser.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser);
 
         assertTrue(scopedService.canAccessAllOrg(scopedUser),
@@ -2555,19 +2554,10 @@ class RbacAuthorizeServiceRolePermissionTest {
 
     @Test
     void shouldKeepGlobalAllOrgCheckFalseWhenPlatformUserHasTenantDeny() {
-        TestRbacUser scopedUser = new TestRbacUser(
-                "U3027",
-                "all-org-with-deny",
-                null,
-                "PLATFORM",
-                Collections.emptyList(),
-                5000,
-                "A",
-                Arrays.asList(
-                        scope(OrgScope.ALL_TENANT, OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All),
-                        scope("T2", OrgScope.ALL_ROOT_ORG, false, OrgScope.ScopeMatchingMode.All)
-                )
-        );
+        ScopeUser scopedUser = new ScopeUser(null, List.of());
+        scopedUser.fields[0] = Set.of("_ALL_");
+        scopedUser.fields[1] = Set.of("T2");
+        scopedUser.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
                 .setTenantList(Arrays.asList(
                         new TestTenant("T1", "Tenant1"),
@@ -2635,7 +2625,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "P",
-                Collections.singletonList(scope(OrgScope.DEFAULT_TENANT, OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("_DEFAULT_", "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -2660,7 +2650,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope("", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("", "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -2686,7 +2676,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(customScope("A", true, "return _org.name == 'A2' || _relativeIdPath == '/A2/A21/'", OrgScope.ExpressionType.Groovy))
+                Collections.singletonList(customScope("A", true, "return _org.name == 'A2' || _relativeIdPath == '/A2/A21/'", DataScope.OrgMatchingMode.Groovy))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -2700,7 +2690,7 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldSupportSpringElCustomOrgScope() {
+    void shouldSupportGroovyBooleanCustomOrgScope() {
         TestRbacUser scopedUser = new TestRbacUser(
                 "U32",
                 "frank",
@@ -2709,7 +2699,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(customScope("A", true, "#_org.name == 'A1' or #_relativeNamePath == '/A2/'", OrgScope.ExpressionType.SpringEL))
+                Collections.singletonList(customScope("A", true, "_org.name == 'A1' || _relativeNamePath == '/A2/'", DataScope.OrgMatchingMode.Groovy))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -2719,7 +2709,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Arrays.asList("A1", "A2"),
                 orgList.stream().map(TestOrg::getId).collect(Collectors.toList()),
-                "自定义 Spring EL 表达式应支持根对象 org 和上下文变量");
+                "自定义 Groovy 表达式应支持 _org 和上下文变量");
     }
 
     @Test
@@ -2732,7 +2722,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(customScope("A", true, "/A2/", OrgScope.ExpressionType.NamePath))
+                Collections.singletonList(customScope("A", true, "/A2/", DataScope.OrgMatchingMode.NamePath))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -2755,7 +2745,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope("A", true, OrgScope.ScopeMatchingMode.OnlyDirectChild))
+                Collections.singletonList(scope("A", true, DataScope.OrgMatchingMode.DirectChild))
         );
 
         Collection<TestOrg> orgList = new StubRbacBaseService(scopedUser)
@@ -2777,7 +2767,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(customScope("A", true, "/*/", OrgScope.ExpressionType.IdPath))
+                Collections.singletonList(customScope("A", true, "/*/", DataScope.OrgMatchingMode.IdPath))
         );
 
         Collection<TestOrg> orgList = new StubRbacBaseService(scopedUser)
@@ -2799,7 +2789,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope("A", true, OrgScope.ScopeMatchingMode.SelfAndDirectChild))
+                Collections.singletonList(scope("A", true, DataScope.OrgMatchingMode.SelfAndDirectChild))
         );
 
         Collection<TestOrg> orgList = new StubRbacBaseService(scopedUser)
@@ -2821,7 +2811,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(customScope("A", true, "/*/*", OrgScope.ExpressionType.IdPath))
+                Collections.singletonList(customScope("A", true, "/*/*", DataScope.OrgMatchingMode.IdPath))
         );
 
         Collection<TestOrg> orgList = new StubRbacBaseService(scopedUser)
@@ -2843,7 +2833,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(customScope("A", true, "/*/*", OrgScope.ExpressionType.NamePath))
+                Collections.singletonList(customScope("A", true, "/*/*", DataScope.OrgMatchingMode.NamePath))
         );
 
         Collection<TestOrg> orgList = new StubRbacBaseService(scopedUser)
@@ -2865,7 +2855,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(customScope("A", true, "/**", OrgScope.ExpressionType.IdPath))
+                Collections.singletonList(customScope("A", true, "/**", DataScope.OrgMatchingMode.IdPath))
         );
 
         Collection<TestOrg> orgList = new StubRbacBaseService(scopedUser)
@@ -2887,7 +2877,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(customScope("A", true, "/A2/A21/", OrgScope.ExpressionType.IdPath))
+                Collections.singletonList(customScope("A", true, "/A2/A21/", DataScope.OrgMatchingMode.IdPath))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -2897,7 +2887,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         assertIterableEquals(Collections.singletonList("A21"),
                 orgList.stream().map(TestOrg::getId).collect(Collectors.toList()),
-                "IdPath 应以 OrgScope.getOrgId() 作为起点构造相对路径");
+                "IdPath 应以 DataScope.OrgScope.startOrg() 作为起点构造相对路径");
 
         TestRbacUser absolutePathUser = new TestRbacUser(
                 "U323",
@@ -2907,7 +2897,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(customScope("A", true, "/A/A2/A21/", OrgScope.ExpressionType.IdPath))
+                Collections.singletonList(customScope("A", true, "/A/A2/A21/", DataScope.OrgMatchingMode.IdPath))
         );
 
         Collection<TestOrg> absolutePathResult = new StubRbacBaseService(absolutePathUser)
@@ -2928,7 +2918,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(customScope("A", true, "#_user.loginName == 'grace' and #_org.name == 'A1'", OrgScope.ExpressionType.SpringEL))
+                Collections.singletonList(customScope("A", true, "_user.loginName == 'grace' && _org.name == 'A1'", DataScope.OrgMatchingMode.Groovy))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -2951,7 +2941,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "A",
-                Collections.singletonList(scope(OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -3048,8 +3038,8 @@ class RbacAuthorizeServiceRolePermissionTest {
                 5000,
                 "ROOT",
                 Arrays.asList(
-                        scope("T1", OrgScope.ALL_ROOT_ORG, true, OrgScope.ScopeMatchingMode.All),
-                        scope("T2", "ROOT", true, OrgScope.ScopeMatchingMode.OnlySelf)
+                        customScope("T1", "_ALL_ROOT_", true, "_org.tenantId == 'T1'", DataScope.OrgMatchingMode.Groovy),
+                        scope("T2", "ROOT", true, DataScope.OrgMatchingMode.Self)
                 )
         );
 
@@ -3115,7 +3105,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.emptyList(),
                 5000,
                 "ROOT",
-                Collections.singletonList(scope("ROOT", true, OrgScope.ScopeMatchingMode.All))
+                Collections.singletonList(scope("ROOT", true, DataScope.OrgMatchingMode.SelfAndAllChild))
         );
 
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser)
@@ -3158,110 +3148,647 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldKeepScopesWithSameExpressionButDifferentExpressionTypes() {
-        StubRbacBaseService scopedService = new StubRbacBaseService(user);
-
-        Collection<OrgScope> merged = scopedService.mergeOrgScopeList(Arrays.asList(
-                customScope("A", true, "/A2/", OrgScope.ExpressionType.IdPath),
-                customScope("A", true, "/A2/", OrgScope.ExpressionType.NamePath)
-        ));
-
-        assertEquals(2, merged.size(),
-                "相同表达式文本但不同 expressionType 的规则不应被误合并");
+    void shouldKeepDifferentExpressionModesWhenMergingRoles() {
+        TestRbacUser u = new TestRbacUser("merge", "merge", "T1", "OPS", Arrays.asList("R1", "R2"), 5000);
+        StubRbacBaseService service = new StubRbacBaseService(u);
+        service.registerRole(new TestRbacRole("r1", "R1", "T1", List.of(), List.of(), 10,
+                List.of(customScope("A", true, "/A2/", DataScope.OrgMatchingMode.IdPath))));
+        service.registerRole(new TestRbacRole("r2", "R2", "T1", List.of(), List.of(), 10,
+                List.of(customScope("A", true, "/A2/", DataScope.OrgMatchingMode.NamePath))));
+        assertEquals(Set.of("A|IdPath#/A2/", "A|NamePath#/A2/"), service.getUserDataScope(u).getOrgScopeList());
     }
 
     @Test
-    void shouldKeepScopesWithSameExpressionButDifferentTenantIds() {
-        StubRbacBaseService scopedService = new StubRbacBaseService(user);
-
-        Collection<OrgScope> merged = scopedService.mergeOrgScopeList(Arrays.asList(
-                customScope("T1", "A", true, "/A2/", OrgScope.ExpressionType.IdPath),
-                customScope("T2", "A", true, "/A2/", OrgScope.ExpressionType.IdPath)
-        ));
-
-        assertEquals(2, merged.size(),
-                "相同表达式文本但 tenantMatchingExpression 不同的规则不应被误合并");
-    }
-
-    @Test
-    void shouldDropInvalidAndDuplicateOrgScopesWhenMerging() {
-        StubRbacBaseService scopedService = new StubRbacBaseService(user);
-        SimpleOrgScope validScope = scope("A", true, OrgScope.ScopeMatchingMode.All);
-        SimpleOrgScope duplicateScope = scope("A", true, OrgScope.ScopeMatchingMode.All);
-
-        Collection<OrgScope> merged = scopedService.mergeOrgScopeList(Arrays.asList(
-                null,
-                new SimpleOrgScope().setOrgId("").setAllow(true).setOrgScopeMatchingMode(OrgScope.ScopeMatchingMode.All),
-                new SimpleOrgScope().setOrgId("A").setAllow(true).setOrgScopeExpression(""),
-                validScope,
-                duplicateScope
-        ));
-
-        assertEquals(Collections.singletonList(validScope), new ArrayList<>(merged),
-                "合并组织范围时应丢弃空值、空 orgId、空表达式和完全重复项");
+    void shouldMergeTenantAndOrgFieldsIndependentlyAndDeduplicate() {
+        TestRbacUser u = new TestRbacUser("merge", "merge", null, "PLATFORM", Arrays.asList("R1", "R2"), 5000);
+        StubRbacBaseService service = new StubRbacBaseService(u);
+        for (String tenant : List.of("T1", "T2")) {
+            String role = tenant.equals("T1") ? "R1" : "R2";
+            service.registerRole(new TestRbacRole(role, role, null, List.of(), List.of(), 10,
+                    List.of(customScope(tenant, "A", true, "/A2/", DataScope.OrgMatchingMode.IdPath))));
+        }
+        assertEquals(Set.of("T1", "T2"), service.getUserDataScope(u).getTenantScopeList());
+        assertEquals(Set.of("A|IdPath#/A2/"), service.getUserDataScope(u).getOrgScopeList());
     }
 
     @Test
     void shouldKeepStandardModeSeparateFromCustomExpressions() {
-        SimpleOrgScope standardScope = new SimpleOrgScope()
-                .setOrgId("A")
-                .setAllow(true)
-                .setOrgScopeMatchingMode(OrgScope.ScopeMatchingMode.OnlyDirectChild);
-        SimpleOrgScope customScope = new SimpleOrgScope()
-                .setOrgId("A")
-                .setAllow(true)
-                .setOrgScopeMatchingMode(OrgScope.ScopeMatchingMode.Custom)
-                .setOrgScopeExpressionType(OrgScope.ExpressionType.IdPath)
-                .setOrgScopeExpression("/*/");
-
-        assertEquals(OrgScope.ScopeMatchingMode.OnlyDirectChild, standardScope.getOrgScopeMatchingMode());
-        assertEquals("", standardScope.getOrgScopeExpression(),
-                "标准模式不应再通过路径表达式存储或反推");
-        assertEquals(OrgScope.ScopeMatchingMode.Custom, customScope.getOrgScopeMatchingMode(),
-                "Custom 模式必须由显式 mode 决定，不能根据表达式文本反推");
-        assertEquals(1, new StubRbacBaseService(user).mergeOrgScopeList(Collections.singletonList(standardScope)).size(),
-                "标准模式没有自定义表达式时仍应是有效组织范围");
-        assertEquals(1, new StubRbacBaseService(user).mergeOrgScopeList(Collections.singletonList(customScope)).size(),
-                "Custom 的表达式文本不应反推或覆盖显式 ScopeMatchingMode");
+        assertEquals("DirectChild", DataScope.OrgScope.parse("A|DirectChild").orgMatchingMode());
+        assertEquals("IdPath#/*/", DataScope.OrgScope.parse("A|IdPath#/*/").orgMatchingMode());
+        assertThrows(IllegalArgumentException.class, () -> DataScope.OrgScope.parse("A|SpringEL#true"));
     }
 
-    private static SimpleOrgScope scope(String orgId, boolean allow, OrgScope.ScopeMatchingMode scopeMatchingPattern) {
-        return new SimpleOrgScope()
-                .setOrgId(orgId)
-                .setAllow(allow)
-                .setOrgScopeMatchingMode(scopeMatchingPattern);
+    @Test
+    void shouldReplaceEachRoleFieldWhenUserDefinesEmptyOrNonEmptyCollection() {
+        for (int field = 0; field < 6; field++) {
+            ScopeUser u = new ScopeUser("T1", List.of("R1", "R2"));
+            StubRbacBaseService service = new StubRbacBaseService(u);
+            ScopeRole r1 = new ScopeRole("R1"), r2 = new ScopeRole("R2");
+            String one = field >= 4 ? "role-one|Self" : "role-one";
+            String two = field >= 4 ? "role-two|Self" : "role-two";
+            String own = field >= 4 ? "user-only|Self" : "user-only";
+            r1.fields[field] = Set.of(one);
+            r2.fields[field] = Set.of(two, one);
+            service.registerRole(r1);
+            service.registerRole(r2);
+            assertEquals(Set.of(one, two), scopeFields(service.getUserDataScope(u)).get(field),
+                    "null must inherit field " + field);
+            u.fields[field] = Set.of();
+            assertEquals(Set.of(), scopeFields(service.getUserDataScope(u)).get(field),
+                    "empty must replace field " + field);
+            u.fields[field] = Set.of(own);
+            assertEquals(Set.of(own), scopeFields(service.getUserDataScope(u)).get(field),
+                    "nonempty must replace field " + field);
+        }
     }
 
-    private static SimpleOrgScope scope(String tenantMatchingExpression, String orgId, boolean allow, OrgScope.ScopeMatchingMode scopeMatchingPattern) {
-        return new SimpleOrgScope()
-                .setTenantMatchingExpression(tenantMatchingExpression)
-                .setOrgId(orgId)
-                .setAllow(allow)
-                .setOrgScopeMatchingMode(scopeMatchingPattern);
+    @Test
+    void shouldReplaceDenyIndependentlyWithoutReplacingInheritedAllow() {
+        ScopeUser u = new ScopeUser("T1", List.of("R1"));
+        ScopeRole role = new ScopeRole("R1");
+        role.fields[0] = Set.of("T1");
+        role.fields[1] = Set.of("T1");
+        u.fields[1] = Set.of();
+        StubRbacBaseService service = new StubRbacBaseService(u);
+        service.registerRole(role);
+        assertTrue(service.canAccessTenant(u, "T1"));
+        assertEquals(Set.of("T1"), service.getUserDataScope(u).getTenantScopeList());
+        assertEquals(Set.of(), service.getUserDataScope(u).getDeniedTenantScopeList());
     }
 
-    private static SimpleOrgScope customScope(String orgId, boolean allow, String expression) {
-        return new SimpleOrgScope()
-                .setOrgId(orgId)
-                .setAllow(allow)
-                .setOrgScopeExpression(expression);
+    @Test
+    void shouldKeepOrganizationDenialOutOfTenantAuthorization() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
+        u.fields[5] = Set.of("A|SelfAndAllChild");
+        StubRbacBaseService service = new StubRbacBaseService(u).setOrgList(baseOrgTree())
+                .setTenantList(List.of(new TestTenant("T1", "Tenant1")));
+        assertTrue(service.canAccessTenant(u, "T1"));
+        assertEquals(List.of("T1"), service.loadUserAccessibleTenantList(u, true).stream()
+                .map(t -> Objects.toString(t.getId())).collect(Collectors.toList()));
+        assertFalse(service.canAccessOrg(u, "T1", "A1"));
+        assertTrue(service.canAccessOrg(u, "T1", "B1"));
+        Set<String> listed = service.loadUserAccessibleOrgList(u, true).stream()
+                .map(o -> Objects.toString(o.getId())).collect(Collectors.toSet());
+        for (TestOrg org : baseOrgTree()) {
+            assertEquals(listed.contains(org.getId()), service.canAccessOrg(u, "T1", org.getId()));
+        }
     }
 
-    private static SimpleOrgScope customScope(String orgId, boolean allow, String expression, OrgScope.ExpressionType expressionType) {
-        return new SimpleOrgScope()
-                .setOrgId(orgId)
-                .setAllow(allow)
-                .setOrgScopeExpressionType(expressionType)
-                .setOrgScopeExpression(expression);
+    @Test
+    void shouldEnforcePlatformBoundaryForAllExplicitNoneAndGroovyRules() {
+        for (String expression : List.of("_ALL_", "T2", "_NONE_", "Groovy#true")) {
+            ScopeUser u = new ScopeUser("T1", List.of("R1"));
+            ScopeRole role = new ScopeRole("R1");
+            role.fields[0] = Set.of(expression);
+            StubRbacBaseService service = new StubRbacBaseService(u)
+                    .setTenantList(List.of(new TestTenant("T1", "One"), new TestTenant("T2", "Two")));
+            service.registerRole(role);
+            assertFalse(service.canAccessTenant(u, "T2"), expression);
+            assertFalse(service.canAccessTenant(u, null), expression);
+            u.fields[0] = Set.of(expression);
+            assertFalse(service.canAccessTenant(u, "T2"), expression);
+            assertFalse(service.canAccessTenant(u, null), expression);
+        }
     }
 
-    private static SimpleOrgScope customScope(String tenantMatchingExpression, String orgId, boolean allow, String expression, OrgScope.ExpressionType expressionType) {
-        return new SimpleOrgScope()
-                .setTenantMatchingExpression(tenantMatchingExpression)
-                .setOrgId(orgId)
-                .setAllow(allow)
-                .setOrgScopeExpressionType(expressionType)
-                .setOrgScopeExpression(expression);
+    @Test
+    void shouldRequireExplicitNoTenantAndNoOrganizationGrants() {
+        ScopeUser u = new ScopeUser(null, List.of());
+        StubRbacBaseService service = new StubRbacBaseService(u);
+        u.fields[0] = Set.of("_ALL_");
+        assertFalse(service.canAccessTenant(u, null));
+        u.fields[0] = Set.of("_NONE_");
+        assertTrue(service.canAccessTenant(u, null));
+        assertFalse(service.canAccessOrg(u, null, null));
+        u.fields[4] = Set.of("_NONE_|ignored");
+        assertTrue(service.canAccessOrg(u, null, null));
+        u.fields[5] = Set.of("_NONE_|ignored");
+        assertFalse(service.canAccessOrg(u, null, null));
+    }
+
+    @Test
+    void shouldApplyDomainAllowAndDenyWithoutWildcardExpansion() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        StubRbacBaseService service = new StubRbacBaseService(u);
+        assertFalse(service.canAccessDomain(u, "sales"));
+        u.fields[2] = Set.of("sales", "finance");
+        u.fields[3] = Set.of("finance");
+        assertTrue(service.canAccessDomain(u, "sales"));
+        assertFalse(service.canAccessDomain(u, "finance"));
+        assertFalse(service.canAccessDomain(u, "other"));
+        u.fields[3] = Set.of();
+        assertTrue(service.canAccessDomain(u, "finance"));
+    }
+
+    @Test
+    void shouldIgnoreDisabledRoleScopesForAllSixFields() {
+        ScopeUser u = new ScopeUser("T1", List.of("active", "disabled"));
+        ScopeRole active = new ScopeRole("active");
+        ScopeRole disabled = new ScopeRole("disabled") {
+            @Override public boolean isEnable() { return false; }
+        };
+        for (int field = 0; field < 6; field++) {
+            active.fields[field] = Set.of(field >= 4 ? "A|Self" : "active");
+            disabled.fields[field] = Set.of(field >= 4 ? "B|Self" : "disabled");
+        }
+        StubRbacBaseService service = new StubRbacBaseService(u);
+        service.registerRole(active);
+        service.registerRole(disabled);
+        List<Set<String>> resolved = scopeFields(service.getUserDataScope(u));
+        for (int field = 0; field < 6; field++) {
+            assertEquals(active.fields[field], resolved.get(field), "disabled role field " + field);
+        }
+    }
+
+    @Test
+    void shouldReturnScopeSnapshotWithoutMutatingSourceSets() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = new LinkedHashSet<>(Set.of("T1"));
+        StubRbacBaseService service = new StubRbacBaseService(u);
+        DataScope snapshot = service.getUserDataScope(u);
+        assertThrows(UnsupportedOperationException.class, () -> snapshot.getTenantScopeList().clear());
+        u.fields[0].clear();
+        assertEquals(Set.of("T1"), snapshot.getTenantScopeList());
+        assertEquals(Set.of(), service.getUserDataScope(u).getTenantScopeList());
+    }
+
+    @Test
+    void shouldPreventTenantSuperAdminFromCrossingIdentityBoundary() {
+        ScopeUser u = new ScopeUser("T1", List.of(RbacRoleInfo.SA_ROLE));
+        u.fields[0] = Set.of("_ALL_", "_NONE_");
+        u.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild", "_NONE_|Self");
+        StubRbacBaseService service = new StubRbacBaseService(u)
+                .setTenantList(List.of(new TestTenant("T1", "One"), new TestTenant("T2", "Two")))
+                .setOrgList(List.of(new TestOrg("A", null, "T1", "A"), new TestOrg("B", null, "T2", "B")));
+        assertFalse(service.canAccessTenant(u, "T2"));
+        assertFalse(service.canAccessTenant(u, null));
+        assertFalse(service.canAccessOrg(u, "T2", "B"));
+        assertEquals(List.of("T1"), service.loadUserAccessibleTenantList(u, true).stream()
+                .map(t -> Objects.toString(t.getId())).collect(Collectors.toList()));
+    }
+
+    @Test
+    void shouldKeepAllOrganizationClaimConsistentForOrphans() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
+        StubRbacBaseService service = new StubRbacBaseService(u).setOrgList(List.of(
+                new TestOrg("ROOT", null, "T1", "Root"),
+                new TestOrg("ORPHAN", "MISSING", "T1", "Orphan")));
+        assertFalse(service.canAccessAllOrg(u, "T1"));
+        assertFalse(service.canAccessOrg(u, "T1", "ORPHAN"));
+        assertEquals(Set.of("ROOT"), service.loadUserAccessibleOrgList(u, true).stream()
+                .map(o -> Objects.toString(o.getId())).collect(Collectors.toSet()));
+    }
+
+    @Test
+    void shouldExcludeDisconnectedCyclesFromAllRootOrganizationGrant() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
+        StubRbacBaseService service = new StubRbacBaseService(u).setOrgList(List.of(
+                new TestOrg("ROOT", null, "T1", "Root"),
+                new TestOrg("C1", "C2", "T1", "Cycle1"),
+                new TestOrg("C2", "C1", "T1", "Cycle2")));
+        assertFalse(service.canAccessAllOrg(u, "T1"));
+        assertFalse(service.canAccessOrg(u, "T1", "C1"));
+        assertFalse(service.canAccessOrg(u, "T1", "C2"));
+        assertEquals(Set.of("ROOT"), service.loadUserAccessibleOrgList(u, true).stream()
+                .map(o -> Objects.toString(o.getId())).collect(Collectors.toSet()));
+    }
+
+    @Test
+    void shouldTreatLegacyTenantWildcardAsLiteralId() {
+        ScopeUser u = new ScopeUser(null, List.of());
+        u.fields[0] = Set.of("tenant-*");
+        StubRbacBaseService service = new StubRbacBaseService(u)
+                .setTenantList(List.of(new TestTenant("tenant-a", "A"), new TestTenant("tenant-b", "B")));
+        assertFalse(service.canAccessTenant(u, "tenant-a"));
+        assertFalse(service.canAccessTenant(u, "tenant-b"));
+        assertTrue(service.loadUserAccessibleTenantList(u, true).isEmpty());
+    }
+
+    @Test
+    void shouldResolveDefaultOrganizationOnlyWithinUsersOwnTenant() {
+        TestRbacUser u = new TestRbacUser("platform-default", "platform-default", null, "PLATFORM",
+                List.of(), 5000, "ROOT", List.of(scope("_ALL_", "_DEFAULT_", true, DataScope.OrgMatchingMode.Self)));
+        StubRbacBaseService service = new StubRbacBaseService(u)
+                .setTenantList(List.of(new TestTenant("T1", "One")))
+                .setOrgList(List.of(new TestOrg("ROOT", null, "T1", "Other tenant root")));
+        assertFalse(service.canAccessOrg(u, "T1", "ROOT"),
+                "默认组织不得因其他租户恰好具有同ID而授权");
+        assertTrue(service.loadUserAccessibleOrgList(u, true).isEmpty());
+    }
+
+    @Test
+    void shouldRejectForeignOrganizationReturnedByTenantLoader() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of("ROOT|SelfAndAllChild");
+        StubRbacBaseService service = new StubRbacBaseService(u) {
+            @Override
+            public <ORG extends RbacOrgInfo> List<ORG> loadTenantOrgList(Serializable tenantId, boolean onlyEffect) {
+                return (List<ORG>) (List<?>) List.of(new TestOrg("ROOT", null, "T2", "Foreign"));
+            }
+        };
+        assertTrue(service.canAccessTenant(u, "T1"));
+        assertFalse(service.canAccessOrg(u, "T1", "ROOT"));
+        assertTrue(service.loadUserAccessibleOrgList(u, true).isEmpty());
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> service.checkOrgAccessible(u, "T1", "ROOT", null));
+        assertTrue(error.getMessage().contains("不存在于租户"), error.getMessage());
+    }
+
+    @Test
+    void shouldAllowPlatformScopedChildManagementWithoutGrantingRootManagement() {
+        ScopeUser u = new ScopeUser(null, List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of("ROOT|SelfAndAllChild");
+        StubRbacBaseService service = new StubRbacBaseService(u)
+                .setTenantList(List.of(new TestTenant("T1", "Tenant")))
+                .setOrgList(List.of(new TestOrg("ROOT", null, "T1", "Root"),
+                        new TestOrg("CHILD", "ROOT", "T1", "Child")));
+        assertDoesNotThrow(() -> service.checkOrgAccessible(u, "T1", "ROOT", "CHILD"));
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> service.checkOrgAccessible(u, "T1", null, "ROOT"));
+        assertTrue(error.getMessage().contains("上级节点不能为空"), error.getMessage());
+    }
+
+    @Test
+    void shouldRejectUnknownDisabledAndExpiredTenantsAtSingleAndListEntrypoints() {
+        ScopeUser u = new ScopeUser(null, List.of());
+        u.fields[0] = Set.of("_ALL_", "missing");
+        StubRbacBaseService service = new StubRbacBaseService(u).setTenantList(List.of(
+                new TestTenant("active", "Active"),
+                new TestTenant("disabled", "Disabled") { @Override public boolean isEnable() { return false; } },
+                new ExpiredTestTenant("expired", "Expired")));
+        assertTrue(service.canAccessTenant(u, "active"));
+        for (String tenant : List.of("missing", "disabled", "expired")) {
+            assertFalse(service.canAccessTenant(u, tenant), tenant);
+        }
+        assertEquals(List.of("active"), service.loadUserAccessibleTenantList(u, true).stream()
+                .map(t -> Objects.toString(t.getId())).collect(Collectors.toList()));
+    }
+
+    @Test
+    void shouldSkipTenantAllowScriptWhenTenantIsStructurallyDenied() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("Groovy#throw new IllegalStateException('allow script must not execute')");
+        u.fields[1] = Set.of("_ALL_");
+        StubRbacBaseService service = new StubRbacBaseService(u);
+        assertFalse(service.canAccessTenant(u, "T1"));
+        assertTrue(service.loadUserAccessibleTenantList(u, true).isEmpty());
+    }
+
+    @Test
+    void shouldMatchStructuralTenantDenialBeforeEarlierScript() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[1] = new LinkedHashSet<>(List.of(
+                "Groovy#throw new IllegalStateException('deny script must not execute')", "_ALL_"));
+        StubRbacBaseService service = new StubRbacBaseService(u);
+        assertFalse(service.canAccessTenant(u, "T1"));
+        assertTrue(service.loadUserAccessibleTenantList(u, true).isEmpty());
+    }
+
+    @Test
+    void shouldAvoidTenantAndOrganizationEnumerationWhenAllTenantSpacesAreDenied() {
+        ScopeUser u = new ScopeUser(null, List.of());
+        u.fields[0] = Set.of("_ALL_", "_NONE_");
+        u.fields[1] = Set.of("_ALL_", "_NONE_");
+        u.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
+        AtomicInteger tenantLoads = new AtomicInteger();
+        AtomicInteger orgLoads = new AtomicInteger();
+        StubRbacBaseService service = new StubRbacBaseService(u) {
+            @Override
+            public <TENANT extends RbacTenantInfo> Collection<TENANT> loadAllTenantList(boolean onlyEffect) {
+                tenantLoads.incrementAndGet();
+                return (Collection<TENANT>) (Collection<?>) List.of(new TestTenant("T1", "Tenant"));
+            }
+            @Override
+            public <ORG extends RbacOrgInfo> List<ORG> loadTenantOrgList(Serializable tenantId, boolean onlyEffect) {
+                orgLoads.incrementAndGet();
+                return (List<ORG>) (List<?>) List.of(new TestOrg("ROOT", null, tenantId == null ? null : tenantId.toString(), "Root"));
+            }
+        };
+        assertTrue(service.loadUserAccessibleTenantList(u, true).isEmpty());
+        assertTrue(service.loadUserAccessibleOrgList(u, true).isEmpty());
+        assertEquals(0, tenantLoads.get(), "全租户及无租户均拒绝时，不应加载候选租户");
+        assertEquals(0, orgLoads.get(), "全租户及无租户均拒绝时，不应加载组织");
+    }
+
+    @Test
+    void shouldDenyLargeOrganizationTreeBeforeEvaluatingAllowScript() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of("_ALL_ROOT_|Groovy#throw new IllegalStateException('allow script must not execute')");
+        u.fields[5] = Set.of("_ALL_ROOT_|SelfAndAllChild");
+        StubRbacBaseService service = new StubRbacBaseService(u)
+                .setOrgList(largeLayeredOrgTree("ROOT", "T1", 50000, 100));
+        Collection<RbacOrgInfo> allowed = assertTimeoutPreemptively(Duration.ofSeconds(2),
+                () -> service.loadUserAccessibleOrgList(u, true),
+                "50000 个节点、100 层的全组织拒绝应在 2 秒内完成，且不执行允许脚本");
+        assertTrue(allowed.isEmpty());
+    }
+
+    @Test
+    void shouldNotEvaluateAllowScriptForAlreadyDeniedOrganization() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of("_ALL_ROOT_|Groovy#if (_org.id == 'A1') { throw new IllegalStateException('denied leaf evaluated') }; return true");
+        u.fields[5] = Set.of("A1|Self");
+        StubRbacBaseService service = new StubRbacBaseService(u).setOrgList(baseOrgTree());
+        assertEquals(List.of("A", "A2", "A21", "B", "B1"), service.loadUserAccessibleOrgList(u, true).stream()
+                .map(org -> Objects.toString(org.getId())).collect(Collectors.toList()));
+        assertFalse(service.canAccessOrg(u, "T1", "A1"));
+        assertTrue(service.canAccessOrg(u, "T1", "A2"));
+    }
+
+    @Test
+    void shouldSkipOrganizationDenyScriptWhenAllowSetIsEmpty() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of();
+        u.fields[5] = Set.of("_ALL_ROOT_|Groovy#throw new IllegalStateException('deny script must not execute')");
+        StubRbacBaseService service = new StubRbacBaseService(u).setOrgList(baseOrgTree());
+        assertTrue(service.loadUserAccessibleOrgList(u, true).isEmpty());
+        assertFalse(service.canAccessOrg(u, "T1", "A1"));
+    }
+
+    @Test
+    void shouldSkipTenantDenyScriptWhenAllowSetIsEmpty() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of();
+        u.fields[1] = Set.of("Groovy#throw new IllegalStateException('deny script must not execute')");
+        StubRbacBaseService service = new StubRbacBaseService(u);
+        assertFalse(service.canAccessTenant(u, "T1"));
+        assertTrue(service.loadUserAccessibleTenantList(u, true).isEmpty());
+    }
+
+    @Test
+    void shouldNotTreatAllRootDenialAsDenialOfExplicitlyAllowedOrphan() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of("ORPHAN|Self");
+        u.fields[5] = Set.of("_ALL_ROOT_|SelfAndAllChild");
+        StubRbacBaseService service = new StubRbacBaseService(u).setOrgList(List.of(
+                new TestOrg("ROOT", null, "T1", "Root"),
+                new TestOrg("CHILD", "ROOT", "T1", "Child"),
+                new TestOrg("ORPHAN", "MISSING", "T1", "Orphan")));
+        assertTrue(service.canAccessOrg(u, "T1", "ORPHAN"));
+        assertFalse(service.canAccessOrg(u, "T1", "ROOT"));
+        assertEquals(List.of("ORPHAN"), service.loadUserAccessibleOrgList(u, true).stream()
+                .map(org -> Objects.toString(org.getId())).collect(Collectors.toList()));
+    }
+
+    @Test
+    void shouldPreservePlatformAdministratorShortcutBeforeScopeScripts() {
+        ScopeUser u = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE));
+        u.fields[0] = Set.of("Groovy#throw new IllegalStateException('admin allow script evaluated')");
+        u.fields[1] = Set.of("_ALL_", "_NONE_");
+        u.fields[4] = Set.of("_ALL_ROOT_|Groovy#throw new IllegalStateException('admin org script evaluated')");
+        u.fields[5] = Set.of("_ALL_ROOT_|SelfAndAllChild");
+        StubRbacBaseService service = new StubRbacBaseService(u)
+                .setTenantList(List.of(new TestTenant("T1", "Tenant")))
+                .setOrgList(List.of(new TestOrg("ROOT", null, "T1", "Root")));
+        assertTrue(service.canAccessTenant(u, "T1"));
+        assertTrue(service.canAccessOrg(u, "T1", "ROOT"));
+        assertEquals(1, service.loadUserAccessibleTenantList(u, true).size());
+        assertEquals(1, service.loadUserAccessibleOrgList(u, true).size());
+    }
+
+    @Test
+    void shouldSkipAllAllowEvaluationForSingleOrganizationAlreadyDenied() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of("_ALL_ROOT_|Groovy#throw new IllegalStateException('single denied target must not evaluate any allow node')");
+        u.fields[5] = Set.of("A1|Self");
+        StubRbacBaseService service = new StubRbacBaseService(u).setOrgList(baseOrgTree());
+        assertFalse(service.canAccessOrg(u, "T1", "A1"));
+    }
+
+    @Test
+    void shouldMatchStructuralOrganizationDenialBeforeEarlierDenyScript() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of("_ALL_ROOT_|Groovy#throw new IllegalStateException('allow script must not execute')");
+        u.fields[5] = new LinkedHashSet<>(List.of(
+                "_ALL_ROOT_|Groovy#throw new IllegalStateException('earlier deny script must not execute')",
+                "_ALL_ROOT_|SelfAndAllChild"));
+        StubRbacBaseService service = new StubRbacBaseService(u).setOrgList(baseOrgTree());
+        assertTrue(service.loadUserAccessibleOrgList(u, true).isEmpty());
+        assertFalse(service.canAccessOrg(u, "T1", "A1"));
+    }
+
+    @Test
+    void shouldMatchStructuralOrganizationAllowanceBeforeEarlierAllowScript() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = new LinkedHashSet<>(List.of(
+                "_ALL_ROOT_|Groovy#throw new IllegalStateException('earlier allow script must not execute')",
+                "_ALL_ROOT_|SelfAndAllChild"));
+        u.fields[5] = Set.of();
+        StubRbacBaseService service = new StubRbacBaseService(u).setOrgList(baseOrgTree());
+        assertEquals(List.of("A", "A1", "A2", "A21", "B", "B1"), service.loadUserAccessibleOrgList(u, true).stream()
+                .map(org -> Objects.toString(org.getId())).collect(Collectors.toList()));
+        assertTrue(service.canAccessOrg(u, "T1", "A1"));
+    }
+
+    @Test
+    void shouldEvaluateAllowScriptOnlyForRequestedOrganization() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of("_ALL_ROOT_|Groovy#if (_org.id != 'A2') { throw new IllegalStateException('non-target organization evaluated') }; return true");
+        u.fields[5] = Set.of();
+        StubRbacBaseService service = new StubRbacBaseService(u).setOrgList(baseOrgTree());
+        assertTrue(service.canAccessOrg(u, "T1", "A2"));
+    }
+
+    @Test
+    void shouldEvaluateTwentySameRootPathRulesOnLargeTreeWithinTwoSeconds() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = new LinkedHashSet<>();
+        for (int rule = 0; rule < 20; rule++) {
+            u.fields[4].add("ROOT|IdPath#/never-" + rule + "/**");
+        }
+        StubRbacBaseService service = new StubRbacBaseService(u)
+                .setOrgList(largeLayeredOrgTree("ROOT", "T1", 50000, 100));
+        Collection<RbacOrgInfo> allowed = assertTimeoutPreemptively(Duration.ofSeconds(2),
+                () -> service.loadUserAccessibleOrgList(u, true),
+                "50000 个节点、100 层、20 条同起点路径规则应在 2 秒内完成");
+        assertTrue(allowed.isEmpty(), "20 条路径都不命中，不得误授权任何组织");
+    }
+
+    @Test
+    void shouldNotReadOrganizationNamesForIdPathMatching() {
+        AtomicInteger nameReads = new AtomicInteger();
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of("A|IdPath#/A1/");
+        StubRbacBaseService service = new StubRbacBaseService(u).setOrgList(nameCountingOrgTree(nameReads));
+        assertEquals(List.of("A1"), service.loadUserAccessibleOrgList(u, true).stream()
+                .map(org -> Objects.toString(org.getId())).collect(Collectors.toList()));
+        assertEquals(0, nameReads.get(), "IdPath 只依赖 ID，不应构造名称路径或读取组织名称");
+    }
+
+    @Test
+    void shouldReuseNamePathsAcrossRulesSharingTheSameRoot() {
+        AtomicInteger nameReads = new AtomicInteger();
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of("A|NamePath#/never-one/**");
+        List<TestOrg> tree = nameCountingOrgTree(nameReads);
+        StubRbacBaseService service = new StubRbacBaseService(u).setOrgList(tree);
+        assertTrue(service.loadUserAccessibleOrgList(u, true).isEmpty());
+        int singleRuleReads = nameReads.get();
+        assertTrue(singleRuleReads > 0, "名称路径匹配必须实际读取名称，保证计数器覆盖求值过程");
+
+        nameReads.set(0);
+        u.fields[4] = new LinkedHashSet<>();
+        for (int rule = 0; rule < 20; rule++) {
+            u.fields[4].add("A|NamePath#/never-" + rule + "/**");
+        }
+        assertTrue(service.loadUserAccessibleOrgList(u, true).isEmpty());
+        assertTrue(nameReads.get() <= singleRuleReads + tree.size(),
+                "同起点20条规则只应构造一份名称路径；容许每节点额外读取一次，单规则读取="
+                        + singleRuleReads + "，多规则读取=" + nameReads.get());
+    }
+
+    private static List<TestOrg> nameCountingOrgTree(AtomicInteger nameReads) {
+        return baseOrgTree().stream().map(org -> new TestOrg(org.getId(), org.getParentId(), org.getTenantId(), org.getName()) {
+            @Override
+            public String getName() {
+                nameReads.incrementAndGet();
+                return super.getName();
+            }
+        }).collect(Collectors.toList());
+    }
+
+    @Test
+    void shouldKeepInterleavedNamePathRulesRelativeToTheirOwnRoots() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = new LinkedHashSet<>(List.of(
+                "A|NamePath#/Branch/First/",
+                "B|NamePath#/Second/",
+                "A|NamePath#/Branch/Third/"));
+        StubRbacBaseService service = new StubRbacBaseService(u).setOrgList(List.of(
+                new TestOrg("A", null, "T1", "Root"),
+                new TestOrg("B", "A", "T1", "Branch"),
+                new TestOrg("L1", "B", "T1", "First"),
+                new TestOrg("L2", "B", "T1", "Second"),
+                new TestOrg("L3", "B", "T1", "Third")));
+        assertEquals(List.of("L1", "L2", "L3"), service.loadUserAccessibleOrgList(u, true).stream()
+                .map(org -> Objects.toString(org.getId())).collect(Collectors.toList()),
+                "A→B→A切换起点时，同一候选节点的相对名称路径必须随起点重算");
+    }
+
+    @Test
+    void shouldRebuildNamePathsWhenSourceNamesOrParentRelationshipsChangeBetweenCalls() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of("ROOT|NamePath#/Visible/");
+        StubRbacBaseService service = new StubRbacBaseService(u).setOrgList(List.of(
+                new TestOrg("ROOT", null, "T1", "Root"),
+                new TestOrg("LEAF", "ROOT", "T1", "Visible")));
+        assertEquals(List.of("LEAF"), service.loadUserAccessibleOrgList(u, true).stream()
+                .map(org -> Objects.toString(org.getId())).collect(Collectors.toList()));
+
+        service.setOrgList(List.of(new TestOrg("ROOT", null, "T1", "Root"),
+                new TestOrg("LEAF", "ROOT", "T1", "Renamed")));
+        assertTrue(service.loadUserAccessibleOrgList(u, true).isEmpty(),
+                "相同用户、规则和组织ID不变时，名称变更也必须立即影响授权");
+
+        service.setOrgList(List.of(new TestOrg("ROOT", null, "T1", "Root"),
+                new TestOrg("OTHER", null, "T1", "Other"),
+                new TestOrg("LEAF", "OTHER", "T1", "Visible")));
+        assertTrue(service.loadUserAccessibleOrgList(u, true).isEmpty(),
+                "节点移到授权起点之外后，即使名称恢复也不能复用旧子树或路径授权");
+
+        service.setOrgList(List.of(new TestOrg("ROOT", null, "T1", "Root"),
+                new TestOrg("LEAF", "ROOT", "T1", "Visible")));
+        assertEquals(List.of("LEAF"), service.loadUserAccessibleOrgList(u, true).stream()
+                .map(org -> Objects.toString(org.getId())).collect(Collectors.toList()),
+                "节点重新移回授权子树后应恢复授权，不缓存上一次的拒绝结果");
+    }
+
+    @Test
+    void shouldEvaluateDenyScriptOnlyForRequestedOrganization() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of("A2|Self");
+        u.fields[5] = Set.of("_ALL_ROOT_|Groovy#if (_org.id != 'A2') { throw new IllegalStateException('non-target deny') }; return false");
+        StubRbacBaseService service = new StubRbacBaseService(u).setOrgList(baseOrgTree());
+        assertTrue(service.canAccessOrg(u, "T1", "A2"));
+    }
+
+    private static List<Set<String>> scopeFields(DataScope scope) {
+        return Arrays.asList(scope.getTenantScopeList(), scope.getDeniedTenantScopeList(),
+                scope.getDomainScopeList(), scope.getDeniedDomainScopeList(),
+                scope.getOrgScopeList(), scope.getDeniedOrgScopeList());
+    }
+
+    private static class ScopeUser extends TestRbacUser {
+        final Set<String>[] fields = new Set[6];
+        ScopeUser(String tenant, List<String> roles) { super("scope", "scope", tenant, "OPS", roles, 5000); }
+        public Set<String> getTenantScopeList() { return fields[0]; }
+        public Set<String> getDeniedTenantScopeList() { return fields[1]; }
+        public Set<String> getDomainScopeList() { return fields[2]; }
+        public Set<String> getDeniedDomainScopeList() { return fields[3]; }
+        public Set<String> getOrgScopeList() { return fields[4]; }
+        public Set<String> getDeniedOrgScopeList() { return fields[5]; }
+    }
+
+    private static class ScopeRole extends TestRbacRole {
+        final Set<String>[] fields = new Set[6];
+        ScopeRole(String code) { super(code, code, "T1", List.of(), List.of(), 100); }
+        public Set<String> getTenantScopeList() { return fields[0]; }
+        public Set<String> getDeniedTenantScopeList() { return fields[1]; }
+        public Set<String> getDomainScopeList() { return fields[2]; }
+        public Set<String> getDeniedDomainScopeList() { return fields[3]; }
+        public Set<String> getOrgScopeList() { return fields[4]; }
+        public Set<String> getDeniedOrgScopeList() { return fields[5]; }
+    }
+
+    // Test fixture: keep tenant and organization inputs readable, expose only the new Set fields.
+    private static class ScopeGrant {
+        final String tenant;
+        final String rule;
+        final boolean allow;
+        ScopeGrant(String tenant, String rule, boolean allow) {
+            this.tenant = tenant;
+            this.rule = rule;
+            this.allow = allow;
+        }
+    }
+
+    private static ScopeGrant scope(String orgId, boolean allow, DataScope.OrgMatchingMode mode) {
+        return scope("_DEFAULT_", orgId, allow, mode);
+    }
+
+    private static ScopeGrant scope(String tenant, String orgId, boolean allow, DataScope.OrgMatchingMode mode) {
+        return new ScopeGrant(tenant.isEmpty() ? "_NONE_" : tenant, orgId + "|" + mode.getExpression(), allow);
+    }
+
+    private static ScopeGrant customScope(String orgId, boolean allow, String expression) {
+        return customScope(orgId, allow, expression, DataScope.OrgMatchingMode.IdPath);
+    }
+
+    private static ScopeGrant customScope(String orgId, boolean allow, String expression, DataScope.OrgMatchingMode mode) {
+        return customScope("_DEFAULT_", orgId, allow, expression, mode);
+    }
+
+    private static ScopeGrant customScope(String tenant, String orgId, boolean allow, String expression, DataScope.OrgMatchingMode mode) {
+        return new ScopeGrant(tenant, orgId + "|" + mode.getExpression() + expression, allow);
+    }
+
+    private static Set<String> grantField(Collection<ScopeGrant> grants, boolean allow, boolean tenant) {
+        if (grants == null) return null;
+        return grants.stream().filter(g -> tenant || g.allow == allow)
+                .map(g -> tenant ? g.tenant : g.rule).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Controller
@@ -3434,6 +3961,9 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         StubRbacBaseService(TestRbacUser user) {
             this.user = user;
+            if (user.getTenantId() != null) {
+                tenantList = Collections.singletonList(new TestTenant(user.getTenantId(), "User tenant"));
+            }
         }
 
         StubRbacBaseService setOrgList(Collection<TestOrg> orgList) {
@@ -3671,14 +4201,14 @@ class RbacAuthorizeServiceRolePermissionTest {
         private final List<Serializable> roleList;
         private final Integer confidentialDataAccessLevel;
         private final String orgId;
-        private final Collection<SimpleOrgScope> orgScopeList;
+        private final Collection<ScopeGrant> orgScopeList;
         private final Map<String, Object> transientExInfo = new LinkedHashMap<>();
 
         TestRbacUser(String id, String loginName, String tenantId, String type, List<? extends Serializable> roleList, Integer confidentialDataAccessLevel) {
-            this(id, loginName, tenantId, type, roleList, confidentialDataAccessLevel, null, Collections.emptyList());
+            this(id, loginName, tenantId, type, roleList, confidentialDataAccessLevel, null, null);
         }
 
-        TestRbacUser(String id, String loginName, String tenantId, String type, List<? extends Serializable> roleList, Integer confidentialDataAccessLevel, String orgId, Collection<SimpleOrgScope> orgScopeList) {
+        TestRbacUser(String id, String loginName, String tenantId, String type, List<? extends Serializable> roleList, Integer confidentialDataAccessLevel, String orgId, Collection<ScopeGrant> orgScopeList) {
             this.id = id;
             this.loginName = loginName;
             this.tenantId = tenantId;
@@ -3686,7 +4216,7 @@ class RbacAuthorizeServiceRolePermissionTest {
             this.roleList = new ArrayList<>(roleList);
             this.confidentialDataAccessLevel = confidentialDataAccessLevel;
             this.orgId = orgId;
-            this.orgScopeList = orgScopeList == null ? Collections.emptyList() : new ArrayList<>(orgScopeList);
+            this.orgScopeList = orgScopeList == null ? null : new ArrayList<>(orgScopeList);
         }
 
         @Override
@@ -3735,9 +4265,28 @@ class RbacAuthorizeServiceRolePermissionTest {
         }
 
         @Override
-        public <ORG_SCOPE extends OrgScope> Collection<ORG_SCOPE> getOrgScopeList() {
-            return (Collection<ORG_SCOPE>) orgScopeList;
+        public Set<String> getOrgScopeList() {
+            return grantField(orgScopeList, true, false);
         }
+
+        @Override
+        public Set<String> getDeniedOrgScopeList() {
+            return grantField(orgScopeList, false, false);
+        }
+
+        @Override
+        public Set<String> getTenantScopeList() {
+            return grantField(orgScopeList, true, true);
+        }
+
+        @Override
+        public Set<String> getDeniedTenantScopeList() { return null; }
+
+        @Override
+        public Set<String> getDomainScopeList() { return null; }
+
+        @Override
+        public Set<String> getDeniedDomainScopeList() { return null; }
 
         @Override
         public Map<String, Object> getTransientExInfo() {
@@ -3754,22 +4303,22 @@ class RbacAuthorizeServiceRolePermissionTest {
         private final List<String> coexistRoleList;
         private final Integer confidentialLevel;
         private final Integer confidentialDataAccessLevel;
-        private final Collection<SimpleOrgScope> orgScopeList;
+        private final Collection<ScopeGrant> orgScopeList;
         private final Map<String, Object> transientExInfo = new LinkedHashMap<>();
 
         TestRbacRole(String id, String code, String tenantId, List<String> permissionList, List<String> exclusiveRoleList, Integer confidentialDataAccessLevel) {
             this(id, code, tenantId, permissionList, exclusiveRoleList, confidentialDataAccessLevel, Collections.emptyList());
         }
 
-        TestRbacRole(String id, String code, String tenantId, List<String> permissionList, List<String> exclusiveRoleList, Integer confidentialDataAccessLevel, Collection<SimpleOrgScope> orgScopeList) {
+        TestRbacRole(String id, String code, String tenantId, List<String> permissionList, List<String> exclusiveRoleList, Integer confidentialDataAccessLevel, Collection<ScopeGrant> orgScopeList) {
             this(id, code, tenantId, permissionList, exclusiveRoleList, confidentialDataAccessLevel, orgScopeList, null);
         }
 
-        TestRbacRole(String id, String code, String tenantId, List<String> permissionList, List<String> exclusiveRoleList, Integer confidentialDataAccessLevel, Collection<SimpleOrgScope> orgScopeList, Integer confidentialLevel) {
+        TestRbacRole(String id, String code, String tenantId, List<String> permissionList, List<String> exclusiveRoleList, Integer confidentialDataAccessLevel, Collection<ScopeGrant> orgScopeList, Integer confidentialLevel) {
             this(id, code, tenantId, permissionList, exclusiveRoleList, confidentialDataAccessLevel, orgScopeList, confidentialLevel, Collections.emptyList());
         }
 
-        TestRbacRole(String id, String code, String tenantId, List<String> permissionList, List<String> exclusiveRoleList, Integer confidentialDataAccessLevel, Collection<SimpleOrgScope> orgScopeList, Integer confidentialLevel, Collection<String> coexistRoleList) {
+        TestRbacRole(String id, String code, String tenantId, List<String> permissionList, List<String> exclusiveRoleList, Integer confidentialDataAccessLevel, Collection<ScopeGrant> orgScopeList, Integer confidentialLevel, Collection<String> coexistRoleList) {
             this.id = id;
             this.code = code;
             this.tenantId = tenantId;
@@ -3778,7 +4327,7 @@ class RbacAuthorizeServiceRolePermissionTest {
             this.coexistRoleList = coexistRoleList == null ? Collections.emptyList() : new ArrayList<>(coexistRoleList);
             this.confidentialLevel = confidentialLevel;
             this.confidentialDataAccessLevel = confidentialDataAccessLevel;
-            this.orgScopeList = orgScopeList == null ? Collections.emptyList() : new ArrayList<>(orgScopeList);
+            this.orgScopeList = orgScopeList == null ? null : new ArrayList<>(orgScopeList);
         }
 
         @Override
@@ -3822,9 +4371,28 @@ class RbacAuthorizeServiceRolePermissionTest {
         }
 
         @Override
-        public <ORG_SCOPE extends OrgScope> Collection<ORG_SCOPE> getOrgScopeList() {
-            return (Collection<ORG_SCOPE>) orgScopeList;
+        public Set<String> getOrgScopeList() {
+            return grantField(orgScopeList, true, false);
         }
+
+        @Override
+        public Set<String> getDeniedOrgScopeList() {
+            return grantField(orgScopeList, false, false);
+        }
+
+        @Override
+        public Set<String> getTenantScopeList() {
+            return grantField(orgScopeList, true, true);
+        }
+
+        @Override
+        public Set<String> getDeniedTenantScopeList() { return null; }
+
+        @Override
+        public Set<String> getDomainScopeList() { return null; }
+
+        @Override
+        public Set<String> getDeniedDomainScopeList() { return null; }
 
         @Override
         public Map<String, Object> getTransientExInfo() {

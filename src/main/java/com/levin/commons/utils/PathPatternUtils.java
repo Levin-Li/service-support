@@ -25,8 +25,15 @@ public abstract class PathPatternUtils {
             return false;
         }
 
-        return PATH_PATTERN_CACHE.computeIfAbsent(expression, PATH_PATTERN_PARSER::parse)
-                .matches(PathContainer.parsePath(path));
+        return matchParsedPath(expression, PathContainer.parsePath(path));
+    }
+
+    /** 同一路径匹配多条规则时，调用方可以在一次计算内复用已解析的路径。 */
+    public static boolean matchParsedPath(String expression, PathContainer path) {
+        if (!StringUtils.hasText(expression) || path == null || !StringUtils.hasText(path.value())) {
+            return false;
+        }
+        return PATH_PATTERN_CACHE.computeIfAbsent(expression, PATH_PATTERN_PARSER::parse).matches(path);
     }
 
     public static boolean matchPathWithOptionalTrailingSlash(String expression, String path) {

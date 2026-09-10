@@ -2,7 +2,7 @@
 
 完整使用手册请优先查看项目根目录的：
 
-- `manual.md`
+- [manual.md](../../../../../../../manual.md)
 
 其中 RBAC 专章已经覆盖：
 
@@ -10,11 +10,22 @@
 - 权限表达式与空资源 ID（`::`）的匹配规则
 - 最小接入步骤
 - 超管与机密级别语义
-- `DataScope` / `OrgScope` 规则
-- `ScopeMatchingMode` 标准范围与 Custom 表达式的分流
-- `tenantMatchingExpression` / 公共组织语义
-- `IdPath` / `NamePath` / `Groovy` / `SpringEL`
+- `DataScope` / `DataScope.OrgScope` 规则
+- `OrgMatchingMode` 标准范围与带前缀表达式
+- 独立租户允许/拒绝集合、平台跨租户边界与 None 语义
+- `IdPath#` / `NamePath#` / `Groovy#`
 - 组织树装配与性能建议
+
+### 数据范围接入约定
+
+- 租户、领域、组织各自有允许和拒绝集合，共六个 `Set<String>` 字段。
+- 用户字段非 `null` 就替代角色对应配置，空集合也替代；仅 `null` 继承生效角色。
+- 空允许集合没有授权，空拒绝集合没有排除；拒绝优先在选定来源后计算。
+- 普通租户用户始终限制在自身租户内，只有平台用户具备跨租户资格。
+- 组织规则为 `起点组织|匹配模式`，例如 `sales|SelfAndAllChild`；不再保存旧 `OrgScope` 对象。
+- 领域匹配与业务查询需要显式接入；范围判断不代替动作权限和机密级别检查。
+
+升级已有实现时，请阅读手册第 20.3 节；用户 getter 返回空集合不会再继承角色配置。
 
 ### RBAC 核心概念
 
@@ -45,6 +56,7 @@
 
 - 权限表达式
 - 多租户
+- 领域数据范围
 - 组织树
 - 数据机密级别
 
