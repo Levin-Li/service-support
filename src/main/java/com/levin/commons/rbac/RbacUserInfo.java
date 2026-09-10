@@ -1,6 +1,7 @@
 package com.levin.commons.rbac;
 
 
+import com.levin.commons.dao.domain.DomainObject;
 import com.levin.commons.dao.domain.MultiTenantObject;
 import com.levin.commons.dao.domain.OrganizedObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,7 +19,7 @@ import org.springframework.util.StringUtils;
  * 用户基本信息
  */
 public interface RbacUserInfo
-        extends RbacCoreObject, MultiTenantObject, OrganizedObject, DataScope {
+        extends RbacCoreObject, MultiTenantObject, OrganizedObject, DataScope, DomainObject {
 
     /**
      * 超级管理员账号

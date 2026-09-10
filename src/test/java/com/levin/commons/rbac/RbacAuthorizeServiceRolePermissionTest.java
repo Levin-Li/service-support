@@ -3895,6 +3895,514 @@ class RbacAuthorizeServiceRolePermissionTest {
         assertEquals(1, service.loadUserAccessibleDomainList(u, true).size());
     }
 
+    @Test
+    void shouldApplyTenantDomainGateBeforeEveryAdministratorShortcut() {
+        for (TestRbacUser u : List.of(
+                new TestRbacUser("normal", "normal", null, "PLATFORM", List.of(), 5000),
+                new TestRbacUser("admin", "admin", null, "PLATFORM", List.of(RbacRoleInfo.SA_ROLE), 5000),
+                new TestRbacUser("top", RbacUserInfo.TOP_SA_ACCOUNT_NAME, null, "PLATFORM", List.of(RbacRoleInfo.SA_ROLE), 5000))) {
+            StubRbacBaseService service = new StubRbacBaseService(u)
+                    .setDomainList(List.of(new TestDomain("sales")))
+                    .setTenantList(List.of(domainTenant("T1", "sales")))
+                    .setOrgList(List.of(domainOrg("ROOT", null, "T1", null)));
+            assertFalse(service.canAccessTenant(u, "T1"), u.getLoginName());
+            assertFalse(service.canAccessOrg(u, "T1", "ROOT"), u.getLoginName());
+            assertTrue(service.loadUserAccessibleTenantList(u, true).isEmpty());
+            assertTrue(service.loadUserAccessibleOrgList(u, true).isEmpty());
+            IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                    () -> service.checkOrgAccessible(u, "T1", null, "ROOT"));
+            assertNotNull(error.getMessage());
+            assertEquals(1, service.loadAllTenantList(true).size(), "raw loader保留原数据，不承担用户权限过滤");
+            assertEquals(1, service.loadTenantOrgList("T1", true).size());
+        }
+    }
+
+    @Test
+    void shouldAllowBlankObjectDomainButRetainTenantDomainGate() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
+        StubRbacBaseService service = new StubRbacBaseService(u)
+                .setDomainList(List.of(new TestDomain("sales")))
+                .setTenantList(List.of(domainTenant("T1", "sales")))
+                .setOrgList(List.of(domainOrg("ROOT", null, "T1", null)));
+        assertTrue(service.canAccessObjectDomain(u, domainOrg("FREE", null, "T1", null)));
+        assertFalse(service.canAccessOrg(u, "T1", "ROOT"), "空组织域不能绕过所属租户域");
+        u.fields[2] = Set.of("sales");
+        assertTrue(service.canAccessOrg(u, "T1", "ROOT"));
+        service.setTenantList(List.of(domainTenant("T1", null)));
+        u.fields[2] = Set.of();
+        service.domainLoads.set(0);
+        assertTrue(service.canAccessOrg(u, "T1", "ROOT"));
+        assertEquals(0, service.domainLoads.get(), "全部空域不加载领域目录");
+    }
+
+    @Test
+    void shouldRejectConflictingTenantAndOrganizationDomainsEvenWhenBothAreGranted() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[2] = Set.of("sales", "finance");
+        u.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
+        StubRbacBaseService service = new StubRbacBaseService(u)
+                .setDomainList(List.of(new TestDomain("sales"), new TestDomain("finance")))
+                .setTenantList(List.of(domainTenant("T1", "sales")))
+                .setOrgList(List.of(domainOrg("ROOT", null, "T1", "sales"),
+                        domainOrg("WRONG", "ROOT", "T1", "finance")));
+        assertTrue(service.canAccessTenant(u, "T1"));
+        assertTrue(service.canAccessOrg(u, "T1", "ROOT"));
+        assertFalse(service.canAccessOrg(u, "T1", "WRONG"));
+        assertFalse(service.canAccessAllOrg(u, "T1"));
+        assertEquals(List.of("ROOT"), service.loadUserAccessibleOrgList(u, true).stream()
+                .map(org -> Objects.toString(org.getId())).collect(Collectors.toList()));
+        assertThrows(IllegalArgumentException.class, () -> service.checkOrgAccessible(u, "T1", "ROOT", "WRONG"));
+    }
+
+    @Test
+    void shouldExcludeOrganizationDomainBeforeAdminAndAllOrganizationClaims() {
+        for (List<String> roles : List.of(List.<String>of(), List.of(RbacRoleInfo.ADMIN_ROLE), List.of(RbacRoleInfo.SA_ROLE))) {
+            ScopeUser u = new ScopeUser("T1", roles);
+            u.fields[0] = Set.of("T1");
+            u.fields[2] = Set.of("sales");
+            u.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
+            StubRbacBaseService service = new StubRbacBaseService(u)
+                    .setDomainList(List.of(new TestDomain("sales"), new TestDomain("finance")))
+                    .setOrgList(List.of(domainOrg("ROOT", null, "T1", "sales"), domainOrg("SECRET", "ROOT", "T1", "finance")));
+            assertFalse(service.canAccessOrg(u, "T1", "SECRET"));
+            assertFalse(service.canAccessAllOrg(u, "T1"));
+            assertEquals(List.of("ROOT"), service.loadUserAccessibleOrgList(u, true).stream()
+                    .map(org -> Objects.toString(org.getId())).collect(Collectors.toList()));
+            assertThrows(IllegalArgumentException.class, () -> service.checkOrgAccessible(u, "T1", "ROOT", "SECRET"));
+        }
+    }
+
+    @Test
+    void shouldCheckParentOrganizationDomainBeforeManagingVisibleChild() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[2] = Set.of("sales");
+        u.fields[4] = Set.of("CHILD|Self");
+        StubRbacBaseService service = new StubRbacBaseService(u)
+                .setDomainList(List.of(new TestDomain("sales"), new TestDomain("finance")))
+                .setOrgList(List.of(domainOrg("ROOT", null, "T1", "finance"), domainOrg("CHILD", "ROOT", "T1", "sales")));
+        assertThrows(IllegalArgumentException.class, () -> service.checkOrgAccessible(u, "T1", "ROOT", "CHILD"));
+    }
+
+    @Test
+    void shouldLoadEachDomainOnceForLargeOrganizationBatchWithoutMutatingSource() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[2] = Set.of("sales");
+        u.fields[4] = Set.of("ROOT|SelfAndAllChild");
+        List<TestOrg> source = largeLayeredOrgTree("ROOT", "T1", 50000, 100);
+        source.forEach(org -> org.domainId = "sales");
+        StubRbacBaseService service = new StubRbacBaseService(u)
+                .setTenantList(List.of(domainTenant("T1", "sales")))
+                .setDomainList(List.of(new TestDomain("sales"))).setOrgList(source);
+        Collection<RbacOrgInfo> allowed = assertTimeoutPreemptively(Duration.ofSeconds(2),
+                () -> service.loadUserAccessibleOrgList(u, true));
+        assertEquals(50000, allowed.size());
+        assertEquals(1, service.domainLoads.get(), "租户和5万组织同域时同批只加载领域一次");
+        assertEquals(50000, source.size());
+        assertEquals(50000, service.loadTenantOrgList("T1", true).size());
+        assertTrue(source.stream().allMatch(org -> "sales".equals(org.getDomainId())));
+    }
+
+    @Test
+    void shouldBootstrapRoleDomainsWithoutGrantingOtherFieldsFromInvisibleRoles() {
+        ScopeUser u = new ScopeUser("T1", List.of("bootstrap", "hidden")) {
+            @Override public Integer getConfidentialDataAccessLevel() { return null; }
+        };
+        ScopeRole bootstrap = new ScopeRole("bootstrap");
+        bootstrap.fields[2] = Set.of("sales");
+        ScopeRole hidden = new ScopeRole("hidden") {
+            @Override public Integer getConfidentialDataAccessLevel() { return 9000; }
+            @Override public Collection<String> getPermissionList() { return List.of("secret:*:*:read"); }
+        };
+        hidden.domainId = "finance";
+        hidden.fields[0] = Set.of("T2");
+        hidden.fields[4] = Set.of("SECRET|Self");
+        DefaultRoleHelperRbacBaseService service = new DefaultRoleHelperRbacBaseService(u);
+        service.delegate.setDomainList(List.of(new TestDomain("sales"), new TestDomain("finance")));
+        service.registerRole(bootstrap);
+        service.registerRole(hidden);
+        DataScope scope = assertTimeoutPreemptively(Duration.ofSeconds(2), () -> service.getUserDataScope(u));
+        assertEquals(Set.of("sales"), scope.getDomainScopeList());
+        assertTrue(scope.getTenantScopeList().isEmpty());
+        assertTrue(scope.getOrgScopeList().isEmpty());
+        assertEquals(100, scope.getConfidentialDataAccessLevel());
+        assertFalse(service.loadUserPermissionExprList(u).contains("secret:*:*:read"));
+        assertEquals(List.of("bootstrap"), service.loadUserOwnerRoleList(u).stream().map(RbacRoleInfo::getCode).collect(Collectors.toList()));
+        u.fields[2] = Set.of("finance");
+        assertEquals(9000, service.getUserDataScope(u).getConfidentialDataAccessLevel());
+        assertTrue(service.loadUserPermissionExprList(u).contains("secret:*:*:read"));
+        u.fields[2] = Set.of();
+        assertEquals(List.of("bootstrap"), service.loadUserOwnerRoleList(u).stream().map(RbacRoleInfo::getCode).collect(Collectors.toList()));
+    }
+
+    @Test
+    void shouldSelectTenantRoleBeforeBootstrappingDuplicateCodeDomains() {
+        ScopeUser u = new ScopeUser("T1", List.of("SAME"));
+        ScopeRole local = new ScopeRole("SAME");
+        local.fields[2] = Set.of("sales");
+        ScopeRole shared = new ScopeRole("SAME") {
+            @Override public <TID extends Serializable> TID getTenantId() { return null; }
+        };
+        shared.fields[2] = Set.of("finance");
+        StubRbacBaseService service = new StubRbacBaseService(u) {
+            @Override public <R extends RbacRoleInfo> Collection<R> loadTenantRoleList(Serializable tenantId, boolean onlyEffect) {
+                return (Collection<R>) (Collection<?>) List.of(shared, local);
+            }
+        };
+        service.setDomainList(List.of(new TestDomain("sales"), new TestDomain("finance")));
+        assertEquals(Set.of("sales"), service.getUserDataScope(u).getDomainScopeList());
+        assertSame(local, service.loadUserOwnerRoleList(u).iterator().next());
+    }
+
+    @Test
+    void shouldNotReadRoleObjectConfidentialLevelWhileResolvingGrantedAccessLevel() {
+        ScopeUser u = new ScopeUser("T1", List.of("DYNAMIC")) {
+            @Override public Integer getConfidentialDataAccessLevel() { return null; }
+        };
+        DefaultRoleHelperRbacBaseService service = new DefaultRoleHelperRbacBaseService(u);
+        AtomicInteger objectLevelReads = new AtomicInteger();
+        TestRbacRole role = new TestRbacRole("dynamic", "DYNAMIC", "T1", List.of(), List.of(), 500) {
+            @Override public Integer getConfidentialLevel() {
+                objectLevelReads.incrementAndGet();
+                return service.getUserConfidentialDataAccessLevel(u);
+            }
+        };
+        service.registerRole(role);
+        assertEquals(500, assertTimeoutPreemptively(Duration.ofSeconds(2), () -> service.getUserDataScope(u)).getConfidentialDataAccessLevel());
+        assertEquals(0, objectLevelReads.get(), "计算授予密级不可反向查询角色对象可见密级");
+        Collection<RbacRoleInfo> roles = assertTimeoutPreemptively(Duration.ofSeconds(2), () -> service.loadUserAccessibleRoleList(u));
+        assertEquals(List.of(role), new ArrayList<>(roles));
+        assertTrue(objectLevelReads.get() > 0, "角色可见性入口才读取角色对象密级，getter回调应正常终止");
+    }
+
+    @Test
+    void shouldPreventSelfAndTopAdministratorManagementFromBypassingUserDomain() {
+        ScopeUser own = new ScopeUser("T1", List.of());
+        own.domainId = "finance";
+        StubRbacBaseService service = new StubRbacBaseService(own).setDomainList(List.of(new TestDomain("finance")));
+        assertFalse(service.canAdminUser(own, own));
+        own.fields[2] = Set.of("finance");
+        assertTrue(service.canAdminUser(own, own));
+        TestRbacUser top = new TestRbacUser("top", RbacUserInfo.TOP_SA_ACCOUNT_NAME, null, "PLATFORM", List.of(RbacRoleInfo.SA_ROLE), 5000);
+        assertTrue(top.isTopSuperAdmin());
+        assertFalse(service.canAdminUser(top, own));
+    }
+
+    @Test
+    void shouldApplyRoleAndAssignmentTargetDomainsBeforeTopAdministratorShortcut() {
+        TestRbacUser top = new TestRbacUser("top", RbacUserInfo.TOP_SA_ACCOUNT_NAME, null, "PLATFORM", List.of(RbacRoleInfo.SA_ROLE), 5000);
+        ScopeUser target = new ScopeUser("T1", List.of());
+        target.domainId = "finance";
+        TestRbacRole role = new TestRbacRole("role", "R_DOMAIN", null, List.of(), List.of(), 100);
+        role.domainId = "finance";
+        StubRbacBaseService service = new StubRbacBaseService(top)
+                .setTenantList(List.of(domainTenant("T1", null)))
+                .setDomainList(List.of(new TestDomain("finance")));
+        TestAuthorizeService auth = new TestAuthorizeService();
+        auth.setRbacBaseService(service);
+        assertFalse(auth.isRoleAuthorized(top, role, null));
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(top, target, List.of()));
+        role.domainId = null;
+        assertTrue(auth.isRoleAuthorized(top, role, null));
+        target.domainId = null;
+        service.setTenantList(List.of(domainTenant("T1", "finance")));
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(top, target, List.of()));
+    }
+
+    @Test
+    void shouldFilterMenuDomainsWithoutMutatingCachedTreesAcrossUsers() {
+        ScopeUser sales = new ScopeUser("T1", List.of());
+        sales.fields[2] = Set.of("sales");
+        ScopeUser finance = new ScopeUser("T1", List.of());
+        finance.fields[2] = Set.of("finance");
+        StubRbacBaseService service = new StubRbacBaseService(sales)
+                .setDomainList(List.of(new TestDomain("sales"), new TestDomain("finance")));
+        TestAuthorizeService auth = new TestAuthorizeService();
+        auth.setRbacBaseService(service);
+        DomainMenu root = domainMenu("root", null);
+        DomainMenu salesParent = domainMenu("sales", "sales");
+        DomainMenu financeChild = domainMenu("finance-child", "finance");
+        financeChild.setAlwaysShow(true);
+        salesParent.children.add(financeChild);
+        DomainMenu financeParent = domainMenu("finance", "finance");
+        DomainMenu emptyChild = domainMenu("empty-child", null);
+        financeParent.children.add(emptyChild);
+        root.children.addAll(List.of(salesParent, financeParent));
+        MenuItem.OpButton button = new MenuItem.OpButton().setOpName("view").setRequireAuthorizations(List.of());
+        salesParent.setOpButtonList(new LinkedHashSet<>(List.of(button)));
+        List<SimpleMenu> first = auth.filterAccessibleMenuList(sales, List.of(root));
+        SimpleMenu salesCopy = (SimpleMenu) first.get(0).getChildren().iterator().next();
+        assertEquals("sales", salesCopy.getId());
+        assertTrue(salesCopy.getChildren().isEmpty(), "alwaysShow不可绕过子菜单领域");
+        assertNotSame(salesParent, salesCopy);
+        assertNotSame(button, salesCopy.getOpButtonList().iterator().next());
+        List<SimpleMenu> second = auth.filterAccessibleMenuList(finance, List.of(root));
+        SimpleMenu financeCopy = (SimpleMenu) second.get(0).getChildren().iterator().next();
+        assertEquals("finance", financeCopy.getId());
+        assertEquals("empty-child", financeCopy.getChildren().iterator().next().getId());
+        assertEquals(2, root.children.size());
+        assertEquals(1, salesParent.children.size());
+        assertEquals(1, financeParent.children.size());
+        assertSame(button, salesParent.getOpButtonList().iterator().next());
+        assertEquals(1, first.get(0).getChildren().size(), "第二个用户过滤不得污染第一个用户结果");
+    }
+
+    @Test
+    void shouldKeepEmptyDomainMenuActionChecksAndAlwaysShowBehavior() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        StubRbacBaseService service = new StubRbacBaseService(u);
+        TestAuthorizeService auth = new TestAuthorizeService();
+        auth.setRbacBaseService(service);
+        DomainMenu denied = domainMenu("denied", null);
+        denied.setRequireAuthorizations(List.of("sys:secret:1:view"));
+        DomainMenu shown = domainMenu("shown", null);
+        shown.setRequireAuthorizations(List.of("sys:secret:1:view")).setAlwaysShow(true);
+        assertEquals(List.of("shown"), auth.filterAccessibleMenuList(u, List.of(denied, shown)).stream()
+                .map(SimpleMenu::getId).collect(Collectors.toList()));
+        assertEquals(0, service.domainLoads.get());
+    }
+
+    @Test
+    void shouldRetainRoleAuthorizationOverridesAfterDomainGate() {
+        ScopeUser operator = new ScopeUser("T1", List.of());
+        ScopeUser target = new ScopeUser("T1", List.of());
+        TestRbacRole role = new TestRbacRole("role", "R_OVERRIDE", "T1", List.of(), List.of(), 100);
+        StubRbacBaseService service = new StubRbacBaseService(operator).setDomainList(List.of(new TestDomain("finance")));
+        AtomicInteger overrides = new AtomicInteger();
+        TestAuthorizeService auth = new TestAuthorizeService() {
+            @Override public boolean isRoleAuthorized(Serializable principal, RbacRoleInfo requestedRole,
+                    java.util.function.BiConsumer<String, String> errors) {
+                overrides.incrementAndGet();
+                return true;
+            }
+        };
+        auth.setRbacBaseService(service);
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)));
+        assertTrue(overrides.get() > 0, "保留业务覆写角色授权的扩展点");
+        overrides.set(0);
+        role.domainId = "finance";
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(role)));
+        assertEquals(0, overrides.get(), "领域外层门槛在可覆写授权方法之前执行");
+    }
+
+    @Test
+    void shouldBatchObjectDomainFilteringAndKeepBlankDomainObjects() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[2] = Set.of("sales");
+        StubRbacBaseService service = new StubRbacBaseService(u)
+                .setDomainList(List.of(new TestDomain("sales"), new TestDomain("finance")));
+        TestOrg one = domainOrg("ONE", null, "T1", "sales");
+        TestOrg two = domainOrg("TWO", null, "T1", "sales");
+        TestOrg denied = domainOrg("DENIED", null, "T1", "finance");
+        TestOrg blank = domainOrg("BLANK", null, "T1", null);
+        List<TestOrg> source = Arrays.asList(one, denied, two, null, blank);
+        assertEquals(List.of(one, two, blank), new ArrayList<>(service.filterByDomainAccess(u, source)));
+        assertEquals(1, service.domainLoads.get(), "相同授权领域只加载一次，未授权领域无需加载");
+        assertEquals(5, source.size());
+        assertFalse(service.canAccessObjectDomain(u, null));
+    }
+
+    @Test
+    void shouldRecheckDomainStatusWhenImplementationReusesDataScopeSnapshot() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[2] = Set.of("sales");
+        DataScope snapshot = new StubRbacBaseService(u).getUserDataScope(u);
+        StubRbacBaseService service = new StubRbacBaseService(u) {
+            @Override public DataScope getUserDataScope(Serializable principal) { return snapshot; }
+        };
+        service.setTenantList(List.of(domainTenant("T1", "sales")))
+                .setDomainList(List.of(new TestDomain("sales")));
+        assertTrue(service.canAccessTenant(u, "T1"));
+        service.setDomainList(List.of(new TestDomain("sales") {
+            @Override public boolean isEnable() { return false; }
+        }));
+        assertFalse(service.canAccessTenant(u, "T1"), "复用范围快照不能复用上一次领域有效性结果");
+        assertEquals(2, service.domainLoads.get());
+    }
+
+    @Test
+    void shouldClearDomainEvaluationContextAfterLoaderFailure() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[2] = Set.of("sales");
+        AtomicInteger attempts = new AtomicInteger();
+        boolean[] enabled = {true};
+        StubRbacBaseService service = new StubRbacBaseService(u) {
+            @Override public <DOMAIN extends RbacDomainInfo> DOMAIN loadDomain(Serializable principal) {
+                if (attempts.incrementAndGet() == 1) throw new IllegalStateException("domain storage unavailable");
+                return (DOMAIN) new TestDomain("sales") {
+                    @Override public boolean isEnable() { return enabled[0]; }
+                };
+            }
+        };
+        service.setTenantList(List.of(domainTenant("T1", "sales")));
+        IllegalStateException failure = assertThrows(IllegalStateException.class, () -> service.canAccessTenant(u, "T1"));
+        assertEquals("domain storage unavailable", failure.getMessage());
+        assertTrue(service.canAccessTenant(u, "T1"));
+        enabled[0] = false;
+        assertFalse(service.canAccessTenant(u, "T1"));
+        assertEquals(3, attempts.get(), "失败和正常退出均须清理单次计算上下文");
+    }
+
+    @Test
+    void shouldNotShareDomainMetadataBetweenServiceInstances() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of("T1");
+        u.fields[2] = Set.of("sales");
+        StubRbacBaseService first = new StubRbacBaseService(u)
+                .setTenantList(List.of(domainTenant("T1", "sales")))
+                .setDomainList(List.of(new TestDomain("sales")));
+        StubRbacBaseService second = new StubRbacBaseService(u)
+                .setTenantList(List.of(domainTenant("T1", "sales")))
+                .setDomainList(List.of(new TestDomain("sales") { @Override public boolean isEnable() { return false; } }));
+        assertTrue(first.canAccessTenant(u, "T1"));
+        assertFalse(second.canAccessTenant(u, "T1"));
+        assertTrue(first.canAccessTenant(u, "T1"));
+        assertEquals(2, first.domainLoads.get());
+        assertEquals(1, second.domainLoads.get());
+    }
+
+    @Test
+    void shouldSerializeFilteredMenuTreeWithoutParentCycles() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[2] = Set.of("sales");
+        StubRbacBaseService service = new StubRbacBaseService(u).setDomainList(List.of(new TestDomain("sales")));
+        TestAuthorizeService auth = new TestAuthorizeService();
+        auth.setRbacBaseService(service);
+        DomainMenu root = domainMenu("root", null);
+        root.children.add(domainMenu("child", "sales"));
+        List<SimpleMenu> menus = auth.filterAccessibleMenuList(u, List.of(root));
+        String json = assertDoesNotThrow(() -> new ObjectMapper().writeValueAsString(menus));
+        JsonNode result = assertDoesNotThrow(() -> new ObjectMapper().readTree(json));
+        assertEquals("root", result.get(0).path("id").asText());
+        assertEquals("child", result.get(0).path("children").get(0).path("id").asText());
+        assertFalse(result.get(0).path("children").get(0).has("parent"), "序列化不输出循环父引用");
+    }
+
+    @Test
+    void shouldRejectRoleAssignmentWhenTenantLoaderReturnsAnotherTenant() {
+        ScopeUser top = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE)) {
+            @Override public String getLoginName() { return RbacUserInfo.TOP_SA_ACCOUNT_NAME; }
+        };
+        top.fields[2] = Set.of("sales");
+        TestRbacRole role = new TestRbacRole("role", "R_T2", "T2", List.of(), List.of(), 100);
+        role.domainId = "sales";
+        TestRbacUser target = new TestRbacUser("target", "target", "T2", "OPS", List.of(), 100);
+        StubRbacBaseService service = new StubRbacBaseService(top) {
+            @Override public <TENANT extends RbacTenantInfo> TENANT loadTenant(Serializable principal) {
+                return (TENANT) domainTenant("T1", "sales");
+            }
+        };
+        service.setDomainList(List.of(new TestDomain("sales")));
+        TestAuthorizeService auth = new TestAuthorizeService();
+        auth.setRbacBaseService(service);
+        assertTrue(top.isTopSuperAdmin());
+        assertFalse(auth.isRoleAuthorized(top, role, null), "T2角色不可借用loader返回的T1领域通过授权");
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(top, target, List.of(role)));
+    }
+
+    @Test
+    void shouldRejectUnavailableRoleTenantEvenForTopAdministrator() {
+        ScopeUser top = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE)) {
+            @Override public String getLoginName() { return RbacUserInfo.TOP_SA_ACCOUNT_NAME; }
+        };
+        top.fields[2] = Set.of("sales");
+        TestRbacRole role = new TestRbacRole("role", "R_T1", "T1", List.of(), List.of(), 100);
+        TestRbacUser target = new TestRbacUser("target", "target", "T1", "OPS", List.of(), 100);
+        TestTenant disabled = new TestTenant("T1", "Disabled") { @Override public boolean isEnable() { return false; } };
+        TestTenant expired = new ExpiredTestTenant("T1", "Expired");
+        for (TestTenant tenant : List.of(disabled, expired)) {
+            tenant.domainId = "sales";
+            StubRbacBaseService service = new StubRbacBaseService(top)
+                    .setTenantList(List.of(tenant)).setDomainList(List.of(new TestDomain("sales")));
+            TestAuthorizeService auth = new TestAuthorizeService();
+            auth.setRbacBaseService(service);
+            assertFalse(auth.isRoleAuthorized(top, role, null));
+            assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(top, target, List.of(role)));
+        }
+    }
+
+    @Test
+    void shouldShareOneDomainAndTenantLoadAcrossSingleOrganizationCheck() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.domainId = "sales";
+        u.fields[0] = Set.of("T1");
+        u.fields[2] = Set.of("sales");
+        u.fields[4] = Set.of("ROOT|SelfAndAllChild");
+        AtomicInteger tenantLoads = new AtomicInteger();
+        StubRbacBaseService service = new StubRbacBaseService(u) {
+            @Override public <TENANT extends RbacTenantInfo> TENANT loadTenant(Serializable principal) {
+                tenantLoads.incrementAndGet();
+                return super.loadTenant(principal);
+            }
+        };
+        service.setTenantList(List.of(domainTenant("T1", "sales")))
+                .setDomainList(List.of(new TestDomain("sales")))
+                .setOrgList(List.of(domainOrg("ROOT", null, "T1", "sales"), domainOrg("A1", "ROOT", "T1", "sales")));
+        assertTrue(service.canAccessOrg(u, "T1", "A1"));
+        assertEquals(1, service.domainLoads.get(), "单点组织检查的嵌套领域门槛共享一次目录加载");
+        assertEquals(1, tenantLoads.get(), "单点组织检查只加载目标租户一次");
+    }
+
+    @Test
+    void shouldHonorOverriddenEffectiveDomainDenialAcrossAllPermissionEntrypoints() {
+        ScopeUser u = new ScopeUser("T1", List.of("R_SALES"));
+        u.fields[2] = Set.of("sales");
+        DataScope overridden = new DataScope() {
+            @Override public Set<String> getTenantScopeList() { return Set.of("T1"); }
+            @Override public Set<String> getDomainScopeList() { return Set.of("sales"); }
+            @Override public Set<String> getDeniedDomainScopeList() { return Set.of("sales"); }
+            @Override public Set<String> getOrgScopeList() { return Set.of("ROOT|SelfAndAllChild"); }
+        };
+        DefaultRoleHelperRbacBaseService service = new DefaultRoleHelperRbacBaseService(u) {
+            @Override public DataScope getUserDataScope(Serializable principal) { return overridden; }
+        };
+        service.delegate.setDomainList(List.of(new TestDomain("sales")))
+                .setTenantList(List.of(domainTenant("T1", "sales")))
+                .setOrgList(List.of(domainOrg("ROOT", null, "T1", "sales")));
+        TestRbacRole role = new TestRbacRole("sales-role", "R_SALES", "T1", List.of("sales:report:*:read"), List.of(), 100);
+        role.domainId = "sales";
+        service.registerRole(role);
+        TestOrg object = domainOrg("OBJECT", null, "T1", "sales");
+        assertFalse(service.canAccessDomain(u, "sales"));
+        assertFalse(service.canAccessObjectDomain(u, object));
+        assertTrue(service.filterByDomainAccess(u, List.of(object)).isEmpty());
+        assertFalse(service.canAccessTenant(u, "T1"));
+        assertFalse(service.canAccessOrg(u, "T1", "ROOT"));
+        assertTrue(service.loadUserAccessibleTenantList(u, true).isEmpty());
+        assertTrue(service.loadUserAccessibleOrgList(u, true).isEmpty());
+        assertTrue(service.loadUserOwnerRoleList(u).isEmpty(), "覆写后的领域拒绝同样约束生效角色");
+        assertFalse(service.loadUserPermissionExprList(u).contains("sales:report:*:read"));
+    }
+
+    private static TestTenant domainTenant(String id, String domain) {
+        TestTenant tenant = new TestTenant(id, id);
+        tenant.domainId = domain;
+        return tenant;
+    }
+
+    private static TestOrg domainOrg(String id, String parentId, String tenantId, String domain) {
+        TestOrg org = new TestOrg(id, parentId, tenantId, id);
+        org.domainId = domain;
+        return org;
+    }
+
+    private static DomainMenu domainMenu(String id, String domain) {
+        DomainMenu menu = new DomainMenu();
+        menu.setId(id).setName(id).setDomainId(domain).setPath("/" + id).setRequireAuthorizations(List.of());
+        return menu;
+    }
+
+    private static class DomainMenu extends SimpleMenu {
+        final List<MenuItem> children = new ArrayList<>();
+        @Override public <C extends MenuItem> Collection<C> getChildren() { return (Collection<C>) children; }
+    }
+
     private static List<Set<String>> scopeFields(DataScope scope) {
         return Arrays.asList(scope.getTenantScopeList(), scope.getDeniedTenantScopeList(),
                 scope.getDomainScopeList(), scope.getDeniedDomainScopeList(),
@@ -4397,6 +4905,8 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     private static class TestRbacUser implements RbacUserInfo {
+        String domainId;
+        @Override public String getDomainId() { return domainId; }
         private final String id;
         private final String loginName;
         private final String tenantId;
@@ -4498,6 +5008,8 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     private static class TestRbacRole implements RbacRoleInfo {
+        String domainId;
+        @Override public String getDomainId() { return domainId; }
         private final String id;
         private final String code;
         private final String tenantId;
@@ -4629,6 +5141,8 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     private static class TestOrg implements RbacOrgInfo {
+        String domainId;
+        @Override public String getDomainId() { return domainId; }
         private String id;
         private String parentId;
         private String tenantId;
@@ -4697,6 +5211,8 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     private static class SetOrg implements RbacOrgInfo {
+        String domainId;
+        @Override public String getDomainId() { return domainId; }
         private String id;
         private String parentId;
         private String tenantId;
@@ -4769,6 +5285,8 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     private static class TestTenant implements RbacTenantInfo {
+        String domainId;
+        @Override public String getDomainId() { return domainId; }
         private final String id;
         private final String name;
         private final Integer confidentialLevel;

@@ -1,6 +1,7 @@
 package com.levin.commons.rbac;
 
 
+import com.levin.commons.dao.domain.DomainObject;
 import com.levin.commons.dao.domain.MultiTenantPublicObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -14,7 +15,7 @@ import java.util.Collections;
  * @author echo
  */
 @Schema(title = "角色信息", description = "不设计继承模型,以降低复杂度")
-public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPublicObject {
+public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPublicObject , DomainObject {
 
     String ROLE_PREFIX = "R_";
 

@@ -2,6 +2,7 @@ package com.levin.commons.rbac;
 
 
 import cn.hutool.core.lang.Assert;
+import com.levin.commons.dao.domain.DomainObject;
 import com.levin.commons.service.exception.AuthorizationException;
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -117,6 +118,19 @@ public interface RbacBaseUserService {
     }
 
     /**
+     * 对象领域访问门槛。基础用户服务没有领域目录，非空领域默认拒绝；
+     * RbacBaseService 提供完整的授权与目录有效性检查。
+     */
+    default boolean canAccessObjectDomain(Serializable userPrincipal, DomainObject object) {
+        return object != null && RbacMiscUtils.isBlank(object.getDomainId());
+    }
+
+    /** 用户管理入口的领域门槛，完整 RBAC 服务同时检查所属租户。 */
+    default boolean canAccessUserDomain(Serializable userPrincipal, RbacUserInfo targetUser) {
+        return canAccessObjectDomain(userPrincipal, targetUser);
+    }
+
+    /**
      * 是否能管理指定用户
      *
      * @param operator
@@ -129,21 +143,18 @@ public interface RbacBaseUserService {
         Assert.notNull(operator, "无操作人");
         Assert.notNull(targetUser, "无目标用户");
 
-        // 自己
-        if (operator.equals(targetUser)) {
-            return true;
-        }
-
         RbacUserInfo operatorInfo = loadUser(operator);
         Assert.notNull(operatorInfo, "无操作人信息");
+        RbacUserInfo targetUserInfo = loadUser(targetUser);
+        Assert.notNull(targetUserInfo, "无目标用户信息");
 
-        //1
+        // 领域门槛先于自我管理和管理员快捷路径。
+        if (!canAccessUserDomain(operatorInfo, targetUserInfo)) {
+            return false;
+        }
         if (operatorInfo.isTopSuperAdmin()) {
             return true;
         }
-
-        RbacUserInfo targetUserInfo = loadUser(targetUser);
-        Assert.notNull(targetUserInfo, "无目标用户信息");
 
         //2 自己
         if (operatorInfo.getId().equals(targetUserInfo.getId())) {

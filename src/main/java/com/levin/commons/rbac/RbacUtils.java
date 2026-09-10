@@ -430,7 +430,7 @@ public abstract class RbacUtils {
 
                 //设置默认权限
                 menuRes.setRequireAuthorizations(permission == null ? null : Arrays.asList(permission.toString()))
-                        .setDomain(packageName)
+                        .setDomainId(packageName)
                         //设置路径
                         .setPath(buildRequestPath(mapping, null, defaultName))
                         //设置菜单名称

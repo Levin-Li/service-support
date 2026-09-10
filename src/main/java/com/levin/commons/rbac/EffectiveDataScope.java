@@ -2,7 +2,7 @@ package com.levin.commons.rbac;
 
 import java.util.Set;
 
-/** 完成用户覆盖和角色继承后的内部不可变快照。集合已由服务防御性复制。 */
+/** 用户覆盖和角色继承后的不可变范围快照，不携带任何授权查询缓存。 */
 record EffectiveDataScope(Set<String> tenantScopeList,
                           Set<String> deniedTenantScopeList,
                           Set<String> domainScopeList,

@@ -41,8 +41,11 @@ public class SimpleMenu
     @Schema(title = "父节点")
     protected String parentId;
 
-    @Schema(title = "子域")
+    @Schema(title = "域名")
     protected String domain;
+
+    @Schema(title = "领域标识")
+    protected String domainId;
 
     @Schema(title = "名称")
     protected String name;

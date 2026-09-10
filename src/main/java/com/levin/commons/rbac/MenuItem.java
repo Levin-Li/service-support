@@ -1,5 +1,6 @@
 package com.levin.commons.rbac;
 
+import com.levin.commons.dao.domain.DomainObject;
 import com.levin.commons.dao.domain.TreeObject;
 import com.levin.commons.service.domain.Castable;
 import com.levin.commons.service.domain.EnumDesc;
@@ -21,7 +22,7 @@ import java.util.Set;
  */
 @Schema(title = "抽象菜单项")
 public interface MenuItem<PARENT extends MenuItem, CHILD extends MenuItem>
-        extends TreeObject<PARENT, CHILD>, AuthorizedObject, SimpleIdentifiable {
+        extends TreeObject<PARENT, CHILD>, AuthorizedObject, SimpleIdentifiable, DomainObject {
 
     @Schema(title = "动作类型")
     enum ActionType implements EnumDesc {

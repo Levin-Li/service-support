@@ -3,6 +3,7 @@ package com.levin.commons.rbac;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import com.levin.commons.dao.domain.ConfidentialObject;
+import com.levin.commons.dao.domain.DomainObject;
 import com.levin.commons.dao.domain.ProxyWrapperObject;
 import com.levin.commons.utils.ExpressionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -75,19 +76,21 @@ public interface RbacBaseService extends RbacBaseUserService {
      */
     @Operation(summary = "加载用户能访问的租户列表", description = "性能扩展点：默认实现会先加载候选租户再在内存中按数据范围过滤；子类可覆盖为按用户、租户表达式或缓存直接裁剪。onlyEffectOrg 可以指定是否只加载有效租户")
     default <TENANT extends RbacTenantInfo> Collection<TENANT> loadUserAccessibleTenantList(Serializable userPrincipal, boolean onlyLoadEffectTenant) {
-        final RbacUserInfo user = requireScopeUser(userPrincipal);
-        final DataScope scope = getUserDataScope(user);
-        if (hasNoEnumerableTenantScope(user, scope)) {
-            return Collections.emptyList();
-        }
-        final List<TENANT> result = new ArrayList<>();
-        for (TENANT tenant : this.<TENANT>loadAllTenantListSafe(onlyLoadEffectTenant)) {
-            if (canAccessTenant(user, scope, tenant.getId(), tenant)) {
-                result.add(tenant);
+        return DomainAccess.evaluate(() -> {
+            final RbacUserInfo user = requireScopeUser(userPrincipal);
+            final DataScope scope = getUserDataScope(user);
+            if (hasNoEnumerableTenantScope(user, scope)) {
+                return Collections.emptyList();
             }
-        }
-        return isGlobalScopeAdmin(user) && !user.isTopSuperAdmin()
-                ? filterByConfidentialAccess(user, result) : result;
+            final List<TENANT> result = new ArrayList<>();
+            for (TENANT tenant : this.<TENANT>loadAllTenantListSafe(onlyLoadEffectTenant)) {
+                if (canAccessTenant(user, scope, tenant.getId(), tenant)) {
+                    result.add(tenant);
+                }
+            }
+            return isGlobalScopeAdmin(user) && !user.isTopSuperAdmin()
+                    ? filterByScopedConfidentialAccess(scope, result) : result;
+        });
     }
 
     /**
@@ -115,26 +118,23 @@ public interface RbacBaseService extends RbacBaseUserService {
     @Operation(summary = "加载用户可访问的领域列表", description = "先按允许集合减拒绝集合短路，再批量加载领域；过滤无效领域，保留数据源顺序")
     default <DOMAIN extends RbacDomainInfo> Collection<DOMAIN> loadUserAccessibleDomainList(
             Serializable userPrincipal, boolean onlyLoadEffectDomain) {
-        final DataScope scope = getUserDataScope(userPrincipal);
-        if (scope.getDomainScopeList().isEmpty()) {
-            return Collections.emptyList();
-        }
-        final Set<String> domainIds = new HashSet<>(scope.getDomainScopeList());
-        domainIds.removeAll(scope.getDeniedDomainScopeList());
-        if (domainIds.isEmpty()) {
-            return Collections.emptyList();
-        }
-        final Collection<DOMAIN> domains = this.<DOMAIN>loadAllDomainList(onlyLoadEffectDomain);
-        if (domains == null || domains.isEmpty()) {
-            return Collections.emptyList();
-        }
-        final List<DOMAIN> result = new ArrayList<>();
-        for (DOMAIN domain : domains) {
-            if (domain != null && domainIds.contains(scopeId(domain.getId())) && domain.selfAudit()) {
-                result.add(domain);
+        return DomainAccess.evaluate(() -> {
+            final Set<String> domainIds = userDomainAccess(userPrincipal).permittedIds();
+            if (domainIds.isEmpty()) {
+                return Collections.emptyList();
             }
-        }
-        return result;
+            final Collection<DOMAIN> domains = this.<DOMAIN>loadAllDomainList(onlyLoadEffectDomain);
+            if (domains == null || domains.isEmpty()) {
+                return Collections.emptyList();
+            }
+            final List<DOMAIN> result = new ArrayList<>();
+            for (DOMAIN domain : domains) {
+                if (domain != null && domainIds.contains(scopeId(domain.getId())) && domain.selfAudit()) {
+                    result.add(domain);
+                }
+            }
+            return result;
+        });
     }
 
     /**
@@ -160,33 +160,35 @@ public interface RbacBaseService extends RbacBaseUserService {
 
     @Operation(summary = "加载用户能访问的组织列表", description = "性能扩展点：默认实现会按租户加载候选组织后在内存中计算 DataScope；子类可覆盖为 SQL/缓存直接计算用户可访问组织。onlyEffect 可以指定是否只加载有效组织")
     default <ORG extends RbacOrgInfo> Collection<ORG> loadUserAccessibleOrgList(Serializable userPrincipal, boolean onlyLoadEffectOrg) {
-        final RbacUserInfo user = requireScopeUser(userPrincipal);
-        final DataScope scope = getUserDataScope(user);
-        final Set<String> tenantIds = new LinkedHashSet<>();
-        if (!hasNoEnumerableTenantScope(user, scope)) {
-            for (RbacTenantInfo tenant : loadAllTenantListSafe(onlyLoadEffectOrg)) {
-                if (canAccessTenant(user, scope, tenant.getId(), tenant)) {
-                    tenantIds.add(scopeId(tenant.getId()));
+        return DomainAccess.evaluate(() -> {
+            final RbacUserInfo user = requireScopeUser(userPrincipal);
+            final DataScope scope = getUserDataScope(user);
+            final Set<String> tenantIds = new LinkedHashSet<>();
+            if (!hasNoEnumerableTenantScope(user, scope)) {
+                for (RbacTenantInfo tenant : loadAllTenantListSafe(onlyLoadEffectOrg)) {
+                    if (canAccessTenant(user, scope, tenant.getId(), tenant)) {
+                        tenantIds.add(scopeId(tenant.getId()));
+                    }
                 }
             }
-        }
-        if (canAccessTenant(user, scope, null, null)) {
-            tenantIds.add(null);
-        }
-        final List<ORG> result = new ArrayList<>();
-        for (String tenantId : tenantIds) {
-            if (!hasOrgAdminScope(user, tenantId) && scope.getOrgScopeList().isEmpty()) {
-                continue;
+            if (canAccessTenant(user, scope, null, null)) {
+                tenantIds.add(null);
             }
-            final Map<String, ORG> orgMap = scopedOrgMap(tenantId, onlyLoadEffectOrg);
-            final Set<String> allowed = hasOrgAdminScope(user, tenantId)
-                    ? orgMap.keySet() : accessibleOrgIds(user, scope, tenantId, orgMap);
-            orgMap.forEach((orgId, org) -> {
-                if (allowed.contains(orgId)) result.add(org);
-            });
-        }
-        return isGlobalScopeAdmin(user) && !user.isTopSuperAdmin()
-                ? filterByConfidentialAccess(user, result) : result;
+            final List<ORG> result = new ArrayList<>();
+            for (String tenantId : tenantIds) {
+                if (!hasOrgAdminScope(user, tenantId) && scope.getOrgScopeList().isEmpty()) {
+                    continue;
+                }
+                final Map<String, ORG> orgMap = scopedOrgMap(tenantId, onlyLoadEffectOrg);
+                final Set<String> allowed = hasOrgAdminScope(user, tenantId)
+                        ? orgMap.keySet() : accessibleOrgIds(user, scope, tenantId, orgMap);
+                orgMap.forEach((orgId, org) -> {
+                    if (allowed.contains(orgId) && orgDomainAllowed(scope, tenantId, org)) result.add(org);
+                });
+            }
+            return isGlobalScopeAdmin(user) && !user.isTopSuperAdmin()
+                    ? filterByScopedConfidentialAccess(scope, result) : result;
+        });
     }
 
     /**
@@ -226,21 +228,17 @@ public interface RbacBaseService extends RbacBaseUserService {
      * TopSA 之外的全局快捷路径都需要经过这一层，确保“直接返回最大结果”时仍尊重对象自身的机密级别。
      */
     default <T extends ConfidentialObject> Collection<T> filterByConfidentialAccess(Serializable userPrincipal, Collection<T> objectList) {
+        return DomainAccess.evaluate(() -> {
+            if (objectList == null || objectList.isEmpty()) return Collections.emptyList();
+            return filterByScopedConfidentialAccess(getUserDataScope(userPrincipal), objectList);
+        });
+    }
 
-
-        if (objectList == null || objectList.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        final RbacUserInfo user = loadUser(userPrincipal);
-
-        Assert.notNull(user, "用户({})不存在", userPrincipal);
-        final Integer userConfidentialAccessLevel = getUserConfidentialDataAccessLevel(user);
-
-        return objectList.stream()
-                .filter(Objects::nonNull)
-                // 集合过滤前先把用户机密级别取出来，避免在循环中重复触发 getUserConfidentialDataAccessLevel(...)。
-                .filter(obj -> canAccessConfidentialData(() -> userConfidentialAccessLevel, obj.getConfidentialLevel()))
+    private <T extends ConfidentialObject> Collection<T> filterByScopedConfidentialAccess(DataScope scope, Collection<T> objectList) {
+        final DomainAccess domains = domainAccess(scope);
+        return objectList.stream().filter(Objects::nonNull)
+                .filter(obj -> !(obj instanceof DomainObject domainObject) || domains.allowsObject(domainObject))
+                .filter(obj -> canAccessConfidentialData(scope::getConfidentialDataAccessLevel, obj.getConfidentialLevel()))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
@@ -390,96 +388,161 @@ public interface RbacBaseService extends RbacBaseUserService {
      */
     @Operation(summary = "是否能访问所有组织", description = "性能扩展点：建议子类覆盖为基于用户标记、角色缓存或权限缓存的 O(1) 判断，避免重复解析 DataScope")
     default boolean canAccessAllOrg(Serializable userPrincipal) {
-        final RbacUserInfo user = requireScopeUser(userPrincipal);
-        if (!user.isPlatformUser()) {
-            return canAccessAllOrg(user, user.getTenantId());
-        }
-        // 保留平台用户的全局语义：不仅覆盖当前枚举对象，也覆盖全部租户及无租户组织。
-        if (isGlobalScopeAdmin(user)) {
-            return true;
-        }
-        final DataScope scope = getUserDataScope(user);
-        if (!scope.getTenantScopeList().contains(DataScope.TenantScope.All.getExpression())
-                || !scope.getTenantScopeList().contains(DataScope.TenantScope.None.getExpression())
-                || !scope.getDeniedTenantScopeList().isEmpty() || !declaresAllOrg(scope)) {
-            return false;
-        }
-        for (RbacTenantInfo tenant : loadAllTenantListSafe(true)) {
-            if (!coversAllExistingOrg(user, scope, tenant.getId())) return false;
-        }
-        return coversAllExistingOrg(user, scope, null);
+        return DomainAccess.evaluate(() -> {
+            final RbacUserInfo user = requireScopeUser(userPrincipal);
+            if (!user.isPlatformUser()) {
+                return canAccessAllOrg(user, user.getTenantId());
+            }
+            // 保留平台用户的全局语义：不仅覆盖当前枚举对象，也覆盖全部租户及无租户组织。
+            final DataScope scope = getUserDataScope(user);
+            if (!isGlobalScopeAdmin(user) && (!scope.getTenantScopeList().contains(DataScope.TenantScope.All.getExpression())
+                    || !scope.getTenantScopeList().contains(DataScope.TenantScope.None.getExpression())
+                    || !scope.getDeniedTenantScopeList().isEmpty() || !declaresAllOrg(scope))) {
+                return false;
+            }
+            for (RbacTenantInfo tenant : loadAllTenantListSafe(true)) {
+                if (!canAccessTenant(user, scope, tenant.getId(), tenant)
+                        || !coversAllExistingOrg(user, scope, tenant.getId())) return false;
+            }
+            return canAccessTenant(user, scope, null, null) && coversAllExistingOrg(user, scope, null);
+        });
     }
 
     /** 判断目标租户内所有非空组织是否被完整授权。 */
     default boolean canAccessAllOrg(Serializable userPrincipal, Serializable tenantId) {
-        final RbacUserInfo user = requireScopeUser(userPrincipal);
-        final DataScope scope = getUserDataScope(user);
-        return canAccessTenant(user, scope, tenantId, null)
-                && (hasOrgAdminScope(user, tenantId) || (declaresAllOrg(scope)
-                && coversAllExistingOrg(user, scope, tenantId)));
+        return DomainAccess.evaluate(() -> {
+            final RbacUserInfo user = requireScopeUser(userPrincipal);
+            final DataScope scope = getUserDataScope(user);
+            return canAccessTenant(user, scope, tenantId, null)
+                    && (hasOrgAdminScope(user, tenantId) || declaresAllOrg(scope))
+                    && coversAllExistingOrg(user, scope, tenantId);
+        });
     }
 
     /** 只判断租户范围资格；业务操作权限和机密级别仍须单独校验。 */
     default boolean canAccessTenant(Serializable userPrincipal, Serializable tenantId) {
-        final RbacUserInfo user = requireScopeUser(userPrincipal);
-        return canAccessTenant(user, getUserDataScope(user), tenantId, null);
+        return DomainAccess.evaluate(() -> {
+            final RbacUserInfo user = requireScopeUser(userPrincipal);
+            return canAccessTenant(user, getUserDataScope(user), tenantId, null);
+        });
     }
 
-    /** 领域只支持具体非空 ID；须存在且有效。此处不替代业务动作和机密级别校验。 */
+    /** 领域只支持具体非空 ID；须存在且有效，不享有管理员绕过。 */
     default boolean canAccessDomain(Serializable userPrincipal, String domainId) {
-        final RbacUserInfo user = requireScopeUser(userPrincipal);
-        if (StrUtil.isBlank(domainId)) {
-            return false;
-        }
-        final DataScope scope = getUserDataScope(user);
-        if (scope.getDeniedDomainScopeList().contains(domainId)
-                || !scope.getDomainScopeList().contains(domainId)) {
-            return false;
-        }
-        final RbacDomainInfo domain = loadDomain(domainId);
-        return domain != null && domainId.equals(scopeId(domain.getId())) && domain.selfAudit();
+        return DomainAccess.evaluate(() -> {
+            if (StrUtil.isBlank(domainId)) return false;
+            return userDomainAccess(userPrincipal).allows(domainId);
+        });
+    }
+
+    /** 空领域不增加限制；非空领域是管理员快捷路径之前的共同门槛。 */
+    @Override
+    default boolean canAccessObjectDomain(Serializable userPrincipal, DomainObject object) {
+        return DomainAccess.evaluate(() -> {
+            if (object == null) return false;
+            if (scopeId(object.getDomainId()) == null) return true;
+            return userDomainAccess(userPrincipal).allowsObject(object);
+        });
+    }
+
+    @Override
+    default boolean canAccessUserDomain(Serializable userPrincipal, RbacUserInfo target) {
+        return DomainAccess.evaluate(() -> {
+            if (target == null) return false;
+            final DomainAccess domains = userDomainAccess(userPrincipal);
+            if (!domains.allowsObject(target)) return false;
+            final String tenantId = scopeId(target.getTenantId());
+            if (tenantId == null) return true;
+            final RbacTenantInfo tenant = domains.tenant(tenantId, id -> loadTenant(id));
+            return tenant != null && tenant.selfAudit() && tenantId.equals(scopeId(tenant.getId())) && domains.allowsObject(tenant);
+        });
+    }
+
+    /** 批次内复用领域查询结果，按原顺序返回授权对象。 */
+    default <T extends DomainObject> Collection<T> filterByDomainAccess(Serializable userPrincipal, Collection<T> objects) {
+        return DomainAccess.evaluate(() -> {
+            if (objects == null || objects.isEmpty()) return Collections.emptyList();
+            final DomainAccess domains = userDomainAccess(userPrincipal);
+            final List<T> result = new ArrayList<>();
+            for (T object : objects) {
+                if (object != null && domains.allowsObject(object)) result.add(object);
+            }
+            return result;
+        });
+    }
+
+    private DomainAccess userDomainAccess(Serializable userPrincipal) {
+        // 保留实现类覆盖有效数据范围的契约；默认快照通过原始候选构建，不回调本方法。
+        return domainAccess(getUserDataScope(userPrincipal));
+    }
+
+    private DomainAccess domainAccess(DataScope scope) {
+        return DomainAccess.forScope(this, scope, id -> loadDomain(id));
+    }
+
+    /** 只在最终对象上过滤领域，不从组织树索引移除祖先。 */
+    private boolean orgDomainAllowed(DataScope scope, Serializable tenantId, RbacOrgInfo org) {
+        if (org == null) return false;
+        final DomainAccess domains = domainAccess(scope);
+        final String id = scopeId(tenantId);
+        if (id == null) return domains.allowsObject(org);
+        final RbacTenantInfo tenant = domains.tenant(id, key -> loadTenant(key));
+        if (tenant == null || !tenant.selfAudit() || !id.equals(scopeId(tenant.getId()))) return false;
+        final String orgDomain = scopeId(org.getDomainId());
+        final String tenantDomain = scopeId(tenant.getDomainId());
+        return (orgDomain == null || tenantDomain == null || orgDomain.equals(tenantDomain))
+                && domains.allowsObject(tenant) && domains.allowsObject(org);
     }
 
     /** 组织范围判断包含目标租户资格；空组织 ID 按 None 规则判断。 */
     default boolean canAccessOrg(Serializable userPrincipal, Serializable tenantId, Serializable orgId) {
-        final RbacUserInfo user = requireScopeUser(userPrincipal);
-        final DataScope scope = getUserDataScope(user);
-        if (!canAccessTenant(user, scope, tenantId, null)) {
-            return false;
-        }
-        if (scopeId(orgId) == null) {
-            return hasOrgAdminScope(user, tenantId)
-                    || (!scope.getOrgScopeList().isEmpty()
-                    && !matchesNoOrg(scope.getDeniedOrgScopeList(), user, tenantId)
-                    && matchesNoOrg(scope.getOrgScopeList(), user, tenantId));
-        }
-        if (!hasOrgAdminScope(user, tenantId) && scope.getOrgScopeList().isEmpty()) return false;
-        final Map<String, RbacOrgInfo> orgMap = scopedOrgMap(tenantId, true);
-        return orgMap.containsKey(scopeId(orgId)) && (hasOrgAdminScope(user, tenantId)
-                || accessibleOrgIds(user, scope, tenantId, orgMap, scopeId(orgId)).contains(scopeId(orgId)));
+        return DomainAccess.evaluate(() -> {
+            final RbacUserInfo user = requireScopeUser(userPrincipal);
+            final DataScope scope = getUserDataScope(user);
+            if (!canAccessTenant(user, scope, tenantId, null)) {
+                return false;
+            }
+            if (scopeId(orgId) == null) {
+                return hasOrgAdminScope(user, tenantId)
+                        || (!scope.getOrgScopeList().isEmpty()
+                        && !matchesNoOrg(scope.getDeniedOrgScopeList(), user, tenantId)
+                        && matchesNoOrg(scope.getOrgScopeList(), user, tenantId));
+            }
+            if (!hasOrgAdminScope(user, tenantId) && scope.getOrgScopeList().isEmpty()) return false;
+            final Map<String, RbacOrgInfo> orgMap = scopedOrgMap(tenantId, true);
+            return orgMap.containsKey(scopeId(orgId)) && orgDomainAllowed(scope, tenantId, orgMap.get(scopeId(orgId)))
+                    && (hasOrgAdminScope(user, tenantId)
+                    || accessibleOrgIds(user, scope, tenantId, orgMap, scopeId(orgId)).contains(scopeId(orgId)));
+
+        });
     }
 
     @Operation(summary = "获取用户数据权限", description = "六个范围字段独立覆盖：用户非null（包括空集合）替代角色，null继承生效角色并集。返回不可变快照")
     default DataScope getUserDataScope(Serializable userPrincipal) {
-        final RbacUserInfo user = requireScopeUser(userPrincipal);
-        final boolean needsRoles = user.getTenantScopeList() == null || user.getDeniedTenantScopeList() == null
-                || user.getDomainScopeList() == null || user.getDeniedDomainScopeList() == null
-                || user.getOrgScopeList() == null || user.getDeniedOrgScopeList() == null
-                || user.getConfidentialDataAccessLevel() == null;
-        final Collection<RbacRoleInfo> roles = needsRoles ? loadUserOwnerRoleList(user) : Collections.emptyList();
-        Integer level = user.isTopSuperAdmin() ? Integer.valueOf(Integer.MAX_VALUE) : user.getConfidentialDataAccessLevel();
-        if (level == null) {
-            level = roles.stream().filter(Objects::nonNull).filter(RbacCoreObject::selfAudit)
-                    .map(RbacRoleInfo::getConfidentialDataAccessLevel).filter(Objects::nonNull)
-                    .max(Integer::compareTo).orElse(null);
-        }
-        return new EffectiveDataScope(
-                resolveScopeField(user, roles, DataScope::getTenantScopeList, "tenant"),
-                resolveScopeField(user, roles, DataScope::getDeniedTenantScopeList, "tenant"),
-                resolveScopeField(user, roles, DataScope::getDomainScopeList, "domain"),
-                resolveScopeField(user, roles, DataScope::getDeniedDomainScopeList, "domain"),
-                resolveScopeField(user, roles, DataScope::getOrgScopeList, "org"),
-                resolveScopeField(user, roles, DataScope::getDeniedOrgScopeList, "org"), level);
+        return DomainAccess.evaluate(() -> {
+            final RbacUserInfo user = requireScopeUser(userPrincipal);
+            final boolean needsRoles = user.getTenantScopeList() == null || user.getDeniedTenantScopeList() == null
+                    || user.getDomainScopeList() == null || user.getDeniedDomainScopeList() == null
+                    || user.getOrgScopeList() == null || user.getDeniedOrgScopeList() == null
+                    || user.getConfidentialDataAccessLevel() == null;
+            final Collection<RbacRoleInfo> candidates = needsRoles ? loadCandidateUserRoles(user, true) : Collections.emptyList();
+            final Set<String> allowedDomains = resolveScopeField(user, candidates, DataScope::getDomainScopeList, "domain");
+            final Set<String> deniedDomains = resolveScopeField(user, candidates, DataScope::getDeniedDomainScopeList, "domain");
+            final DomainAccess domains = DomainAccess.obtain(this, allowedDomains, deniedDomains, id -> loadDomain(id));
+            final Collection<RbacRoleInfo> roles = candidates.stream().filter(domains::allowsObject).collect(Collectors.toList());
+            Integer level = user.isTopSuperAdmin() ? Integer.valueOf(Integer.MAX_VALUE) : user.getConfidentialDataAccessLevel();
+            if (level == null) {
+                level = roles.stream().filter(Objects::nonNull).filter(RbacCoreObject::selfAudit)
+                        .map(RbacRoleInfo::getConfidentialDataAccessLevel).filter(Objects::nonNull)
+                        .max(Integer::compareTo).orElse(null);
+            }
+            return new EffectiveDataScope(
+                    resolveScopeField(user, roles, DataScope::getTenantScopeList, "tenant"),
+                    resolveScopeField(user, roles, DataScope::getDeniedTenantScopeList, "tenant"),
+                    allowedDomains, deniedDomains,
+                    resolveScopeField(user, roles, DataScope::getOrgScopeList, "org"),
+                    resolveScopeField(user, roles, DataScope::getDeniedOrgScopeList, "org"), level);
+        });
     }
 
     private Set<String> resolveScopeField(DataScope user, Collection<RbacRoleInfo> roles,
@@ -614,56 +677,62 @@ public interface RbacBaseService extends RbacBaseUserService {
      */
     @Operation(summary = "检查用户组织可访问性", description = "性能扩展点：默认实现可能加载用户可访问组织列表后做内存 contains；子类可覆盖为 exists 查询或权限缓存判断。")
     default void checkOrgAccessible(Serializable userPrincipal, Serializable tenantId, Serializable parentId, Serializable orgId) {
-        final RbacUserInfo user = requireScopeUser(userPrincipal);
-        Assert.isTrue(withinTenantBoundary(user, tenantId), "非关联的租户[{}]", tenantId);
-        final RbacTenantInfo tenant = scopeId(tenantId) == null ? null : loadTenant(tenantId);
-        if (scopeId(tenantId) != null) {
-            Assert.notNull(tenant, "租户[{}]不存在", tenantId);
-            Assert.isTrue(Objects.equals(scopeId(tenant.getId()), scopeId(tenantId)), "非关联的租户[{}]", tenantId);
-            Assert.isTrue(tenant.selfAudit(), "租户[{}]不可用", tenantId);
-        }
-        // 必须在目标租户内解析组织，不能通过全局 loadOrg(id) 借用其他租户的同 ID 节点。
-        final Map<String, RbacOrgInfo> targetOrgs = new LinkedHashMap<>();
-        for (RbacOrgInfo org : Optional.ofNullable(loadTenantOrgList(tenantId, false)).orElse(Collections.emptyList())) {
-            if (org != null && Objects.equals(scopeId(org.getTenantId()), scopeId(tenantId))) {
-                targetOrgs.putIfAbsent(scopeId(org.getId()), org);
+        DomainAccess.evaluate(() -> {
+            final RbacUserInfo user = requireScopeUser(userPrincipal);
+            Assert.isTrue(withinTenantBoundary(user, tenantId), "非关联的租户[{}]", tenantId);
+            final RbacTenantInfo tenant = scopeId(tenantId) == null ? null : loadTenant(tenantId);
+            if (scopeId(tenantId) != null) {
+                Assert.notNull(tenant, "租户[{}]不存在", tenantId);
+                Assert.isTrue(Objects.equals(scopeId(tenant.getId()), scopeId(tenantId)), "非关联的租户[{}]", tenantId);
+                Assert.isTrue(tenant.selfAudit(), "租户[{}]不可用", tenantId);
             }
-        }
-        final RbacOrgInfo parent = scopeId(parentId) == null ? null : targetOrgs.get(scopeId(parentId));
-        final RbacOrgInfo org = scopeId(orgId) == null ? null : targetOrgs.get(scopeId(orgId));
-        if (scopeId(parentId) != null) {
-            Assert.notNull(parent, "父组织机构[{}]不存在于租户[{}]", parentId, tenantId);
-            Assert.isTrue(parent.selfAudit(), "父组织机构[{}]不可用", parentId);
-        }
-        if (scopeId(orgId) != null) {
-            Assert.notNull(org, "组织机构[{}]不存在于租户[{}]", orgId, tenantId);
-            Assert.isTrue(org.selfAudit(), "组织机构[{}]不可用", orgId);
-        }
-        final DataScope scope = getUserDataScope(user);
-        Assert.isTrue(canAccessTenant(user, scope, tenantId, tenant), "租户[{}]未授权", tenantId);
-        if (user.isTopSuperAdmin()) {
-            return;
-        }
-        if (user.isSuperAdmin() || user.isSaasAdmin()) {
-            final Integer level = getUserConfidentialDataAccessLevel(user);
-            for (ConfidentialObject target : Arrays.asList(tenant, parent, org)) {
-                Assert.isTrue(target == null || canAccessConfidentialData(() -> level, target.getConfidentialLevel()),
-                        "目标租户或组织未授权");
+            // 必须在目标租户内解析组织，不能通过全局 loadOrg(id) 借用其他租户的同 ID 节点。
+            final Map<String, RbacOrgInfo> targetOrgs = new LinkedHashMap<>();
+            for (RbacOrgInfo org : Optional.ofNullable(loadTenantOrgList(tenantId, false)).orElse(Collections.emptyList())) {
+                if (org != null && Objects.equals(scopeId(org.getTenantId()), scopeId(tenantId))) {
+                    targetOrgs.putIfAbsent(scopeId(org.getId()), org);
+                }
             }
-            return;
-        }
-        if (hasOrgAdminScope(user, tenantId)) {
-            return;
-        }
-        // 根节点管理仍保留给管理员；跨租户数据访问资格不授予根节点管理权限。
-        Assert.isTrue(scopeId(parentId) != null, "组织机构上级节点不能为空");
-        final Map<String, RbacOrgInfo> effectiveOrgs = new LinkedHashMap<>();
-        targetOrgs.forEach((id, node) -> {
-            if (id != null && node.selfAudit()) effectiveOrgs.put(id, node);
+            final RbacOrgInfo parent = scopeId(parentId) == null ? null : targetOrgs.get(scopeId(parentId));
+            final RbacOrgInfo org = scopeId(orgId) == null ? null : targetOrgs.get(scopeId(orgId));
+            if (scopeId(parentId) != null) {
+                Assert.notNull(parent, "父组织机构[{}]不存在于租户[{}]", parentId, tenantId);
+                Assert.isTrue(parent.selfAudit(), "父组织机构[{}]不可用", parentId);
+            }
+            if (scopeId(orgId) != null) {
+                Assert.notNull(org, "组织机构[{}]不存在于租户[{}]", orgId, tenantId);
+                Assert.isTrue(org.selfAudit(), "组织机构[{}]不可用", orgId);
+            }
+            final DataScope scope = getUserDataScope(user);
+            Assert.isTrue(canAccessTenant(user, scope, tenantId, tenant), "租户[{}]未授权", tenantId);
+            Assert.isTrue(parent == null || orgDomainAllowed(scope, tenantId, parent), "父组织机构[{}]领域未授权或与租户不一致", parentId);
+            Assert.isTrue(org == null || orgDomainAllowed(scope, tenantId, org), "组织机构[{}]领域未授权或与租户不一致", orgId);
+            if (user.isTopSuperAdmin()) {
+                return null;
+            }
+            if (user.isSuperAdmin() || user.isSaasAdmin()) {
+                final Integer level = scope.getConfidentialDataAccessLevel();
+                for (ConfidentialObject target : Arrays.asList(tenant, parent, org)) {
+                    Assert.isTrue(target == null || canAccessConfidentialData(() -> level, target.getConfidentialLevel()),
+                            "目标租户或组织未授权");
+                }
+                return null;
+            }
+            if (hasOrgAdminScope(user, tenantId)) {
+                return null;
+            }
+            // 根节点管理仍保留给管理员；跨租户数据访问资格不授予根节点管理权限。
+            Assert.isTrue(scopeId(parentId) != null, "组织机构上级节点不能为空");
+            final Map<String, RbacOrgInfo> effectiveOrgs = new LinkedHashMap<>();
+            targetOrgs.forEach((id, node) -> {
+                if (id != null && node.selfAudit()) effectiveOrgs.put(id, node);
+            });
+            final Set<String> allowed = accessibleOrgIds(user, scope, tenantId, effectiveOrgs);
+            Assert.isTrue(allowed.contains(scopeId(parentId)), "父组织机构[{}]未授权", parentId);
+            Assert.isTrue(scopeId(orgId) == null || allowed.contains(scopeId(orgId)), "组织机构[{}]未授权", orgId);
+
+            return null;
         });
-        final Set<String> allowed = accessibleOrgIds(user, scope, tenantId, effectiveOrgs);
-        Assert.isTrue(allowed.contains(scopeId(parentId)), "父组织机构[{}]未授权", parentId);
-        Assert.isTrue(scopeId(orgId) == null || allowed.contains(scopeId(orgId)), "组织机构[{}]未授权", orgId);
     }
 
     /**
@@ -675,17 +744,19 @@ public interface RbacBaseService extends RbacBaseUserService {
     @Override
     @Operation(summary = "获取用户的机密数据访问级别", description = "性能扩展点：当用户本身没有定义访问级别时默认会扫描用户生效角色；子类可覆盖为缓存字段或预聚合查询，尽量不要多次调用")
     default Integer getUserConfidentialDataAccessLevel(Serializable userPrincipal) {
-        final RbacUserInfo user = requireScopeUser(userPrincipal);
-        if (user.isTopSuperAdmin()) {
-            return Integer.MAX_VALUE;
-        }
-        if (user.getConfidentialDataAccessLevel() != null) {
-            return user.getConfidentialDataAccessLevel();
-        }
-        // 与数据范围快照使用同一批生效角色，不经过可见角色过滤，避免递归和同码角色语义分叉。
-        return loadUserOwnerRoleList(user).stream().filter(Objects::nonNull).filter(RbacCoreObject::selfAudit)
-                .map(RbacRoleInfo::getConfidentialDataAccessLevel).filter(Objects::nonNull)
-                .max(Integer::compareTo).orElse(null);
+        return DomainAccess.evaluate(() -> {
+            final RbacUserInfo user = requireScopeUser(userPrincipal);
+            if (user.isTopSuperAdmin()) {
+                return Integer.MAX_VALUE;
+            }
+            if (user.getConfidentialDataAccessLevel() != null) {
+                return user.getConfidentialDataAccessLevel();
+            }
+            // 与数据范围快照使用同一批生效角色，不经过可见角色过滤，避免递归和同码角色语义分叉。
+            return loadUserOwnerRoleList(user).stream().filter(Objects::nonNull).filter(RbacCoreObject::selfAudit)
+                    .map(RbacRoleInfo::getConfidentialDataAccessLevel).filter(Objects::nonNull)
+                    .max(Integer::compareTo).orElse(null);
+        });
     }
 
     /**
@@ -800,6 +871,16 @@ public interface RbacBaseService extends RbacBaseUserService {
      */
     @Operation(summary = "加载用户生效角色列表", description = "性能扩展点：默认实现会加载租户角色列表后按用户角色 code 归并；子类可覆盖为用户-角色关联查询或缓存。内部授权计算使用，不做角色对象的机密级别过滤")
     default <R extends RbacRoleInfo> Collection<R> loadUserOwnerRoleList(Serializable userPrincipal, boolean onlyLoadEffectRole) {
+        return DomainAccess.evaluate(() -> {
+            final RbacUserInfo user = requireScopeUser(userPrincipal);
+            final Collection<RbacRoleInfo> candidates = loadCandidateUserRoles(user, onlyLoadEffectRole);
+            final DomainAccess domains = domainAccess(getUserDataScope(user));
+            return (Collection<R>) candidates.stream().filter(domains::allowsObject).collect(Collectors.toList());
+        });
+    }
+
+    /** 生效角色的原始候选：只处理归属、状态和同码优先级，不调用领域或完整数据范围检查。 */
+    private <R extends RbacRoleInfo> Collection<R> loadCandidateUserRoles(Serializable userPrincipal, boolean onlyLoadEffectRole) {
 
         RbacUserInfo user = loadUser(userPrincipal);
 
@@ -860,9 +941,12 @@ public interface RbacBaseService extends RbacBaseUserService {
      */
     @Operation(summary = "加载用户可访问的角色列表", description = "性能扩展点：默认实现基于生效角色再做机密级别过滤；子类可覆盖为已过滤缓存或数据库条件查询。默认按角色对象自身的机密级别做可见性过滤")
     default <R extends RbacRoleInfo> Collection<R> loadUserAccessibleRoleList(Serializable userPrincipal, boolean onlyLoadEffectRole) {
-        final RbacUserInfo user = loadUser(userPrincipal);
-        Assert.notNull(user, "用户[{}]无法加载", userPrincipal);
-        return filterByConfidentialAccess(user, loadUserOwnerRoleList(user, onlyLoadEffectRole));
+        return DomainAccess.evaluate(() -> {
+            final RbacUserInfo user = loadUser(userPrincipal);
+            Assert.notNull(user, "用户[{}]无法加载", userPrincipal);
+            final DataScope scope = getUserDataScope(user);
+            return filterByScopedConfidentialAccess(scope, this.<R>loadCandidateUserRoles(user, onlyLoadEffectRole));
+        });
     }
 
     /**
@@ -946,21 +1030,23 @@ public interface RbacBaseService extends RbacBaseUserService {
      */
     @Operation(summary = "加载用户权限表达式列表", description = "性能扩展点：默认实现会加载用户生效角色并汇总权限；子类可覆盖为权限表达式缓存或关联表聚合查询。")
     default Collection<String> loadUserPermissionExprList(Serializable userPrincipal) {
+        return DomainAccess.evaluate(() -> {
 
-        // 权限汇总也必须基于生效角色，不能使用带机密过滤的可见角色列表。
-        return loadUserOwnerRoleList(userPrincipal).stream()
-                .filter(Objects::nonNull)
+            // 权限汇总也必须基于生效角色，不能使用带机密过滤的可见角色列表。
+            return loadUserOwnerRoleList(userPrincipal).stream()
+                    .filter(Objects::nonNull)
 
-                .map(RbacRoleInfo::getPermissionList)
-                .filter(Objects::nonNull)
+                    .map(RbacRoleInfo::getPermissionList)
+                    .filter(Objects::nonNull)
 
-                .flatMap(Collection::stream)
-                .filter(Objects::nonNull)
+                    .flatMap(Collection::stream)
+                    .filter(Objects::nonNull)
 
-                .map(Object::toString)
-                .filter(StrUtil::isNotBlank)
+                    .map(Object::toString)
+                    .filter(StrUtil::isNotBlank)
 
-                .collect(Collectors.toSet());
+                    .collect(Collectors.toSet());
+        });
     }
 
     private RbacUserInfo requireScopeUser(Serializable principal) {
@@ -996,7 +1082,11 @@ public interface RbacBaseService extends RbacBaseUserService {
     private boolean coversAllExistingOrg(RbacUserInfo user, DataScope scope, Serializable tenantId) {
         final Map<String, RbacOrgInfo> orgMap = scopedOrgMap(tenantId, true);
         // 即使声明了所有根节点，孤儿节点或孤立环也不在任何根树内，不能据此跳过数据过滤。
-        return accessibleOrgIds(user, scope, tenantId, orgMap).containsAll(orgMap.keySet());
+        for (RbacOrgInfo org : orgMap.values()) {
+            if (!orgDomainAllowed(scope, tenantId, org)) return false;
+        }
+        return hasOrgAdminScope(user, tenantId)
+                || accessibleOrgIds(user, scope, tenantId, orgMap).containsAll(orgMap.keySet());
     }
 
     private <TENANT extends RbacTenantInfo> Collection<TENANT> loadAllTenantListSafe(boolean onlyEffective) {
@@ -1013,11 +1103,14 @@ public interface RbacBaseService extends RbacBaseUserService {
             return false;
         }
         if (scopeId(tenantId) != null) {
-            tenant = tenant != null ? tenant : loadTenant(tenantId);
+            final DomainAccess domains = domainAccess(scope);
+            if (tenant != null) domains.rememberTenant(scopeId(tenantId), tenant);
+            tenant = tenant != null ? tenant : domains.tenant(scopeId(tenantId), id -> loadTenant(id));
             if (tenant == null || !tenant.selfAudit() || !Objects.equals(scopeId(tenant.getId()), scopeId(tenantId))) {
                 return false;
             }
         }
+        if (tenant != null && !domainAccess(scope).allowsObject(tenant)) return false;
         return isGlobalScopeAdmin(user) || (!matchesTenantRules(scope.getDeniedTenantScopeList(), user, tenantId, tenant)
                 && matchesTenantRules(scope.getTenantScopeList(), user, tenantId, tenant));
     }

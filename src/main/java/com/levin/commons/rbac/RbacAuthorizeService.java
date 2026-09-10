@@ -1,6 +1,7 @@
 package com.levin.commons.rbac;
 
 import cn.hutool.core.lang.Assert;
+import com.levin.commons.dao.domain.DomainObject;
 import cn.hutool.core.util.StrUtil;
 import com.levin.commons.utils.ExpressionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -64,6 +65,114 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
      */
     RbacBaseService getRbacBaseLoadService();
 
+
+    /**
+     * 返回用户可见菜单的独立副本。领域门槛先于动作权限，拒绝父节点时移除整支。
+     * alwaysShow 仅控制动作权限不足时的展示，不绕过领域或禁用状态。
+     */
+    default List<SimpleMenu> filterAccessibleMenuList(Serializable userPrincipal,
+                                                    Collection<? extends MenuItem> menuList) {
+        Assert.notNull(userPrincipal, "无用户主体");
+        if (menuList == null || menuList.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Set<MenuItem> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+        List<MenuItem> all = new ArrayList<>();
+        Deque<MenuItem> pending = new ArrayDeque<>();
+        menuList.stream().filter(Objects::nonNull).forEach(pending::add);
+        while (!pending.isEmpty()) {
+            MenuItem menu = pending.removeFirst();
+            if (!visited.add(menu)) {
+                continue;
+            }
+            all.add(menu);
+            Collection<MenuItem> children = menu.getChildren();
+            if (children != null) {
+                children.stream().filter(Objects::nonNull).forEach(pending::addLast);
+            }
+        }
+        Set<MenuItem> allowed = Collections.newSetFromMap(new IdentityHashMap<>());
+        allowed.addAll(getRbacBaseLoadService().filterByDomainAccess(userPrincipal, all));
+        RbacBaseService service = getRbacBaseLoadService();
+        CacheSupplier<RbacUserInfo> user = new CacheSupplier<>(() -> userPrincipal instanceof RbacUserInfo
+                ? (RbacUserInfo) userPrincipal : service.loadUser(userPrincipal));
+        CacheSupplier<Collection<String>> roleCodes = new CacheSupplier<>(() -> service.loadUserRoleCodeList(user.get()));
+        CacheSupplier<Collection<String>> permissions = new CacheSupplier<>(() -> service.loadUserPermissionExprList(user.get()));
+        Predicate<Collection<String>> authorized = requirements -> {
+            if (isAllBlank(requirements)) {
+                return true;
+            }
+            Assert.notNull(user.get(), "用户不存在");
+            return user.get().isTopSuperAdmin() || isAuthorized(user.get(), roleCodes.get(), permissions.get(),
+                    true, requirements, null);
+        };
+        List<SimpleMenu> result = new ArrayList<>();
+        Set<MenuItem> ancestors = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (MenuItem menu : menuList) {
+            AccessibleMenu copy = copyAccessibleMenu(menu, allowed, ancestors, authorized);
+            if (copy != null) {
+                result.add(copy);
+            }
+        }
+        return result;
+    }
+
+    private AccessibleMenu copyAccessibleMenu(MenuItem menu, Set<MenuItem> allowed,
+                                              Set<MenuItem> ancestors, Predicate<Collection<String>> authorized) {
+        if (menu == null || !allowed.contains(menu) || !menu.isEnable() || !ancestors.add(menu)) {
+            return null;
+        }
+        try {
+            if (!menu.isAlwaysShow() && !authorized.test(menu.getRequireAuthorizations())) {
+                return null;
+            }
+            AccessibleMenu copy = new AccessibleMenu();
+            copy.setId(Objects.toString(menu.getId(), null));
+            copy.setParentId(Objects.toString(menu.getParentId(), null));
+            copy.setDomainId(menu.getDomainId());
+            if (menu instanceof SimpleMenu) {
+                copy.setDomain(((SimpleMenu) menu).getDomain());
+            }
+            copy.setName(menu.getName());
+            copy.setEnable(menu.isEnable());
+            copy.setOrderCode(menu.getOrderCode());
+            copy.setRemark(menu.getRemark());
+            copy.setAlwaysShow(menu.isAlwaysShow());
+            copy.setTarget(menu.getTarget());
+            copy.setActionType(menu.getActionType());
+            copy.setPath(menu.getPath());
+            copy.setParams(menu.getParams());
+            copy.setIcon(menu.getIcon());
+            Collection<String> requirements = menu.getRequireAuthorizations();
+            copy.setRequireAuthorizations(requirements == null ? null : new ArrayList<>(requirements));
+            Set<MenuItem.OpButton> buttons = new LinkedHashSet<>();
+            Set<MenuItem.OpButton> originalButtons = menu.getOpButtonList();
+            if (originalButtons != null) {
+                for (MenuItem.OpButton button : originalButtons) {
+                    if (button != null && !button.isDisabled()
+                            && authorized.test(button.getRequireAuthorizations())) {
+                        buttons.add(new MenuItem.OpButton().setOpName(button.getOpName()).setLabel(button.getLabel())
+                                .setDisabled(button.getDisabled()).setRemark(button.getRemark())
+                                .setRequireAuthorizations(button.getRequireAuthorizations() == null ? null
+                                        : new ArrayList<>(button.getRequireAuthorizations())));
+                    }
+                }
+            }
+            copy.setOpButtonList(buttons);
+            Collection<MenuItem> children = menu.getChildren();
+            if (children != null) {
+                for (MenuItem child : children) {
+                    AccessibleMenu childCopy = copyAccessibleMenu(child, allowed, ancestors, authorized);
+                    if (childCopy != null) {
+                        copy.addChild(childCopy);
+                    }
+                }
+            }
+            return copy;
+        } finally {
+            ancestors.remove(menu);
+        }
+    }
 
     @Operation(summary = "找出互斥的角色对", description = "默认返回第一组互斥的角色, 如果返回null表示无互斥的角色")
     default <ROLE extends RbacRoleInfo> DataPair<ROLE, ROLE> findExclusiveRolePair(Serializable targetUserPrincipal, Collection<? extends ROLE> roleList) {
@@ -294,16 +403,40 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         Assert.notNull(operatorPrincipal, "操作用户不能为空");
         Assert.notNull(targetUserPrincipal, "目标用户不能为空");
 
-        if (isAllNull(finalRoles)) {
-            return;
-        }
-
         final RbacBaseService rbacBaseService = getRbacBaseLoadService();
         final RbacUserInfo targetUser = targetUserPrincipal instanceof RbacUserInfo
                 ? (RbacUserInfo) targetUserPrincipal
                 : rbacBaseService.loadUser(targetUserPrincipal);
 
         Assert.notNull(targetUser, "目标用户({})不存在", targetUserPrincipal);
+        final List<DomainObject> domainObjects = new ArrayList<>();
+        domainObjects.add(targetUser);
+        final Set<Serializable> tenantIds = new LinkedHashSet<>();
+        if (RbacMiscUtils.isNotBlank(targetUser.getTenantId())) {
+            tenantIds.add(targetUser.getTenantId());
+        }
+        if (finalRoles != null) {
+            for (RbacRoleInfo role : finalRoles) {
+                if (role != null) {
+                    domainObjects.add(role);
+                    if (RbacMiscUtils.isNotBlank(role.getTenantId())) {
+                        tenantIds.add(role.getTenantId());
+                    }
+                }
+            }
+        }
+        for (Serializable tenantId : tenantIds) {
+            RbacTenantInfo tenant = rbacBaseService.loadTenant(tenantId);
+            Assert.notNull(tenant, "租户({})不存在", tenantId);
+            Assert.isTrue(Objects.equals(Objects.toString(tenantId, null), Objects.toString(tenant.getId(), null))
+                            && tenant.selfAudit(), "租户({})信息不匹配或不可用", tenantId);
+            domainObjects.add(tenant);
+        }
+        Assert.isTrue(rbacBaseService.filterByDomainAccess(operatorPrincipal, domainObjects).size() == domainObjects.size(),
+                "操作用户无权访问目标用户或角色所属领域");
+        if (isAllNull(finalRoles)) {
+            return;
+        }
 
         for (RbacRoleInfo role : finalRoles) {
 
@@ -409,6 +542,30 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
     @Override
     default boolean isRoleAuthorized(Serializable principal, RbacRoleInfo role, BiConsumer<String/*参数1为请求的权限*/, String/*参数2为错误原因*/> matchErrorConsumer) {
 
+        Assert.notNull(principal, "无用户主体");
+        Assert.notNull(role, "角色为空");
+        RbacBaseService service = getRbacBaseLoadService();
+        List<DomainObject> objects = new ArrayList<>();
+        objects.add(role);
+        if (RbacMiscUtils.isNotBlank(role.getTenantId())) {
+            RbacTenantInfo tenant = service.loadTenant(role.getTenantId());
+            if (tenant == null || !tenant.selfAudit()
+                    || !Objects.equals(Objects.toString(role.getTenantId(), null), Objects.toString(tenant.getId(), null))) {
+                return false;
+            }
+            objects.add(tenant);
+        }
+        if (service.filterByDomainAccess(principal, objects).size() != objects.size()) {
+            if (matchErrorConsumer != null) {
+                matchErrorConsumer.accept(role.getCode(), "无角色所属领域权限");
+            }
+            return false;
+        }
+        return isRoleAuthorizedAfterDomainCheck(principal, role, matchErrorConsumer);
+    }
+
+    private boolean isRoleAuthorizedAfterDomainCheck(Serializable principal, RbacRoleInfo role,
+                                                     BiConsumer<String, String> matchErrorConsumer) {
         Assert.notNull(principal, "无用户主体");
         Assert.notNull(role, "角色为空");
 

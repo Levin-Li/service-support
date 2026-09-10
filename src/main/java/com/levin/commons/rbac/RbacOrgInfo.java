@@ -1,6 +1,7 @@
 package com.levin.commons.rbac;
 
 
+import com.levin.commons.dao.domain.DomainObject;
 import com.levin.commons.dao.domain.MultiTenantObject;
 import com.levin.commons.dao.domain.TreeObject;
 
@@ -12,7 +13,7 @@ import java.util.Collection;
  *
  * @author echo
  */
-public interface RbacOrgInfo extends RbacCoreObject, MultiTenantObject, TreeObject<RbacOrgInfo, RbacOrgInfo> {
+public interface RbacOrgInfo extends RbacCoreObject, MultiTenantObject, TreeObject<RbacOrgInfo, RbacOrgInfo>, DomainObject {
 
     /**
      * 获取父级ID

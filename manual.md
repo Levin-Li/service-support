@@ -754,6 +754,8 @@ public List<UserDto> queryUsers() {
   │    ├─ 动作要求的 confidentialLevel
   │    └─ 用户类型 + 角色 + 权限表达式 + SpEL 条件
   └─ 数据目标授权：checkOrgAccessible(user, tenantId, parentId, orgId)
+       ├─ 目标对象及所属租户的领域门槛（空领域跳过自身检查）
+       ├─ 租户与组织非空领域一致性
        ├─ 租户边界
        ├─ DataScope 中的租户允许/拒绝集合
        ├─ 组织允许匹配集合减去拒绝匹配集合
@@ -766,7 +768,7 @@ public List<UserDto> queryUsers() {
 
 角色、租户和组织在参与默认授权计算前都会执行 `selfAudit()`；禁用、逻辑删除、过期或缺少 ID 的对象不会授予权限、扩大数据范围或作为可访问目标。
 
-身份快捷路径只作用于对应的授权门槛：TopSuperAdmin 可跳过租户/组织范围规则和机密等级；普通 SuperAdmin / SaaSAdmin 可跳过租户/组织范围规则，但既有列表及管理校验仍执行对象密级检查。身份边界和显式目标的存在性、状态检查先于组织管理快捷返回；TenantAdmin 的全部组织权限只限于已通过租户资格判断的自身租户。领域判断没有管理员自动放行分支。
+身份快捷路径只作用于对应的授权门槛：TopSuperAdmin 可跳过租户/组织范围规则和机密等级；普通 SuperAdmin / SaaSAdmin 可跳过租户/组织范围规则，但既有列表及管理校验仍执行对象密级检查。身份边界和显式目标的存在性、状态检查先于组织管理快捷返回；TenantAdmin 的全部组织权限只限于已通过租户资格判断的自身租户。领域判断没有管理员自动放行分支，TopSuperAdmin 也必须通过目标对象的非空领域检查。
 
 > **实现注意：** 当前普通用户的 `checkOrgAccessible(...)` 分支以租户边界和已计算的组织范围集合判断目标组织；若业务要求普通用户也必须逐一校验目标租户、父组织或组织对象的 `confidentialLevel`，应在业务入口补充该校验，或将其明确提升为 `RbacBaseService` 的统一策略。
 
@@ -899,7 +901,9 @@ public class DemoRbacService implements RbacBaseService {
 
 这里减的是匹配结果，而不是规则字符串；允许全部组织、拒绝某部门时，两条不同字符串仍会发生权限扣除。
 
-机密级别沿用用户非 null 值优先，否则取生效角色最大值；顶级超级管理员保留最高访问级别。获取角色不能经“可见角色”的密级过滤反向调用密级计算。
+领域授权和其他权限分阶段计算，避免递归：先内部加载已分配且有效的候选角色，合并用户/角色的领域允许和拒绝集合；随后检查角色自身 `domainId`，只让领域可访问的角色贡献租户/组织范围、动作权限和授予密级。用户非 null 字段的替代规则保持不变。
+
+机密级别沿用用户非 null 值优先，否则取领域可访问角色授予的最大值；顶级超级管理员保留最高访问级别。角色自身 `getConfidentialLevel()` 是该角色对象的可见性门槛，`getConfidentialDataAccessLevel()` 才是它授予用户的级别。用户密级计算和数据范围初始化不读取角色对象密级，也不调用可见角色列表；只有对外可见角色过滤才使用对象密级，避免 `角色可见性 → 用户密级 → 角色可见性` 递归。
 
 ### 19.2 租户范围与身份边界
 
@@ -925,7 +929,18 @@ public class DemoRbacService implements RbacBaseService {
 
 `loadUserAccessibleDomainList(user, onlyLoadEffectDomain)` 返回授权范围内的有效领域：先求允许减拒绝，结果为空时不读取目录；否则只批量加载一次，不逐个调用 `loadDomain`，并保留目录顺序。参数原样传给目录加载器，但用户可访问列表始终排除无效对象，与租户列表契约一致。领域规模大时可覆盖为按有效允许 ID 直接查询。
 
-领域加载不授予跨租户资格，领域授权也不自动联动租户范围。管理员没有新增的领域自动放行分支。原子领域判断与领域可访问列表均只检查范围及对象有效性，领域对象的机密级别需要业务另外调用密级校验。
+领域是租户之上的业务范围。`RbacTenantInfo`、`RbacOrgInfo`、`RbacUserInfo`、`RbacRoleInfo`、`MenuItem` 的 `domainId` 表示对象归属；用户/角色的领域集合表示访问授权，两者不能混用。
+
+- 对象领域 ID 为空：跳过该对象自身的领域检查，其他权限仍生效。
+- 对象领域 ID 非空：先通过领域允许/拒绝和目录有效性检查，再继续原有判断，所有管理员身份都不绕过领域。
+- 组织和所属租户的非空领域必须一致；不一致时单点拒绝、可访问列表排除、管理校验抛出异常。
+- 组织自身领域为空不能绕过所属租户的领域门槛。全组织快捷判断也不能忽略有领域限制或领域不一致的实际节点。
+
+原始 `loadUser`、`loadTenant`、`loadOrg`、`loadRole`、各目录加载、父子节点原始查询以及菜单扫描仍只取数，原方法名和参数不变。领域过滤在已有用户上下文的可访问列表、权限判断与管理方法内部完成。无用户上下文的原始方法不能直接作为对用户返回数据的安全出口；没有引入隐式当前登录用户。
+
+库内没有租户/组织创建、修改、迁移的持久化接口。业务写入入口也必须校验非空领域一致性，修改租户领域时须检查已有组织，不能仅依赖读取时拒绝异常数据。
+
+`canAccessObjectDomain`、`filterByDomainAccess` 供现有业务流程复用对象级领域检查；领域目录的 `canAccessDomain(user, null)` 仍为 false，与空归属对象免领域过滤是不同概念。领域授权不自动授予跨租户资格，也不替代资源动作或机密级别检查。
 
 `canAccessTenant`、`canAccessDomain`、`canAccessOrg` 是数据范围判断入口，不能代替资源动作授权或机密级别检查。业务数据查询需要显式接入适用维度的过滤；新增领域字段不会自动给任意 DAO 查询加条件。没有某维度的对象无需凭空检查该维度；具备组织/租户维度但 ID 为空的数据按对应 None 规则处理。
 
@@ -934,16 +949,18 @@ public class DemoRbacService implements RbacBaseService {
 | 方法 | 职责 |
 |---|---|
 | `getUserDataScope(user)` | 合并用户/生效角色并返回不可变快照；不能修改返回集合 |
-| `canAccessTenant(user, tenantId)` | 检查身份边界和租户范围；具体租户还须存在且有效 |
+| `canAccessTenant(user, tenantId)` | 检查租户领域、身份边界和租户范围；具体租户还须存在且有效 |
 | `canAccessDomain(user, domainId)` | 判断领域允许/拒绝范围，并验证领域存在、ID 一致且有效 |
 | `loadAllDomainList(onlyEffective)` / `loadDomain(id)` | 业务实现领域目录和指定领域加载 |
 | `loadUserAccessibleDomainList(user, onlyEffective)` | 一次批量加载授权范围内的有效领域，空授权不加载 |
-| `canAccessOrg(user, tenantId, orgId)` | 检查目标租户资格以及组织范围；空组织按 None 处理 |
+| `canAccessOrg(user, tenantId, orgId)` | 检查租户及组织领域、一致性和组织范围；空组织按 None 处理 |
 | `canAccessAllOrg(user, tenantId)` | 检查指定租户内非空组织的完整范围覆盖 |
 | `canAccessAllOrg(user)` | 租户用户检查自身租户；平台用户保留全局覆盖语义 |
 | `loadUserAccessibleTenantList(user, onlyEffective)` | 枚举可访问的真实租户对象，不返回虚构的 None 租户 |
 | `loadUserAccessibleOrgList(user, onlyEffective)` | 按租户隔离计算可访问的真实组织列表 |
-| `checkOrgAccessible(user, tenantId, parentId, orgId)` | 组织管理校验，包含父节点及根节点管理限制 |
+| `checkOrgAccessible(user, tenantId, parentId, orgId)` | 领域和一致性校验先于管理快捷路径，保留父节点及根节点限制 |
+| `canAdminUser(operator, targetUser)` | 目标用户及所属租户领域先于自我管理和管理员快捷路径 |
+| `filterAccessibleMenuList(user, menus)` | 领域过滤与菜单/按钮动作授权，返回独立菜单树副本 |
 
 普通平台用户的全局 `canAccessAllOrg(user)` 要求明确包含 `_ALL_` 和 `_NONE_`，组织允许包含 `_ALL_ROOT_|SelfAndAllChild` 且没有租户/组织拒绝规则，同时检查当前有效组织的实际覆盖情况；孤儿节点和未选中的独立环不能被当作已授权。全量判断是保守的明确授权判断，不是对任意复杂脚本做等价证明。
 
@@ -1014,7 +1031,7 @@ A|IdPath#/*/*
 
 旧租户路径通配、组织 SpringEL 不再作为新范围协议支持。旧配置若对不同租户绑定不同组织策略，不能简单拆为两个并集，否则可能扩大授权；应逐项检查是否可等价表达。核心不自动双轨解析旧规则，迁移应保留原配置以便回退。
 
-多数服务方法签名保留，旧 `mergeOrgScopeList` 已移除。新增的抽象 `loadAllDomainList(boolean)`、`loadDomain(Serializable)` 需要下游 `RbacBaseService` 实现类补齐；没有领域目录的业务可分别返回空集合和 null，显式表示没有可访问的领域。管理员组织查询现在也经过统一租户边界和租户内组织加载，不再调用 `loadMaxAccessibleOrgList` 的覆盖实现；依赖该扩展点优化的下游应改为覆盖 `loadTenantOrgList` 或 `loadUserAccessibleOrgList`。`canAccessAllOrg` 只表示非空组织范围完整覆盖，不能省略租户、状态、无组织数据或机密级别条件。
+多数服务方法签名保留，旧 `mergeOrgScopeList` 已移除。新增的抽象 `loadAllDomainList(boolean)`、`loadDomain(Serializable)` 需要下游 `RbacBaseService` 实现类补齐；没有领域目录的业务可分别返回空集合和 null，显式表示没有可访问的领域。管理员组织查询现在也经过统一租户边界和租户内组织加载，不再调用 `loadMaxAccessibleOrgList` 的覆盖实现；依赖该扩展点优化的下游应改为覆盖 `loadTenantOrgList` 或 `loadUserAccessibleOrgList`。`canAccessAllOrg` 只表示非空组织范围完整覆盖，不能省略领域、租户、状态、无组织数据或机密级别条件。
 
 ## 21. 组织列表与组织树
 
@@ -1078,16 +1095,19 @@ A|IdPath#/*/*
 
 | 五万节点、百层场景 | 耗时 | 断言上限 |
 |---|---:|---:|
-| 组织树装配 | 0.252 秒 | 2 秒 |
-| 允许范围计算 | 0.096 秒 | 2 秒 |
-| 全树拒绝并跳过允许脚本 | 0.062 秒 | 2 秒 |
-| 同一起点 20 条不命中 ID 路径规则 | 0.710 秒 | 2 秒 |
+| 组织树装配 | 0.264 秒 | 2 秒 |
+| 允许范围计算 | 0.169 秒 | 2 秒 |
+| 全树拒绝并跳过允许脚本 | 0.058 秒 | 2 秒 |
+| 同一起点 20 条不命中 ID 路径规则 | 0.759 秒 | 2 秒 |
+| 同领域五万组织批量过滤 | 0.101 秒，领域加载 1 次 | 2 秒 |
 
 同时断言：全部租户和无租户均拒绝时，候选租户与组织加载次数均为 0；单点目标已拒绝时不执行任何允许脚本。
 
 多规则路径匹配在单次计算内复用当前起点的子树、父路径和已解析的 `PathContainer`。ID 规则不读取名称；同起点名称规则增多不会重复生成整套名称路径。切换起点丢弃旧缓存，后续请求重新计算，组织更名、迁移或授权变更不会复用旧路径。缓存最多保留当前起点子树需要的路径，空间仍随节点数与路径长度增长，不是常量内存。
 
 原版与新版的同环境重复测量、中位数、内存分配及原始样本见[性能对比报告](docs/benchmarks/datascope-2026-09-11/report.md)。
+
+领域查询结果仅在一次最外层权限调用期间共享；嵌套调用复用同一计算上下文，最外层正常或异常退出都清理。服务实例之间隔离，返回的 DataScope 不携带查询缓存，即使业务复用同一范围快照，下次调用也重新核验领域状态。每批对象按领域 ID 复用目录校验，组织循环通过范围对象身份索引取得上下文，不反复计算大集合哈希。角色管理保留原 `isRoleAuthorized` 覆写扩展点，不能为了短路绕过业务自定义校验。
 
 以上测试验证默认内存匹配算法，不代表数据库查询或生产并发吞吐。默认 `canAccessOrg` 仍加载目标租户的组织列表；高频业务可覆盖该接口或列表接口，使用有租户边界的索引查询/缓存，并保持六字段覆盖、拒绝优先及失效策略。不要直接缓存用户授权结果而不处理角色、组织和租户变化。
 
@@ -1121,7 +1141,7 @@ A|IdPath#/*/*
 - UI 展示。
 - 当前用户能看到哪些角色对象。
 
-不要用“可见角色列表”反推用户真实权限。权限计算应使用“拥有角色列表”。
+不要用“可见角色列表”反推用户真实权限。`loadUserOwnerRoleList` 过滤角色领域但不按角色对象密级筛选；可见角色列表再加对象密级过滤。内部领域授权初始化使用原始有效候选，不能再次调用这两个过滤出口。
 
 ## 23. 超管语义
 
@@ -1162,6 +1182,18 @@ A|IdPath#/*/*
 - 权限表达式作为后端真实判断依据。
 - 菜单仅作为 UI 展示结构。
 - 菜单依赖权限，但不要把菜单当权限源。
+
+### 24.1 按用户过滤菜单
+
+`RbacUtils.getMenuItemByController` 仍扫描并缓存完整菜单，不在全局缓存中保存某个用户的过滤结果。用户返回入口调用：
+
+```java
+List<SimpleMenu> visibleMenus = authorizeService.filterAccessibleMenuList(user, rawMenus);
+```
+
+输入为菜单根列表，子节点通过 `getChildren()` 提供。领域拒绝父菜单时不返回其子树，`alwaysShow` 只影响动作权限不足时的展示，不能绕过领域或禁用状态。按钮也按其授权列表过滤。
+
+返回值是独立菜单副本，复制菜单接口字段、授权集合、按钮及父子结构；不修改共享缓存。自定义菜单子类的额外字段不在通用副本契约中。`SimpleMenu.domainId` 是领域归属，`domain` 保留为域名字段；扫描器当前用包名设置默认领域 ID，需要在领域目录中配置对应标识，不能把动作权限字符串中的 domain 自动当成目录记录。
 
 ## 25. RBAC 常见误区
 
@@ -1208,9 +1240,9 @@ TopSuperAdmin 可跳过范围规则和密级限制，但显式目标的存在性
 mvn -o -Dmaven.compiler.proc=full -Dmaven.test.skip=false -DskipTests=false clean verify
 ```
 
-2026-09-11 使用 Maven 3.9.15 / JDK 25.0.2、编译目标 Java 17 验证：218 个测试，0 失败、0 错误、0 跳过；其中 RBAC 主回归 163 个、DataScope 协议测试 8 个。JAR 和源码包构建成功。本机离线依赖已缓存；首次构建未缓存时去掉 `-o`。
+2026-09-11 使用 Maven 3.9.15 / JDK 25.0.2、编译目标 Java 17 验证：241 个测试，0 失败、0 错误、0 跳过；其中 RBAC 主回归 186 个、DataScope 协议测试 8 个。JAR 和源码包构建成功。本机离线依赖已缓存；首次构建未缓存时去掉 `-o`。
 
-范围测试覆盖六字段的 null/空集合/非空集合覆盖、失效角色、快照隔离和 JSON 字段、租户与组织拒绝独立计算、平台身份边界、无归属数据、路径和脚本、同 ID 跨租户隔离、孤儿节点和组织环。领域加载另覆盖单次批量查询、拒绝短路、领域存在性/有效状态、错误 ID 和字段继承。
+范围测试覆盖六字段的 null/空集合/非空集合覆盖、失效角色、快照隔离和 JSON 字段、租户与组织拒绝独立计算、平台身份边界、无归属数据、路径和脚本、同 ID 跨租户隔离、孤儿节点和组织环。领域加载另覆盖单次批量查询、拒绝短路、领域存在性/有效状态、错误 ID 和字段继承。外层门槛覆盖所有管理员、租户组织一致性、五万组织同领域只加载一次、角色对象密级回调无递归、菜单副本隔离、异常清理及覆写范围的约束一致性。
 
 完整测试前建议：
 
