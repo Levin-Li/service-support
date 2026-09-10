@@ -34,7 +34,7 @@ public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPubl
     String ORG_ADMIN_ROLE = ROLE_PREFIX + "ORG_ADMIN";
 
     @Override
-    @Schema(title = "租户ID")
+    @Schema(title = "租户ID", description = "角色定义的覆盖租户；空表示共享定义。用户持有角色编码，优先采用本租户有效同码定义，否则回退共享定义")
     default <TID extends Serializable> TID getTenantId() {
         throw new UnsupportedOperationException();
     }

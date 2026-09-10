@@ -343,7 +343,8 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
                         .collect(Collectors.toList());
 
                 if (!unloadedRoleCodePatterns.isEmpty()) {
-                    final Collection<ROLE> loadedRoleList = rbacBaseService.loadTenantRoleListByCodePatterns(targetUser.getTenantId(), unloadedRoleCodePatterns);
+                    final Collection<ROLE> loadedRoleList = RoleDefinitionResolver.select(targetUser.getTenantId(),
+                            rbacBaseService.<ROLE>loadTenantRoleListByCodePatterns(targetUser.getTenantId(), unloadedRoleCodePatterns), null);
 
                     for (String rolePattern : unloadedRoleCodePatterns) {
                         final List<ROLE> matchedRoleList = loadedRoleList.stream()
@@ -399,6 +400,14 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
 
     @Operation(summary = "校验角色分配", description = "统一检查操作人是否可分配、目标用户是否满足角色前置条件、角色集合是否存在互斥或缺失共存角色")
     default void checkRoleAssignment(Serializable operatorPrincipal, Serializable targetUserPrincipal, Collection<? extends RbacRoleInfo> finalRoles) {
+        DomainAccess.evaluate(() -> {
+            checkResolvedRoleAssignment(operatorPrincipal, targetUserPrincipal, finalRoles);
+            return null;
+        });
+    }
+
+    private void checkResolvedRoleAssignment(Serializable operatorPrincipal, Serializable targetUserPrincipal,
+                                             Collection<? extends RbacRoleInfo> finalRoles) {
 
         Assert.notNull(operatorPrincipal, "操作用户不能为空");
         Assert.notNull(targetUserPrincipal, "目标用户不能为空");
@@ -409,23 +418,35 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
                 : rbacBaseService.loadUser(targetUserPrincipal);
 
         Assert.notNull(targetUser, "目标用户({})不存在", targetUserPrincipal);
-        final List<DomainObject> domainObjects = new ArrayList<>();
-        domainObjects.add(targetUser);
-        final Set<Serializable> tenantIds = new LinkedHashSet<>();
-        if (RbacMiscUtils.isNotBlank(targetUser.getTenantId())) {
-            tenantIds.add(targetUser.getTenantId());
-        }
+        final RbacUserInfo operator = operatorPrincipal instanceof RbacUserInfo
+                ? (RbacUserInfo) operatorPrincipal : rbacBaseService.loadUser(operatorPrincipal);
+        Assert.notNull(operator, "操作用户({})不存在", operatorPrincipal);
+        Assert.isTrue(operator.isPlatformUser()
+                        || Objects.equals(Objects.toString(operator.getTenantId(), null), Objects.toString(targetUser.getTenantId(), null)),
+                "不能跨租户分配角色");
+
+        // 用户持有编码，传入对象的其它字段不能替代目标租户真正生效的角色定义。
+        final Set<String> requestedCodes = new LinkedHashSet<>();
         if (finalRoles != null) {
             for (RbacRoleInfo role : finalRoles) {
-                if (role != null) {
-                    domainObjects.add(role);
-                    if (RbacMiscUtils.isNotBlank(role.getTenantId())) {
-                        tenantIds.add(role.getTenantId());
-                    }
-                }
+                if (role == null) continue;
+                Assert.notBlank(role.getCode(), "角色编码不能为空");
+                requestedCodes.add(role.getCode());
             }
         }
-        for (Serializable tenantId : tenantIds) {
+        final List<RbacRoleInfo> resolvedRoles = requestedCodes.isEmpty() ? Collections.emptyList()
+                : RoleDefinitionResolver.select(targetUser.getTenantId(),
+                        rbacBaseService.<RbacRoleInfo>loadTenantRoleList(targetUser.getTenantId(), true), requestedCodes);
+        final Set<String> resolvedCodes = resolvedRoles.stream().map(RbacRoleInfo::getCode).collect(Collectors.toSet());
+        for (String code : requestedCodes) {
+            Assert.isTrue(resolvedCodes.contains(code), "角色编码[{}]在目标租户中没有有效定义或共享定义", code);
+        }
+        final List<DomainObject> domainObjects = new ArrayList<>();
+        domainObjects.add(targetUser);
+        domainObjects.addAll(resolvedRoles);
+        // 目标租户是用户管理边界；角色定义的覆盖租户不是角色的领域父对象。
+        if (RbacMiscUtils.isNotBlank(targetUser.getTenantId())) {
+            final Serializable tenantId = targetUser.getTenantId();
             RbacTenantInfo tenant = rbacBaseService.loadTenant(tenantId);
             Assert.notNull(tenant, "租户({})不存在", tenantId);
             Assert.isTrue(Objects.equals(Objects.toString(tenantId, null), Objects.toString(tenant.getId(), null))
@@ -434,11 +455,11 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         }
         Assert.isTrue(rbacBaseService.filterByDomainAccess(operatorPrincipal, domainObjects).size() == domainObjects.size(),
                 "操作用户无权访问目标用户或角色所属领域");
-        if (isAllNull(finalRoles)) {
+        if (resolvedRoles.isEmpty()) {
             return;
         }
 
-        for (RbacRoleInfo role : finalRoles) {
+        for (RbacRoleInfo role : resolvedRoles) {
 
             if (role == null) {
                 continue;
@@ -449,7 +470,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
             Assert.isTrue(isRoleAssignPreConditionMatched(targetUser, role), "目标用户不满足角色{}({})分配前置条件", role.getName(), role.getCode());
         }
 
-        final DataPair<? extends RbacRoleInfo, ? extends RbacRoleInfo> exclusivePair = findExclusiveRolePair(targetUser, finalRoles);
+        final DataPair<? extends RbacRoleInfo, ? extends RbacRoleInfo> exclusivePair = findExclusiveRolePair(targetUser, resolvedRoles);
 
         if (exclusivePair != null) {
             Assert.isNull(exclusivePair, "角色{}({})与角色{}({})互斥，不能同时分配",
@@ -458,7 +479,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
             );
         }
 
-        final DataPair<? extends RbacRoleInfo, ? extends Collection<? extends RbacRoleInfo>> missingCoexistPair = findMissingCoexistRolePair(targetUser, finalRoles);
+        final DataPair<? extends RbacRoleInfo, ? extends Collection<? extends RbacRoleInfo>> missingCoexistPair = findMissingCoexistRolePair(targetUser, resolvedRoles);
         if (missingCoexistPair != null) {
             Assert.isNull(
                     missingCoexistPair, "角色{}({})缺少必须共存的角色:{}",
@@ -545,17 +566,8 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         Assert.notNull(principal, "无用户主体");
         Assert.notNull(role, "角色为空");
         RbacBaseService service = getRbacBaseLoadService();
-        List<DomainObject> objects = new ArrayList<>();
-        objects.add(role);
-        if (RbacMiscUtils.isNotBlank(role.getTenantId())) {
-            RbacTenantInfo tenant = service.loadTenant(role.getTenantId());
-            if (tenant == null || !tenant.selfAudit()
-                    || !Objects.equals(Objects.toString(role.getTenantId(), null), Objects.toString(tenant.getId(), null))) {
-                return false;
-            }
-            objects.add(tenant);
-        }
-        if (service.filterByDomainAccess(principal, objects).size() != objects.size()) {
+        // 该入口也用于新角色定义的创建校验；分配时的目录有效性由解析阶段保证。
+        if (!service.canAccessObjectDomain(principal, role)) {
             if (matchErrorConsumer != null) {
                 matchErrorConsumer.accept(role.getCode(), "无角色所属领域权限");
             }
@@ -640,7 +652,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         //除了sa 和 saas_admin, 其他都要按权限检查
         //接下来开始检查角色的权限列表,比对角色需要的权限列表 和 用户拥有的权限列表
 
-        return isAuthorized(principal, true, rbacBaseService.loadRolePermissionList(role.getTenantId(), roleCode), matchErrorConsumer);
+        return isAuthorized(principal, true, role.getPermissionList(), matchErrorConsumer);
     }
 
     /**

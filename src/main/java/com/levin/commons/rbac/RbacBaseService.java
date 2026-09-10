@@ -898,40 +898,8 @@ public interface RbacBaseService extends RbacBaseUserService {
             return Collections.emptyList();
         }
 
-        final String userTenantId = Objects.toString(user.getTenantId(), null);
-        final Map<String, RbacRoleInfo> roleByCode = new LinkedHashMap<>();
-
-        for (RbacRoleInfo roleInfo : roleList) {
-            if (roleInfo == null || !roleInfo.selfAudit() || StrUtil.isBlank(roleInfo.getCode())) {
-                continue;
-            }
-
-            final String roleTenantId = Objects.toString(roleInfo.getTenantId(), null);
-            final boolean sameTenant = Objects.equals(roleTenantId, userTenantId);
-            final boolean publicRole = RbacMiscUtils.isBlank(roleInfo.getTenantId());
-
-            if (!sameTenant && !publicRole) {
-                continue;
-            }
-
-            roleByCode.merge(roleInfo.getCode(), roleInfo,
-                    (current, incoming) -> Objects.equals(Objects.toString(incoming.getTenantId(), null), userTenantId) ? incoming : current);
-        }
-
-        final Collection<R> result = new ArrayList<>();
-
-        for (Object roleCode : user.getRoleList()) {
-            if (roleCode == null) {
-                continue;
-            }
-
-            final RbacRoleInfo roleInfo = roleByCode.get(Objects.toString(roleCode, ""));
-            if (roleInfo != null) {
-                result.add((R) roleInfo);
-            }
-        }
-
-        return result;
+        return (Collection<R>) (Collection<?>) RoleDefinitionResolver.select(
+                user.getTenantId(), roleList, user.getRoleList());
     }
 
     /**

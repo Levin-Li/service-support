@@ -213,7 +213,7 @@ public interface RbacUserInfo
      *
      * @return
      */
-    @Schema(title = "角色列表")
+    @Schema(title = "角色编码列表", description = "保存角色编码而非角色对象ID；按用户租户选择有效同码定义，本租户优先，共享定义回退")
     default <ROLE extends Serializable> Collection<ROLE> getRoleList() {
         return Collections.emptyList();
     }

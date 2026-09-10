@@ -867,6 +867,8 @@ class RbacAuthorizeServiceRolePermissionTest {
         TestRbacRole baseRole = new TestRbacRole("R2G", "R_BASE_USER", "T1",
                 Collections.emptyList(), Collections.emptyList(), 100);
 
+        baseService.registerRole(advancedRole);
+        baseService.registerRole(baseRole);
         assertThrows(IllegalArgumentException.class,
                 () -> authorizeService.checkRoleAssignment(user, user, Collections.singletonList(advancedRole)),
                 "缺少共存角色时，统一角色分配校验应拒绝");
@@ -965,6 +967,9 @@ class RbacAuthorizeServiceRolePermissionTest {
                 100
         );
 
+        baseService.registerRole(financeOnlyRole);
+        baseService.registerRole(roleA);
+        baseService.registerRole(roleB);
         assertThrows(IllegalArgumentException.class,
                 () -> authorizeService.checkRoleAssignment(user, user, Collections.singletonList(financeOnlyRole)),
                 "目标用户不满足角色分配前置条件时应拒绝");
@@ -1007,6 +1012,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "租户用户不能分配公共 SaaS 管理员角色");
         assertTrue(scopedAuthorizeService.isRoleAuthorized(topSuperAdmin, protectedSaRole, null),
                 "顶级超级管理员应能分配受保护的超级管理员角色");
+        scopedService.registerRole(protectedSaRole);
         assertDoesNotThrow(() -> scopedAuthorizeService.checkRoleAssignment(topSuperAdmin, topSuperAdmin, Collections.singletonList(protectedSaRole)),
                 "顶级超级管理员的统一角色分配校验应通过");
     }
@@ -4181,6 +4187,7 @@ class RbacAuthorizeServiceRolePermissionTest {
             }
         };
         auth.setRbacBaseService(service);
+        service.registerRole(role);
         assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)));
         assertTrue(overrides.get() > 0, "保留业务覆写角色授权的扩展点");
         overrides.set(0);
@@ -4302,12 +4309,13 @@ class RbacAuthorizeServiceRolePermissionTest {
         TestAuthorizeService auth = new TestAuthorizeService();
         auth.setRbacBaseService(service);
         assertTrue(top.isTopSuperAdmin());
-        assertFalse(auth.isRoleAuthorized(top, role, null), "T2角色不可借用loader返回的T1领域通过授权");
+        assertTrue(auth.isRoleAuthorized(top, role, null), "单角色授权只看角色自身领域，不查询定义租户");
+        service.registerRole(role);
         assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(top, target, List.of(role)));
     }
 
     @Test
-    void shouldRejectUnavailableRoleTenantEvenForTopAdministrator() {
+    void shouldRejectUnavailableAssignmentTargetTenantEvenForTopAdministrator() {
         ScopeUser top = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE)) {
             @Override public String getLoginName() { return RbacUserInfo.TOP_SA_ACCOUNT_NAME; }
         };
@@ -4322,7 +4330,8 @@ class RbacAuthorizeServiceRolePermissionTest {
                     .setTenantList(List.of(tenant)).setDomainList(List.of(new TestDomain("sales")));
             TestAuthorizeService auth = new TestAuthorizeService();
             auth.setRbacBaseService(service);
-            assertFalse(auth.isRoleAuthorized(top, role, null));
+            assertTrue(auth.isRoleAuthorized(top, role, null), "角色定义tenant不作为领域父级");
+            service.registerRole(role);
             assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(top, target, List.of(role)));
         }
     }
@@ -4378,6 +4387,228 @@ class RbacAuthorizeServiceRolePermissionTest {
         assertTrue(service.loadUserAccessibleOrgList(u, true).isEmpty());
         assertTrue(service.loadUserOwnerRoleList(u).isEmpty(), "覆写后的领域拒绝同样约束生效角色");
         assertFalse(service.loadUserPermissionExprList(u).contains("sales:report:*:read"));
+    }
+
+    @Test
+    void shouldResolveAssignmentRolesOnceByCodeAndInvokeOverridesWithCanonicalObjects() {
+        ScopeUser target = new ScopeUser("T1", List.of());
+        TestRbacRole localA = new TestRbacRole("local-a", "A", "T1", List.of(), List.of(), 100);
+        TestRbacRole sharedA = new TestRbacRole("shared-a", "A", null, List.of(), List.of(), 100);
+        TestRbacRole sharedB = new TestRbacRole("shared-b", "B", null, List.of(), List.of(), 100);
+        RoleCatalogService service = new RoleCatalogService(target, List.of(sharedA, sharedB, localA));
+        List<RbacRoleInfo> selected = new ArrayList<>();
+        TestAuthorizeService auth = canonicalCapturingAuthorizeService(service, selected);
+        TestRbacRole forgedA = new TestRbacRole("forged-a", "A", "OTHER", List.of("forged:metadata"), List.of("B"), Integer.MAX_VALUE);
+        forgedA.domainId = "untrusted-domain";
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(target, target, List.of(sharedB, forgedA, sharedB)));
+        assertEquals(List.of(sharedB, localA), selected, "按请求编码顺序去重，虚拟授权接收目录中的canonical对象");
+        assertEquals(1, service.catalogLoads.get());
+        assertEquals("T1", service.lastCatalogTenant);
+        assertEquals(Boolean.TRUE, service.lastCatalogEffectFlag);
+    }
+
+    @Test
+    void shouldPreferValidLocalRoleRegardlessOfCatalogOrder() {
+        ScopeUser target = new ScopeUser("T1", List.of("ROLE"));
+        TestRbacRole local = new TestRbacRole("local", "ROLE", "T1", List.of(), List.of(), 100);
+        TestRbacRole shared = new TestRbacRole("shared", "ROLE", null, List.of(), List.of(), 100);
+        TestRbacRole foreign = new TestRbacRole("foreign", "ROLE", "T2", List.of(), List.of(), 100);
+        for (List<TestRbacRole> catalog : List.of(List.of(local, shared, foreign), List.of(foreign, shared, local))) {
+            RoleCatalogService service = new RoleCatalogService(target, catalog);
+            List<RbacRoleInfo> selected = new ArrayList<>();
+            TestAuthorizeService auth = canonicalCapturingAuthorizeService(service, selected);
+            assertDoesNotThrow(() -> auth.checkRoleAssignment(target, target, List.of(shared)));
+            assertEquals(List.of(local), selected);
+            assertSame(local, service.loadUserOwnerRoleList(target).iterator().next(), "实际拥有角色与分配解析选中同一目录定义");
+        }
+    }
+
+    @Test
+    void shouldFallbackToSharedRoleWhenLocalDefinitionIsDisabledOrExpired() {
+        ScopeUser target = new ScopeUser("T1", List.of("ROLE"));
+        TestRbacRole shared = new TestRbacRole("shared", "ROLE", null, List.of(), List.of(), 100);
+        TestRbacRole disabled = new DisabledTestRbacRole("disabled", "ROLE", "T1", List.of(), List.of(), 100);
+        TestRbacRole expired = new TestRbacRole("expired", "ROLE", "T1", List.of(), List.of(), 100) {
+            @Override public java.time.LocalDateTime getExpiredTime() { return java.time.LocalDateTime.now().minusDays(1); }
+        };
+        for (TestRbacRole invalid : List.of(disabled, expired)) {
+            RoleCatalogService service = new RoleCatalogService(target, List.of(shared, invalid));
+            List<RbacRoleInfo> selected = new ArrayList<>();
+            TestAuthorizeService auth = canonicalCapturingAuthorizeService(service, selected);
+            assertDoesNotThrow(() -> auth.checkRoleAssignment(target, target, List.of(invalid)));
+            assertEquals(List.of(shared), selected, "传入失效定义只提供code，使用有效共享定义");
+            assertSame(shared, service.loadUserOwnerRoleList(target).iterator().next());
+        }
+    }
+
+    @Test
+    void shouldRejectRequestedRoleWithoutAnEffectiveDefinitionForTargetTenant() {
+        ScopeUser target = new ScopeUser("T1", List.of());
+        TestRbacRole request = new TestRbacRole("fabricated", "MISSING", null, List.of(), List.of(), 100);
+        for (List<TestRbacRole> catalog : List.of(List.<TestRbacRole>of(),
+                List.of(new TestRbacRole("foreign", "MISSING", "T2", List.of(), List.of(), 100)),
+                List.<TestRbacRole>of(new DisabledTestRbacRole("disabled", "MISSING", "T1", List.of(), List.of(), 100)))) {
+            RoleCatalogService service = new RoleCatalogService(target, catalog);
+            List<RbacRoleInfo> selected = new ArrayList<>();
+            TestAuthorizeService auth = canonicalCapturingAuthorizeService(service, selected);
+            IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                    () -> auth.checkRoleAssignment(target, target, List.of(request)));
+            assertTrue(error.getMessage().contains("MISSING"), error.getMessage());
+            assertTrue(selected.isEmpty(), "不存在有效目录定义时不进入可覆写的角色授权入口");
+        }
+    }
+
+    @Test
+    void shouldNotUseSharedRoleMetadataToBypassLocalPermissionOrConfidentialLevel() {
+        TestRbacRole shared = new TestRbacRole("shared", "ROLE", null, List.of(), List.of(), 0);
+        TestRbacRole requiresPermission = new TestRbacRole("local-permission", "ROLE", "T1",
+                List.of("sys:secret:*:assign"), List.of(), 100);
+        TestRbacRole requiresLevel = new TestRbacRole("local-level", "ROLE", "T1", List.of(), List.of(), 6000, List.of(), 100);
+        for (TestRbacRole local : List.of(requiresPermission, requiresLevel)) {
+            RoleCatalogService service = new RoleCatalogService(user, List.of(shared, local));
+            service.setUserPermissions(List.of("sys:basic:*:view"));
+            TestAuthorizeService auth = new TestAuthorizeService();
+            auth.setRbacBaseService(service);
+            assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(user, user, List.of(shared)));
+        }
+    }
+
+    @Test
+    void shouldNotUseSharedRoleToBypassLocalDomainOrAssignmentConditions() {
+        ScopeUser target = new ScopeUser("T1", List.of());
+        TestRbacRole shared = new TestRbacRole("shared", "ROLE", null, List.of(), List.of(), 0);
+        TestRbacRole requiresDomain = new TestRbacRole("local-domain", "ROLE", "T1", List.of(), List.of(), 100);
+        requiresDomain.domainId = "finance";
+        TestRbacRole requiresCondition = new TestRbacRole("local-condition", "ROLE", "T1", List.of(), List.of(), 100) {
+            @Override public String getAssignPreCondition() { return "false"; }
+        };
+        for (TestRbacRole local : List.of(requiresDomain, requiresCondition)) {
+            RoleCatalogService service = new RoleCatalogService(target, List.of(shared, local));
+            service.setDomainList(List.of(new TestDomain("finance")));
+            TestAuthorizeService auth = canonicalCapturingAuthorizeService(service, new ArrayList<>());
+            assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(target, target, List.of(shared)));
+        }
+    }
+
+    @Test
+    void shouldCheckCanonicalExclusiveAndCoexistingRoleRequirements() {
+        ScopeUser target = new ScopeUser("T1", List.of());
+        TestRbacRole shared = new TestRbacRole("shared", "ROLE", null, List.of(), List.of(), 100);
+        TestRbacRole other = new TestRbacRole("other", "OTHER", "T1", List.of(), List.of(), 100);
+        TestRbacRole exclusive = new TestRbacRole("local-exclusive", "ROLE", "T1", List.of(), List.of("OTHER"), 100);
+        TestRbacRole coexist = new TestRbacRole("local-coexist", "ROLE", "T1", List.of(), List.of(), 100,
+                List.of(), null, List.of("REQUIRED"));
+        RoleCatalogService exclusiveService = new RoleCatalogService(target, List.of(shared, other, exclusive));
+        TestAuthorizeService exclusiveAuth = canonicalCapturingAuthorizeService(exclusiveService, new ArrayList<>());
+        assertThrows(IllegalArgumentException.class, () -> exclusiveAuth.checkRoleAssignment(target, target, List.of(shared, other)));
+        RoleCatalogService coexistService = new RoleCatalogService(target, List.of(shared, coexist));
+        TestAuthorizeService coexistAuth = canonicalCapturingAuthorizeService(coexistService, new ArrayList<>());
+        assertThrows(IllegalArgumentException.class, () -> coexistAuth.checkRoleAssignment(target, target, List.of(shared)));
+    }
+
+    @Test
+    void shouldUseOnlySelectedRolePermissionsWithoutAggregatingSameCodeDefinitions() {
+        TestRbacRole local = new TestRbacRole("local", "ROLE", "T1", List.of("sys:basic:*:assign"), List.of(), 100);
+        TestRbacRole shared = new TestRbacRole("shared", "ROLE", null, List.of("sys:secret:*:assign"), List.of(), 100);
+        RoleCatalogService service = new RoleCatalogService(user, List.of(shared, local)) {
+            @Override public Collection<String> loadRolePermissionList(Serializable tenantId, Collection<String> codes) {
+                throw new AssertionError("selected role permissions must not be reloaded or merged by code");
+            }
+        };
+        service.setUserPermissions(List.of("sys:basic:*:assign"));
+        TestAuthorizeService auth = new TestAuthorizeService();
+        auth.setRbacBaseService(service);
+        assertTrue(auth.isRoleAuthorized(user, local, null));
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(user, user, List.of(shared)));
+    }
+
+    @Test
+    void shouldNotLoadDefinitionTenantForStandaloneRoleDomainAuthorization() {
+        ScopeUser top = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE)) {
+            @Override public String getLoginName() { return RbacUserInfo.TOP_SA_ACCOUNT_NAME; }
+        };
+        top.fields[2] = Set.of("sales");
+        TestRbacRole role = new TestRbacRole("role", "ROLE", "UNAVAILABLE_DEFINITION_TENANT", List.of(), List.of(), 100);
+        role.domainId = "sales";
+        StubRbacBaseService service = new StubRbacBaseService(top) {
+            @Override public <TENANT extends RbacTenantInfo> TENANT loadTenant(Serializable principal) {
+                throw new AssertionError("role definition tenant is not a parent domain");
+            }
+        };
+        service.setDomainList(List.of(new TestDomain("sales")));
+        TestAuthorizeService auth = new TestAuthorizeService();
+        auth.setRbacBaseService(service);
+        assertTrue(auth.isRoleAuthorized(top, role, null));
+    }
+
+    @Test
+    void shouldKeepTargetTenantBoundaryWhenAssigningSharedRole() {
+        TestRbacRole shared = new TestRbacRole("shared", "BASIC", null, List.of(), List.of(), 100);
+        ScopeUser target = new ScopeUser("T2", List.of());
+        ScopeUser tenantOperator = new ScopeUser("T1", List.of());
+        tenantOperator.fields[0] = Set.of("T2");
+        RoleCatalogService tenantService = new RoleCatalogService(tenantOperator, List.of(shared));
+        tenantService.setTenantList(List.of(new TestTenant("T1", "One"), new TestTenant("T2", "Two")));
+        TestAuthorizeService tenantAuth = new TestAuthorizeService();
+        tenantAuth.setRbacBaseService(tenantService);
+        assertThrows(IllegalArgumentException.class, () -> tenantAuth.checkRoleAssignment(tenantOperator, target, List.of(shared)),
+                "共享角色仍不能使普通T1用户跨租户管理T2用户");
+
+        ScopeUser platformOperator = new ScopeUser(null, List.of());
+        platformOperator.fields[0] = Set.of("T2");
+        RoleCatalogService platformService = new RoleCatalogService(platformOperator, List.of(shared));
+        platformService.setTenantList(List.of(new TestTenant("T2", "Two")));
+        TestAuthorizeService platformAuth = new TestAuthorizeService();
+        platformAuth.setRbacBaseService(platformService);
+        assertDoesNotThrow(() -> platformAuth.checkRoleAssignment(platformOperator, target, List.of(shared)));
+    }
+
+    @Test
+    void shouldResolveCoexistingRoleClosureUsingLocalDefinitionOverSharedDefinition() {
+        ScopeUser target = new ScopeUser("T1", List.of());
+        TestRbacRole advanced = new TestRbacRole("advanced", "ADVANCED", "T1", List.of(), List.of(), 100,
+                List.of(), null, List.of("DEPENDENCY"));
+        TestRbacRole sharedDependency = new TestRbacRole("shared-dependency", "DEPENDENCY", null, List.of(), List.of(), 100);
+        TestRbacRole localDependency = new TestRbacRole("local-dependency", "DEPENDENCY", "T1", List.of(), List.of(), 100,
+                List.of(), null, List.of("CORE"));
+        TestRbacRole core = new TestRbacRole("core", "CORE", "T1", List.of(), List.of(), 100);
+        RoleCatalogService service = new RoleCatalogService(target, List.of(advanced, sharedDependency, localDependency, core));
+        TestAuthorizeService auth = new TestAuthorizeService();
+        auth.setRbacBaseService(service);
+        DataPair<TestRbacRole, Collection<TestRbacRole>> missing = auth.findMissingCoexistRolePair(target, List.of(advanced));
+        assertNotNull(missing);
+        assertSame(advanced, missing.getA());
+        assertEquals(List.of(localDependency, core), new ArrayList<>(missing.getB()),
+                "缺失依赖闭包须继续读取本租户覆盖定义上的额外共存要求");
+    }
+
+    private static TestAuthorizeService canonicalCapturingAuthorizeService(RbacBaseService service, List<RbacRoleInfo> selected) {
+        TestAuthorizeService auth = new TestAuthorizeService() {
+            @Override public boolean isRoleAuthorized(Serializable principal, RbacRoleInfo role,
+                    java.util.function.BiConsumer<String, String> errors) {
+                selected.add(role);
+                return true;
+            }
+        };
+        auth.setRbacBaseService(service);
+        return auth;
+    }
+
+    private static class RoleCatalogService extends StubRbacBaseService {
+        final List<TestRbacRole> catalog;
+        final AtomicInteger catalogLoads = new AtomicInteger();
+        Serializable lastCatalogTenant;
+        Boolean lastCatalogEffectFlag;
+        RoleCatalogService(TestRbacUser user, List<TestRbacRole> catalog) {
+            super(user);
+            this.catalog = catalog;
+        }
+        @Override public <R extends RbacRoleInfo> Collection<R> loadTenantRoleList(Serializable tenantId, boolean onlyEffect) {
+            catalogLoads.incrementAndGet();
+            lastCatalogTenant = tenantId;
+            lastCatalogEffectFlag = onlyEffect;
+            return (Collection<R>) (Collection<?>) catalog;
+        }
     }
 
     private static TestTenant domainTenant(String id, String domain) {
