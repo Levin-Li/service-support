@@ -100,6 +100,43 @@ public interface RbacBaseService extends RbacBaseUserService {
     @Operation(summary = "加载租户", description = "加载指定租户")
     <TENANT extends RbacTenantInfo> TENANT loadTenant(Serializable tenantPrincipal);
 
+    /** 加载业务领域目录，onlyLoadEffectDomain 指定是否只加载有效领域。 */
+    @Operation(summary = "加载所有领域", description = "领域是业务领域或应用，不是域名；加载实现负责数据查询，可按有效状态预裁剪")
+    <DOMAIN extends RbacDomainInfo> Collection<DOMAIN> loadAllDomainList(boolean onlyLoadEffectDomain);
+
+    /** 加载指定领域，不存在时返回 null。 */
+    @Operation(summary = "加载领域", description = "domainPrincipal 为领域ID或实现支持的领域标识")
+    <DOMAIN extends RbacDomainInfo> DOMAIN loadDomain(Serializable domainPrincipal);
+
+    /**
+     * 加载用户范围内的有效领域。领域范围不依赖租户，不隐含资源动作或机密级别授权。
+     * 子类可覆盖为按有效允许ID集合直接查询；默认仅加载一次目录，不逐项查询领域。
+     */
+    @Operation(summary = "加载用户可访问的领域列表", description = "先按允许集合减拒绝集合短路，再批量加载领域；过滤无效领域，保留数据源顺序")
+    default <DOMAIN extends RbacDomainInfo> Collection<DOMAIN> loadUserAccessibleDomainList(
+            Serializable userPrincipal, boolean onlyLoadEffectDomain) {
+        final DataScope scope = getUserDataScope(userPrincipal);
+        if (scope.getDomainScopeList().isEmpty()) {
+            return Collections.emptyList();
+        }
+        final Set<String> domainIds = new HashSet<>(scope.getDomainScopeList());
+        domainIds.removeAll(scope.getDeniedDomainScopeList());
+        if (domainIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        final Collection<DOMAIN> domains = this.<DOMAIN>loadAllDomainList(onlyLoadEffectDomain);
+        if (domains == null || domains.isEmpty()) {
+            return Collections.emptyList();
+        }
+        final List<DOMAIN> result = new ArrayList<>();
+        for (DOMAIN domain : domains) {
+            if (domain != null && domainIds.contains(scopeId(domain.getId())) && domain.selfAudit()) {
+                result.add(domain);
+            }
+        }
+        return result;
+    }
+
     /**
      * 加载组织
      *
@@ -388,15 +425,19 @@ public interface RbacBaseService extends RbacBaseUserService {
         return canAccessTenant(user, getUserDataScope(user), tenantId, null);
     }
 
-    /** 领域目前只支持具体非空 ID，没有全部领域或无领域标记。 */
+    /** 领域只支持具体非空 ID；须存在且有效。此处不替代业务动作和机密级别校验。 */
     default boolean canAccessDomain(Serializable userPrincipal, String domainId) {
         final RbacUserInfo user = requireScopeUser(userPrincipal);
         if (StrUtil.isBlank(domainId)) {
             return false;
         }
         final DataScope scope = getUserDataScope(user);
-        return !scope.getDeniedDomainScopeList().contains(domainId)
-                && scope.getDomainScopeList().contains(domainId);
+        if (scope.getDeniedDomainScopeList().contains(domainId)
+                || !scope.getDomainScopeList().contains(domainId)) {
+            return false;
+        }
+        final RbacDomainInfo domain = loadDomain(domainId);
+        return domain != null && domainId.equals(scopeId(domain.getId())) && domain.selfAudit();
     }
 
     /** 组织范围判断包含目标租户资格；空组织 ID 按 None 规则判断。 */

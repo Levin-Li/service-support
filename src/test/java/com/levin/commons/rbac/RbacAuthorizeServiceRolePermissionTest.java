@@ -3271,7 +3271,8 @@ class RbacAuthorizeServiceRolePermissionTest {
     @Test
     void shouldApplyDomainAllowAndDenyWithoutWildcardExpansion() {
         ScopeUser u = new ScopeUser("T1", List.of());
-        StubRbacBaseService service = new StubRbacBaseService(u);
+        StubRbacBaseService service = new StubRbacBaseService(u)
+                .setDomainList(List.of(new TestDomain("sales"), new TestDomain("finance")));
         assertFalse(service.canAccessDomain(u, "sales"));
         u.fields[2] = Set.of("sales", "finance");
         u.fields[3] = Set.of("finance");
@@ -3725,6 +3726,175 @@ class RbacAuthorizeServiceRolePermissionTest {
         assertTrue(service.canAccessOrg(u, "T1", "A2"));
     }
 
+    @Test
+    void shouldLoadAccessibleDomainsOnceInSourceOrderAndForwardEffectFlag() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[2] = Set.of("sales", "finance");
+        StubRbacBaseService service = new StubRbacBaseService(u).setDomainList(Arrays.asList(
+                new TestDomain("finance"), null, new TestDomain("other"), new TestDomain("sales")));
+        for (boolean onlyEffect : List.of(false, true)) {
+            service.domainListLoads.set(0);
+            assertEquals(List.of("finance", "sales"), service.loadUserAccessibleDomainList(u, onlyEffect).stream()
+                    .map(domain -> Objects.toString(domain.getId())).collect(Collectors.toList()));
+            assertEquals(onlyEffect, service.lastDomainEffectFlag);
+            assertEquals(1, service.domainListLoads.get());
+            assertEquals(0, service.domainLoads.get(), "枚举后的领域对象无需逐个再次loadDomain");
+        }
+        assertEquals("sales", service.loadDomain("sales").getId());
+        assertEquals(1, service.domainLoads.get());
+    }
+
+    @Test
+    void shouldDelegateDomainLoadersFromDefaultRoleHelper() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[2] = Set.of("sales");
+        DefaultRoleHelperRbacBaseService service = new DefaultRoleHelperRbacBaseService(u);
+        service.delegate.setDomainList(List.of(new TestDomain("sales")));
+        assertEquals("sales", service.loadDomain("sales").getId());
+        assertEquals(1, service.loadAllDomainList(false).size());
+        assertFalse(service.delegate.lastDomainEffectFlag);
+        assertEquals(1, service.loadUserAccessibleDomainList(u, true).size());
+        assertTrue(service.delegate.lastDomainEffectFlag);
+    }
+
+    @Test
+    void shouldTreatNullDomainEnumerationAsEmpty() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[2] = Set.of("sales");
+        StubRbacBaseService service = new StubRbacBaseService(u) {
+            @Override public <DOMAIN extends RbacDomainInfo> Collection<DOMAIN> loadAllDomainList(boolean onlyEffect) {
+                return null;
+            }
+        };
+        assertTrue(service.loadUserAccessibleDomainList(u, true).isEmpty());
+    }
+
+    @Test
+    void shouldRejectUnavailableDomainObjectsAtSingleAndListEntrypoints() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[2] = Set.of("active", "disabled", "deleted", "expired", "missing");
+        StubRbacBaseService service = new StubRbacBaseService(u).setDomainList(Arrays.asList(
+                new TestDomain("active"),
+                new TestDomain("disabled") { @Override public boolean isEnable() { return false; } },
+                new TestDomain("deleted") { @Override public boolean isDeleted() { return true; } },
+                new TestDomain("expired") {
+                    @Override public java.time.LocalDateTime getExpiredTime() { return java.time.LocalDateTime.now().minusDays(1); }
+                },
+                new TestDomain(null), null));
+        assertTrue(service.canAccessDomain(u, "active"));
+        for (String id : List.of("disabled", "deleted", "expired", "missing")) {
+            assertFalse(service.canAccessDomain(u, id), id);
+        }
+        assertEquals(List.of("active"), service.loadUserAccessibleDomainList(u, true).stream()
+                .map(domain -> Objects.toString(domain.getId())).collect(Collectors.toList()));
+        assertEquals(List.of("active"), service.loadUserAccessibleDomainList(u, false).stream()
+                .map(domain -> Objects.toString(domain.getId())).collect(Collectors.toList()),
+                "加载标志不能绕过授权层的selfAudit检查");
+    }
+
+    @Test
+    void shouldRejectDomainLoaderReturningWrongOrNullIdentity() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[2] = Set.of("sales");
+        for (String returnedId : Arrays.asList("other", null)) {
+            StubRbacBaseService service = new StubRbacBaseService(u) {
+                @Override public <DOMAIN extends RbacDomainInfo> DOMAIN loadDomain(Serializable principal) {
+                    return (DOMAIN) new TestDomain(returnedId);
+                }
+            };
+            assertFalse(service.canAccessDomain(u, "sales"), "loader返回ID=" + returnedId);
+        }
+    }
+
+    @Test
+    void shouldAvoidDomainEnumerationForEmptyOrFullyDeniedAllowSet() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        StubRbacBaseService service = new StubRbacBaseService(u).setDomainList(List.of(new TestDomain("sales")));
+        u.fields[2] = Set.of();
+        assertTrue(service.loadUserAccessibleDomainList(u, true).isEmpty());
+        u.fields[2] = Set.of("sales");
+        u.fields[3] = Set.of("sales");
+        assertTrue(service.loadUserAccessibleDomainList(u, true).isEmpty());
+        assertEquals(0, service.domainListLoads.get());
+        assertEquals(0, service.domainLoads.get());
+    }
+
+    @Test
+    void shouldAvoidSingleDomainLoadForUnauthorizedDeniedOrBlankId() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[2] = Set.of("sales");
+        u.fields[3] = Set.of("sales");
+        StubRbacBaseService service = new StubRbacBaseService(u).setDomainList(List.of(new TestDomain("sales")));
+        for (String id : Arrays.asList("other", "sales", null, "", " ")) {
+            assertFalse(service.canAccessDomain(u, id));
+        }
+        assertEquals(0, service.domainLoads.get());
+        assertEquals(0, service.domainListLoads.get());
+    }
+
+    @Test
+    void shouldApplyUserDomainEmptyOverrideAndNullInheritanceWhenLoadingDomains() {
+        ScopeUser u = new ScopeUser("T1", List.of("R1", "R2"));
+        ScopeRole one = new ScopeRole("R1"), two = new ScopeRole("R2");
+        one.fields[2] = Set.of("sales");
+        two.fields[2] = Set.of("finance");
+        two.fields[3] = Set.of("finance");
+        StubRbacBaseService service = new StubRbacBaseService(u)
+                .setDomainList(List.of(new TestDomain("sales"), new TestDomain("finance")));
+        service.registerRole(one);
+        service.registerRole(two);
+        assertEquals(List.of("sales"), service.loadUserAccessibleDomainList(u, true).stream()
+                .map(domain -> Objects.toString(domain.getId())).collect(Collectors.toList()));
+        u.fields[3] = Set.of();
+        assertEquals(2, service.loadUserAccessibleDomainList(u, true).size(), "用户空拒绝集合清除角色拒绝");
+        u.fields[2] = Set.of();
+        int previousLoads = service.domainListLoads.get();
+        assertTrue(service.loadUserAccessibleDomainList(u, true).isEmpty());
+        assertEquals(previousLoads, service.domainListLoads.get(), "用户空允许集合覆盖角色后无需枚举");
+        u.fields[2] = null;
+        assertEquals(2, service.loadUserAccessibleDomainList(u, true).size());
+    }
+
+    @Test
+    void shouldTreatDomainWildcardAndTenantMarkersAsLiteralDomainIds() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[2] = Set.of("*", "_ALL_");
+        StubRbacBaseService service = new StubRbacBaseService(u).setDomainList(List.of(
+                new TestDomain("sales"), new TestDomain("*"), new TestDomain("_ALL_")));
+        assertFalse(service.canAccessDomain(u, "sales"));
+        assertTrue(service.canAccessDomain(u, "*"));
+        assertTrue(service.canAccessDomain(u, "_ALL_"));
+        assertEquals(List.of("*", "_ALL_"), service.loadUserAccessibleDomainList(u, true).stream()
+                .map(domain -> Objects.toString(domain.getId())).collect(Collectors.toList()));
+    }
+
+    @Test
+    void shouldNotBypassDomainScopesForPlatformAdministrator() {
+        ScopeUser u = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE));
+        StubRbacBaseService service = new StubRbacBaseService(u).setDomainList(List.of(new TestDomain("sales")));
+        assertTrue(u.isSuperAdmin());
+        assertFalse(service.canAccessDomain(u, "sales"));
+        assertTrue(service.loadUserAccessibleDomainList(u, true).isEmpty());
+        u.fields[2] = Set.of("sales");
+        u.fields[3] = Set.of("sales");
+        assertFalse(service.canAccessDomain(u, "sales"));
+        u.fields[3] = Set.of();
+        assertTrue(service.canAccessDomain(u, "sales"));
+    }
+
+    @Test
+    void shouldKeepDomainScopeIndependentOfTenantAndConfidentialLevelChecks() {
+        ScopeUser u = new ScopeUser("T1", List.of());
+        u.fields[0] = Set.of();
+        u.fields[2] = Set.of("sales");
+        StubRbacBaseService service = new StubRbacBaseService(u)
+                .setDomainList(List.of(new TestDomain("sales", Integer.MAX_VALUE)));
+        assertFalse(service.canAccessTenant(u, "T1"));
+        assertFalse(service.canAccessConfidentialDataByUser(u, Integer.MAX_VALUE));
+        assertTrue(service.canAccessDomain(u, "sales"));
+        assertEquals(1, service.loadUserAccessibleDomainList(u, true).size());
+    }
+
     private static List<Set<String>> scopeFields(DataScope scope) {
         return Arrays.asList(scope.getTenantScopeList(), scope.getDeniedTenantScopeList(),
                 scope.getDomainScopeList(), scope.getDeniedDomainScopeList(),
@@ -3958,6 +4128,10 @@ class RbacAuthorizeServiceRolePermissionTest {
         private Collection<String> userPermissions = new LinkedHashSet<>();
         private List<TestOrg> orgList = Collections.emptyList();
         private List<TestTenant> tenantList = Collections.emptyList();
+        private List<TestDomain> domainList = Collections.emptyList();
+        private final AtomicInteger domainListLoads = new AtomicInteger();
+        private final AtomicInteger domainLoads = new AtomicInteger();
+        private Boolean lastDomainEffectFlag;
 
         StubRbacBaseService(TestRbacUser user) {
             this.user = user;
@@ -3974,6 +4148,25 @@ class RbacAuthorizeServiceRolePermissionTest {
         StubRbacBaseService setTenantList(Collection<TestTenant> tenantList) {
             this.tenantList = tenantList == null ? Collections.emptyList() : new ArrayList<>(tenantList);
             return this;
+        }
+
+        StubRbacBaseService setDomainList(Collection<TestDomain> domains) {
+            domainList = domains == null ? Collections.emptyList() : new ArrayList<>(domains);
+            return this;
+        }
+
+        @Override
+        public <DOMAIN extends RbacDomainInfo> Collection<DOMAIN> loadAllDomainList(boolean onlyLoadEffectDomain) {
+            domainListLoads.incrementAndGet();
+            lastDomainEffectFlag = onlyLoadEffectDomain;
+            return (Collection<DOMAIN>) domainList;
+        }
+
+        @Override
+        public <DOMAIN extends RbacDomainInfo> DOMAIN loadDomain(Serializable domainPrincipal) {
+            domainLoads.incrementAndGet();
+            return (DOMAIN) domainList.stream().filter(Objects::nonNull)
+                    .filter(domain -> Objects.equals(domain.getId(), domainPrincipal)).findFirst().orElse(null);
         }
 
         void setUserPermissions(Collection<String> permissions) {
@@ -4114,6 +4307,16 @@ class RbacAuthorizeServiceRolePermissionTest {
         @Override
         public <U extends RbacUserInfo> U auditUserLogin(U userInfo, Serializable tenantId, String loginPwd, String loginDomain, String loginIp, String loginDeviceType, Map<String, Serializable> exLoginParams) throws AuthorizationException {
             return delegate.auditUserLogin(userInfo, tenantId, loginPwd, loginDomain, loginIp, loginDeviceType, exLoginParams);
+        }
+
+        @Override
+        public <DOMAIN extends RbacDomainInfo> Collection<DOMAIN> loadAllDomainList(boolean onlyLoadEffectDomain) {
+            return delegate.loadAllDomainList(onlyLoadEffectDomain);
+        }
+
+        @Override
+        public <DOMAIN extends RbacDomainInfo> DOMAIN loadDomain(Serializable domainPrincipal) {
+            return delegate.loadDomain(domainPrincipal);
         }
 
         @Override
@@ -4548,6 +4751,21 @@ class RbacAuthorizeServiceRolePermissionTest {
         public void setChildren(Set<SetOrg> children) {
             this.children = children;
         }
+    }
+
+    private static class TestDomain implements RbacDomainInfo, com.levin.commons.dao.domain.LogicDeletableObject {
+        private final String id;
+        private final Integer confidentialLevel;
+
+        TestDomain(String id) { this(id, null); }
+        TestDomain(String id, Integer confidentialLevel) {
+            this.id = id;
+            this.confidentialLevel = confidentialLevel;
+        }
+        @Override public <ID extends Serializable> ID getId() { return (ID) id; }
+        @Override public String getName() { return id; }
+        @Override public boolean isDeleted() { return false; }
+        @Override public Integer getConfidentialLevel() { return confidentialLevel; }
     }
 
     private static class TestTenant implements RbacTenantInfo {

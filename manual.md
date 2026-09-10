@@ -627,6 +627,8 @@ RBAC 是本库最核心、也最复杂的模块。
 
 组织树装配默认会复制节点，不修改源对象。
 
+领域目录使用 `RbacDomainInfo`，与 `RbacTenantInfo` 一样继承 `RbacCoreObject`，具有 ID、有效状态及可选机密级别。它表示业务领域或应用，本身不绑定租户；业务数据的 `DomainObject.getDomainId()` 对应该目录 ID。
+
 ### 16.5 资源 `Res`
 
 资源描述通常包含：
@@ -797,6 +799,8 @@ public List<UserDto> queryUsers() {
 
 - `loadAllTenantList(...)`
 - `loadTenant(...)`
+- `loadAllDomainList(...)`
+- `loadDomain(...)`
 - `loadOrg(...)`
 - `loadTenantOrgList(...)`
 - `loadRole(...)`
@@ -816,6 +820,16 @@ public class DemoRbacService implements RbacBaseService {
     @Override
     public MyTenant loadTenant(Serializable tenantPrincipal) {
         return tenantRepository.findById(tenantPrincipal.toString()).orElse(null);
+    }
+
+    @Override
+    public Collection<MyDomain> loadAllDomainList(boolean onlyLoadEffectDomain) {
+        return domainRepository.findAll(onlyLoadEffectDomain);
+    }
+
+    @Override
+    public MyDomain loadDomain(Serializable domainPrincipal) {
+        return domainRepository.findById(domainPrincipal.toString()).orElse(null);
     }
 
     @Override
@@ -907,6 +921,12 @@ public class DemoRbacService implements RbacBaseService {
 
 领域允许/拒绝集合只接受具体领域 ID，不借用租户的 `_ALL_` 或 `_NONE_` 作为特殊标记。空/未知领域不会自动获得授权。
 
+`loadAllDomainList(boolean)` 和 `loadDomain(Serializable)` 由业务服务实现，分别加载领域目录和指定领域对象；指定领域不存在时返回 null。`canAccessDomain` 先判断允许/拒绝集合，再加载领域，验证 ID 一致且通过 `selfAudit()`。禁用、过期、已逻辑删除或缺少 ID 的领域不会通过检查。
+
+`loadUserAccessibleDomainList(user, onlyLoadEffectDomain)` 返回授权范围内的有效领域：先求允许减拒绝，结果为空时不读取目录；否则只批量加载一次，不逐个调用 `loadDomain`，并保留目录顺序。参数原样传给目录加载器，但用户可访问列表始终排除无效对象，与租户列表契约一致。领域规模大时可覆盖为按有效允许 ID 直接查询。
+
+领域加载不授予跨租户资格，领域授权也不自动联动租户范围。管理员没有新增的领域自动放行分支。原子领域判断与领域可访问列表均只检查范围及对象有效性，领域对象的机密级别需要业务另外调用密级校验。
+
 `canAccessTenant`、`canAccessDomain`、`canAccessOrg` 是数据范围判断入口，不能代替资源动作授权或机密级别检查。业务数据查询需要显式接入适用维度的过滤；新增领域字段不会自动给任意 DAO 查询加条件。没有某维度的对象无需凭空检查该维度；具备组织/租户维度但 ID 为空的数据按对应 None 规则处理。
 
 ### 19.4 服务接口职责
@@ -915,7 +935,9 @@ public class DemoRbacService implements RbacBaseService {
 |---|---|
 | `getUserDataScope(user)` | 合并用户/生效角色并返回不可变快照；不能修改返回集合 |
 | `canAccessTenant(user, tenantId)` | 检查身份边界和租户范围；具体租户还须存在且有效 |
-| `canAccessDomain(user, domainId)` | 判断具体领域 ID 是否在允许范围且未被拒绝 |
+| `canAccessDomain(user, domainId)` | 判断领域允许/拒绝范围，并验证领域存在、ID 一致且有效 |
+| `loadAllDomainList(onlyEffective)` / `loadDomain(id)` | 业务实现领域目录和指定领域加载 |
+| `loadUserAccessibleDomainList(user, onlyEffective)` | 一次批量加载授权范围内的有效领域，空授权不加载 |
 | `canAccessOrg(user, tenantId, orgId)` | 检查目标租户资格以及组织范围；空组织按 None 处理 |
 | `canAccessAllOrg(user, tenantId)` | 检查指定租户内非空组织的完整范围覆盖 |
 | `canAccessAllOrg(user)` | 租户用户检查自身租户；平台用户保留全局覆盖语义 |
@@ -992,7 +1014,7 @@ A|IdPath#/*/*
 
 旧租户路径通配、组织 SpringEL 不再作为新范围协议支持。旧配置若对不同租户绑定不同组织策略，不能简单拆为两个并集，否则可能扩大授权；应逐项检查是否可等价表达。核心不自动双轨解析旧规则，迁移应保留原配置以便回退。
 
-多数服务方法签名保留，旧 `mergeOrgScopeList` 已移除。管理员组织查询现在也经过统一租户边界和租户内组织加载，不再调用 `loadMaxAccessibleOrgList` 的覆盖实现；依赖该扩展点优化的下游应改为覆盖 `loadTenantOrgList` 或 `loadUserAccessibleOrgList`。`canAccessAllOrg` 只表示非空组织范围完整覆盖，不能省略租户、状态、无组织数据或机密级别条件。
+多数服务方法签名保留，旧 `mergeOrgScopeList` 已移除。新增的抽象 `loadAllDomainList(boolean)`、`loadDomain(Serializable)` 需要下游 `RbacBaseService` 实现类补齐；没有领域目录的业务可分别返回空集合和 null，显式表示没有可访问的领域。管理员组织查询现在也经过统一租户边界和租户内组织加载，不再调用 `loadMaxAccessibleOrgList` 的覆盖实现；依赖该扩展点优化的下游应改为覆盖 `loadTenantOrgList` 或 `loadUserAccessibleOrgList`。`canAccessAllOrg` 只表示非空组织范围完整覆盖，不能省略租户、状态、无组织数据或机密级别条件。
 
 ## 21. 组织列表与组织树
 
@@ -1186,9 +1208,9 @@ TopSuperAdmin 可跳过范围规则和密级限制，但显式目标的存在性
 mvn -o -Dmaven.compiler.proc=full -Dmaven.test.skip=false -DskipTests=false clean verify
 ```
 
-2026-09-11 使用 Maven 3.9.15 / JDK 25.0.2、编译目标 Java 17 验证：207 个测试，0 失败、0 错误、0 跳过；其中 RBAC 主回归 152 个、DataScope 协议测试 8 个。JAR 和源码包构建成功。本机离线依赖已缓存；首次构建未缓存时去掉 `-o`。
+2026-09-11 使用 Maven 3.9.15 / JDK 25.0.2、编译目标 Java 17 验证：218 个测试，0 失败、0 错误、0 跳过；其中 RBAC 主回归 163 个、DataScope 协议测试 8 个。JAR 和源码包构建成功。本机离线依赖已缓存；首次构建未缓存时去掉 `-o`。
 
-范围测试覆盖六字段的 null/空集合/非空集合覆盖、失效角色、快照隔离和 JSON 字段、租户与组织拒绝独立计算、平台身份边界、无归属数据、路径和脚本、同 ID 跨租户隔离、孤儿节点和组织环。
+范围测试覆盖六字段的 null/空集合/非空集合覆盖、失效角色、快照隔离和 JSON 字段、租户与组织拒绝独立计算、平台身份边界、无归属数据、路径和脚本、同 ID 跨租户隔离、孤儿节点和组织环。领域加载另覆盖单次批量查询、拒绝短路、领域存在性/有效状态、错误 ID 和字段继承。
 
 完整测试前建议：
 

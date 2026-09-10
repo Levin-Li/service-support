@@ -23,6 +23,7 @@
 - 空允许集合没有授权，空拒绝集合没有排除；拒绝优先在选定来源后计算。
 - 普通租户用户始终限制在自身租户内，只有平台用户具备跨租户资格。
 - 组织规则为 `起点组织|匹配模式`，例如 `sales|SelfAndAllChild`；不再保存旧 `OrgScope` 对象。
+- 实现 `loadAllDomainList` 和 `loadDomain` 提供 `RbacDomainInfo` 目录；`loadUserAccessibleDomainList` 批量筛选可访问领域，`canAccessDomain` 检查授权、存在性及有效状态。
 - 领域匹配与业务查询需要显式接入；范围判断不代替动作权限和机密级别检查。
 
 升级已有实现时，请阅读手册第 20.3 节；用户 getter 返回空集合不会再继承角色配置。
