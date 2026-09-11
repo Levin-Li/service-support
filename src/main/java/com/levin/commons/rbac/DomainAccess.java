@@ -3,7 +3,6 @@ package com.levin.commons.rbac;
 import com.levin.commons.dao.domain.DomainObject;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -68,20 +67,29 @@ final class DomainAccess {
         this.loader = loader;
     }
 
-    Set<String> permittedIds() {
-        Set<String> result = new HashSet<>(allowed);
-        result.removeAll(denied);
-        return result;
-    }
-
     boolean allows(String domainId) {
-        if (domainId == null || domainId.isBlank() || denied.contains(domainId) || !allowed.contains(domainId)) {
+        final String target = normalize(domainId);
+        if (matches(denied, target) || !matches(allowed, target)) {
             return false;
         }
-        return decisions.computeIfAbsent(domainId, id -> {
+        if (target == null) return true;
+        return decisions.computeIfAbsent(target, id -> {
             RbacDomainInfo domain = loader.apply(id);
-            return domain != null && id.equals(String.valueOf((Object) domain.getId())) && domain.selfAudit();
+            return domain != null && domain.getId() != null && id.equals(domain.getId().toString()) && domain.selfAudit();
         });
+    }
+
+    boolean mayAllowNonEmptyDomain() {
+        return !denied.contains(DataScope.DomainScope.All.getExpression())
+                && (allowed.contains(DataScope.DomainScope.All.getExpression())
+                || allowed.stream().anyMatch(rule -> !DataScope.DomainScope.None.getExpression().equals(rule)
+                && !denied.contains(rule)));
+    }
+
+    boolean allowsLoaded(RbacDomainInfo domain) {
+        if (domain == null || !domain.selfAudit()) return false;
+        final String id = domain.getId() == null ? null : normalize(domain.getId().toString());
+        return id != null && !matches(denied, id) && matches(allowed, id);
     }
 
     boolean allowsObject(DomainObject object) {
@@ -97,5 +105,14 @@ final class DomainAccess {
 
     void rememberTenant(String id, RbacTenantInfo tenant) {
         tenants.put(id, tenant);
+    }
+
+    private boolean matches(Set<String> rules, String domainId) {
+        if (rules.contains(DataScope.DomainScope.All.getExpression())) return true;
+        return domainId == null ? rules.contains(DataScope.DomainScope.None.getExpression()) : rules.contains(domainId);
+    }
+
+    private String normalize(String domainId) {
+        return domainId == null || domainId.isBlank() ? null : domainId;
     }
 }

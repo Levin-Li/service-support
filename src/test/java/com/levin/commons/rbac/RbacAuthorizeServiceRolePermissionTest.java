@@ -2550,7 +2550,7 @@ class RbacAuthorizeServiceRolePermissionTest {
     @Test
     void shouldDetectAllOrgAccessFromMergedDataScope() {
         ScopeUser scopedUser = new ScopeUser(null, List.of());
-        scopedUser.fields[0] = Set.of("_ALL_", "_NONE_");
+        scopedUser.fields[0] = Set.of("_ALL_");
         scopedUser.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
         StubRbacBaseService scopedService = new StubRbacBaseService(scopedUser);
 
@@ -3260,11 +3260,11 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldRequireExplicitNoTenantAndNoOrganizationGrants() {
+    void shouldApplyAllAndNoneTenantAndOrganizationGrants() {
         ScopeUser u = new ScopeUser(null, List.of());
         StubRbacBaseService service = new StubRbacBaseService(u);
         u.fields[0] = Set.of("_ALL_");
-        assertFalse(service.canAccessTenant(u, null));
+        assertTrue(service.canAccessTenant(u, null));
         u.fields[0] = Set.of("_NONE_");
         assertTrue(service.canAccessTenant(u, null));
         assertFalse(service.canAccessOrg(u, null, null));
@@ -3862,16 +3862,27 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldTreatDomainWildcardAndTenantMarkersAsLiteralDomainIds() {
+    void shouldApplyDomainAllAndNoneMarkers() {
         ScopeUser u = new ScopeUser("T1", List.of());
-        u.fields[2] = Set.of("*", "_ALL_");
+        u.fields[2] = Set.of("_ALL_");
         StubRbacBaseService service = new StubRbacBaseService(u).setDomainList(List.of(
                 new TestDomain("sales"), new TestDomain("*"), new TestDomain("_ALL_")));
-        assertFalse(service.canAccessDomain(u, "sales"));
+        assertTrue(service.canAccessDomain(u, "sales"));
         assertTrue(service.canAccessDomain(u, "*"));
         assertTrue(service.canAccessDomain(u, "_ALL_"));
-        assertEquals(List.of("*", "_ALL_"), service.loadUserAccessibleDomainList(u, true).stream()
+        assertTrue(service.canAccessDomain(u, null));
+        assertEquals(List.of("sales", "*", "_ALL_"), service.loadUserAccessibleDomainList(u, true).stream()
                 .map(domain -> Objects.toString(domain.getId())).collect(Collectors.toList()));
+        u.fields[2] = Set.of("_NONE_");
+        assertFalse(service.canAccessDomain(u, "sales"));
+        assertTrue(service.canAccessDomain(u, null));
+        assertTrue(service.loadUserAccessibleDomainList(u, true).isEmpty());
+        u.fields[2] = Set.of("_ALL_");
+        u.fields[3] = Set.of("_NONE_");
+        assertFalse(service.canAccessDomain(u, null));
+        assertTrue(service.canAccessDomain(u, "sales"));
+        u.fields[3] = Set.of("_ALL_");
+        assertFalse(service.canAccessDomain(u, "sales"));
     }
 
     @Test

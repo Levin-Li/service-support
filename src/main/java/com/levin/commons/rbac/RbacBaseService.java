@@ -119,8 +119,8 @@ public interface RbacBaseService extends RbacBaseUserService {
     default <DOMAIN extends RbacDomainInfo> Collection<DOMAIN> loadUserAccessibleDomainList(
             Serializable userPrincipal, boolean onlyLoadEffectDomain) {
         return DomainAccess.evaluate(() -> {
-            final Set<String> domainIds = userDomainAccess(userPrincipal).permittedIds();
-            if (domainIds.isEmpty()) {
+            final DomainAccess domainsAccess = userDomainAccess(userPrincipal);
+            if (!domainsAccess.mayAllowNonEmptyDomain()) {
                 return Collections.emptyList();
             }
             final Collection<DOMAIN> domains = this.<DOMAIN>loadAllDomainList(onlyLoadEffectDomain);
@@ -129,7 +129,7 @@ public interface RbacBaseService extends RbacBaseUserService {
             }
             final List<DOMAIN> result = new ArrayList<>();
             for (DOMAIN domain : domains) {
-                if (domain != null && domainIds.contains(scopeId(domain.getId())) && domain.selfAudit()) {
+                if (domainsAccess.allowsLoaded(domain)) {
                     result.add(domain);
                 }
             }
@@ -396,7 +396,6 @@ public interface RbacBaseService extends RbacBaseUserService {
             // 保留平台用户的全局语义：不仅覆盖当前枚举对象，也覆盖全部租户及无租户组织。
             final DataScope scope = getUserDataScope(user);
             if (!isGlobalScopeAdmin(user) && (!scope.getTenantScopeList().contains(DataScope.TenantScope.All.getExpression())
-                    || !scope.getTenantScopeList().contains(DataScope.TenantScope.None.getExpression())
                     || !scope.getDeniedTenantScopeList().isEmpty() || !declaresAllOrg(scope))) {
                 return false;
             }
@@ -427,15 +426,14 @@ public interface RbacBaseService extends RbacBaseUserService {
         });
     }
 
-    /** 领域只支持具体非空 ID；须存在且有效，不享有管理员绕过。 */
+    /** 领域范围支持 All、None 和具体 ID；非空 ID 须存在且有效，不享有管理员绕过。 */
     default boolean canAccessDomain(Serializable userPrincipal, String domainId) {
         return DomainAccess.evaluate(() -> {
-            if (StrUtil.isBlank(domainId)) return false;
             return userDomainAccess(userPrincipal).allows(domainId);
         });
     }
 
-    /** 空领域不增加限制；非空领域是管理员快捷路径之前的共同门槛。 */
+    /** 空领域不增加对象级限制；非空领域是管理员快捷路径之前的共同门槛。 */
     @Override
     default boolean canAccessObjectDomain(Serializable userPrincipal, DomainObject object) {
         return DomainAccess.evaluate(() -> {
@@ -1083,7 +1081,7 @@ public interface RbacBaseService extends RbacBaseUserService {
                 && matchesTenantRules(scope.getTenantScopeList(), user, tenantId, tenant));
     }
 
-    /** 这里只排除真实租户；无租户数据仍需独立判断，不能把 All 当作 None。 */
+    /** 这里只枚举真实租户；无租户数据不参与枚举。 */
     private boolean hasNoEnumerableTenantScope(RbacUserInfo user, DataScope scope) {
         return !isGlobalScopeAdmin(user) && (scope.getTenantScopeList().isEmpty()
                 || scope.getDeniedTenantScopeList().contains(DataScope.TenantScope.All.getExpression())
@@ -1097,7 +1095,8 @@ public interface RbacBaseService extends RbacBaseUserService {
                 || (!target.startsWith(DataScope.TenantScope.Groovy.getExpression())
                 && !target.equals(DataScope.TenantScope.None.getExpression())
                 && !target.equals(DataScope.TenantScope.Default.getExpression()) && rules.contains(target))))
-                || (target == null && rules.contains(DataScope.TenantScope.None.getExpression()))
+                || (target == null && (rules.contains(DataScope.TenantScope.All.getExpression())
+                || rules.contains(DataScope.TenantScope.None.getExpression())))
                 || (Objects.equals(scopeId(user.getTenantId()), target)
                 && rules.contains(DataScope.TenantScope.Default.getExpression()));
     }

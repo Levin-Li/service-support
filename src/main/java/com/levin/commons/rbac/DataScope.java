@@ -23,17 +23,56 @@ import java.util.Set;
 public interface DataScope {
 
     @Getter
+    @Schema(title = "领域范围", description = "使用 expression 编码；在枚举值外的就是具体的领域Id")
+    enum DomainScope implements EnumDesc {
+
+        @Schema(title = "所有", description = "所有数据")
+        All("_ALL_"),
+
+        //无领域，就是指领域ID为空的数据
+        @Schema(title = "无", description = "特指领域ID为空的数据")
+        None("_NONE_"),
+        ;
+
+        @Schema(title = "匹配表达式", description = "")
+        private final String expression;
+
+        @Schema(title = "是否前缀匹配", description = "如果是前缀，则表示要用 expression 进行前缀匹配 ")
+        private final boolean prefix;
+
+        DomainScope(String expression) {
+            this(expression, false);
+        }
+
+        DomainScope(boolean prefix) {
+            this.prefix = prefix;
+            this.expression = name() + (prefix ? "#" : "");
+        }
+
+        DomainScope(String expression, boolean prefix) {
+            Objects.requireNonNull(expression);
+            this.prefix = prefix;
+            this.expression = expression + (prefix ? "#" : "");
+        }
+
+        @Override
+        public String toString() {
+            return nameAndDesc();
+        }
+    }
+
+    @Getter
     @Schema(title = "租户范围", description = "使用 expression 编码；除保留编码和 Groovy# 前缀外均为具体租户ID。只有平台用户可跨租户")
     enum TenantScope implements EnumDesc {
 
-        @Schema(title = "所有", description = "所有具有租户ID的租户；无租户数据须另行指定None")
+        @Schema(title = "所有", description = "所有数据")
         All("_ALL_"),
 
         @Schema(title = "默认", description = "对于saas用户(无租户Id), 则默认为无租户, 对于有租户Id的用户, 则默认为用户的租户Id")
         Default("_DEFAULT_"),
 
         //无租户，就是指租户ID为空的数据
-        @Schema(title = "无", description = "指租户ID为空的数据")
+        @Schema(title = "无", description = "特指租户ID为空的数据")
         None("_NONE_"),
 
         //Groovy 匹配表达式
@@ -79,7 +118,7 @@ public interface DataScope {
         @Schema(title = "无", description = "特别指组织Id为空的数据")
         None("_NONE_"),
 
-        @Schema(title = "所有根节点", description = "")
+        @Schema(title = "所有根组织", description = "所有根组织，也就是parentId为空的组织")
         AllRoot("_ALL_ROOT_"),
 
         ;
@@ -233,12 +272,12 @@ public interface DataScope {
 
     /// /////////////////////////////////////////////////////////
 
-    @Schema(title = "允许的领域范围", description = "具体的领域Id, 注意不是域名, DomainObject 接口关联；空集合表示没有允许的领域")
+    @Schema(title = "允许的领域范围", description = "具体参考 DomainScope枚举, 注意不是域名, DomainObject 接口关联；空集合表示没有允许的领域")
     default Set<String> getDomainScopeList() {
         return Set.of();
     }
 
-    @Schema(title = "拒绝的领域范围", description = "具体的领域Id, 注意不是域名, DomainObject 接口关联；空集合表示没有拒绝的领域; 拒绝优先")
+    @Schema(title = "拒绝的领域范围", description = "具体参考 DomainScope枚举, 注意不是域名, DomainObject 接口关联；空集合表示没有拒绝的领域; 拒绝优先")
     default Set<String> getDeniedDomainScopeList() {
         return Set.of();
     }

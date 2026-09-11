@@ -13,6 +13,8 @@ class DataScopeContractTest {
     @Test
     void preservesExactProtocolValues() {
         assertEquals("_ALL_", DataScope.TenantScope.All.getExpression());
+        assertEquals("_ALL_", DataScope.DomainScope.All.getExpression());
+        assertEquals("_NONE_", DataScope.DomainScope.None.getExpression());
         assertEquals("_DEFAULT_", DataScope.TenantScope.Default.getExpression());
         assertEquals("_NONE_", DataScope.TenantScope.None.getExpression());
         assertEquals("Groovy#", DataScope.TenantScope.Groovy.getExpression());

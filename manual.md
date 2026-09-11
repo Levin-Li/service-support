@@ -764,7 +764,7 @@ public List<UserDto> queryUsers() {
 
 组织管理入口应同时执行动作授权与 `checkOrgAccessible` 校验。一般业务数据读取使用适用的 `canAccessTenant`、`canAccessDomain`、`canAccessOrg` 和机密级别判断，或等价的查询过滤；不要把带父节点、根节点管理约束的 `checkOrgAccessible` 当成通用读取校验。资源权限通过不表示可以访问任意组织，组织范围通过也不表示可以执行任意资源动作。
 
-`DataScope` 的六个集合字段分别采用用户非 null 值（包括空集合），否则继承生效角色对应集合的并集。普通租户用户始终受自身租户边界约束；普通平台用户通过 `_ALL_`、`_NONE_`、指定租户或 `Groovy#` 配置授权租户。`_ALL_` 不包含无租户数据。
+`DataScope` 的六个集合字段分别采用用户非 null 值（包括空集合），否则继承生效角色对应集合的并集。普通租户用户始终受自身租户边界约束；普通平台用户通过 `_ALL_`、`_NONE_`、指定租户或 `Groovy#` 配置授权租户。`_ALL_` 包含无租户数据，`_NONE_` 仅匹配无租户数据。
 
 角色、租户和组织在参与默认授权计算前都会执行 `selfAudit()`；禁用、逻辑删除、过期或缺少 ID 的对象不会授予权限、扩大数据范围或作为可访问目标。
 
@@ -911,7 +911,7 @@ public class DemoRbacService implements RbacBaseService {
 
 | 编码 | 含义 |
 |---|---|
-| `_ALL_` | 所有具备租户 ID 的租户，不包含无租户数据 |
+| `_ALL_` | 所有数据，包括租户 ID 为空的数据 |
 | `_DEFAULT_` | 用户所属租户；平台用户对应无租户 |
 | `_NONE_` | 租户 ID 为空的数据 |
 | `Groovy#脚本` | 使用 `_tenant`、`_user` 匹配租户 |
@@ -923,7 +923,7 @@ public class DemoRbacService implements RbacBaseService {
 
 ### 19.3 领域范围与业务接入
 
-领域允许/拒绝集合只接受具体领域 ID，不借用租户的 `_ALL_` 或 `_NONE_` 作为特殊标记。空/未知领域不会自动获得授权。
+领域允许/拒绝集合使用具体领域 ID，或 `_ALL_`（所有领域值，包括空 ID）和 `_NONE_`（仅空 ID）。非空未知领域不会自动获得授权。
 
 `loadAllDomainList(boolean)` 和 `loadDomain(Serializable)` 由业务服务实现，分别加载领域目录和指定领域对象；指定领域不存在时返回 null。`canAccessDomain` 先判断允许/拒绝集合，再加载领域，验证 ID 一致且通过 `selfAudit()`。禁用、过期、已逻辑删除或缺少 ID 的领域不会通过检查。
 
@@ -940,7 +940,7 @@ public class DemoRbacService implements RbacBaseService {
 
 库内没有租户/组织创建、修改、迁移的持久化接口。业务写入入口也必须校验非空领域一致性，修改租户领域时须检查已有组织，不能仅依赖读取时拒绝异常数据。
 
-`canAccessObjectDomain`、`filterByDomainAccess` 供现有业务流程复用对象级领域检查；领域目录的 `canAccessDomain(user, null)` 仍为 false，与空归属对象免领域过滤是不同概念。领域授权不自动授予跨租户资格，也不替代资源动作或机密级别检查。
+`canAccessObjectDomain`、`filterByDomainAccess` 供现有业务流程复用对象级领域检查；对象空领域免过滤，而 `canAccessDomain(user, null)` 按 `_ALL_` / `_NONE_` 规则判断且不加载虚构领域目录。领域授权不自动授予跨租户资格，也不替代资源动作或机密级别检查。
 
 `canAccessTenant`、`canAccessDomain`、`canAccessOrg` 是数据范围判断入口，不能代替资源动作授权或机密级别检查。业务数据查询需要显式接入适用维度的过滤；新增领域字段不会自动给任意 DAO 查询加条件。没有某维度的对象无需凭空检查该维度；具备组织/租户维度但 ID 为空的数据按对应 None 规则处理。
 
@@ -962,7 +962,7 @@ public class DemoRbacService implements RbacBaseService {
 | `canAdminUser(operator, targetUser)` | 目标用户及所属租户领域先于自我管理和管理员快捷路径 |
 | `filterAccessibleMenuList(user, menus)` | 领域过滤与菜单/按钮动作授权，返回独立菜单树副本 |
 
-普通平台用户的全局 `canAccessAllOrg(user)` 要求明确包含 `_ALL_` 和 `_NONE_`，组织允许包含 `_ALL_ROOT_|SelfAndAllChild` 且没有租户/组织拒绝规则，同时检查当前有效组织的实际覆盖情况；孤儿节点和未选中的独立环不能被当作已授权。全量判断是保守的明确授权判断，不是对任意复杂脚本做等价证明。
+普通平台用户的全局 `canAccessAllOrg(user)` 要求明确包含 `_ALL_`，组织允许包含 `_ALL_ROOT_|SelfAndAllChild` 且没有租户/组织拒绝规则，同时检查当前有效组织的实际覆盖情况；孤儿节点和未选中的独立环不能被当作已授权。全量判断是保守的明确授权判断，不是对任意复杂脚本做等价证明。
 
 范围单点方法不执行通用的对象密级过滤；普通 SuperAdmin / SaaSAdmin 的列表接口保留密级过滤，所以单点范围为 true 不保证该对象会出现在密级过滤后的列表中。
 
@@ -1027,7 +1027,7 @@ A|IdPath#/*/*
 - 原 `isAllow` 改为放入允许集合或拒绝集合。
 - `_USER_ORG_` → `_DEFAULT_`；`/*` 起点 → `_ALL_ROOT_`。
 - 租户 `_DEFAULT_TENANT_` → `_DEFAULT_`；`#!groovy:` → `Groovy#`。
-- 旧租户 `*` 若包含无租户数据，需要显式组合 `_ALL_` 与 `_NONE_`。
+- 旧租户 `*` 映射为 `_ALL_`，包含无租户数据。
 
 旧租户路径通配、组织 SpringEL 不再作为新范围协议支持。旧配置若对不同租户绑定不同组织策略，不能简单拆为两个并集，否则可能扩大授权；应逐项检查是否可等价表达。核心不自动双轨解析旧规则，迁移应保留原配置以便回退。
 
@@ -1082,7 +1082,7 @@ A|IdPath#/*/*
 
 1. 空允许集合直接返回无权限，不执行拒绝脚本。
 2. 租户保留编码和精确 ID 匹配先于 Groovy；拒绝命中后不执行允许脚本。
-3. 真实租户全部拒绝时跳过租户枚举；无租户仍单独判断。`_ALL_` 与 `_NONE_` 同时拒绝时不加载租户或组织候选。
+3. 真实租户全部拒绝时跳过租户枚举；无租户仍单独判断。拒绝 `_ALL_` 时不加载租户或组织候选。
 4. 组织先计算拒绝结果。结构模式先于路径、Groovy；实际候选全部被拒绝时不再计算允许范围。
 5. 部分组织被拒绝时，不对这些节点执行允许表达式；保留完整组织图，以免破坏后代的路径和祖先关系。
 6. 单个组织检查只对目标节点执行允许和拒绝表达式，目标已被拒绝则立即返回。
