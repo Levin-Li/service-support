@@ -1064,7 +1064,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         if (!withinTenantBoundary(user, tenantId)) {
             return false;
         }
-        if (!isGlobalScopeAdmin(user) && (scope.getTenantScopeList().isEmpty()
+        if (!isGlobalScopeAdmin(user) && (scope.getTenantScopeList().isEmpty() || deniesAllTenants(scope)
                 || matchesStaticTenantRules(scope.getDeniedTenantScopeList(), user, tenantId))) {
             return false;
         }
@@ -1077,14 +1077,14 @@ public interface RbacBaseService extends RbacBaseUserService {
             }
         }
         if (tenant != null && !domainAccess(scope).allowsObject(tenant)) return false;
-        return isGlobalScopeAdmin(user) || (!matchesTenantRules(scope.getDeniedTenantScopeList(), user, tenantId, tenant)
+        return isGlobalScopeAdmin(user) || (!matchesTenantGroovyRules(scope.getDeniedTenantScopeList(), user, tenant)
                 && matchesTenantRules(scope.getTenantScopeList(), user, tenantId, tenant));
     }
 
     /** 这里只枚举真实租户；无租户数据不参与枚举。 */
     private boolean hasNoEnumerableTenantScope(RbacUserInfo user, DataScope scope) {
         return !isGlobalScopeAdmin(user) && (scope.getTenantScopeList().isEmpty()
-                || scope.getDeniedTenantScopeList().contains(DataScope.TenantScope.All.getExpression())
+                || deniesAllTenants(scope)
                 || (!user.isPlatformUser()
                 && matchesStaticTenantRules(scope.getDeniedTenantScopeList(), user, user.getTenantId())));
     }
@@ -1101,8 +1101,18 @@ public interface RbacBaseService extends RbacBaseUserService {
                 && rules.contains(DataScope.TenantScope.Default.getExpression()));
     }
 
+    /** 拒绝所有是租户范围的吸收规则，允许规则及其他拒绝规则均不再需要匹配。 */
+    private boolean deniesAllTenants(DataScope scope) {
+        return scope.getDeniedTenantScopeList().contains(DataScope.TenantScope.All.getExpression());
+    }
+
     private boolean matchesTenantRules(Set<String> rules, RbacUserInfo user, Serializable tenantId, RbacTenantInfo tenant) {
         if (matchesStaticTenantRules(rules, user, tenantId)) return true;
+        return matchesTenantGroovyRules(rules, user, tenant);
+    }
+
+    /** 静态拒绝规则已在加载目标租户前处理，此处只保留无法预先抵消的动态规则。 */
+    private boolean matchesTenantGroovyRules(Set<String> rules, RbacUserInfo user, RbacTenantInfo tenant) {
         for (String rule : rules) {
             if (rule.startsWith(DataScope.TenantScope.Groovy.getExpression())) {
                 Map<String, Object> context = new LinkedHashMap<>();

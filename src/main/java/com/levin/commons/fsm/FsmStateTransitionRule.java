@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author lilw
@@ -21,10 +22,14 @@ public interface FsmStateTransitionRule<EVENT extends FsmEvent, STATE extends Fs
     STATE sourceState();
 
     @NotNull
-    @Schema(title = "事件", description = "触发事件,不能为空 ")
+    @Schema(title = "事件", description = "触发事件,不能为空")
     EVENT event();
 
     @Schema(title = "目标状态", description = "不能为空")
     STATE targetState();
 
+    @Schema(title = "表单列表", description = "状态转移的时候可提交表单;也可以不提，也可以无表单")
+    default List<FsmFormItem> formItemList() {
+        return List.of();
+    }
 }

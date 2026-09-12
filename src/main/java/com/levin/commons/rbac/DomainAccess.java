@@ -69,7 +69,7 @@ final class DomainAccess {
 
     boolean allows(String domainId) {
         final String target = normalize(domainId);
-        if (matches(denied, target) || !matches(allowed, target)) {
+        if (deniesAll() || matches(denied, target) || !matches(allowed, target)) {
             return false;
         }
         if (target == null) return true;
@@ -80,7 +80,7 @@ final class DomainAccess {
     }
 
     boolean mayAllowNonEmptyDomain() {
-        return !denied.contains(DataScope.DomainScope.All.getExpression())
+        return !deniesAll()
                 && (allowed.contains(DataScope.DomainScope.All.getExpression())
                 || allowed.stream().anyMatch(rule -> !DataScope.DomainScope.None.getExpression().equals(rule)
                 && !denied.contains(rule)));
@@ -89,7 +89,7 @@ final class DomainAccess {
     boolean allowsLoaded(RbacDomainInfo domain) {
         if (domain == null || !domain.selfAudit()) return false;
         final String id = domain.getId() == null ? null : normalize(domain.getId().toString());
-        return id != null && !matches(denied, id) && matches(allowed, id);
+        return id != null && !deniesAll() && !matches(denied, id) && matches(allowed, id);
     }
 
     boolean allowsObject(DomainObject object) {
@@ -110,6 +110,11 @@ final class DomainAccess {
     private boolean matches(Set<String> rules, String domainId) {
         if (rules.contains(DataScope.DomainScope.All.getExpression())) return true;
         return domainId == null ? rules.contains(DataScope.DomainScope.None.getExpression()) : rules.contains(domainId);
+    }
+
+    /** 拒绝所有是吸收规则，后续允许、其他拒绝和目录加载均无意义。 */
+    private boolean deniesAll() {
+        return denied.contains(DataScope.DomainScope.All.getExpression());
     }
 
     private String normalize(String domainId) {
