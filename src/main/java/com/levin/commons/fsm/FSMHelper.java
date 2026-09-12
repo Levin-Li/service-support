@@ -61,7 +61,7 @@ public final class FSMHelper {
      * @param targetState
      * @param <EVENT>
      * @param <STATE>
-     * @param formItemList
+     * @param formItemList 指定的表单项；未传入表单项时为一个空列表，表示无需表单但发起事件前需用户确认
      * @return
      */
     public static <EVENT extends FsmEvent, STATE extends FsmState<EVENT>> FsmStateTransitionRule<EVENT, STATE> newFsmStateTransitionRule(STATE sourceState, EVENT event, STATE targetState, FsmFormItem... formItemList) {
@@ -76,7 +76,7 @@ public final class FSMHelper {
      * @param targetState
      * @param <EVENT>
      * @param <STATE>
-     * @param formItemList
+     * @param formItemList 三态表单定义：{@code null} 展示原有完整表单；空列表无需表单但发起事件前需用户确认；非空列表仅提交指定表单项
      * @return
      */
     public static <EVENT extends FsmEvent, STATE extends FsmState<EVENT>> FsmStateTransitionRule<EVENT, STATE> newFsmStateTransitionRule(STATE sourceState, EVENT event, STATE targetState, List<? extends FsmFormItem> formItemList) {
@@ -275,7 +275,7 @@ public final class FSMHelper {
             this.sourceState = sourceState;
             this.event = event;
             this.targetState = targetState;
-            this.formItemList = List.copyOf(formItemList);
+            this.formItemList = formItemList == null ? null : List.copyOf(formItemList);
         }
     }
 
