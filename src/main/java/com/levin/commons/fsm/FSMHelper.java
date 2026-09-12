@@ -261,7 +261,6 @@ public final class FSMHelper {
 
     @Data
     @NoArgsConstructor
-    @AllArgsConstructor
     @Accessors(fluent = true, chain = true)
     private static class SimpleFsmStateTransitionRule<EVENT extends FsmEvent, STATE extends FsmState<EVENT>>
             implements FsmStateTransitionRule<EVENT, STATE> {
@@ -270,6 +269,14 @@ public final class FSMHelper {
         EVENT event;
         STATE targetState;
         List<? extends FsmFormItem> formItemList;
+
+        SimpleFsmStateTransitionRule(STATE sourceState, EVENT event, STATE targetState,
+                                     List<? extends FsmFormItem> formItemList) {
+            this.sourceState = sourceState;
+            this.event = event;
+            this.targetState = targetState;
+            this.formItemList = List.copyOf(formItemList);
+        }
     }
 
 
