@@ -26,4 +26,13 @@ public interface FsmEvent extends Serializable {
     default FsmEventSource source() {
         return FsmEventSource.User;
     }
+
+    static FsmEvent of(String name) {
+        return of(name, FsmEventSource.User, null);
+    }
+
+    static FsmEvent of(String name, FsmEventSource source, String description) {
+        return FSMHelper.newFsmEvent(name, source, description);
+    }
+
 }

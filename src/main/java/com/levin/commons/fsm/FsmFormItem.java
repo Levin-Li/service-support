@@ -18,15 +18,23 @@ public interface FsmFormItem extends Castable, Serializable {
 
     @Schema(title = "表单项名称", description = "也就是字段名,不允许为空")
     @NotNull
-    String getName();
+    String name();
 
     @Schema(title = "标签", description = "如果不填，就用字段默认的Label")
-    default String getLabel() {
+    default String label() {
         return null;
     }
 
     @Schema(title = "是否必填", description = "默认不设置也就是返回Null值, 由字段原有编辑表单的逻辑决定")
-    default Boolean getRequired() {
+    default Boolean required() {
         return null;
+    }
+
+    static FsmFormItem of(String name) {
+        return of(name, null, null);
+    }
+
+    static FsmFormItem of(String name, String label, Boolean required) {
+        return FSMHelper.newFsmFormItem(name, label, required);
     }
 }

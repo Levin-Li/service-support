@@ -17,6 +17,11 @@ public final class FSMHelper {
     private FSMHelper() {
     }
 
+
+    public static FsmFormItem newFsmFormItem(String name, String label, Boolean required) {
+        return new SimpleFsmFormItem(name, label, required);
+    }
+
     /**
      * 创建事件
      *
@@ -226,6 +231,9 @@ public final class FSMHelper {
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private record SimpleFsmEvent(String name, FsmEventSource source, String description) implements FsmEvent {
+    }
+
+    private record SimpleFsmFormItem(String name, String label, Boolean required) implements FsmFormItem {
     }
 
     private record SimpleFsmStateTransitionRule<EVENT extends FsmEvent, STATE extends FsmState<EVENT>>(
