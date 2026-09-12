@@ -116,6 +116,13 @@ public @interface InjectVar {
     String isOverride() default "true";
 
     /**
+     * 当 isOverride 求值得到false以后, 是否启用第三方注入
+     *
+     * @return
+     */
+    String isOverrideByThird() default "true";
+
+    /**
      * 变量是否是必须的，表达式必须返回 true or false。
      * 必须的概念是，变量必须存在，并且不为 null 值。
      * <p>
@@ -131,6 +138,7 @@ public @interface InjectVar {
      * @return
      */
     String isRequired() default "true";
+
 
     /**
      * 备注

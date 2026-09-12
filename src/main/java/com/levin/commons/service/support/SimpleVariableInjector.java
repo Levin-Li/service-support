@@ -211,6 +211,14 @@ public interface SimpleVariableInjector extends VariableInjector {
                     + "." + attrName + " annotation  InjectVar.isOverride [" + injectVar.isOverride() + "] can't eval", isOverride.getValueNotFoundCause());
         }
 
+        ValueHolder<Boolean> isOverrideByThird = getBooleanValueHolder(variableResolvers, injectVar.isOverrideByThird());
+
+        if (!isOverrideByThird.hasValue()) {
+            throw new VariableInjectException(beanClassName
+                    + "." + attrName + " annotation  InjectVar.isOverrideByThird [" + injectVar.isOverrideByThird() + "] can't eval", isOverrideByThird.getValueNotFoundCause());
+        }
+
+
         //如果没有值或是 true，都认为是 true
         ValueHolder<Boolean> isRequired = getBooleanValueHolder(variableResolvers, injectVar.isRequired());
 
@@ -221,9 +229,20 @@ public interface SimpleVariableInjector extends VariableInjector {
 
         if (!isOverride.get()
                 && (originalValue != null || !isRequired.get())) {
-            //如果不要求覆盖原值，并且 存在原值 或是 值不是必须的
-            //跳过这个字段
-            return ValueHolder.notValue(attrName);
+
+            //如果原来没有值, 看一下是否要注入第三方
+            //2026.9.12
+            if (originalValue == null
+                    && isInput
+                    && isOverrideByThird.get()) {
+
+                //就继续尝试第三方注入
+            } else {
+                //如果不要求覆盖原值，并且 存在原值 或是 值不是必须的
+                //跳过这个字段
+                return ValueHolder.notValue(attrName);
+            }
+
         }
 
         /////////////////////////////////////////////////////
