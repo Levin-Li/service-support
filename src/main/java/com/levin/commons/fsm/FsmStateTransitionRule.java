@@ -32,4 +32,8 @@ public interface FsmStateTransitionRule<EVENT extends FsmEvent, STATE extends Fs
     default List<? extends FsmFormItem> formItemList() {
         return List.of();
     }
+
+    static <EVENT extends FsmEvent, STATE extends FsmState<EVENT>> FsmStateTransitionRule<EVENT, STATE> of(STATE sourceState, EVENT event, STATE targetState, FsmFormItem... formItemList) {
+        return FSMHelper.newFsmStateTransitionRule(sourceState, event, targetState, formItemList);
+    }
 }
