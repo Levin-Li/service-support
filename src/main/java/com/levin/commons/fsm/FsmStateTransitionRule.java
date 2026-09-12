@@ -29,7 +29,7 @@ public interface FsmStateTransitionRule<EVENT extends FsmEvent, STATE extends Fs
     STATE targetState();
 
     @Schema(title = "表单列表", description = "状态转移的时候可提交表单;也可以不提，也可以无表单")
-    default List<FsmFormItem> formItemList() {
+    default List<? extends FsmFormItem> formItemList() {
         return List.of();
     }
 }

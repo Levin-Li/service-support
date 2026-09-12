@@ -51,9 +51,25 @@ public final class FSMHelper {
      * @param targetState
      * @param <EVENT>
      * @param <STATE>
+     * @param formItemList
      * @return
      */
-    public static <EVENT extends FsmEvent, STATE extends FsmState<EVENT>> FsmStateTransitionRule<EVENT, STATE> newFsmStateTransitionRule(STATE sourceState, EVENT event, STATE targetState) {
+    public static <EVENT extends FsmEvent, STATE extends FsmState<EVENT>> FsmStateTransitionRule<EVENT, STATE> newFsmStateTransitionRule(STATE sourceState, EVENT event, STATE targetState, FsmFormItem... formItemList) {
+        return newFsmStateTransitionRule(sourceState, event, targetState, formItemList == null ? List.of() : List.of(formItemList));
+    }
+
+    /**
+     * 创建新规则
+     *
+     * @param sourceState
+     * @param event
+     * @param targetState
+     * @param <EVENT>
+     * @param <STATE>
+     * @param formItemList
+     * @return
+     */
+    public static <EVENT extends FsmEvent, STATE extends FsmState<EVENT>> FsmStateTransitionRule<EVENT, STATE> newFsmStateTransitionRule(STATE sourceState, EVENT event, STATE targetState, List<? extends FsmFormItem> formItemList) {
 
         return new SimpleFsmStateTransitionRule<>(
 
@@ -61,7 +77,9 @@ public final class FSMHelper {
 
                 requireNonBlank(event, "event is blank"),
 
-                requireNonBlank(targetState, "targetState is blank")
+                requireNonBlank(targetState, "targetState is blank"),
+
+                formItemList
         );
     }
 
@@ -212,7 +230,10 @@ public final class FSMHelper {
 
     private record SimpleFsmStateTransitionRule<EVENT extends FsmEvent, STATE extends FsmState<EVENT>>(
             STATE sourceState, EVENT event,
-            STATE targetState) implements FsmStateTransitionRule<EVENT, STATE> {
+            STATE targetState,
+            List<? extends FsmFormItem> formItemList
+
+    ) implements FsmStateTransitionRule<EVENT, STATE> {
     }
 
 
