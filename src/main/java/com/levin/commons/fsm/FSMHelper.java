@@ -1,6 +1,11 @@
 package com.levin.commons.fsm;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.util.Collections;
 import java.util.List;
@@ -230,18 +235,41 @@ public final class FSMHelper {
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private record SimpleFsmEvent(String name, FsmEventSource source, String description) implements FsmEvent {
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Accessors(fluent = true, chain = true)
+    @EqualsAndHashCode(of = "name")
+    private static class SimpleFsmEvent implements FsmEvent {
+
+        String name;
+        FsmEventSource source;
+        String description;
     }
 
-    private record SimpleFsmFormItem(String name, String label, Boolean required) implements FsmFormItem {
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Accessors(fluent = true, chain = true)
+    @EqualsAndHashCode(of = "name")
+    private static class SimpleFsmFormItem implements FsmFormItem {
+
+        String name;
+        String label;
+        Boolean required;
     }
 
-    private record SimpleFsmStateTransitionRule<EVENT extends FsmEvent, STATE extends FsmState<EVENT>>(
-            STATE sourceState, EVENT event,
-            STATE targetState,
-            List<? extends FsmFormItem> formItemList
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Accessors(fluent = true, chain = true)
+    private static class SimpleFsmStateTransitionRule<EVENT extends FsmEvent, STATE extends FsmState<EVENT>>
+            implements FsmStateTransitionRule<EVENT, STATE> {
 
-    ) implements FsmStateTransitionRule<EVENT, STATE> {
+        STATE sourceState;
+        EVENT event;
+        STATE targetState;
+        List<? extends FsmFormItem> formItemList;
     }
 
 

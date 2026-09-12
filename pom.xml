@@ -293,6 +293,8 @@
                 <inherited>true</inherited>
                 <configuration>
                     <release>${maven.compiler.release}</release>
+                    <!-- JDK 23+ 默认关闭类路径上的注解处理；Lombok 需要显式开启。 -->
+                    <proc>full</proc>
                     <!-- 在编译时表留方法的参数名称 -->
                     <parameters>true</parameters>
                 </configuration>
