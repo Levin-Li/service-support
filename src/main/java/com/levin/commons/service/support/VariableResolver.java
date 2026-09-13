@@ -4,6 +4,8 @@ package com.levin.commons.service.support;
 import com.levin.commons.service.domain.InjectVar;
 import com.levin.commons.utils.ClassUtils;
 import com.levin.commons.utils.ExpressionUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.util.Assert;
@@ -23,6 +25,7 @@ import java.util.stream.Stream;
  * @author llw
  */
 @FunctionalInterface
+@Tag(name = "变量解析器", description = "变量按已注册解析器顺序尝试解析；解析器不支持、未找到或类型不匹配时由 ValueHolder/异常表达，不能将未解析值误作已解析值。表达式变量按脚本前缀分派。")
 public interface VariableResolver {
 
     /**
@@ -32,6 +35,7 @@ public interface VariableResolver {
      * @param name
      * @return
      */
+    @Operation(summary = "判断是否为表达式变量", description = "仅以 #!脚本名: 开头且脚本名由字母数字组成的变量名视为表达式；其他名称按普通变量处理。")
     static boolean isEL(String name) {
 
         name = name.trim();
@@ -52,6 +56,7 @@ public interface VariableResolver {
      * @param name
      * @return
      */
+    @Operation(summary = "判断是否支持变量", description = "返回 true 只表示解析器愿意尝试该变量；实际未找到或类型不匹配仍由 resolve 的 ValueHolder 或异常说明。")
     default boolean isSupported(String name) {
         return true;
     }
@@ -74,6 +79,7 @@ public interface VariableResolver {
      * @return ValueHolder<T>
      * @throws VariableNotFoundException 如果变量无法获取将抛出异常
      */
+    @Operation(summary = "解析变量", description = "始终返回 ValueHolder：未找到、null 不满足或类型不匹配时按参数返回无值 Holder 或抛出 VariableNotFoundException；原值仅作为解析上下文，不覆盖已解析结果。")
     <T> ValueHolder<T> resolve(String name, T originalValue, boolean throwExWhenNotFound, boolean isRequireNotNull, Type... expectTypes) throws VariableNotFoundException;
 
     /**
@@ -84,6 +90,7 @@ public interface VariableResolver {
      * @param <T>
      * @return
      */
+    @Operation(summary = "尝试解析变量并提供默认值", description = "尝试非抛异常解析；无值时回退为 defaultValue，isRequireNotNull 为 true 时 null 解析结果不视为命中。")
     default <T> T resolve(String name, boolean isRequireNotNull, T defaultValue) {
         return (T) resolve(name, null, false, isRequireNotNull).get(defaultValue);
     }

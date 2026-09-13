@@ -5,6 +5,8 @@ import cn.hutool.core.util.StrUtil;
 import com.levin.commons.annotation.GenNameConstant;
 import com.levin.commons.service.domain.EnumDesc;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -20,6 +22,7 @@ import java.util.Set;
  * @author lilw
  */
 @Schema(title = "数据范围", description = "用户自定义数据范围优先于角色")
+@Tag(name = "RBAC 数据范围定义", description = "六个用户范围字段非 null（包括空集合）时覆盖角色对应范围，只有 null 才回退为生效角色并集；选定来源后拒绝规则优先于允许规则。接口默认空集合是显式配置，不表示继承。")
 public interface DataScope {
 
     @Getter
@@ -261,11 +264,13 @@ public interface DataScope {
     /// /////////////////////////////////////////////////////////
 
     @Schema(title = "允许的租户范围", description = "具体参考 TenantScope 枚举；空集合表示没有允许的租户")
+    @Operation(summary = "获取允许租户范围", description = "非 null 集合覆盖角色租户范围，空集合明确表示不允许任何租户；仅 null 才回退到生效角色并集，且仍受拒绝租户范围优先限制。")
     default Set<String> getTenantScopeList() {
         return Set.of(TenantScope.Default.expression);
     }
 
     @Schema(title = "拒绝的租户范围", description = "具体参考 TenantScope 枚举；空集合表示没有拒绝的租户; 拒绝优先")
+    @Operation(summary = "获取拒绝租户范围", description = "非 null 集合覆盖角色拒绝范围，空集合表示没有拒绝规则；选定来源后该集合匹配优先于允许租户范围。")
     default Set<String> getDeniedTenantScopeList() {
         return Set.of();
     }
@@ -273,11 +278,13 @@ public interface DataScope {
     /// /////////////////////////////////////////////////////////
 
     @Schema(title = "允许的领域范围", description = "具体参考 DomainScope枚举, 注意不是域名, DomainObject 接口关联；空集合表示没有允许的领域")
+    @Operation(summary = "获取允许领域范围", description = "非 null 集合覆盖角色领域范围，空集合明确不允许任何非空领域；仅 null 回退到生效角色并集，且仍受拒绝领域范围优先限制。")
     default Set<String> getDomainScopeList() {
         return Set.of();
     }
 
     @Schema(title = "拒绝的领域范围", description = "具体参考 DomainScope枚举, 注意不是域名, DomainObject 接口关联；空集合表示没有拒绝的领域; 拒绝优先")
+    @Operation(summary = "获取拒绝领域范围", description = "非 null 集合覆盖角色拒绝领域范围；匹配此集合的领域优先拒绝，不会因允许规则回退为可访问。")
     default Set<String> getDeniedDomainScopeList() {
         return Set.of();
     }
@@ -285,11 +292,13 @@ public interface DataScope {
     /// /////////////////////////////////////////////////////////
 
     @Schema(title = "允许的组织范围", description = "使用 OrgScope.parse 进行解析；空集合表示没有允许的组织")
+    @Operation(summary = "获取允许组织范围", description = "非 null 集合覆盖角色组织范围，空集合明确不允许任何组织；仅 null 回退到生效角色并集，组织规则按 OrgScope 解析。")
     default Set<String> getOrgScopeList() {
         return Set.of();
     }
 
     @Schema(title = "拒绝的组织范围", description = "使用 OrgScope.parse 进行解析；空集合表示没有拒绝的组织; 拒绝优先")
+    @Operation(summary = "获取拒绝组织范围", description = "非 null 集合覆盖角色拒绝组织范围；匹配拒绝组织范围时优先拒绝，不会因允许组织规则回退为通过。")
     default Set<String> getDeniedOrgScopeList() {
         return Set.of();
     }
@@ -303,6 +312,7 @@ public interface DataScope {
      * @return
      */
     @Schema(title = "机密数据访问级别", description = "能访问的级别")
+    @Operation(summary = "获取机密数据访问级别", description = "用户值非 null 时覆盖角色等级；为 null 时由完整 RBAC 服务回退计算生效角色的最高等级。等级不足时应拒绝受保护数据访问。")
     default Integer getConfidentialDataAccessLevel() {
         return null;
     }

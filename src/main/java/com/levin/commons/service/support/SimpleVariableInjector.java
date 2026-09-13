@@ -2,6 +2,8 @@ package com.levin.commons.service.support;
 
 import com.levin.commons.service.domain.InjectVar;
 import com.levin.commons.utils.ClassUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.SneakyThrows;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.ResolvableType;
@@ -20,6 +22,7 @@ import java.util.function.Predicate;
 /**
  * 变量注入器
  */
+@Tag(name = "变量注入器", description = "注入前先匹配 InjectVar.domain；不匹配时跳过，不会覆盖字段。解析器顺序、isOverride、isOverrideByThird、isRequired 与注入模式共同决定是否保留原值、写入新值或拒绝。转换器实例按类型缓存复用。")
 public interface SimpleVariableInjector extends VariableInjector {
 
     /**
@@ -38,6 +41,7 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @return
      */
     @SneakyThrows
+    @Operation(summary = "获取注入转换器", description = "按 InjectVar.converter 类型复用转换器实例；缓存只复用实例，不改变转换规则或注入结果。")
     default GenericConverter getConverter(InjectVar injectVar) {
 
         Class<? extends GenericConverter> type = injectVar.converter();
@@ -66,6 +70,7 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @throws VariableNotFoundException
      */
     @Override
+    @Operation(summary = "注入单个字段", description = "按注入模式解析并转换字段值；领域不匹配时跳过，required 未满足或转换失败时拒绝并抛出异常。OnlyGetInjectValue 不写字段，InjectToField 才写入字段。")
     default ValueHolder<Object> doInject(Object targetBean, Field field, Mode mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
         return doInject(targetBean, null, field, null, !mode.equals(Mode.FieldConvertOutput), mode.equals(Mode.InjectToField), variableResolvers);
     }
@@ -82,6 +87,7 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @throws VariableNotFoundException
      */
     @Override
+    @Operation(summary = "注入对象字段", description = "依次处理带 InjectVar 的字段并返回各字段结果；被 ignoreFieldPredicate 命中的字段跳过，不覆盖原值。单字段 required 或转换失败时按异常语义中止。")
     default List<ValueHolder<Object>> doInject(Object targetBean, Predicate<Field> ignoreFieldPredicate, Mode mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
         List<ValueHolder<Object>> injectFields = new LinkedList<>();
         doInject(targetBean, ignoreFieldPredicate, mode, variableResolvers, (field, objectValueHolder) -> injectFields.add(objectValueHolder));

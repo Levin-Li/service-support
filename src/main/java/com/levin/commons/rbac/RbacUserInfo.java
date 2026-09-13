@@ -5,6 +5,8 @@ import com.levin.commons.dao.domain.DomainObject;
 import com.levin.commons.dao.domain.MultiTenantObject;
 import com.levin.commons.dao.domain.OrganizedObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -18,6 +20,7 @@ import org.springframework.util.StringUtils;
 /**
  * 用户基本信息
  */
+@Tag(name = "RBAC 用户定义", description = "平台用户以空租户 ID 识别，可参与跨租户范围判定；租户用户只能在其租户边界内访问。管理员快捷路径仍受领域、拒绝范围与机密级别等前置门槛约束。")
 public interface RbacUserInfo
         extends RbacCoreObject, MultiTenantObject, OrganizedObject, DataScope, DomainObject {
 
@@ -32,6 +35,7 @@ public interface RbacUserInfo
      * @return
      */
     @Override
+    @Operation(summary = "获取用户所属租户", description = "空或空白租户 ID 表示平台用户，非空表示租户用户；该归属决定跨租户访问的基础边界。")
     default <TID extends Serializable> TID getTenantId() {
         throw new UnsupportedOperationException();
     }
@@ -121,6 +125,7 @@ public interface RbacUserInfo
      *
      * @return 是否没有所属租户
      */
+    @Operation(summary = "判断是否为平台用户", description = "仅当所属租户 ID 为 null 或空白时返回 true；平台身份不自动绕过领域、拒绝范围、机密级别或资源动作授权。")
     default boolean isPlatformUser() {
         return !StringUtils.hasText(Objects.toString(getTenantId(), null));
     }
@@ -130,6 +135,7 @@ public interface RbacUserInfo
      *
      * @return 是否属于某个具体租户
      */
+    @Operation(summary = "判断是否为租户用户", description = "是平台用户判断的反向结果；租户用户的跨租户访问应按数据范围和授权规则拒绝。")
     default boolean isTenantUser() {
         return !isPlatformUser();
     }
