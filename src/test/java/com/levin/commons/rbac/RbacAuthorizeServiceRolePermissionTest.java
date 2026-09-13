@@ -4651,6 +4651,26 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "Groovy# 前缀规则必须走脚本匹配，而不能退化为对保留字符串的精确 ID 匹配");
     }
 
+    @Test
+    void shouldResolveDefaultTenantDifferentlyForTenantAndPlatformUsers() {
+        ScopeUser tenantUser = new ScopeUser("T1", List.of());
+        tenantUser.fields[0] = Set.of(DataScope.TenantScope.Default.getExpression());
+        StubRbacBaseService tenantService = new StubRbacBaseService(tenantUser)
+                .setTenantList(List.of(new TestTenant("T1", "Tenant one"), new TestTenant("T2", "Tenant two")));
+        assertTrue(tenantService.canAccessTenant(tenantUser, "T1"));
+        assertFalse(tenantService.canAccessTenant(tenantUser, "T2"));
+        assertFalse(tenantService.canAccessTenant(tenantUser, null));
+
+        ScopeUser platformUser = new ScopeUser(null, List.of());
+        platformUser.fields[0] = Set.of(DataScope.TenantScope.Default.getExpression());
+        StubRbacBaseService platformService = new StubRbacBaseService(platformUser)
+                .setTenantList(List.of(new TestTenant("T1", "Tenant one")));
+        assertTrue(platformService.canAccessTenant(platformUser, null));
+        assertFalse(platformService.canAccessTenant(platformUser, "T1"));
+        assertTrue(platformService.loadUserAccessibleTenantList(platformUser, true).isEmpty(),
+                "无租户默认值只授予公共范围，不应枚举真实租户");
+    }
+
     private static TestAuthorizeService canonicalCapturingAuthorizeService(RbacBaseService service, List<RbacRoleInfo> selected) {
         TestAuthorizeService auth = new TestAuthorizeService() {
             @Override public boolean isRoleAuthorized(Serializable principal, RbacRoleInfo role,
