@@ -3,6 +3,7 @@ package com.levin.commons.rbac;
 
 import cn.hutool.core.lang.Assert;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -16,6 +17,7 @@ import static com.levin.commons.rbac.RbacRoleInfo.*;
 /**
  * 授权服务
  */
+@Tag(name = "RBAC 授权服务", description = "授权判定按资源、角色和条件执行；空的要求集合表示无需授权。具体实现必须在 Swagger 方法说明中公开权限门槛、拒绝条件、优先级及任何缓存或回退规则。")
 public interface RbacBaseAuthorizeService {
 
     /**
@@ -86,7 +88,7 @@ public interface RbacBaseAuthorizeService {
      * @param conditionAction
      * @return
      */
-    @Operation(summary = "检查用户授权", description = "检查用户授权是否对指定的资源是否有某个操作权限")
+    @Operation(summary = "检查用户授权", description = "检查用户是否满足指定资源动作的授权条件；具体实现应先执行领域、租户或机密级别等前置拒绝规则，再判断角色和权限表达式。")
     boolean isAuthorized(@NotNull Serializable principal, String domain, String resType, String res, ResConditionAction conditionAction);
 
     /**
@@ -172,7 +174,7 @@ public interface RbacBaseAuthorizeService {
      * @param role
      * @return
      */
-    @Operation(summary = "检查用户对一个角色是否拥有授权", description = "")
+    @Operation(summary = "检查用户对一个角色是否拥有授权", description = "检查用户能否使用或管理指定角色；具体实现应明确领域、租户、机密级别、管理员层级与权限表达式的拒绝优先顺序。")
     boolean isRoleAuthorized(@NotNull Serializable principal, @NotNull RbacRoleInfo role, BiConsumer<String/*参数1为请求的权限*/, String/*参数2为错误原因*/> matchErrorConsumer);
 
 }

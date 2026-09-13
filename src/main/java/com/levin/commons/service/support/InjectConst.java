@@ -206,6 +206,11 @@ public interface InjectConst {
     String URL_SCHEME = "urlScheme";
 
     /**
+     * 领域ID
+     */
+    String DOMAIN_ID = "domainId";
+
+    /**
      * 服务器名称，通常是域名
      */
     String DOMAIN = "domain";

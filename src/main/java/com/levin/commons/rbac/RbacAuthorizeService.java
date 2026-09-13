@@ -5,6 +5,7 @@ import com.levin.commons.dao.domain.DomainObject;
 import cn.hutool.core.util.StrUtil;
 import com.levin.commons.utils.ExpressionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.StringUtils;
@@ -31,7 +32,7 @@ import static com.levin.commons.rbac.RbacMiscUtils.isAllNull;
  *
  * @author lilw
  */
-
+@Tag(name = "RBAC 授权与角色分配服务", description = "领域访问是资源和角色授权的前置门槛；门槛不满足时优先拒绝，不会被管理员快捷路径、菜单 alwaysShow 或角色权限回退绕过。权限加载可在一次操作内复用结果，缓存实现必须在角色、领域或范围变化后保持等价授权语义。")
 public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
 
     /**
@@ -70,6 +71,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
      * 返回用户可见菜单的独立副本。领域门槛先于动作权限，拒绝父节点时移除整支。
      * alwaysShow 仅控制动作权限不足时的展示，不绕过领域或禁用状态。
      */
+    @Operation(summary = "过滤用户可见菜单", description = "先按领域访问过滤，再判断动作权限；拒绝父节点会移除整棵子树。alwaysShow 仅在动作权限不足时保留展示，不绕过领域门槛或禁用状态。一次调用内复用用户、角色和权限读取结果。")
     default List<SimpleMenu> filterAccessibleMenuList(Serializable userPrincipal,
                                                     Collection<? extends MenuItem> menuList) {
         Assert.notNull(userPrincipal, "无用户主体");
@@ -174,7 +176,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         }
     }
 
-    @Operation(summary = "找出互斥的角色对", description = "默认返回第一组互斥的角色, 如果返回null表示无互斥的角色")
+    @Operation(summary = "找出互斥的角色对", description = "按输入角色顺序检查互斥约束，发现首组互斥角色即返回；返回 null 表示没有互斥关系。此校验不通过时角色分配会被拒绝。")
     default <ROLE extends RbacRoleInfo> DataPair<ROLE, ROLE> findExclusiveRolePair(Serializable targetUserPrincipal, Collection<? extends ROLE> roleList) {
 
         if (isAllNull(roleList)) {
@@ -245,7 +247,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         return null;
     }
 
-    @Operation(summary = "找出缺失的共存角色", description = "默认按目标用户租户返回当前角色和缺失的共存角色对象；如果共存角色编码表达式无法加载到角色对象，则抛出异常")
+    @Operation(summary = "找出缺失的共存角色", description = "按目标用户租户解析共存角色；发现首个缺失依赖即返回当前角色和缺失角色集合。表达式无法解析为角色对象时抛出异常，此校验不通过时角色分配会被拒绝。")
     default <ROLE extends RbacRoleInfo> DataPair<ROLE, Collection<ROLE>> findMissingCoexistRolePair(Serializable targetUserPrincipal, Collection<? extends ROLE> roleList) {
 
         if (isAllNull(roleList)) {
@@ -398,7 +400,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
     }
 
 
-    @Operation(summary = "校验角色分配", description = "统一检查操作人是否可分配、目标用户是否满足角色前置条件、角色集合是否存在互斥或缺失共存角色")
+    @Operation(summary = "校验角色分配", description = "依次校验操作人可分配权限、目标用户前置条件、角色互斥和共存依赖；任一项失败即拒绝分配，不会因后续角色或管理员快捷路径回退为通过。")
     default void checkRoleAssignment(Serializable operatorPrincipal, Serializable targetUserPrincipal, Collection<? extends RbacRoleInfo> finalRoles) {
         DomainAccess.evaluate(() -> {
             checkResolvedRoleAssignment(operatorPrincipal, targetUserPrincipal, finalRoles);
@@ -493,7 +495,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         }
     }
 
-    @Operation(summary = "检查目标用户是否满足角色分配前置条件", description = "用于保存用户角色前校验目标用户和目标角色，不用于操作人角色授权判断")
+    @Operation(summary = "检查目标用户是否满足角色分配前置条件", description = "仅校验目标用户与目标角色的前置条件，不替代操作人授权判断。前置条件脚本的编译结果可缓存复用；脚本返回非 true 或执行失败时视为不满足并拒绝分配。")
     default boolean isRoleAssignPreConditionMatched(Serializable targetUserPrincipal, RbacRoleInfo role) {
 
         Assert.notNull(targetUserPrincipal, "目标用户不能为空");
@@ -537,6 +539,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
      * @return
      */
     @Override
+    @Operation(summary = "检查用户资源动作授权", description = "先将 domain、资源类型和资源编码组合为资源表达式，再执行资源授权；领域门槛不满足时优先拒绝，不会回退到角色或权限表达式匹配。")
     default boolean isAuthorized(@NotNull Serializable principal, String domain, String resType, String res, ResConditionAction conditionAction) {
         return isAuthorized(principal, String.join(getPermissionDelimiter(), domain, resType, res), conditionAction);
     }
@@ -550,7 +553,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
      * @param action
      * @return
      */
-    @Operation(summary = "用户对指定的资源是否有权限")
+    @Operation(summary = "用户对指定的资源是否有权限", description = "资源授权先受领域访问门槛约束；门槛不满足即拒绝，不会回退到角色或权限表达式匹配。具体动作条件由 ResConditionAction 决定。")
     boolean isAuthorized(Serializable principal, String resExpr, ResConditionAction action);
 
     /**
@@ -561,6 +564,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
      * @return
      */
     @Override
+    @Operation(summary = "检查用户对角色的授权", description = "领域访问先于角色、租户、机密级别、管理员层级和权限表达式检查；任一前置门槛失败即拒绝，不能被后续管理员快捷路径绕过。")
     default boolean isRoleAuthorized(Serializable principal, RbacRoleInfo role, BiConsumer<String/*参数1为请求的权限*/, String/*参数2为错误原因*/> matchErrorConsumer) {
 
         Assert.notNull(principal, "无用户主体");

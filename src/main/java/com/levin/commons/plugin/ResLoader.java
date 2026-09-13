@@ -4,6 +4,7 @@ import com.levin.commons.rbac.Res;
 import com.levin.commons.service.domain.SimpleIdentifiable;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Collection;
 
@@ -14,6 +15,7 @@ import java.util.Collection;
  * @version 1.0
  * @since 1.1.17
  */
+@Tag(name = "插件资源加载器", description = "提供插件声明的资源类型与资源树；资源加载本身不执行 RBAC 授权，调用方应在展示或操作资源前执行相应的权限校验。")
 public interface ResLoader {
 
     /**
@@ -21,7 +23,7 @@ public interface ResLoader {
      *
      * @return
      */
-    @Operation(summary = "插件所有的资源类型", description = "资源类型")
+    @Operation(summary = "获取插件全部资源类型", description = "返回插件声明的资源类型，不包含菜单类型；结果是资源目录，不代表当前用户已获得访问或操作权限。")
     Collection<SimpleIdentifiable> getResTypes();
 
     /**

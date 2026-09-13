@@ -2,6 +2,7 @@ package com.levin.commons.dao.domain;
 
 import com.levin.commons.service.domain.Identifiable;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -17,9 +18,10 @@ import java.util.stream.Stream;
  * @author llw
  */
 
+@Tag(name = "对象自审", description = "自审按对象标识、启用状态、逻辑删除状态和有效期依次校验；任一条件不满足即拒绝并返回 false，错误通过回调按检查顺序报告。")
 public interface SelfAuditableObject {
 
-    @Operation(summary = "自审", description = "通过则放回true, 具体错误信息通过errorInfoConsumers接收")
+    @Operation(summary = "自审", description = "依次检查对象 ID、启用状态、逻辑删除状态和有效期；任一项失败立即返回 false，后续规则不再执行。每个失败原因通过 errorInfoConsumers 回调报告；全部通过时返回 true。")
     default boolean selfAudit(Consumer<String>... errorInfoConsumers) {
 
         final Function<String, Boolean> auditErrorFun = (error) -> {

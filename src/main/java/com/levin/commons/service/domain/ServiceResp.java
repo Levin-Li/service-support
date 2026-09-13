@@ -2,6 +2,7 @@ package com.levin.commons.service.domain;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.io.Serializable;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
  */
 
 @Schema(title = "服务响应")
+@Tag(name = "服务响应", description = "响应码为零时表示成功；非零时由错误类型和消息描述失败。交互信息仅描述客户端后续动作，不会覆盖响应码、成功状态或业务数据。")
 public interface ServiceResp<T>
         extends Castable, Traceable, Serializable {
 
@@ -33,7 +35,7 @@ public interface ServiceResp<T>
     @Schema(title = "详细信息", description = "错误详细信息，如：堆栈信息")
     String getDetailMsg();
 
-    @Operation(summary = "交互信息", description = "交互信息，如：跳转地址，重定向地址等")
+    @Operation(summary = "获取交互信息", description = "返回跳转、重定向等客户端交互建议；该列表不改变 code、isSuccessful 或 data 的语义，调用方仍应以响应码判断成功或失败。")
     List<Interaction> getInteractions();
 
     @Schema(title = "业务数据")

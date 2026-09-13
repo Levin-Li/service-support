@@ -7,6 +7,7 @@ import com.levin.commons.dao.domain.DomainObject;
 import com.levin.commons.dao.domain.ProxyWrapperObject;
 import com.levin.commons.utils.ExpressionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.ConcurrentReferenceHashMap;
@@ -28,8 +29,13 @@ import static com.levin.commons.rbac.RbacMiscUtils.*;
 /**
  * 加载服务
  *
+ * 数据范围规则：用户六个范围字段的非 {@code null} 值（空集合也包括在内）覆盖角色配置，
+ * 只有 {@code null} 才回退到生效角色的并集；拒绝规则优先于允许规则。默认实现按候选集计算，
+ * 实现类可以使用等价的数据库查询或缓存优化，但不得改变上述可见性、优先级和拒绝语义。
+ *
  * @author echo
  */
+@Tag(name = "RBAC 数据范围服务", description = "用户范围字段非 null（含空集合）覆盖角色配置，只有 null 才回退到生效角色并集；拒绝规则优先于允许规则。默认实现按候选集计算，子类可用等价的数据库查询或缓存优化，但不得改变授权、优先级、回退或拒绝结果。")
 public interface RbacBaseService extends RbacBaseUserService {
 
     Map<Class<?>, List<Field>> COPYABLE_FIELDS_CACHE = new ConcurrentReferenceHashMap<>();
@@ -64,7 +70,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         userTypeEnv.set(userType);
     }
 
-    @Operation(summary = "加载所有的租户列表", description = "onlyEffectOrg 可以指定是否只加载有效租户")
+    @Operation(summary = "加载全部租户列表", description = "返回数据源中的租户目录，不按当前用户数据范围或动作权限过滤；onlyLoadEffectTenant 为 true 时仅返回有效租户。权限可见性应使用 loadUserAccessibleTenantList。")
     <TENANT extends RbacTenantInfo> Collection<TENANT> loadAllTenantList(boolean onlyLoadEffectTenant);
 
     /**
@@ -74,7 +80,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param <TENANT>
      * @return
      */
-    @Operation(summary = "加载用户能访问的租户列表", description = "性能扩展点：默认实现会先加载候选租户再在内存中按数据范围过滤；子类可覆盖为按用户、租户表达式或缓存直接裁剪。onlyEffectOrg 可以指定是否只加载有效租户")
+    @Operation(summary = "加载用户能访问的租户列表", description = "先按用户数据范围过滤候选租户；拒绝租户规则优先于允许规则，拒绝全部时直接返回空列表。默认实现内存过滤，子类可用等价的用户/租户查询或缓存裁剪，但不得改变授权结果。onlyLoadEffectTenant 为 true 时只保留有效租户。")
     default <TENANT extends RbacTenantInfo> Collection<TENANT> loadUserAccessibleTenantList(Serializable userPrincipal, boolean onlyLoadEffectTenant) {
         return DomainAccess.evaluate(() -> {
             final RbacUserInfo user = requireScopeUser(userPrincipal);
@@ -100,22 +106,22 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param <TENANT>
      * @return
      */
-    @Operation(summary = "加载租户", description = "加载指定租户")
+    @Operation(summary = "加载租户", description = "按租户 ID 或实现支持的租户标识加载单个租户；该原始加载入口不代表当前用户已获得该租户的数据访问权限。")
     <TENANT extends RbacTenantInfo> TENANT loadTenant(Serializable tenantPrincipal);
 
     /** 加载业务领域目录，onlyLoadEffectDomain 指定是否只加载有效领域。 */
-    @Operation(summary = "加载所有领域", description = "领域是业务领域或应用，不是域名；加载实现负责数据查询，可按有效状态预裁剪")
+    @Operation(summary = "加载全部领域", description = "领域是业务领域或应用，不是域名；返回领域目录而非当前用户的授权结果。onlyLoadEffectDomain 为 true 时实现应只返回有效领域。")
     <DOMAIN extends RbacDomainInfo> Collection<DOMAIN> loadAllDomainList(boolean onlyLoadEffectDomain);
 
     /** 加载指定领域，不存在时返回 null。 */
-    @Operation(summary = "加载领域", description = "domainPrincipal 为领域ID或实现支持的领域标识")
+    @Operation(summary = "加载领域", description = "domainPrincipal 为领域 ID 或实现支持的领域标识；未找到时返回 null。该原始加载不执行当前用户领域授权，权限可见性应使用 loadUserAccessibleDomainList。")
     <DOMAIN extends RbacDomainInfo> DOMAIN loadDomain(Serializable domainPrincipal);
 
     /**
      * 加载用户范围内的有效领域。领域范围不依赖租户，不隐含资源动作或机密级别授权。
      * 子类可覆盖为按有效允许ID集合直接查询；默认仅加载一次目录，不逐项查询领域。
      */
-    @Operation(summary = "加载用户可访问的领域列表", description = "先按允许集合减拒绝集合短路，再批量加载领域；过滤无效领域，保留数据源顺序")
+    @Operation(summary = "加载用户可访问的领域列表", description = "用户领域范围非 null 时覆盖角色范围，null 才回退到生效角色并集；拒绝集合优先于允许集合。先短路无授权范围，再批量加载并过滤无效领域，保留数据源顺序。")
     default <DOMAIN extends RbacDomainInfo> Collection<DOMAIN> loadUserAccessibleDomainList(
             Serializable userPrincipal, boolean onlyLoadEffectDomain) {
         return DomainAccess.evaluate(() -> {
@@ -143,7 +149,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param orgPrincipal
      * @param <ORG>
      */
-    @Operation(summary = "加载组织", description = "orgPrincipal 参数可以是orgId 或是 RbacOrgInfo")
+    @Operation(summary = "加载组织", description = "orgPrincipal 可以是组织 ID 或 RbacOrgInfo；该原始加载入口不执行租户、领域或数据范围校验，访问判定应使用 checkOrgAccessible 或用户可访问列表。")
     <ORG extends RbacOrgInfo> ORG loadOrg(Serializable orgPrincipal);
 
     /**
@@ -154,11 +160,11 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param tenantId 可为null，为 null 时加载无租户的组织
      * @return
      */
-    @Operation(summary = "加载租户的组织列表", description = "性能扩展点：组织量大时应由子类在数据层按租户、状态、根节点或 nodePath 预裁剪。tenantId 为 null 时加载无租户组织, onlyEffectOrg 指定是否只加载有效组织, 要求方法返回只读对象")
+    @Operation(summary = "加载租户组织列表", description = "返回指定租户的原始组织目录，不按用户领域、数据范围或动作权限过滤；tenantId 为 null 时返回无租户组织，onlyLoadEffectOrg 为 true 时只返回有效组织。实现可在数据层或缓存预裁剪，但返回对象必须只读。")
     <ORG extends RbacOrgInfo> Collection<ORG> loadTenantOrgList(Serializable tenantId, boolean onlyLoadEffectOrg);
 
 
-    @Operation(summary = "加载用户能访问的组织列表", description = "性能扩展点：默认实现会按租户加载候选组织后在内存中计算 DataScope；子类可覆盖为 SQL/缓存直接计算用户可访问组织。onlyEffect 可以指定是否只加载有效组织")
+    @Operation(summary = "加载用户能访问的组织列表", description = "按用户数据范围过滤候选组织；用户非 null 范围覆盖角色范围，null 才回退，拒绝规则优先。默认实现逐租户在内存计算，子类可用等价 SQL 或缓存直接计算，但不得扩大可访问集合。onlyLoadEffectOrg 为 true 时只保留有效组织。")
     default <ORG extends RbacOrgInfo> Collection<ORG> loadUserAccessibleOrgList(Serializable userPrincipal, boolean onlyLoadEffectOrg) {
         return DomainAccess.evaluate(() -> {
             final RbacUserInfo user = requireScopeUser(userPrincipal);
@@ -195,7 +201,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * 加载“最大候选组织集合”。
      * 包含所有租户组织和无租户公共组织，供顶级超级管理员直接返回，也供普通超管/SaaS 管理员做机密级别过滤。
      */
-    @Operation(summary = "加载最大候选组织集合", description = "性能扩展点：默认实现遍历所有租户并逐个加载组织；子类可覆盖为一次性批量查询或缓存读取，避免 N+1 加载。")
+    @Operation(summary = "加载最大候选组织集合", description = "聚合全部有效租户的组织和无租户公共组织，作为全局管理员后续机密级别过滤的候选集；该方法本身不完成用户范围授权。默认逐租户加载，子类可使用等价批量查询或缓存避免 N+1。")
     default <ORG extends RbacOrgInfo> Collection<ORG> loadMaxAccessibleOrgList(boolean onlyLoadEffectOrg) {
         final Collection<ORG> allOrgList = new LinkedHashSet<>();
 
@@ -242,12 +248,12 @@ public interface RbacBaseService extends RbacBaseUserService {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    @Operation(summary = "组装组织树", description = "性能扩展点：组织量大或已有数据库树查询能力时，子类可覆盖为直接返回预裁剪/预组装树。rootIdList有指定时,表示只返回指定的根节点, 否则返回所有的根节点")
+    @Operation(summary = "组装组织树", description = "按 rootIdList 从传入组织集合组装树；指定根节点时只返回对应子树，未指定时回退为全部根节点。该方法不新增权限过滤，调用方应先传入已授权的候选集合。")
     default <ORG extends RbacOrgInfo> Collection<ORG> assembleOrgTree(Collection<ORG> orgList, String... rootIdList) {
         return assembleOrgTree(orgList, true, rootIdList);
     }
 
-    @Operation(summary = "组装组织树", description = "性能扩展点：默认实现会建立索引、复制节点并可选构建 nodePath；子类可覆盖为数据层递归查询/物化路径查询或轻量 DTO 组树。buildNodePath 指定是否构建 nodePath, rootIdList有指定时,表示只返回指定的根节点, 否则返回所有的根节点")
+    @Operation(summary = "组装组织树", description = "按租户分别建立索引并复制节点，避免修改传入的扁平组织集合；buildNodePath 决定是否构建节点路径。指定 rootIdList 时仅返回对应子树，未指定时返回全部根节点；不执行权限过滤。")
     default <ORG extends RbacOrgInfo> Collection<ORG> assembleOrgTree(Collection<ORG> orgList, boolean buildNodePath, String... rootIdList) {
 
         if (orgList == null || orgList.isEmpty()) {
@@ -366,7 +372,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param rootIdList    指定部分的根节点ID
      * @return 组织信息集合，可能是树形结构
      */
-    @Operation(summary = "加载当前用户有权限访问的组织列表", description = "assembleTree 为 true 时返回树形结构")
+    @Operation(summary = "加载当前用户有权限访问的组织列表", description = "先按数据范围和拒绝优先规则筛选组织，再按 rootIdList 裁剪；assembleTree 为 true 时将筛选结果组装为树。rootIdList 为空时回退为所有可访问根节点。")
     default <ORG extends RbacOrgInfo> Collection<ORG> loadUserOrgList(Serializable userPrincipal, boolean assembleTree, String... rootIdList) {
 
         final Collection<ORG> accessibleOrgList = loadUserAccessibleOrgList(userPrincipal, true);
@@ -386,7 +392,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param userPrincipal
      * @return
      */
-    @Operation(summary = "是否能访问所有组织", description = "性能扩展点：建议子类覆盖为基于用户标记、角色缓存或权限缓存的 O(1) 判断，避免重复解析 DataScope")
+    @Operation(summary = "是否能访问所有组织", description = "仅在租户范围、组织全量范围及每个实际组织均通过时返回 true；平台用户还必须覆盖全部租户和无租户组织。拒绝范围或任一未覆盖目标都会返回 false，且本方法不代表业务动作权限或机密级别授权。子类可用用户标记、角色或权限缓存实现等价 O(1) 判断。")
     default boolean canAccessAllOrg(Serializable userPrincipal) {
         return DomainAccess.evaluate(() -> {
             final RbacUserInfo user = requireScopeUser(userPrincipal);
@@ -515,7 +521,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         });
     }
 
-    @Operation(summary = "获取用户数据权限", description = "六个范围字段独立覆盖：用户非null（包括空集合）替代角色，null继承生效角色并集。返回不可变快照")
+    @Operation(summary = "获取用户数据权限", description = "六个范围字段独立处理：用户字段非 null（包括空集合）覆盖对应角色配置，只有 null 才回退到生效角色并集；后续范围匹配中拒绝规则优先于允许规则。返回不可变快照。")
     default DataScope getUserDataScope(Serializable userPrincipal) {
         return DomainAccess.evaluate(() -> {
             final RbacUserInfo user = requireScopeUser(userPrincipal);
@@ -569,7 +575,7 @@ public interface RbacBaseService extends RbacBaseUserService {
         return Collections.unmodifiableSet(normalized);
     }
 
-    @Operation(summary = "加载直接下级组织", description = "性能扩展点：默认实现会加载租户组织列表后内存过滤；子类应优先覆盖为按 parentId 直接查询。orgPrincipal 参数可以是orgId 或是 RbacOrgInfo")
+    @Operation(summary = "加载直接下级组织", description = "按 parentId 从指定租户的有效组织目录中筛选直接子节点；不执行当前用户的数据范围或动作权限校验。默认实现内存过滤，子类可覆盖为等价的按 parentId 查询。")
     default <ORG extends RbacOrgInfo> Collection<ORG> loadOrgChildren(Serializable tenantId, Serializable orgPrincipal) {
 
         Assert.isTrue(RbacMiscUtils.isNotBlank(orgPrincipal), "父节点不能为空");
@@ -593,7 +599,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param orgPrincipal orgId 或是 RbacOrgInfo
      * @return
      */
-    @Operation(summary = "加载所有的直系父组织", description = "性能扩展点：默认实现会加载租户全量组织再回溯父链；子类可覆盖为递归 SQL、闭包表或 nodePath 查询。要求按由近到远的顺序返回")
+    @Operation(summary = "加载所有直系父组织", description = "从目标组织向根节点回溯，按由近到远顺序返回；containsSelf 决定是否包含目标自身，selfAudit 决定是否筛除未通过自审的节点。该目录查询不执行用户授权；子类可用递归 SQL、闭包表或 nodePath 实现等价结果。")
     default <ORG extends RbacOrgInfo> Collection<ORG> loadOrgParentList(Serializable tenantId, boolean containsSelf, Serializable orgPrincipal, boolean selfAudit) {
 
         RbacOrgInfo leafOrg = null;
@@ -673,7 +679,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param parentId
      * @param orgId
      */
-    @Operation(summary = "检查用户组织可访问性", description = "性能扩展点：默认实现可能加载用户可访问组织列表后做内存 contains；子类可覆盖为 exists 查询或权限缓存判断。")
+    @Operation(summary = "检查用户组织可访问性", description = "按租户、领域和数据范围依次校验，拒绝规则优先；任一目标不满足即拒绝。默认实现可能加载可访问组织后内存判断，子类可用等价 exists 查询或权限缓存，但不得跳过任一授权门槛。")
     default void checkOrgAccessible(Serializable userPrincipal, Serializable tenantId, Serializable parentId, Serializable orgId) {
         DomainAccess.evaluate(() -> {
             final RbacUserInfo user = requireScopeUser(userPrincipal);
@@ -740,7 +746,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @return
      */
     @Override
-    @Operation(summary = "获取用户的机密数据访问级别", description = "性能扩展点：当用户本身没有定义访问级别时默认会扫描用户生效角色；子类可覆盖为缓存字段或预聚合查询，尽量不要多次调用")
+    @Operation(summary = "获取用户的机密数据访问级别", description = "顶级超级管理员直接返回最大级别；否则优先使用用户自身级别，仅在其为 null 时回退到生效角色中的最高级别。角色回退不使用机密级别过滤后的展示角色，避免权限语义分叉。子类可用缓存字段或预聚合查询实现等价结果。")
     default Integer getUserConfidentialDataAccessLevel(Serializable userPrincipal) {
         return DomainAccess.evaluate(() -> {
             final RbacUserInfo user = requireScopeUser(userPrincipal);
@@ -762,7 +768,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      *
      * @param rolePrincipal
      */
-    @Operation(summary = "加载角色", description = "角色不存在时返回null")
+    @Operation(summary = "加载角色", description = "按角色 ID 或实现支持的角色标识加载；角色不存在时返回 null。该原始加载不代表用户可见、可使用或可分配该角色。")
     <R extends RbacRoleInfo> R loadRole(Serializable rolePrincipal);
 
     /**
@@ -774,7 +780,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param onlyLoadEffectRole 是否只加载有效角色 ,否则加载所有角色
      * @return
      */
-    @Operation(summary = "加载租户的角色列表", description = "同时也会加载公共角色, onlyLoadEffectRole 是否只加载有效角色, 否则加载所有角色")
+    @Operation(summary = "加载租户角色列表", description = "返回指定租户角色与公共角色；tenantId 为 null 时只返回公共角色。onlyLoadEffectRole 为 true 时仅返回有效角色；该目录查询不执行当前用户的领域、机密级别或角色授权过滤。")
     <R extends RbacRoleInfo> Collection<R> loadTenantRoleList(Serializable tenantId, boolean onlyLoadEffectRole);
 
     /**
@@ -784,7 +790,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param roleCodeList
      * @return
      */
-    @Operation(summary = "根据角色代码加载角色列表", description = "性能扩展点：默认实现会加载租户角色列表后内存按 code 过滤；子类可覆盖为按 code 批量查询。不管角色是否处于有效状态,公共角色会并存")
+    @Operation(summary = "按角色编码加载角色列表", description = "从目标租户和公共角色中按编码筛选，不按角色有效状态过滤；同一编码的租户角色与公共角色可同时返回，未在此入口按优先级合并。子类可使用等价批量查询。")
     default <R extends RbacRoleInfo> Collection<R> loadTenantRoleListByCodes(final Serializable tenantId, Collection<String> roleCodeList) {
 
         if (isAllBlank(roleCodeList)) {
@@ -805,7 +811,7 @@ public interface RbacBaseService extends RbacBaseUserService {
                 .collect(Collectors.toSet());
     }
 
-    @Operation(summary = "根据角色编码表达式加载角色列表", description = "性能扩展点：默认实现会加载租户角色列表后用 * 和 ? 通配表达式过滤；子类可覆盖为按 code 批量查询或缓存匹配。公共角色会并存")
+    @Operation(summary = "按角色编码模式加载角色列表", description = "用 * 和 ? 通配模式从目标租户及公共角色中筛选，不按角色有效状态过滤且不做同码优先级合并。子类可使用等价的批量查询或缓存匹配，但不得改变模式匹配结果。")
     default <R extends RbacRoleInfo> Collection<R> loadTenantRoleListByCodePatterns(final Serializable tenantId, Collection<String> roleCodePatternList) {
 
         if (isAllBlank(roleCodePatternList)) {
@@ -867,7 +873,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param userPrincipal
      * @return
      */
-    @Operation(summary = "加载用户生效角色列表", description = "性能扩展点：默认实现会加载租户角色列表后按用户角色 code 归并；子类可覆盖为用户-角色关联查询或缓存。内部授权计算使用，不做角色对象的机密级别过滤")
+    @Operation(summary = "加载用户生效角色列表", description = "同角色编码按角色定义解析器的优先级归并，并先过滤无效或不属于用户租户的候选；再按领域范围过滤，拒绝优先。供内部授权与权限汇总使用，不做角色对象机密级别过滤。子类可用关联查询或缓存实现等价结果。")
     default <R extends RbacRoleInfo> Collection<R> loadUserOwnerRoleList(Serializable userPrincipal, boolean onlyLoadEffectRole) {
         return DomainAccess.evaluate(() -> {
             final RbacUserInfo user = requireScopeUser(userPrincipal);
@@ -905,7 +911,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * 这个方法面向展示或外部读取语义，可以按角色对象本身的机密级别做过滤；
      * 内部授权、权限汇总、数据范围汇总请使用 loadUserEffectiveRoleList，避免递归并保持用户已有角色语义稳定。
      */
-    @Operation(summary = "加载用户可访问的角色列表", description = "性能扩展点：默认实现基于生效角色再做机密级别过滤；子类可覆盖为已过滤缓存或数据库条件查询。默认按角色对象自身的机密级别做可见性过滤")
+    @Operation(summary = "加载用户可访问的角色列表", description = "先按生效角色的同码优先级、归属和领域范围确定候选，再按角色自身机密级别过滤；该展示语义不回退为未过滤角色。子类可用已过滤缓存或数据库条件查询，但不得放宽可见性。")
     default <R extends RbacRoleInfo> Collection<R> loadUserAccessibleRoleList(Serializable userPrincipal, boolean onlyLoadEffectRole) {
         return DomainAccess.evaluate(() -> {
             final RbacUserInfo user = loadUser(userPrincipal);
@@ -922,7 +928,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param roleCodeList
      * @return
      */
-    @Operation(summary = "根据角色代码加载权限列表", description = "性能扩展点：子类可覆盖为按角色 code 直接查询权限表达式，避免加载完整角色对象。")
+    @Operation(summary = "按角色编码加载权限列表", description = "委托集合参数重载汇总权限；该入口不执行用户、领域或角色可见性授权，角色编码为空时返回空集合。子类可直接按角色编码查询等价权限表达式。")
     default Collection<String> loadRolePermissionList(Serializable tenantId, String... roleCodeList) {
         return loadRolePermissionList(tenantId, Arrays.asList(roleCodeList));
     }
@@ -934,7 +940,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param roleCodeList 过滤出指定的角色
      * @return
      */
-    @Operation(summary = "根据角色代码加载权限列表", description = "性能扩展点：默认实现会加载租户角色列表后汇总权限；子类可覆盖为角色权限表批量查询或权限缓存。不管角色是否处于有效状态")
+    @Operation(summary = "按角色编码集合加载权限列表", description = "从指定租户和公共角色中汇总匹配编码的非空权限表达式并去重；不按角色有效状态过滤，也不执行用户授权。子类可使用角色权限表批量查询或缓存，但必须保持相同集合语义。")
     default Collection<String> loadRolePermissionList(Serializable tenantId, Collection<String> roleCodeList) {
 
         if (isAllBlank(roleCodeList)) {
@@ -958,13 +964,13 @@ public interface RbacBaseService extends RbacBaseUserService {
                 .collect(Collectors.toSet());
     }
 
-    @Operation(summary = "加载用户生效角色列表", description = "性能扩展点：子类可覆盖为用户角色缓存或关联表查询。不包括已经禁用的角色，不做角色对象机密级别过滤")
+    @Operation(summary = "加载用户生效角色列表", description = "使用同码优先级归并后的生效角色，排除禁用角色并按领域范围过滤；不做角色对象机密级别过滤，供授权与权限汇总使用。子类可用用户角色缓存或关联表查询实现等价结果。")
     default <R extends RbacRoleInfo> Collection<R> loadUserOwnerRoleList(Serializable userPrincipal) {
         return loadUserOwnerRoleList(userPrincipal, true);
     }
 
 
-    @Operation(summary = "加载用户角色列表", description = "性能扩展点：子类可覆盖为用户可见角色缓存或数据库条件查询。不包括已经禁用的角色")
+    @Operation(summary = "加载用户角色列表", description = "在生效角色基础上再按角色对象机密级别过滤，供展示或外部读取；不会回退为未过滤的授权角色。子类可用可见角色缓存或数据库条件查询实现等价结果。")
     default <R extends RbacRoleInfo> Collection<R> loadUserAccessibleRoleList(Serializable userPrincipal) {
         return loadUserAccessibleRoleList(userPrincipal, true);
     }
@@ -976,7 +982,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param userPrincipal 用户对象或是用户ID
      * @return
      */
-    @Operation(summary = "加载用户角色编码列表", description = "性能扩展点：默认实现会加载用户生效角色对象再提取 code；子类可覆盖为直接读取用户角色 code 或缓存。")
+    @Operation(summary = "加载用户角色编码列表", description = "从生效角色提取编码，而非从机密级别过滤后的可见角色提取，避免实际授权被展示过滤削弱。子类可直接读取用户角色编码或使用缓存，但结果必须反映生效角色变化。")
     default Collection<String> loadUserRoleCodeList(Serializable userPrincipal) {
 
         // 授权判断依赖的是“用户实际拥有的角色”，不能因为角色对象不可见就丢失角色编码。
@@ -994,7 +1000,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param userPrincipal 用户对象或是用户ID
      * @return
      */
-    @Operation(summary = "加载用户权限表达式列表", description = "性能扩展点：默认实现会加载用户生效角色并汇总权限；子类可覆盖为权限表达式缓存或关联表聚合查询。")
+    @Operation(summary = "加载用户权限表达式列表", description = "基于生效角色（而非机密级别过滤后的可见角色）汇总权限，避免因展示过滤丢失实际授权。子类可用权限缓存或关联表聚合查询，但缓存失效后必须反映角色、领域与范围变化。")
     default Collection<String> loadUserPermissionExprList(Serializable userPrincipal) {
         return DomainAccess.evaluate(() -> {
 
@@ -1369,7 +1375,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * 注意：返回对象必须是独立的新对象，并且 children/nodePath 可写；默认组树流程会重置 children，
      * 不能直接返回原始 sourceOrg，否则会修改调用方传入的扁平列表对象。
      */
-    @Operation(summary = "复制组树用组织节点", description = "性能扩展点：默认实现使用 AOP 脱壳、BeanUtils 和字段反射；子类知道组织类型时应覆盖为构造器/mapper 复制，以减少大组织树装配时的反射成本。")
+    @Operation(summary = "复制组树用组织节点", description = "复制组织节点供组树使用，避免修改调用方传入的扁平组织对象；默认通过 AOP 脱壳、BeanUtils 和反射复制。子类可用构造器或 mapper 优化，但不得返回原对象或改变树组装结果。")
     default <ORG extends RbacOrgInfo> ORG copyOrgNodeForAssembleTree(ORG sourceOrg) {
         return copyOrgNodeByReflection(sourceOrg);
     }
