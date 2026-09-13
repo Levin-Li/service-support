@@ -35,7 +35,7 @@ import static com.levin.commons.rbac.RbacMiscUtils.*;
  *
  * @author echo
  */
-@Tag(name = "RBAC 数据范围服务", description = "用户范围字段非 null（含空集合）覆盖角色配置，只有 null 才回退到生效角色并集；拒绝规则优先于允许规则。默认实现按候选集计算，子类可用等价的数据库查询或缓存优化，但不得改变授权、优先级、回退或拒绝结果。")
+@Tag(name = "RBAC 数据范围服务", description = "用户范围字段非 null（含空集合）覆盖角色配置，只有 null 才回退到生效角色并集；普通范围判定拒绝优先，管理员例外以方法契约为准。角色分配按当前完整有效目录验证独立角色及最终范围不能超过操作者，含脚本时目标用户须携带最终角色列表；目录、规则或上下文变化须重新校验。子类查询或缓存优化不得改变以上语义。")
 public interface RbacBaseService extends RbacBaseUserService {
 
     Map<Class<?>, List<Field>> COPYABLE_FIELDS_CACHE = new ConcurrentReferenceHashMap<>();
@@ -547,6 +547,126 @@ public interface RbacBaseService extends RbacBaseUserService {
                     resolveScopeField(user, roles, DataScope::getOrgScopeList, "org"),
                     resolveScopeField(user, roles, DataScope::getDeniedOrgScopeList, "org"), level);
         });
+    }
+
+    /** 角色授予范围按目标用户解释，目录快照仅用于当前分配判定。 */
+    @Operation(summary = "校验角色分配的数据范围上限", description = "按当前完整且一致的有效领域、租户、组织目录验证每个角色独立范围及分配后有效范围均包含于操作者范围；DEFAULT 分别按双方归属解释，角色自身拒绝先扣除，不能借其他角色拒绝或目标用户覆盖掩盖单角色越权。管理员仍受领域与密级上限约束；密级须同时满足有效快照和公开密级检查。含 Groovy 的范围要求目标真实对象已携带最终角色编码，否则拒绝，避免按分配前状态误放行；操作人须为当前已授权上下文。仅证明本次快照，目录/规则/上下文变化后须重新校验。目录返回 null 或检查异常时拒绝，不建立跨请求授权缓存。")
+    default void checkRoleDataScopeAssignment(RbacUserInfo operator, RbacUserInfo target,
+                                             Collection<? extends RbacRoleInfo> assignedRoles) {
+        DomainAccess.evaluate(() -> {
+            Assert.notNull(operator, "操作用户不能为空");
+            Assert.notNull(target, "目标用户不能为空");
+            Assert.notNull(assignedRoles, "角色集合不能为空");
+            final DataScope operatorScope = getUserDataScope(operator);
+            final List<RbacRoleInfo> roles = new ArrayList<>(assignedRoles);
+            for (RbacRoleInfo role : roles) Assert.notNull(role, "角色不能为空");
+            // 不用代理冒充真实用户：自定义类型、属性和 hasRole 均可能被脚本读取。
+            if (hasAssignmentScript(target) || roles.stream().anyMatch(this::hasAssignmentScript)) {
+                Set<String> finalCodes = roles.stream().map(RbacRoleInfo::getCode).collect(Collectors.toSet());
+                Set<String> targetCodes = Optional.ofNullable(target.getRoleList()).orElse(Collections.emptyList()).stream()
+                        .filter(Objects::nonNull).map(Object::toString).collect(Collectors.toSet());
+                Assert.isTrue(finalCodes.equals(targetCodes), "含脚本范围的目标用户必须提供分配后的最终角色列表");
+            }
+            final Collection<RbacDomainInfo> domains = this.<RbacDomainInfo>loadAllDomainList(true);
+            final Collection<RbacTenantInfo> directory = this.<RbacTenantInfo>loadAllTenantList(true);
+            Assert.notNull(domains, "领域目录加载失败，无法验证角色范围");
+            Assert.notNull(directory, "租户目录加载失败，无法验证角色范围");
+            final Collection<RbacTenantInfo> tenants = directory.stream().filter(Objects::nonNull)
+                    .filter(RbacCoreObject::selfAudit).collect(Collectors.toList());
+            for (RbacRoleInfo role : roles) {
+                Assert.notNull(role, "角色不能为空");
+                DataScope grant = assignmentScope(role, Collections.emptyList(), false);
+                boolean global = grantsGlobalAdmin(target, Collections.singletonList(role));
+                boolean orgAdmin = global || target.isTenantUser() && RbacRoleInfo.ADMIN_ROLE.equals(role.getCode());
+                checkScopeContained(operator, operatorScope, target, grant, global, orgAdmin, domains, tenants);
+            }
+            boolean global = grantsGlobalAdmin(target, roles);
+            boolean orgAdmin = global || target.isTenantUser() && roles.stream().anyMatch(r -> RbacRoleInfo.ADMIN_ROLE.equals(r.getCode()));
+            boolean top = target.isPlatformUser() && RbacUserInfo.TOP_SA_ACCOUNT_NAME.equals(target.getLoginName())
+                    && roles.stream().anyMatch(r -> RbacRoleInfo.SA_ROLE.equals(r.getCode()));
+            final DataScope effective = assignmentScope(target, roles, top);
+            checkScopeContained(operator, operatorScope, target, effective, global, orgAdmin, domains, tenants);
+            return null;
+        });
+    }
+
+    private boolean hasAssignmentScript(DataScope scope) {
+        return Arrays.asList(scope.getTenantScopeList(), scope.getDeniedTenantScopeList()).stream().filter(Objects::nonNull)
+                .flatMap(Collection::stream).filter(Objects::nonNull)
+                .anyMatch(rule -> rule.startsWith(DataScope.TenantScope.Groovy.getExpression()))
+                || Arrays.asList(scope.getOrgScopeList(), scope.getDeniedOrgScopeList()).stream().filter(Objects::nonNull)
+                .flatMap(Collection::stream).filter(StrUtil::isNotBlank).map(DataScope.OrgScope::parse)
+                .anyMatch(rule -> rule.orgMatchingMode().startsWith(DataScope.OrgMatchingMode.Groovy.getExpression()));
+    }
+
+    private boolean grantsGlobalAdmin(RbacUserInfo target, Collection<RbacRoleInfo> roles) {
+        return target.isPlatformUser() && roles.stream().anyMatch(r -> RbacRoleInfo.SA_ROLE.equals(r.getCode())
+                || RbacRoleInfo.SAAS_ADMIN.equals(r.getCode()));
+    }
+
+    private DataScope assignmentScope(DataScope source, Collection<RbacRoleInfo> roles, boolean top) {
+        Set<String> allowDomains = resolveScopeField(source, roles, DataScope::getDomainScopeList, "domain");
+        Set<String> denyDomains = resolveScopeField(source, roles, DataScope::getDeniedDomainScopeList, "domain");
+        DomainAccess access = DomainAccess.obtain(this, allowDomains, denyDomains, id -> loadDomain(id));
+        Collection<RbacRoleInfo> qualified = roles.stream().filter(access::allowsObject).collect(Collectors.toList());
+        Integer level = top ? Integer.valueOf(Integer.MAX_VALUE) : source.getConfidentialDataAccessLevel();
+        if (level == null) level = qualified.stream().map(RbacRoleInfo::getConfidentialDataAccessLevel)
+                .filter(Objects::nonNull).max(Integer::compareTo).orElse(null);
+        return new EffectiveDataScope(resolveScopeField(source, qualified, DataScope::getTenantScopeList, "tenant"),
+                resolveScopeField(source, qualified, DataScope::getDeniedTenantScopeList, "tenant"), allowDomains, denyDomains,
+                resolveScopeField(source, qualified, DataScope::getOrgScopeList, "org"),
+                resolveScopeField(source, qualified, DataScope::getDeniedOrgScopeList, "org"), level);
+    }
+
+    private void checkScopeContained(RbacUserInfo operator, DataScope operatorScope, RbacUserInfo target,
+                                     DataScope grant, boolean globalGrant, boolean orgAdminGrant,
+                                     Collection<RbacDomainInfo> domains, Collection<RbacTenantInfo> tenants) {
+        Assert.isTrue(canAccessConfidentialData(operatorScope::getConfidentialDataAccessLevel, grant.getConfidentialDataAccessLevel())
+                        && canAccessConfidentialDataByUser(operator, grant.getConfidentialDataAccessLevel()),
+                "分配后的机密数据访问级别超出操作用户上限");
+        DomainAccess grantedDomains = domainAccess(grant);
+        DomainAccess operatorDomains = domainAccess(operatorScope);
+        Assert.isTrue(!grantedDomains.allows(null) || operatorDomains.allows(null), "角色无领域范围超出操作用户上限");
+        for (RbacDomainInfo domain : domains) {
+            Assert.isTrue(!grantedDomains.allowsLoaded(domain) || operatorDomains.allowsLoaded(domain), "角色领域范围超出操作用户上限");
+        }
+        checkTenantScopeContained(operator, operatorScope, target, grant, globalGrant, orgAdminGrant, null, null);
+        for (RbacTenantInfo tenant : tenants) {
+            checkTenantScopeContained(operator, operatorScope, target, grant, globalGrant, orgAdminGrant, tenant.getId(), tenant);
+        }
+    }
+
+    private void checkTenantScopeContained(RbacUserInfo operator, DataScope operatorScope, RbacUserInfo target,
+                                           DataScope grant, boolean globalGrant, boolean orgAdminGrant,
+                                           Serializable tenantId, RbacTenantInfo tenant) {
+        if (!withinTenantBoundary(target, tenantId)
+                || !canAccessTenantWithinBoundary(target, grant, tenantId, tenant, globalGrant)) return;
+        Assert.isTrue(canAccessTenant(operator, operatorScope, tenantId, tenant), "角色租户范围[{}]超出操作用户上限", tenantId);
+        boolean operatorAdmin = hasOrgAdminScope(operator, tenantId);
+        boolean grantsNoOrg = orgAdminGrant || !grant.getOrgScopeList().isEmpty()
+                && !matchesNoOrg(grant.getDeniedOrgScopeList(), target, tenantId) && matchesNoOrg(grant.getOrgScopeList(), target, tenantId);
+        boolean operatorNoOrg = operatorAdmin || !operatorScope.getOrgScopeList().isEmpty()
+                && !matchesNoOrg(operatorScope.getDeniedOrgScopeList(), operator, tenantId)
+                && matchesNoOrg(operatorScope.getOrgScopeList(), operator, tenantId);
+        Assert.isTrue(!grantsNoOrg || operatorNoOrg, "角色无组织范围超出操作用户上限");
+        if (!orgAdminGrant && grant.getOrgScopeList().isEmpty()) return;
+        final Collection<RbacOrgInfo> directory = this.<RbacOrgInfo>loadTenantOrgList(tenantId, true);
+        Assert.notNull(directory, "组织目录加载失败，无法验证角色范围");
+        final Map<String, RbacOrgInfo> orgs = new LinkedHashMap<>();
+        for (RbacOrgInfo org : directory) {
+            if (org != null && org.selfAudit() && scopeId(org.getId()) != null
+                    && Objects.equals(scopeId(tenantId), scopeId(org.getTenantId()))) {
+                orgs.putIfAbsent(scopeId(org.getId()), org);
+            }
+        }
+        Set<String> grantedIds = orgAdminGrant ? orgs.keySet() : accessibleOrgIds(target, grant, tenantId, orgs);
+        Set<String> operatorIds = operatorAdmin ? orgs.keySet() : accessibleOrgIds(operator, operatorScope, tenantId, orgs);
+        for (String id : grantedIds) {
+            RbacOrgInfo org = orgs.get(id);
+            if (!orgDomainAllowed(grant, tenantId, org)) continue;
+            Assert.isTrue(operatorIds.contains(id) && orgDomainAllowed(operatorScope, tenantId, org),
+                    "角色组织范围[{}:{}]超出操作用户上限", tenantId, id);
+        }
     }
 
     private Set<String> resolveScopeField(DataScope user, Collection<RbacRoleInfo> roles,
@@ -1070,7 +1190,11 @@ public interface RbacBaseService extends RbacBaseUserService {
         if (!withinTenantBoundary(user, tenantId)) {
             return false;
         }
-        if (!isGlobalScopeAdmin(user) && (scope.getTenantScopeList().isEmpty() || deniesAllTenants(scope)
+        return canAccessTenantWithinBoundary(user, scope, tenantId, tenant, isGlobalScopeAdmin(user));
+    }
+
+    private boolean canAccessTenantWithinBoundary(RbacUserInfo user, DataScope scope, Serializable tenantId, RbacTenantInfo tenant, boolean globalAdmin) {
+        if (!globalAdmin && (scope.getTenantScopeList().isEmpty() || deniesAllTenants(scope)
                 || matchesStaticTenantRules(scope.getDeniedTenantScopeList(), user, tenantId))) {
             return false;
         }
@@ -1083,7 +1207,7 @@ public interface RbacBaseService extends RbacBaseUserService {
             }
         }
         if (tenant != null && !domainAccess(scope).allowsObject(tenant)) return false;
-        return isGlobalScopeAdmin(user) || (!matchesTenantGroovyRules(scope.getDeniedTenantScopeList(), user, tenant)
+        return globalAdmin || (!matchesTenantGroovyRules(scope.getDeniedTenantScopeList(), user, tenant)
                 && matchesTenantRules(scope.getTenantScopeList(), user, tenantId, tenant));
     }
 
@@ -1214,6 +1338,12 @@ public interface RbacBaseService extends RbacBaseUserService {
                 roots.add(start);
             }
             final String mode = scope.orgMatchingMode();
+            // 同一规则只拆分一次；路径编译仍在首个未排除的候选匹配时发生。
+            final boolean namePath = mode.startsWith(DataScope.OrgMatchingMode.NamePath.getExpression());
+            final String pathExpression = namePath
+                    ? mode.substring(DataScope.OrgMatchingMode.NamePath.getExpression().length())
+                    : mode.startsWith(DataScope.OrgMatchingMode.IdPath.getExpression())
+                    ? mode.substring(DataScope.OrgMatchingMode.IdPath.getExpression().length()) : null;
             for (String root : roots) {
                 if (!orgMap.containsKey(root)) continue;
                 if (DataScope.OrgMatchingMode.Self.getExpression().equals(mode)) {
@@ -1236,7 +1366,7 @@ public interface RbacBaseService extends RbacBaseUserService {
                         if (paths == null) paths = new OrgScopePaths(root, orgMap);
                         for (String id : candidates) {
                             if (excluded.contains(id) || matched.contains(id)) continue;
-                            if (matchesOrgExpression(mode, user, scope, orgMap.get(root), orgMap.get(id), paths)) {
+                            if (matchesOrgExpression(mode, pathExpression, user, scope, orgMap.get(root), orgMap.get(id), paths)) {
                                 matched.add(id);
                             }
                         }
@@ -1249,13 +1379,13 @@ public interface RbacBaseService extends RbacBaseUserService {
         return matched;
     }
 
-    private boolean matchesOrgExpression(String mode, RbacUserInfo user, DataScope.OrgScope scope,
+    private boolean matchesOrgExpression(String mode, String pathExpression, RbacUserInfo user, DataScope.OrgScope scope,
                                            RbacOrgInfo root, RbacOrgInfo org, OrgScopePaths paths) {
         if (mode.startsWith(DataScope.OrgMatchingMode.IdPath.getExpression())) {
-            return paths.matches(mode.substring(DataScope.OrgMatchingMode.IdPath.getExpression().length()), scopeId(org.getId()), false);
+            return paths.matches(pathExpression, scopeId(org.getId()), false);
         }
         if (mode.startsWith(DataScope.OrgMatchingMode.NamePath.getExpression())) {
-            return paths.matches(mode.substring(DataScope.OrgMatchingMode.NamePath.getExpression().length()), scopeId(org.getId()), true);
+            return paths.matches(pathExpression, scopeId(org.getId()), true);
         }
         Assert.isTrue(mode.startsWith(DataScope.OrgMatchingMode.Groovy.getExpression()), "无效的组织匹配模式[{}]", mode);
         Map<String, Object> context = new LinkedHashMap<>();

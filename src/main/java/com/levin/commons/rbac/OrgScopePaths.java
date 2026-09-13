@@ -15,7 +15,11 @@ final class OrgScopePaths {
     private final Map<String, ? extends RbacOrgInfo> organizations;
     private final Map<String, String> idPaths = new HashMap<>();
     private final Map<String, String> namePaths = new HashMap<>();
-    private final Map<PathKey, PathContainer> parsedPaths = new HashMap<>();
+    // 四种路径视图区分缓存，避免每次规则×节点匹配都创建复合键。
+    private final Map<String, PathContainer> parsedIdPaths = new HashMap<>();
+    private final Map<String, PathContainer> parsedIdPathsWithSlash = new HashMap<>();
+    private final Map<String, PathContainer> parsedNamePaths = new HashMap<>();
+    private final Map<String, PathContainer> parsedNamePathsWithSlash = new HashMap<>();
 
     OrgScopePaths(String rootId, Map<String, ? extends RbacOrgInfo> organizations) {
         this.organizations = organizations;
@@ -48,7 +52,10 @@ final class OrgScopePaths {
 
     boolean matches(String expression, String orgId, boolean names) {
         boolean trailingSlash = expression.endsWith("/") && !"/".equals(expression);
-        PathContainer parsed = parsedPaths.computeIfAbsent(new PathKey(orgId, names, trailingSlash), key -> {
+        Map<String, PathContainer> parsedPaths = names
+                ? (trailingSlash ? parsedNamePathsWithSlash : parsedNamePaths)
+                : (trailingSlash ? parsedIdPathsWithSlash : parsedIdPaths);
+        PathContainer parsed = parsedPaths.computeIfAbsent(orgId, key -> {
             String path = path(orgId, names);
             if (path == null) return null;
             if (!trailingSlash) {
@@ -61,5 +68,4 @@ final class OrgScopePaths {
         return PathPatternUtils.matchParsedPath(expression, parsed);
     }
 
-    private record PathKey(String orgId, boolean names, boolean trailingSlash) {}
 }

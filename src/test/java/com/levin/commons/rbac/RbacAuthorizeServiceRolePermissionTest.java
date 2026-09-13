@@ -4671,6 +4671,839 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "无租户默认值只授予公共范围，不应枚举真实租户");
     }
 
+    @Test
+    void shouldKeepPathParsingLazyForSkippedCandidates() {
+        for (String mode : List.of("IdPath#", "NamePath#")) {
+            ScopeUser user = new ScopeUser("T1", List.of());
+            user.fields[0] = Set.of("T1");
+            StubRbacBaseService service = new StubRbacBaseService(user).setOrgList(List.of(
+                    new TestOrg("A", null, "T1", "Alpha"),
+                    new TestOrg("A1", "A", "T1", "Child"),
+                    new TestOrg("B", null, "T1", "Beta")));
+
+            user.fields[4] = Set.of("missing|" + mode + "/{broken");
+            assertTrue(service.loadUserAccessibleOrgList(user, true).isEmpty(), mode);
+
+            user.fields[4] = new LinkedHashSet<>(List.of("A|SelfAndAllChild", "A|" + mode + "/{broken"));
+            assertEquals(List.of("A", "A1"), service.loadUserAccessibleOrgList(user, true).stream()
+                    .map(org -> Objects.toString(org.getId())).collect(Collectors.toList()), mode);
+
+            user.fields[4] = Set.of("A|" + mode + "/{broken");
+            user.fields[5] = Set.of("A|SelfAndAllChild");
+            assertTrue(service.loadUserAccessibleOrgList(user, true).isEmpty(), mode);
+
+            user.fields[5] = Set.of();
+            assertThrows(IllegalArgumentException.class,
+                    () -> service.loadUserAccessibleOrgList(user, true), mode);
+
+            user.fields[4] = new LinkedHashSet<>(List.of("A|SelfAndAllChild", "_ALL_ROOT_|" + mode + "/{broken"));
+            assertThrows(IllegalArgumentException.class,
+                    () -> service.loadUserAccessibleOrgList(user, true), "仍须在未覆盖的根 B 解析规则：" + mode);
+        }
+    }
+
+    @Test
+    void requirementMatrixAllSixFieldSourcesAndConfidentialOverrides() {
+        int combinations = 0;
+        for (int domainMode : new int[]{0, 1, 2}) for (Integer level : Arrays.asList(null, Integer.MIN_VALUE, 0, 50, Integer.MAX_VALUE)) {
+            for (int combination = 0; combination < 729; combination++) {
+                ScopeUser user = new ScopeUser("T1", List.of("low", "high")) {
+                    @Override public Integer getConfidentialDataAccessLevel() { return level; }
+                };
+                ScopeRole low = new ScopeRole("low") {
+                    @Override public Integer getConfidentialDataAccessLevel() { return 10; }
+                    @Override public String getDomainId() { return domainMode == 0 ? null : domainMode == 1 ? "low" : "high"; }
+                };
+                ScopeRole high = new ScopeRole("high") {
+                    @Override public Integer getConfidentialDataAccessLevel() { return 80; }
+                    @Override public String getDomainId() { return domainMode == 0 ? null : domainMode == 1 ? "high" : "low"; }
+                };
+                List<Set<String>> expected = new ArrayList<>();
+                int choices = combination;
+                for (int field = 0; field < 6; field++, choices /= 3) {
+                    String suffix = field >= 4 ? "|Self" : "";
+                    low.fields[field] = Set.of("low" + suffix);
+                    high.fields[field] = Set.of("high" + suffix, "low" + suffix);
+                    int choice = choices % 3;
+                    String explicitRule = field == 2 ? "low" : field == 3 ? "high" : "user" + suffix;
+                    user.fields[field] = choice == 0 ? null : choice == 1 ? Set.of() : Set.of(explicitRule);
+                    expected.add(choice == 0 ? Set.of("low" + suffix, "high" + suffix) : user.fields[field]);
+                }
+                String lowDomain = domainMode == 1 ? "low" : "high";
+                String highDomain = domainMode == 1 ? "high" : "low";
+                boolean lowVisible = domainMode == 0 || expected.get(2).contains(lowDomain) && !expected.get(3).contains(lowDomain);
+                boolean highVisible = domainMode == 0 || expected.get(2).contains(highDomain) && !expected.get(3).contains(highDomain);
+                for (int field : new int[]{0, 1, 4, 5}) {
+                    if (user.fields[field] != null) continue;
+                    Set<String> qualified = new LinkedHashSet<>();
+                    if (lowVisible) qualified.addAll(low.fields[field]);
+                    if (highVisible) qualified.addAll(high.fields[field]);
+                    expected.set(field, qualified);
+                }
+                StubRbacBaseService service = new StubRbacBaseService(user)
+                        .setDomainList(List.of(new TestDomain("low"), new TestDomain("high")));
+                service.registerRole(low);
+                service.registerRole(high);
+                String label = "sixFields=" + combination + ", userLevel=" + level + ", roleDomainMode=" + domainMode;
+                DataScope actual = service.getUserDataScope(user);
+                assertEquals(expected, scopeFields(actual), label);
+                Integer inheritedLevel = highVisible ? Integer.valueOf(80) : lowVisible ? Integer.valueOf(10) : null;
+                Integer expectedLevel = level == null ? inheritedLevel : level;
+                assertEquals(expectedLevel, actual.getConfidentialDataAccessLevel(), label);
+                assertEquals(expectedLevel, service.getUserConfidentialDataAccessLevel(user), label);
+                combinations++;
+            }
+        }
+        assertEquals(10935, combinations);
+    }
+
+    private record ScopeRuleCase(String expression, int platformMask, int tenantMask) {
+        Set<String> rules() { return expression == null ? Set.of() : Set.of(expression); }
+    }
+
+    @Test
+    void requirementMatrixTenantMarkersAllowDenyAndUserRoleSources() {
+        // Bit positions: no tenant, T1, T2. These masks are the requirements' truth table.
+        List<ScopeRuleCase> rules = List.of(
+                new ScopeRuleCase(null, 0, 0), new ScopeRuleCase("_ALL_", 7, 7),
+                new ScopeRuleCase("_DEFAULT_", 1, 2), new ScopeRuleCase("_NONE_", 1, 1),
+                new ScopeRuleCase("T1", 2, 2), new ScopeRuleCase("T2", 4, 4),
+                new ScopeRuleCase("*", 0, 0), new ScopeRuleCase("Groovy#true", 7, 7),
+                new ScopeRuleCase("Groovy#false", 0, 0));
+        int combinations = 0;
+        for (String owner : Arrays.asList(null, "", " ", "T1")) {
+            for (boolean inherited : new boolean[]{false, true}) {
+                for (ScopeRuleCase allow : rules) for (ScopeRuleCase deny : rules) {
+                    ScopeUser user = new ScopeUser(owner, List.of("matrix"));
+                    ScopeRole role = new ScopeRole("matrix") {
+                        @Override public String getTenantId() { return null; }
+                    };
+                    role.fields[0] = allow.rules(); role.fields[1] = deny.rules();
+                    if (!inherited) { user.fields[0] = allow.rules(); user.fields[1] = deny.rules(); }
+                    StubRbacBaseService service = new StubRbacBaseService(user)
+                            .setTenantList(List.of(new TestTenant("T1", "One"), new TestTenant("T2", "Two")));
+                    service.registerRole(role);
+                    boolean tenantUser = "T1".equals(owner);
+                    int mask = tenantUser ? (allow.tenantMask & ~deny.tenantMask & 2)
+                            : (allow.platformMask & ~deny.platformMask);
+                    String label = "tenant owner=" + owner + ", inherited=" + inherited + ", allow=" + allow + ", deny=" + deny;
+                    List<String> expectedList = new ArrayList<>();
+                    List<String> targets = Arrays.asList(null, "T1", "T2");
+                    for (int i = 0; i < targets.size(); i++) {
+                        boolean expected = (mask & (1 << i)) != 0;
+                        assertEquals(expected, service.canAccessTenant(user, targets.get(i)), label + ", target=" + targets.get(i));
+                        if (expected && i > 0) expectedList.add(targets.get(i));
+                    }
+                    assertEquals(expectedList, service.loadUserAccessibleTenantList(user, true).stream()
+                            .map(t -> Objects.toString(t.getId())).collect(Collectors.toList()), label);
+                    combinations++;
+                }
+            }
+        }
+        assertEquals(648, combinations);
+    }
+
+    @Test
+    void requirementMatrixConfidentialThresholdsAndLazyEvaluation() {
+        StubRbacBaseService service = new StubRbacBaseService(new ScopeUser("T1", List.of()));
+        Set<Integer> boundaries = new LinkedHashSet<>(Arrays.asList(null, Integer.MIN_VALUE, Integer.MAX_VALUE));
+        for (ConfidentialLevel level : ConfidentialLevel.values()) {
+            boundaries.add(level.code());
+            if (level.code() > Integer.MIN_VALUE) boundaries.add(level.code() - 1);
+            if (level.code() < Integer.MAX_VALUE) boundaries.add(level.code() + 1);
+        }
+        for (Integer granted : boundaries) for (Integer required : boundaries) {
+            boolean expected = required == null || required == Integer.MIN_VALUE
+                    || (granted != null && granted >= required);
+            assertEquals(expected, service.canAccessConfidentialData(() -> granted, required),
+                    "granted=" + granted + ", required=" + required);
+        }
+        AtomicInteger reads = new AtomicInteger();
+        java.util.function.Supplier<Integer> supplier = () -> { reads.incrementAndGet(); return 100; };
+        assertTrue(service.canAccessConfidentialData(supplier, (Integer[]) null));
+        assertTrue(service.canAccessConfidentialData(supplier, new Integer[0]));
+        assertTrue(service.canAccessConfidentialData(supplier, null, Integer.MIN_VALUE));
+        assertEquals(0, reads.get(), "公开数据和空要求不得读取用户等级");
+        assertTrue(service.canAccessConfidentialData(supplier, 99, 100, null, Integer.MIN_VALUE));
+        assertEquals(1, reads.get(), "同一次判定只读取一次等级");
+        assertFalse(service.canAccessConfidentialData(supplier, 99, 101, 100));
+        assertEquals(2, reads.get());
+        CacheSupplier<Integer> cached = new CacheSupplier<>(supplier);
+        assertTrue(service.canAccessConfidentialData(cached, 100));
+        assertFalse(service.canAccessConfidentialData(cached, 101));
+        assertEquals(3, reads.get(), "调用者传入的 CacheSupplier 继续复用其值");
+        AtomicInteger nullReads = new AtomicInteger();
+        CacheSupplier<Integer> nullLevel = new CacheSupplier<>(() -> { nullReads.incrementAndGet(); return null; });
+        assertFalse(service.canAccessConfidentialData(nullLevel, 0));
+        assertFalse(service.canAccessConfidentialData(nullLevel, 100));
+        assertEquals(1, nullReads.get(), "已加载的 null 等级也要缓存，不能当成未加载");
+        assertEquals(34, boundaries.size());
+    }
+
+    @Test
+    void requirementMatrixInvalidScopeElementsAndExplicitOverride() {
+        for (int field = 0; field < 6; field++) {
+            List<String> invalid = new ArrayList<>(Arrays.asList(null, "", " \t "));
+            if (field < 2) invalid.add("Groovy# ");
+            if (field >= 4) invalid.add("A|unsupported");
+            for (String bad : invalid) for (boolean inherited : new boolean[]{false, true}) {
+                ScopeUser user = new ScopeUser("T1", List.of("bad"));
+                ScopeRole role = new ScopeRole("bad");
+                Set<String> invalidSet = new LinkedHashSet<>(Arrays.asList(bad));
+                if (inherited) role.fields[field] = invalidSet; else user.fields[field] = invalidSet;
+                StubRbacBaseService service = new StubRbacBaseService(user);
+                service.registerRole(role);
+                assertThrows(IllegalArgumentException.class, () -> service.getUserDataScope(user),
+                        "field=" + field + ", inherited=" + inherited + ", bad=" + bad);
+                user.fields[field] = Set.of();
+                assertEquals(Set.of(), scopeFields(service.getUserDataScope(user)).get(field),
+                        "显式空集合替代错误配置，不得重新回退角色");
+            }
+        }
+    }
+
+    private record OrgRuleCase(String expression, int mask) {
+        Set<String> rules() { return expression == null ? Set.of() : Set.of(expression); }
+    }
+
+    @Test
+    void requirementMatrixOrganizationModesDefaultsAndSetSubtraction() {
+        int combinations = 0;
+        // Bit positions: null, A, A1, A2, A21, B, B1, ORPHAN.
+        List<String> targets = Arrays.asList(null, "A", "A1", "A2", "A21", "B", "B1", "ORPHAN");
+        for (String owner : Arrays.asList(null, "T1")) for (String ownOrg : Arrays.asList(null, "A")) {
+            for (String targetTenant : Arrays.asList(null, "T1")) for (boolean inherited : new boolean[]{false, true}) {
+                int defaultMask = Objects.equals(owner, targetTenant) ? (ownOrg == null ? 1 : 2) : 0;
+                List<OrgRuleCase> rules = List.of(new OrgRuleCase(null, 0),
+                        new OrgRuleCase("_NONE_|ignored", 1), new OrgRuleCase("_DEFAULT_|Self", defaultMask),
+                        new OrgRuleCase("_ALL_ROOT_|SelfAndAllChild", 126), new OrgRuleCase("A|Self", 2),
+                        new OrgRuleCase("A|DirectChild", 12), new OrgRuleCase("A|SelfAndDirectChild", 14),
+                        new OrgRuleCase("A|SelfAndAllChild", 30), new OrgRuleCase("A|IdPath#/*", 14),
+                        new OrgRuleCase("A|IdPath#/*/", 12),
+                        new OrgRuleCase("A|NamePath#/*/*/", 16), new OrgRuleCase("A|Groovy#true", 30),
+                        new OrgRuleCase("A|Groovy#false", 0), new OrgRuleCase("ORPHAN|Self", 128));
+                for (OrgRuleCase allow : rules) for (OrgRuleCase deny : rules) {
+                    ScopeUser user = new ScopeUser(owner, List.of("matrix")) {
+                        @Override public String getOrgId() { return ownOrg; }
+                    };
+                    user.fields[0] = Set.of("_ALL_");
+                    ScopeRole role = new ScopeRole("matrix") {
+                        @Override public String getTenantId() { return null; }
+                    };
+                    role.fields[4] = allow.rules(); role.fields[5] = deny.rules();
+                    if (!inherited) { user.fields[4] = allow.rules(); user.fields[5] = deny.rules(); }
+                    List<TestOrg> orgs = baseOrgTree().stream()
+                            .map(o -> new TestOrg(o.getId(), o.getParentId(), targetTenant, o.getName()))
+                            .collect(Collectors.toList());
+                    orgs.add(new TestOrg("ORPHAN", "missing", targetTenant, "Orphan"));
+                    StubRbacBaseService service = new StubRbacBaseService(user)
+                            .setTenantList(List.of(new TestTenant("T1", "One"))).setOrgList(orgs);
+                    service.registerRole(role);
+                    int mask = owner == null || Objects.equals(owner, targetTenant) ? allow.mask & ~deny.mask : 0;
+                    String label = "org owner=" + owner + ", ownOrg=" + ownOrg + ", targetTenant=" + targetTenant
+                            + ", inherited=" + inherited + ", allow=" + allow + ", deny=" + deny;
+                    List<String> expectedList = new ArrayList<>();
+                    for (int i = 0; i < targets.size(); i++) {
+                        boolean expected = (mask & (1 << i)) != 0;
+                        assertEquals(expected, service.canAccessOrg(user, targetTenant, targets.get(i)), label + ", target=" + targets.get(i));
+                        if (expected && i > 0) expectedList.add(targets.get(i));
+                    }
+                    assertEquals(expectedList, service.loadUserAccessibleOrgList(user, true).stream()
+                            .map(o -> Objects.toString(o.getId())).collect(Collectors.toList()), label);
+                    combinations++;
+                }
+            }
+        }
+        assertEquals(3136, combinations);
+    }
+
+    private record MatrixIdentity(String tenant, String role, boolean globalAdmin, boolean orgAdmin, boolean top) {}
+
+    private static List<MatrixIdentity> matrixIdentities() {
+        return List.of(
+                new MatrixIdentity(null, "plain", false, false, false),
+                new MatrixIdentity("T1", "plain", false, false, false),
+                new MatrixIdentity("T1", RbacRoleInfo.ADMIN_ROLE, false, true, false),
+                new MatrixIdentity(null, RbacRoleInfo.SAAS_ADMIN, true, true, false),
+                new MatrixIdentity(null, RbacRoleInfo.SA_ROLE, true, true, false),
+                new MatrixIdentity(null, RbacRoleInfo.SA_ROLE, true, true, true),
+                new MatrixIdentity("T1", RbacRoleInfo.SA_ROLE, false, false, false));
+    }
+
+    @Test
+    void requirementMatrixAdminDomainRangeAndConfidentialGates() {
+        List<MatrixIdentity> identities = matrixIdentities();
+        int combinations = 0;
+        for (MatrixIdentity identity : identities) for (Integer level : Arrays.asList(null, Integer.MIN_VALUE, 0, 9, 10, 11)) {
+            for (int domainChoice = 0; domainChoice < 3; domainChoice++) for (int mask = 0; mask < 16; mask++) {
+                ScopeUser user = new ScopeUser(identity.tenant, List.of(identity.role, "matrix")) {
+                    @Override public String getLoginName() { return identity.top ? "sa" : "matrix"; }
+                    @Override public Integer getConfidentialDataAccessLevel() { return level; }
+                };
+                user.fields[0] = (mask & 1) != 0 ? Set.of("T1") : Set.of();
+                user.fields[1] = (mask & 2) != 0 ? Set.of("T1") : Set.of();
+                user.fields[2] = domainChoice == 0 ? Set.of() : Set.of("D");
+                user.fields[3] = domainChoice == 2 ? Set.of("D") : Set.of();
+                user.fields[4] = (mask & 4) != 0 ? Set.of("A|Self") : Set.of();
+                user.fields[5] = (mask & 8) != 0 ? Set.of("A|Self") : Set.of();
+                ScopeRole role = new ScopeRole("matrix") {
+                    @Override public String getTenantId() { return null; }
+                    @Override public Integer getConfidentialDataAccessLevel() { return 10; }
+                };
+                TestTenant tenant = new TestTenant("T1", "One", 10); tenant.domainId = "D";
+                TestOrg org = new TestOrg("A", null, "T1", "A", 10); org.domainId = "D";
+                StubRbacBaseService service = new StubRbacBaseService(user).setTenantList(List.of(tenant))
+                        .setOrgList(List.of(org)).setDomainList(List.of(new TestDomain("D")));
+                service.registerRole(role);
+                int granted = identity.top ? Integer.MAX_VALUE : level == null ? 10 : level;
+                boolean domainAllowed = domainChoice == 1;
+                boolean tenantAllowed = domainAllowed && (identity.globalAdmin || (mask & 3) == 1);
+                boolean orgAllowed = tenantAllowed && (identity.orgAdmin || (mask & 12) == 4);
+                boolean listLevelAllowed = !identity.globalAdmin || granted >= 10;
+                String label = identity + ", level=" + level + ", domain=" + domainChoice + ", grants=" + mask;
+                assertEquals(granted, service.getUserDataScope(user).getConfidentialDataAccessLevel(), label);
+                assertEquals(granted, service.getUserConfidentialDataAccessLevel(user), label);
+                assertEquals(granted >= 10, service.canAccessConfidentialDataByUser(user, 10), label);
+                assertEquals(domainAllowed, service.canAccessDomain(user, "D"), label);
+                assertEquals(tenantAllowed, service.canAccessTenant(user, "T1"), label);
+                assertEquals(orgAllowed, service.canAccessOrg(user, "T1", "A"), label);
+                assertEquals(tenantAllowed && listLevelAllowed, !service.loadUserAccessibleTenantList(user, true).isEmpty(), label);
+                assertEquals(orgAllowed && listLevelAllowed, !service.loadUserAccessibleOrgList(user, true).isEmpty(), label);
+                assertEquals(domainAllowed && granted >= 10, !service.filterByConfidentialAccess(user, List.of(org)).isEmpty(), label);
+                combinations++;
+            }
+        }
+        assertEquals(2016, combinations);
+    }
+
+    @Test
+    void requirementMatrixDomainMarkersAndDirectoryValidity() {
+        // Targets: no domain, D1, D2, literal *, missing, invalid.
+        List<OrgRuleCase> rules = List.of(new OrgRuleCase(null, 0), new OrgRuleCase("_ALL_", 63),
+                new OrgRuleCase("_NONE_", 1), new OrgRuleCase("D1", 2), new OrgRuleCase("D2", 4),
+                new OrgRuleCase("*", 8), new OrgRuleCase("missing", 16), new OrgRuleCase("invalid", 32));
+        int combinations = 0;
+        for (boolean inherited : new boolean[]{false, true}) for (OrgRuleCase allow : rules) for (OrgRuleCase deny : rules) {
+            ScopeUser user = new ScopeUser("T1", List.of("matrix"));
+            ScopeRole role = new ScopeRole("matrix");
+            role.fields[2] = allow.rules(); role.fields[3] = deny.rules();
+            if (!inherited) { user.fields[2] = allow.rules(); user.fields[3] = deny.rules(); }
+            StubRbacBaseService service = new StubRbacBaseService(user).setDomainList(List.of(
+                    new TestDomain("D1"), new TestDomain("D2"), new TestDomain("*"),
+                    new TestDomain("invalid") { @Override public boolean isEnable() { return false; } }));
+            service.registerRole(role);
+            String label = "domain allow=" + allow + ", deny=" + deny + ", inherited=" + inherited;
+            int mask = allow.mask & ~deny.mask & 15;
+            List<String> targets = Arrays.asList(null, "D1", "D2", "*", "missing", "invalid");
+            List<String> expectedList = new ArrayList<>();
+            for (int i = 0; i < targets.size(); i++) {
+                boolean expected = (mask & (1 << i)) != 0;
+                assertEquals(expected, service.canAccessDomain(user, targets.get(i)), label + ", target=" + targets.get(i));
+                if (expected && i > 0) expectedList.add(targets.get(i));
+            }
+            assertTrue(service.canAccessObjectDomain(user, domainOrg("blank", null, null, null)), label);
+            assertEquals(expectedList, service.loadUserAccessibleDomainList(user, false).stream()
+                    .map(d -> Objects.toString(d.getId())).collect(Collectors.toList()), label);
+            combinations++;
+        }
+        assertEquals(128, combinations);
+    }
+
+    private static class MatrixRole extends ScopeRole implements com.levin.commons.dao.domain.LogicDeletableObject {
+        final int status;
+        final String tenant;
+        final String domain;
+        final Integer level;
+        MatrixRole(int status, String tenant, String domain, Integer level) {
+            super("matrix"); this.status = status; this.tenant = tenant; this.domain = domain; this.level = level;
+            fields[0] = Set.of("T1"); fields[4] = Set.of("A|Self");
+        }
+        @Override public String getId() { return status == 4 ? null : tenant + "-" + domain; }
+        @Override public String getTenantId() { return status == 5 ? "T2" : tenant; }
+        @Override public String getDomainId() { return domain; }
+        @Override public boolean isEnable() { return status != 1; }
+        @Override public boolean isDeleted() { return status == 3; }
+        @Override public java.time.LocalDateTime getExpiredTime() { return status == 2 ? java.time.LocalDateTime.now().minusDays(1) : null; }
+        @Override public Integer getConfidentialDataAccessLevel() { return level; }
+        @Override public Integer getConfidentialLevel() { return Integer.MAX_VALUE; }
+    }
+
+    @Test
+    void requirementMatrixRoleFallbackVisibilityAndGrantedLevel() {
+        int combinations = 0;
+        for (int localStatus = 0; localStatus < 6; localStatus++) for (int sharedStatus = 0; sharedStatus < 6; sharedStatus++) {
+            for (boolean reverse : new boolean[]{false, true}) for (boolean grantLocalDomain : new boolean[]{false, true}) {
+                for (Integer userLevel : Arrays.asList(null, 0, Integer.MAX_VALUE)) {
+                    ScopeUser user = new ScopeUser("T1", List.of("matrix")) {
+                        @Override public Integer getConfidentialDataAccessLevel() { return userLevel; }
+                    };
+                    user.fields[2] = grantLocalDomain ? Set.of("D", "X") : Set.of("X");
+                    MatrixRole local = new MatrixRole(localStatus, "T1", "D", 10);
+                    MatrixRole shared = new MatrixRole(sharedStatus, null, "X", 100);
+                    RoleCatalogService service = new RoleCatalogService(user, reverse ? List.of(shared, local) : List.of(local, shared));
+                    service.setDomainList(List.of(new TestDomain("D"), new TestDomain("X")));
+                    boolean qualified = localStatus == 0 ? grantLocalDomain : sharedStatus == 0;
+                    Integer inheritedLevel = !qualified ? null : localStatus == 0 ? 10 : 100;
+                    Integer expectedLevel = userLevel != null ? userLevel : inheritedLevel;
+                    String label = "local=" + localStatus + ", shared=" + sharedStatus + ", reverse=" + reverse
+                            + ", localDomain=" + grantLocalDomain + ", userLevel=" + userLevel;
+                    DataScope scope = service.getUserDataScope(user);
+                    assertEquals(qualified ? Set.of("T1") : Set.of(), scope.getTenantScopeList(), label);
+                    assertEquals(qualified ? Set.of("A|Self") : Set.of(), scope.getOrgScopeList(), label);
+                    assertEquals(expectedLevel, scope.getConfidentialDataAccessLevel(), label);
+                    assertEquals(expectedLevel, service.getUserConfidentialDataAccessLevel(user), label);
+                    assertEquals(qualified && Integer.valueOf(Integer.MAX_VALUE).equals(expectedLevel),
+                            !service.loadUserAccessibleRoleList(user).isEmpty(), label);
+                    combinations++;
+                }
+            }
+        }
+        assertEquals(432, combinations);
+        for (List<Integer> roleLevels : List.<List<Integer>>of(Arrays.asList(null, null), Arrays.asList(null, 0), Arrays.asList(-100, 0))) {
+            ScopeUser user = new ScopeUser("T1", List.of("first", "second")) {
+                @Override public Integer getConfidentialDataAccessLevel() { return null; }
+            };
+            StubRbacBaseService service = new StubRbacBaseService(user);
+            for (int index = 0; index < 2; index++) {
+                Integer grant = roleLevels.get(index);
+                service.registerRole(new ScopeRole(index == 0 ? "first" : "second") {
+                    @Override public Integer getConfidentialDataAccessLevel() { return grant; }
+                });
+            }
+            Integer expected = roleLevels.equals(Arrays.asList(null, null)) ? null : Integer.valueOf(0);
+            assertEquals(expected, service.getUserDataScope(user).getConfidentialDataAccessLevel());
+            assertEquals(expected, service.getUserConfidentialDataAccessLevel(user));
+        }
+    }
+
+    @Test
+    void requirementMatrixTenantAndOrganizationDomainConsistency() {
+        List<Set<String>> domainRules = List.of(Set.of(), Set.of("D"), Set.of("X"), Set.of("_ALL_"));
+        int combinations = 0;
+        for (MatrixIdentity identity : matrixIdentities()) for (String tenantDomain : Arrays.asList(null, "D", "X")) {
+            for (String orgDomain : Arrays.asList(null, "D", "X")) for (Set<String> allow : domainRules) for (Set<String> deny : domainRules) {
+                ScopeUser user = new ScopeUser(identity.tenant, List.of(identity.role)) {
+                    @Override public String getLoginName() { return identity.top ? "sa" : "matrix"; }
+                };
+                user.fields[0] = Set.of("_ALL_"); user.fields[1] = Set.of();
+                user.fields[2] = allow; user.fields[3] = deny;
+                user.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild"); user.fields[5] = Set.of();
+                StubRbacBaseService service = new StubRbacBaseService(user)
+                        .setDomainList(List.of(new TestDomain("D"), new TestDomain("X")))
+                        .setTenantList(List.of(domainTenant("T1", tenantDomain)))
+                        .setOrgList(List.of(domainOrg("A", null, "T1", orgDomain), domainOrg("A1", "A", "T1", orgDomain)));
+                boolean tenantDomainAllowed = tenantDomain == null || (allow.contains("_ALL_") || allow.contains(tenantDomain))
+                        && !deny.contains("_ALL_") && !deny.contains(tenantDomain);
+                boolean orgDomainAllowed = orgDomain == null || (allow.contains("_ALL_") || allow.contains(orgDomain))
+                        && !deny.contains("_ALL_") && !deny.contains(orgDomain);
+                boolean consistent = tenantDomain == null || orgDomain == null || tenantDomain.equals(orgDomain);
+                boolean expected = tenantDomainAllowed && orgDomainAllowed && consistent;
+                String label = identity + ", tenantDomain=" + tenantDomain + ", orgDomain=" + orgDomain
+                        + ", allow=" + allow + ", deny=" + deny;
+                assertEquals(expected, service.canAccessOrg(user, "T1", "A1"), label);
+                assertEquals(expected, !service.loadUserAccessibleOrgList(user, true).isEmpty(), label);
+                assertEquals(expected, service.canAccessAllOrg(user, "T1"), label);
+                assertEquals(expected, service.canAccessAllOrg(user), label);
+                if (expected) assertDoesNotThrow(() -> service.checkOrgAccessible(user, "T1", "A", "A1"), label);
+                else assertThrows(IllegalArgumentException.class, () -> service.checkOrgAccessible(user, "T1", "A", "A1"), label);
+                combinations++;
+            }
+        }
+        assertEquals(1008, combinations);
+    }
+
+    @Test
+    void requirementMatrixConservativeAllOrganizationClaims() {
+        List<Set<String>> tenantAllows = List.of(Set.of(), Set.of("T1"), Set.of("_ALL_"));
+        List<Set<String>> orgAllows = List.of(Set.of(), Set.of("A|SelfAndAllChild"), Set.of("_ALL_ROOT_|SelfAndAllChild"));
+        List<Set<String>> orgDenies = List.of(Set.of(), Set.of("missing|Self"), Set.of("B|Self"));
+        int combinations = 0;
+        for (MatrixIdentity identity : matrixIdentities()) for (Set<String> tenantAllow : tenantAllows) {
+            for (Set<String> orgAllow : orgAllows) for (Set<String> orgDeny : orgDenies) for (boolean orphan : new boolean[]{false, true}) {
+                ScopeUser user = new ScopeUser(identity.tenant, List.of(identity.role)) {
+                    @Override public String getLoginName() { return identity.top ? "sa" : "matrix"; }
+                };
+                user.fields[0] = tenantAllow; user.fields[1] = Set.of();
+                user.fields[4] = orgAllow; user.fields[5] = orgDeny;
+                List<TestOrg> orgs = new ArrayList<>(List.of(new TestOrg("A", null, "T1", "A"), new TestOrg("B", null, "T1", "B")));
+                if (orphan) orgs.add(new TestOrg("orphan", "missing", "T1", "Orphan"));
+                StubRbacBaseService service = new StubRbacBaseService(user).setTenantList(List.of(new TestTenant("T1", "One"))).setOrgList(orgs);
+                boolean tenantAllowed = identity.globalAdmin || !tenantAllow.isEmpty();
+                boolean allOrg = identity.orgAdmin || orgAllow.contains("_ALL_ROOT_|SelfAndAllChild") && orgDeny.isEmpty() && !orphan;
+                boolean single = tenantAllowed && allOrg;
+                boolean global = identity.tenant != null ? single : identity.globalAdmin || tenantAllow.contains("_ALL_") && allOrg;
+                String label = identity + ", tenant=" + tenantAllow + ", allow=" + orgAllow + ", deny=" + orgDeny + ", orphan=" + orphan;
+                assertEquals(single, service.canAccessAllOrg(user, "T1"), label);
+                assertEquals(global, service.canAccessAllOrg(user), label);
+                assertEquals(identity.globalAdmin, service.canAccessOrg(user, null, null), label);
+                combinations++;
+            }
+        }
+        assertEquals(378, combinations);
+    }
+
+    @Test
+    void requirementScopeNullInputsAndEmptyResults() {
+        ScopeUser user = new ScopeUser("T1", List.of());
+        StubRbacBaseService service = new StubRbacBaseService(user);
+        assertTrue(service.filterByConfidentialAccess(user, null).isEmpty());
+        assertTrue(service.filterByConfidentialAccess(user, List.of()).isEmpty());
+        assertTrue(service.filterByDomainAccess(user, null).isEmpty());
+        assertTrue(service.filterByDomainAccess(user, List.of()).isEmpty());
+        assertFalse(service.canAccessUserDomain(user, null));
+        assertEquals(1, service.filterByConfidentialAccess(user, List.of((com.levin.commons.dao.domain.ConfidentialObject) () -> null)).size());
+        assertTrue(RoleDefinitionResolver.select("T1", null, List.of("matrix")).isEmpty());
+        ScopeRole blank = new ScopeRole(" ");
+        ScopeRole valid = new ScopeRole("matrix");
+        assertEquals(List.of(valid), RoleDefinitionResolver.select("T1", Arrays.asList(null, blank, valid), Arrays.asList(null, "matrix", "matrix")));
+        StubRbacBaseService idService = new StubRbacBaseService(user) {
+            @Override public <U extends RbacUserInfo> U loadUser(Serializable principal) {
+                return principal == user || "known".equals(principal) ? (U) user : null;
+            }
+        };
+        assertNotNull(idService.getUserDataScope("known"));
+        assertThrows(IllegalArgumentException.class, () -> idService.getUserDataScope("unknown"));
+        assertThrows(IllegalArgumentException.class, () -> idService.getUserDataScope(null));
+    }
+
+    @Test
+    void requirementScriptBooleanResultsExceptionsAndFreshUserContext() {
+        ScopeUser user = new ScopeUser("T1", List.of());
+        StubRbacBaseService service = new StubRbacBaseService(user).setOrgList(baseOrgTree());
+        for (String script : List.of("true", "false", "null", "1", "'true'")) {
+            user.fields[0] = Set.of("Groovy#" + script); user.fields[1] = Set.of();
+            assertEquals(script.equals("true"), service.canAccessTenant(user, "T1"), script);
+            user.fields[0] = Set.of("_ALL_"); user.fields[1] = Set.of("Groovy#" + script);
+            assertEquals(!script.equals("true"), service.canAccessTenant(user, "T1"), script);
+            user.fields[1] = Set.of(); user.fields[4] = Set.of("A|Groovy#" + script); user.fields[5] = Set.of();
+            assertEquals(script.equals("true"), service.canAccessOrg(user, "T1", "A1"), script);
+            user.fields[4] = Set.of("A|SelfAndAllChild"); user.fields[5] = Set.of("A|Groovy#" + script);
+            assertEquals(!script.equals("true"), service.canAccessOrg(user, "T1", "A1"), script);
+        }
+        for (String script : List.of("throw new IllegalStateException('expected')", "if (")) {
+            user.fields[0] = Set.of("Groovy#" + script); user.fields[1] = Set.of();
+            assertThrows(RuntimeException.class, () -> service.canAccessTenant(user, "T1"), script);
+            user.fields[0] = Set.of("_ALL_"); user.fields[1] = Set.of("Groovy#" + script);
+            assertThrows(RuntimeException.class, () -> service.canAccessTenant(user, "T1"), script);
+            user.fields[1] = Set.of(); user.fields[4] = Set.of("A|Groovy#" + script); user.fields[5] = Set.of();
+            assertThrows(RuntimeException.class, () -> service.canAccessOrg(user, "T1", "A1"), script);
+            user.fields[4] = Set.of("A|SelfAndAllChild"); user.fields[5] = Set.of("A|Groovy#" + script);
+            assertThrows(RuntimeException.class, () -> service.canAccessOrg(user, "T1", "A1"), script);
+        }
+        user.fields[0] = Set.of("Groovy#_user.tenantId == _tenant.id"); user.fields[1] = Set.of();
+        assertTrue(service.canAccessTenant(user, "T1"));
+        ScopeUser other = new ScopeUser(null, List.of()); other.fields[0] = user.fields[0];
+        assertFalse(service.canAccessTenant(other, "T1"), "相同编译脚本必须使用当前用户上下文，不能复用授权结果");
+    }
+
+    @Test
+    void requirementRoleAssignmentMustNotExceedOperatorTenantScope() {
+        ScopeUser operator = new ScopeUser(null, List.of()); operator.fields[0] = Set.of("T1");
+        ScopeUser target = new ScopeUser("T2", List.of());
+        ScopeRole role = new ScopeRole("R_MATRIX") { @Override public String getTenantId() { return null; } };
+        role.fields[0] = Set.of("T2");
+        RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
+        service.setTenantList(List.of(new TestTenant("T1", "One"), new TestTenant("T2", "Two")));
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        assertTrue(auth.isRoleAuthorized(operator, role, null), "原动作权限检查通过，新增拒绝必须来自数据范围包含检查");
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(role)));
+        operator.fields[0] = Set.of("T1", "T2");
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)));
+    }
+
+    @Test
+    void requirementRoleAssignmentDefaultMustUseTargetIdentity() {
+        ScopeUser operator = new ScopeUser(null, List.of()); operator.fields[0] = Set.of("_DEFAULT_");
+        ScopeUser target = new ScopeUser("T1", List.of());
+        ScopeRole role = new ScopeRole("R_MATRIX") { @Override public String getTenantId() { return null; } };
+        role.fields[0] = Set.of("_DEFAULT_");
+        RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
+        service.setTenantList(List.of(new TestTenant("T1", "One")));
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(role)),
+                "相同 DEFAULT 字符串分别代表公共范围和 T1，不能按字符串相同放行");
+        operator.fields[0] = Set.of("T1");
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)));
+        ScopeUser publicTarget = new ScopeUser(null, List.of());
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, publicTarget, List.of(role)));
+        operator.fields[0] = Set.of("_NONE_");
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, publicTarget, List.of(role)));
+    }
+
+    @Test
+    void requirementRoleAssignmentChecksOrgSubsetAndIndividualRoles() {
+        ScopeUser operator = new ScopeUser("T1", List.of());
+        operator.fields[0] = Set.of("T1"); operator.fields[4] = Set.of("A|SelfAndAllChild");
+        ScopeUser target = new ScopeUser("T1", List.of());
+        ScopeRole allowed = new ScopeRole("R_ALLOWED"); allowed.fields[0] = Set.of("_DEFAULT_"); allowed.fields[4] = Set.of("A1|Self");
+        ScopeRole wide = new ScopeRole("R_WIDE"); wide.fields[0] = Set.of("T1"); wide.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
+        ScopeRole deny = new ScopeRole("R_DENY"); deny.fields[5] = Set.of("B|SelfAndAllChild");
+        RoleCatalogService service = new RoleCatalogService(operator, List.of(allowed, wide, deny)); service.setOrgList(baseOrgTree());
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(allowed)), "父子树包含，不能按规则字符串比较");
+        target.fields[4] = Set.of();
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(wide)), "用户空覆盖不能掩盖宽角色");
+        target.fields[4] = null;
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(wide, deny)), "另一拒绝角色不能掩盖宽角色");
+        wide.fields[5] = Set.of("B|SelfAndAllChild");
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(wide)), "角色自身拒绝参与范围扣除");
+        target.fields[4] = Set.of("B|Self"); target.fields[5] = Set.of();
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(allowed)), "分配后的用户有效范围仍不能越界");
+        target.fields[0] = Set.of("T1");
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of()), "清空角色也不能通过移除拒绝规则扩权");
+    }
+
+    @Test
+    void requirementRoleAssignmentScriptsNeedFinalConcreteUserState() {
+        ScopeUser operator = new ScopeUser(null, List.of()); operator.fields[0] = Set.of("T1");
+        ScopeRole role = new ScopeRole("R_MATRIX") { @Override public String getTenantId() { return null; } };
+        role.fields[0] = Set.of("Groovy#_user.hasRole('R_MATRIX') && _tenant?.id == 'T2'");
+        ScopeUser staleTarget = new ScopeUser(null, List.of());
+        ScopeUser finalTarget = new ScopeUser(null, List.of("R_MATRIX"));
+        RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
+        service.setTenantList(List.of(new TestTenant("T1", "One"), new TestTenant("T2", "Two")));
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, staleTarget, List.of(role)), "不能以分配前脚本 false 掩盖分配后 true");
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, finalTarget, List.of(role)));
+        operator.fields[0] = Set.of("_ALL_");
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, finalTarget, List.of(role)));
+        role.fields[0] = Set.of("T1");
+        role.fields[4] = Set.of("A| Groovy#_user.hasRole('R_MATRIX')"); service.setOrgList(baseOrgTree());
+        operator.fields[4] = Set.of("A|SelfAndAllChild");
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, staleTarget, List.of(role)), "带空白的合法脚本模式也必须检查未来角色状态");
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, finalTarget, List.of(role)));
+        ScopeUser removing = new ScopeUser(null, List.of());
+        removing.fields[0] = Set.of("Groovy#!_user.hasRole('R_MATRIX') && _tenant?.id == 'T2'");
+        operator.fields[0] = Set.of("T1");
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, removing, List.of()), "移除角色触发脚本扩权也须拒绝");
+    }
+
+    @Test
+    void requirementRoleAssignmentMustHonorConfidentialOverride() {
+        ScopeUser operator = new ScopeUser("T1", List.of());
+        ScopeUser target = new ScopeUser("T1", List.of()) { @Override public Integer getConfidentialDataAccessLevel() { return null; } };
+        ScopeRole role = new ScopeRole("R_MATRIX");
+        RoleCatalogService service = new RoleCatalogService(operator, List.of(role)) {
+            @Override public Integer getUserConfidentialDataAccessLevel(Serializable user) { return 1; }
+        };
+        TestAuthorizeService auth = canonicalCapturingAuthorizeService(service, new ArrayList<>());
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(role)),
+                "自定义角色授权放行不能绕过公开密级入口的更低上限");
+    }
+
+    @Test
+    void requirementMatrixRoleAssignmentTenantContainment() {
+        List<ScopeRuleCase> rules = List.of(new ScopeRuleCase(null, 0, 0), new ScopeRuleCase("_ALL_", 7, 7),
+                new ScopeRuleCase("_DEFAULT_", 1, 2), new ScopeRuleCase("_NONE_", 1, 1),
+                new ScopeRuleCase("T1", 2, 2), new ScopeRuleCase("T2", 4, 4),
+                new ScopeRuleCase("Groovy#true", 7, 7), new ScopeRuleCase("Groovy#false", 0, 0));
+        int combinations = 0;
+        for (String owner : Arrays.asList(null, "T1")) for (String targetTenant : Arrays.asList(null, "T1")) {
+            for (ScopeRuleCase opAllow : rules) for (ScopeRuleCase opDeny : rules) {
+                for (ScopeRuleCase roleAllow : rules) for (ScopeRuleCase roleDeny : rules) {
+                    ScopeUser operator = new ScopeUser(owner, List.of()); operator.fields[0] = opAllow.rules(); operator.fields[1] = opDeny.rules();
+                    ScopeUser target = new ScopeUser(targetTenant, List.of("R_MATRIX"));
+                    ScopeRole role = new ScopeRole("R_MATRIX") { @Override public String getTenantId() { return null; } };
+                    role.fields[0] = roleAllow.rules(); role.fields[1] = roleDeny.rules();
+                    RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
+                    service.setTenantList(List.of(new TestTenant("T1", "One"), new TestTenant("T2", "Two")));
+                    TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+                    int opMask = owner == null ? opAllow.platformMask & ~opDeny.platformMask : opAllow.tenantMask & ~opDeny.tenantMask & 2;
+                    int grantMask = targetTenant == null ? roleAllow.platformMask & ~roleDeny.platformMask : roleAllow.tenantMask & ~roleDeny.tenantMask & 2;
+                    boolean expected = (owner == null || Objects.equals(owner, targetTenant)) && (grantMask & ~opMask) == 0;
+                    String label = "owner=" + owner + ", target=" + targetTenant + ", op=" + opAllow + "/" + opDeny + ", role=" + roleAllow + "/" + roleDeny;
+                    if (expected) assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)), label);
+                    else {
+                        IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(role)), label);
+                        assertTrue(error.getMessage().contains(owner != null && targetTenant == null ? "不能跨租户" : "超出"), label + ": " + error.getMessage());
+                    }
+                    combinations++;
+                }
+            }
+        }
+        assertEquals(16384, combinations);
+    }
+
+    @Test
+    void requirementMatrixRoleAssignmentOrgContainment() {
+        int combinations = 0;
+        for (String ownOrg : Arrays.asList(null, "A")) for (String targetOrg : Arrays.asList(null, "A")) {
+            List<OrgRuleCase> operatorRules = assignmentOrgRules(ownOrg);
+            List<OrgRuleCase> roleRules = assignmentOrgRules(targetOrg);
+            for (OrgRuleCase opAllow : operatorRules) for (OrgRuleCase opDeny : operatorRules) {
+                for (OrgRuleCase roleAllow : roleRules) for (OrgRuleCase roleDeny : roleRules) {
+                    ScopeUser operator = new ScopeUser("T1", List.of()) { @Override public String getOrgId() { return ownOrg; } };
+                    operator.fields[0] = Set.of("T1"); operator.fields[4] = opAllow.rules(); operator.fields[5] = opDeny.rules();
+                    ScopeUser target = new ScopeUser("T1", List.of("R_MATRIX")) { @Override public String getOrgId() { return targetOrg; } };
+                    ScopeRole role = new ScopeRole("R_MATRIX"); role.fields[0] = Set.of("T1");
+                    role.fields[4] = roleAllow.rules(); role.fields[5] = roleDeny.rules();
+                    RoleCatalogService service = new RoleCatalogService(operator, List.of(role)); service.setOrgList(baseOrgTree());
+                    TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+                    boolean expected = ((roleAllow.mask & ~roleDeny.mask) & ~(opAllow.mask & ~opDeny.mask)) == 0;
+                    String label = "ownOrg=" + ownOrg + ", targetOrg=" + targetOrg + ", op=" + opAllow + "/" + opDeny + ", role=" + roleAllow + "/" + roleDeny;
+                    if (expected) assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)), label);
+                    else {
+                        IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(role)), label);
+                        assertTrue(error.getMessage().contains("超出"), label + ": " + error.getMessage());
+                    }
+                    combinations++;
+                }
+            }
+        }
+        assertEquals(26244, combinations);
+    }
+
+    private static List<OrgRuleCase> assignmentOrgRules(String ownOrg) {
+        return List.of(new OrgRuleCase(null, 0), new OrgRuleCase("_NONE_|ignored", 1),
+                new OrgRuleCase("_DEFAULT_|Self", ownOrg == null ? 1 : 2),
+                new OrgRuleCase("_ALL_ROOT_|SelfAndAllChild", 126), new OrgRuleCase("A|Self", 2),
+                new OrgRuleCase("A|SelfAndAllChild", 30), new OrgRuleCase("A|IdPath#/*", 14),
+                new OrgRuleCase("A|NamePath#/*/", 12), new OrgRuleCase("A|Groovy#true", 30));
+    }
+
+    @Test
+    void requirementMatrixRoleAssignmentDomainContainment() {
+        List<OrgRuleCase> rules = List.of(new OrgRuleCase(null, 0), new OrgRuleCase("_ALL_", 15), new OrgRuleCase("_NONE_", 1),
+                new OrgRuleCase("D1", 2), new OrgRuleCase("D2", 4), new OrgRuleCase("*", 8));
+        int combinations = 0;
+        for (OrgRuleCase opAllow : rules) for (OrgRuleCase opDeny : rules) for (OrgRuleCase allow : rules) for (OrgRuleCase deny : rules) {
+            ScopeUser operator = new ScopeUser("T1", List.of()); operator.fields[2] = opAllow.rules(); operator.fields[3] = opDeny.rules();
+            ScopeUser target = new ScopeUser("T1", List.of("R_MATRIX"));
+            ScopeRole role = new ScopeRole("R_MATRIX"); role.fields[2] = allow.rules(); role.fields[3] = deny.rules();
+            RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
+            service.setDomainList(List.of(new TestDomain("D1"), new TestDomain("D2"), new TestDomain("*")));
+            TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+            boolean expected = ((allow.mask & ~deny.mask) & ~(opAllow.mask & ~opDeny.mask)) == 0;
+            String label = "op=" + opAllow + "/" + opDeny + ", role=" + allow + "/" + deny;
+            if (expected) assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)), label);
+            else {
+                IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(role)), label);
+                assertTrue(error.getMessage().contains("超出"), label + ": " + error.getMessage());
+            }
+            combinations++;
+        }
+        assertEquals(1296, combinations);
+    }
+
+    @Test
+    void requirementRoleAssignmentNativeAdminPrivilegesAreAlsoCapped() {
+        ScopeUser operator = new ScopeUser(null, List.of()); operator.fields[0] = Set.of("T1");
+        operator.fields[4] = Set.of("A|SelfAndAllChild", "_NONE_|ignored");
+        ScopeUser target = new ScopeUser("T1", List.of(RbacRoleInfo.ADMIN_ROLE));
+        ScopeRole role = new ScopeRole(RbacRoleInfo.ADMIN_ROLE); role.fields[0] = Set.of("_DEFAULT_");
+        RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
+        service.setTenantList(List.of(new TestTenant("T1", "One"))).setOrgList(baseOrgTree());
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(role)), "租户管理员固有全组织权限也不能超过操作者");
+        operator.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild", "_NONE_|ignored");
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)));
+        for (boolean topOperator : new boolean[]{false, true}) {
+            ScopeUser admin = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE)) {
+                @Override public String getLoginName() { return topOperator ? "sa" : "ordinary-sa"; }
+            };
+            ScopeUser topTarget = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE)) {
+                @Override public String getLoginName() { return "sa"; }
+            };
+            ScopeRole superRole = new ScopeRole(RbacRoleInfo.SA_ROLE) { @Override public String getTenantId() { return null; } };
+            RoleCatalogService adminService = new RoleCatalogService(admin, List.of(superRole));
+            TestAuthorizeService adminAuth = new TestAuthorizeService(); adminAuth.setRbacBaseService(adminService);
+            if (topOperator) assertDoesNotThrow(() -> adminAuth.checkRoleAssignment(admin, topTarget, List.of(superRole)));
+            else assertThrows(IllegalArgumentException.class, () -> adminAuth.checkRoleAssignment(admin, topTarget, List.of(superRole)), "不能通过角色编码和 sa 账号组合越过密级上限");
+            admin.fields[2] = Set.of("D"); superRole.fields[2] = Set.of("X");
+            adminService.setDomainList(List.of(new TestDomain("D"), new TestDomain("X")));
+            assertThrows(IllegalArgumentException.class, () -> adminAuth.checkRoleAssignment(admin, topTarget, List.of(superRole)), "TopSA 也不能超出领域范围");
+        }
+    }
+
+    @Test
+    void requirementRoleAssignmentRejectsUnavailableDirectories() {
+        for (String missing : List.of("domain", "tenant", "org")) {
+            ScopeUser operator = new ScopeUser("T1", List.of()); operator.fields[0] = Set.of("T1"); operator.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
+            ScopeUser target = new ScopeUser("T1", List.of("R_MATRIX"));
+            ScopeRole role = new ScopeRole("R_MATRIX"); role.fields[0] = Set.of("T1"); role.fields[4] = Set.of("A|Self");
+            RoleCatalogService service = new RoleCatalogService(operator, List.of(role)) {
+                @Override public <D extends RbacDomainInfo> Collection<D> loadAllDomainList(boolean effective) {
+                    return missing.equals("domain") ? null : super.loadAllDomainList(effective);
+                }
+                @Override public <T extends RbacTenantInfo> Collection<T> loadAllTenantList(boolean effective) {
+                    return missing.equals("tenant") ? null : super.loadAllTenantList(effective);
+                }
+                @Override public <O extends RbacOrgInfo> List<O> loadTenantOrgList(Serializable tenant, boolean effective) {
+                    return missing.equals("org") ? null : super.loadTenantOrgList(tenant, effective);
+                }
+            };
+            service.setOrgList(baseOrgTree());
+            TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+            assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(role)), missing);
+        }
+    }
+
+    @Test
+    void requirementRoleAssignmentInheritedLevelsAndQualifiedRoles() {
+        for (Integer grant : Arrays.asList(null, 0, 100)) {
+            ScopeUser operator = new ScopeUser("T1", List.of()); operator.fields[0] = Set.of("T1");
+            operator.fields[2] = Set.of("D"); operator.fields[4] = Set.of("A|SelfAndAllChild");
+            ScopeUser target = new ScopeUser("T1", List.of("matrix")) {
+                @Override public Integer getConfidentialDataAccessLevel() { return null; }
+            };
+            target.fields[2] = Set.of("D");
+            MatrixRole role = new MatrixRole(0, "T1", "D", grant);
+            RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
+            service.setOrgList(baseOrgTree()).setDomainList(List.of(new TestDomain("D")));
+            TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+            assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)), "roleLevel=" + grant);
+            target.fields[2] = Set.of();
+            assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)), "领域不可访问角色不贡献最终继承等级");
+        }
+        ScopeUser admin = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE));
+        ScopeUser target = new ScopeUser(null, List.of(RbacRoleInfo.SAAS_ADMIN)) {
+            @Override public String getLoginName() { return "sa"; }
+        };
+        ScopeRole role = new ScopeRole(RbacRoleInfo.SAAS_ADMIN) { @Override public String getTenantId() { return null; } };
+        RoleCatalogService service = new RoleCatalogService(admin, List.of(role));
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(admin, target, List.of(role)));
+    }
+
+    @Test
+    void requirementRoleAssignmentFiltersInvalidDirectoryObjects() {
+        ScopeUser operator = new ScopeUser("T1", List.of()); operator.fields[0] = Set.of("T1");
+        operator.fields[2] = Set.of("D"); operator.fields[4] = Set.of("A|SelfAndAllChild");
+        ScopeUser target = new ScopeUser("T1", List.of("R_MATRIX"));
+        ScopeRole role = new ScopeRole("R_MATRIX"); role.fields[0] = Set.of("T1");
+        role.fields[2] = Set.of("D"); role.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
+        RoleCatalogService service = new RoleCatalogService(operator, List.of(role)) {
+            @Override public <O extends RbacOrgInfo> List<O> loadTenantOrgList(Serializable tenant, boolean effective) {
+                return (List<O>) (List<?>) Arrays.asList(null, new TestOrg("A", null, "T1", "A"),
+                        new TestOrg("foreign", null, "T2", "Foreign"),
+                        new TestOrg("disabled", null, "T1", "Disabled") { @Override public boolean isEnable() { return false; } },
+                        new TestOrg(null, null, "T1", "Missing id"), domainOrg("outside", null, "T1", "X"));
+            }
+        };
+        service.setDomainList(List.of(new TestDomain("D"), new TestDomain("X")));
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)));
+    }
+
+    @Test
+    void requirementRoleAssignmentUsesBatchedOrganizationChecks() {
+        ScopeUser operator = new ScopeUser("T1", List.of()); operator.fields[0] = Set.of("T1");
+        operator.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
+        ScopeUser target = new ScopeUser("T1", List.of("R_MATRIX"));
+        ScopeRole role = new ScopeRole("R_MATRIX"); role.fields[0] = Set.of("T1"); role.fields[4] = Set.of("ROOT|SelfAndAllChild");
+        AtomicInteger loads = new AtomicInteger();
+        RoleCatalogService service = new RoleCatalogService(operator, List.of(role)) {
+            @Override public <O extends RbacOrgInfo> List<O> loadTenantOrgList(Serializable tenant, boolean effective) {
+                loads.incrementAndGet();
+                return super.loadTenantOrgList(tenant, effective);
+            }
+        };
+        service.setOrgList(largeLayeredOrgTree("ROOT", "T1", 50000, 100));
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        assertTimeoutPreemptively(Duration.ofSeconds(10), () -> auth.checkRoleAssignment(operator, target, List.of(role)));
+        assertEquals(2, loads.get(), "独立角色和最终范围各加载一次，不能逐节点重载整棵树");
+    }
+
     private static TestAuthorizeService canonicalCapturingAuthorizeService(RbacBaseService service, List<RbacRoleInfo> selected) {
         TestAuthorizeService auth = new TestAuthorizeService() {
             @Override public boolean isRoleAuthorized(Serializable principal, RbacRoleInfo role,

@@ -32,7 +32,7 @@ import static com.levin.commons.rbac.RbacMiscUtils.isAllNull;
  *
  * @author lilw
  */
-@Tag(name = "RBAC 授权与角色分配服务", description = "领域访问是资源和角色授权的前置门槛；门槛不满足时优先拒绝，不会被管理员快捷路径、菜单 alwaysShow 或角色权限回退绕过。权限加载可在一次操作内复用结果，缓存实现必须在角色、领域或范围变化后保持等价授权语义。")
+@Tag(name = "RBAC 授权与角色分配服务", description = "领域访问是授权前置门槛，不被管理员或菜单 alwaysShow 绕过。角色分配还须检查每个真实角色独立范围及分配后有效范围不能超过操作者，按本次完整有效目录逐项验证；DEFAULT 按双方各自归属解释，含范围脚本时目标真实对象须携带最终角色列表。目录/规则/上下文变化需重新校验，授权缓存不得保留过期结论。")
 public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
 
     /**
@@ -400,7 +400,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
     }
 
 
-    @Operation(summary = "校验角色分配", description = "依次校验操作人可分配权限、目标用户前置条件、角色互斥和共存依赖；任一项失败即拒绝分配，不会因后续角色或管理员快捷路径回退为通过。")
+    @Operation(summary = "校验角色分配", description = "解析目标租户真实角色后依次校验权限、前置条件、互斥、共存及数据范围上限；独立角色范围和最终有效范围均不得超出操作者范围与密级，清空角色也须检查最终状态。DEFAULT 按双方各自归属解释；对含 Groovy 范围的角色/用户，目标真实对象必须已携带最终角色编码，否则拒绝，操作人须保持当前已授权上下文。按本次完整一致的有效目录快照验证，目录/规则/上下文变化须重校验。任何失败抛异常拒绝，管理员与 isRoleAuthorized 扩展点的放行不能跳过范围上限。")
     default void checkRoleAssignment(Serializable operatorPrincipal, Serializable targetUserPrincipal, Collection<? extends RbacRoleInfo> finalRoles) {
         DomainAccess.evaluate(() -> {
             checkResolvedRoleAssignment(operatorPrincipal, targetUserPrincipal, finalRoles);
@@ -457,10 +457,6 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         }
         Assert.isTrue(rbacBaseService.filterByDomainAccess(operatorPrincipal, domainObjects).size() == domainObjects.size(),
                 "操作用户无权访问目标用户或角色所属领域");
-        if (resolvedRoles.isEmpty()) {
-            return;
-        }
-
         for (RbacRoleInfo role : resolvedRoles) {
 
             if (role == null) {
@@ -493,6 +489,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
                             .collect(Collectors.joining(", "))
             );
         }
+        rbacBaseService.checkRoleDataScopeAssignment(operator, targetUser, resolvedRoles);
     }
 
     @Operation(summary = "检查目标用户是否满足角色分配前置条件", description = "仅校验目标用户与目标角色的前置条件，不替代操作人授权判断。前置条件脚本的编译结果可缓存复用；脚本返回非 true 或执行失败时视为不满足并拒绝分配。")
@@ -651,7 +648,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
             return false;
         }
 
-        //@todo  还有要检查 当前用户 可访问的数据权限是否大于等于角色的数据权限
+        // 带目标用户上下文的数据范围上限由 checkRoleAssignment 统一检查。
 
         //除了sa 和 saas_admin, 其他都要按权限检查
         //接下来开始检查角色的权限列表,比对角色需要的权限列表 和 用户拥有的权限列表
