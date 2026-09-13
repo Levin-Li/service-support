@@ -4924,7 +4924,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 new MatrixIdentity(null, "plain", false, false, false),
                 new MatrixIdentity("T1", "plain", false, false, false),
                 new MatrixIdentity("T1", RbacRoleInfo.ADMIN_ROLE, false, true, false),
-                new MatrixIdentity(null, RbacRoleInfo.SAAS_ADMIN, true, true, false),
+                new MatrixIdentity(null, RbacRoleInfo.SAAS_ADMIN, false, false, false),
                 new MatrixIdentity(null, RbacRoleInfo.SA_ROLE, true, true, false),
                 new MatrixIdentity(null, RbacRoleInfo.SA_ROLE, true, true, true),
                 new MatrixIdentity("T1", RbacRoleInfo.SA_ROLE, false, false, false));
@@ -4959,7 +4959,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 boolean domainAllowed = domainChoice == 1;
                 boolean tenantAllowed = domainAllowed && (identity.globalAdmin || (mask & 3) == 1);
                 boolean orgAllowed = tenantAllowed && (identity.orgAdmin || (mask & 12) == 4);
-                boolean listLevelAllowed = !identity.globalAdmin || granted >= 10;
+                boolean listLevelAllowed = (!identity.globalAdmin && !RbacRoleInfo.SAAS_ADMIN.equals(identity.role)) || granted >= 10;
                 String label = identity + ", level=" + level + ", domain=" + domainChoice + ", grants=" + mask;
                 assertEquals(granted, service.getUserDataScope(user).getConfidentialDataAccessLevel(), label);
                 assertEquals(granted, service.getUserConfidentialDataAccessLevel(user), label);
@@ -5502,6 +5502,80 @@ class RbacAuthorizeServiceRolePermissionTest {
         TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
         assertTimeoutPreemptively(Duration.ofSeconds(10), () -> auth.checkRoleAssignment(operator, target, List.of(role)));
         assertEquals(2, loads.get(), "独立角色和最终范围各加载一次，不能逐节点重载整棵树");
+    }
+
+    @Test
+    void shouldRequireExplicitScopesForSaasAdministratorOrganizationAccess() {
+        ScopeUser user = new ScopeUser(null, List.of(RbacRoleInfo.SAAS_ADMIN));
+        StubRbacBaseService service = new StubRbacBaseService(user).setTenantList(List.of(new TestTenant("T1", "One"), new TestTenant("T2", "Two")))
+                .setOrgList(baseOrgTree());
+        assertFalse(service.canAccessTenant(user, "T1"), "SaaS 身份本身不是全租户授权");
+        assertTrue(service.loadUserAccessibleOrgList(user, true).isEmpty());
+        user.fields[0] = Set.of("T1");
+        assertTrue(service.canAccessTenant(user, "T1"));
+        assertFalse(service.canAccessOrg(user, "T1", "A"), "租户授权不隐含组织授权");
+        user.fields[4] = Set.of("A|SelfAndAllChild");
+        assertTrue(service.canAccessOrg(user, "T1", "A1"));
+        assertFalse(service.canAccessOrg(user, "T1", "B"));
+        assertFalse(service.canAccessTenant(user, "T2"));
+        assertFalse(service.canAccessAllOrg(user, "T1"));
+        assertFalse(service.canAccessAllOrg(user));
+        assertEquals(List.of("A", "A1", "A2", "A21"), service.loadUserAccessibleOrgList(user, true).stream()
+                .map(o -> Objects.toString(o.getId())).collect(Collectors.toList()));
+        user.fields[4] = Set.of("A|SelfAndAllChild", "B|SelfAndAllChild");
+        assertTrue(service.canAccessOrg(user, "T1", "B1"), "有明确授权允许跨组织树，不加归属组织硬限制");
+        user.fields[5] = Set.of("B|SelfAndAllChild");
+        assertFalse(service.canAccessOrg(user, "T1", "B1"), "SaaS 管理员也服从显式拒绝");
+        assertDoesNotThrow(() -> service.checkOrgAccessible(user, "T1", null, "A"));
+        assertThrows(IllegalArgumentException.class, () -> service.checkOrgAccessible(user, "T1", null, "B"));
+        assertThrows(IllegalArgumentException.class, () -> service.checkOrgAccessible(user, "T1", null, null));
+        user.fields[4] = Set.of("_NONE_|ignored", "A|Self");
+        assertDoesNotThrow(() -> service.checkOrgAccessible(user, "T1", null, null));
+        assertThrows(IllegalArgumentException.class, () -> service.checkOrgAccessible(user, "T1", "A", "A1"));
+        user.fields[4] = Set.of("A|SelfAndDirectChild");
+        assertDoesNotThrow(() -> service.checkOrgAccessible(user, "T1", "A", "A1"));
+        user.fields[4] = Set.of("A1|Self");
+        assertTrue(service.canAccessOrg(user, "T1", "A1"));
+        assertThrows(IllegalArgumentException.class, () -> service.checkOrgAccessible(user, "T1", "A", "A1"), "子组织获授权不代表父组织也获授权");
+    }
+
+    @Test
+    void shouldApplyRoleInheritanceAndUserOverridesForSaasAdministrator() {
+        ScopeUser user = new ScopeUser(null, List.of(RbacRoleInfo.SAAS_ADMIN, "R_SCOPE"));
+        ScopeRole role = new ScopeRole("R_SCOPE") { @Override public String getTenantId() { return null; } };
+        role.fields[0] = Set.of("T1"); role.fields[4] = Set.of("A|Self");
+        StubRbacBaseService service = new StubRbacBaseService(user).setTenantList(List.of(new TestTenant("T1", "One"))).setOrgList(baseOrgTree());
+        service.registerRole(role);
+        assertTrue(service.canAccessOrg(user, "T1", "A"));
+        assertFalse(service.canAccessOrg(user, "T1", "B"));
+        user.fields[4] = Set.of();
+        assertFalse(service.canAccessOrg(user, "T1", "A"));
+        user.fields[4] = null; user.fields[0] = Set.of();
+        assertFalse(service.canAccessTenant(user, "T1"));
+        user.fields[0] = null; user.fields[1] = Set.of("T1");
+        assertFalse(service.canAccessOrg(user, "T1", "A"));
+    }
+
+    @Test
+    void shouldNotPredictAutomaticGlobalScopeWhenAssigningSaasAdministrator() {
+        ScopeUser operator = new ScopeUser(null, List.of(RbacRoleInfo.SAAS_ADMIN));
+        operator.fields[0] = Set.of("T1"); operator.fields[4] = Set.of("A|Self");
+        ScopeUser target = new ScopeUser(null, List.of(RbacRoleInfo.SAAS_ADMIN));
+        ScopeRole role = new ScopeRole(RbacRoleInfo.SAAS_ADMIN) { @Override public String getTenantId() { return null; } };
+        role.fields[0] = Set.of("T1"); role.fields[4] = Set.of("A|Self");
+        RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
+        service.setTenantList(List.of(new TestTenant("T1", "One"), new TestTenant("T2", "Two"))).setOrgList(baseOrgTree());
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)), "范围内的 SaaS 角色不能被误判为固有全局权限而拒绝");
+        assertTrue(service.canAccessOrg(target, "T1", "A"));
+        assertFalse(service.canAccessOrg(target, "T1", "B"));
+        assertFalse(service.canAccessTenant(target, "T2"));
+        role.fields[0] = Set.of("T1", "T2");
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(role)));
+        role.fields[0] = Set.of("T1"); role.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(role)));
+        operator.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)));
     }
 
     private static TestAuthorizeService canonicalCapturingAuthorizeService(RbacBaseService service, List<RbacRoleInfo> selected) {

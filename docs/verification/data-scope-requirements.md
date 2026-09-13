@@ -3,6 +3,8 @@
 依据：`manual.md` 第 19–20、22.3 节，以及本次明确新增的角色分配上限要求。
 新增要求：每个角色独立授予范围及最终用户有效范围不能超过操作者；按分配时完整有效目录逐项校验，后续目录、规则、用户上下文变化需重校验。
 
+2026-09-14 身份规则更新：仅 R_SA 超管（含顶级 sa）享有全局租户/组织范围快捷路径。SaaSAdmin 与普通平台用户按明确授权访问，不能自动跨组织；有授权可跨组织树，不添加所属组织硬边界。SaaSAdmin 原有列表和管理密级过滤仍保留。R06/R09/R10 的 SaaSAdmin 预期已同步收紧。
+
 ## 验收口径
 
 本表列出有限需求等价类及其组合，逐项定义预期允许/拒绝、结果集合或异常。预期掩码来自需求真值表，不调用被测判断函数生成；测试同时覆盖普通用户和管理员例外。
@@ -49,6 +51,7 @@
 | R24 | isRoleAuthorized 扩展放行不能越过公开机密等级上限；角色编码产生的管理员能力和 TopSA 极值也检查 | requirementRoleAssignmentMustHonorConfidentialOverride、requirementRoleAssignmentNativeAdminPrivilegesAreAlsoCapped、requirementRoleAssignmentInheritedLevelsAndQualifiedRoles |
 | R25 | 必需目录 null 拒绝；无效/外租户节点过滤；大树按批次处理 | requirementRoleAssignmentRejectsUnavailableDirectories、requirementRoleAssignmentFiltersInvalidDirectoryObjects、requirementRoleAssignmentUsesBatchedOrganizationChecks |
 | R26 | 实际分配使用目标租户真实定义；本地有效同码覆盖共享，权限/密级/领域/分配条件/互斥共存均不能借共享绕过 | shouldFallbackToSharedRoleWhenLocalDefinitionIsDisabledOrExpired、shouldRejectRequestedRoleWithoutAnEffectiveDefinitionForTargetTenant、shouldNotUseSharedRoleMetadataToBypassLocalPermissionOrConfidentialLevel、shouldNotUseSharedRoleToBypassLocalDomainOrAssignmentConditions、shouldUseOnlySelectedRolePermissionsWithoutAggregatingSameCodeDefinitions 等原分配回归 |
+| R27 | SaaS 管理员无默认全量范围；明确跨树允许、拒绝、父/目标/None 管理门槛、角色继承与用户空覆盖；分配预测与实际权限一致 | shouldRequireExplicitScopesForSaasAdministratorOrganizationAccess、shouldApplyRoleInheritanceAndUserOverridesForSaasAdministrator、shouldNotPredictAutomaticGlobalScopeWhenAssigningSaasAdministrator，加 R06/R09/R10 |
 
 注意 `A|IdPath#/*` 与 `A|IdPath#/*/` 在 Spring 根路径 `/` 上结果不同：前者可包含 A，后者不包含。矩阵分别定义了预期，不能把二者都简化成 DirectChild。
 
@@ -60,7 +63,7 @@
 mvn clean test -Dmaven.test.skip=false -DskipTests=false
 ```
 
-本轮全量实际运行 284 个 JUnit 测试（矩阵循环算单个测试方法），失败/错误/跳过均为 0。
+本轮全量实际运行 287 个 JUnit 测试（矩阵循环算单个测试方法），失败/错误/跳过均为 0。
 大树分配回归：50,000 节点、100 层，组织目录加载恰为 2 次（独立角色和最终范围），防止逐节点重载整树。
 
 JaCoCo 使用已有 0.8.12 agent，仅插桩 `com.levin.commons.*`，避免对当前 JDK 25 类插桩不兼容；报告位于 `target/site/jacoco/`，分支计数摘要及被测源码 SHA-256 归档在本文同目录的 `coverage-summary.json`。
