@@ -4593,6 +4593,64 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "缺失依赖闭包须继续读取本租户覆盖定义上的额外共存要求");
     }
 
+    @Test
+    void shouldNotInterpretReservedTenantMarkersAsLiteralTenantIds() {
+        ScopeUser user = new ScopeUser(null, List.of());
+        StubRbacBaseService service = new StubRbacBaseService(user).setTenantList(List.of(
+                new TestTenant(DataScope.TenantScope.Default.getExpression(), "Reserved default"),
+                new TestTenant(DataScope.TenantScope.None.getExpression(), "Reserved none")));
+
+        user.fields[0] = Set.of(DataScope.TenantScope.Default.getExpression());
+        assertFalse(service.canAccessTenant(user, DataScope.TenantScope.Default.getExpression()),
+                "_DEFAULT_ 是范围标记，不能作为同名真实租户的精确授权");
+
+        user.fields[0] = Set.of(DataScope.TenantScope.None.getExpression());
+        assertFalse(service.canAccessTenant(user, DataScope.TenantScope.None.getExpression()),
+                "_NONE_ 只匹配无租户目标，不能作为同名真实租户的精确授权");
+    }
+
+    @Test
+    void shouldRejectTenantLoaderResultWhoseIdDiffersFromRequestedTenant() {
+        ScopeUser user = new ScopeUser(null, List.of());
+        user.fields[0] = Set.of("T1");
+        StubRbacBaseService service = new StubRbacBaseService(user) {
+            @Override
+            public <TENANT extends RbacTenantInfo> TENANT loadTenant(Serializable tenantPrincipal) {
+                return (TENANT) new TestTenant("T2", "Wrong tenant");
+            }
+        };
+
+        assertFalse(service.canAccessTenant(user, "T1"),
+                "租户加载器返回的对象 ID 与请求租户不一致时必须拒绝");
+    }
+
+    @Test
+    void shouldExerciseTenantGroovyAndEnumerationFallbackBranches() {
+        ScopeUser platformUser = new ScopeUser(null, List.of());
+        platformUser.fields[0] = Set.of("T1");
+        platformUser.fields[1] = Set.of("Groovy#true");
+        StubRbacBaseService platformService = new StubRbacBaseService(platformUser)
+                .setTenantList(List.of(new TestTenant("T1", "Tenant one")));
+        assertFalse(platformService.canAccessTenant(platformUser, "T1"),
+                "动态拒绝规则命中时必须优先于静态允许规则");
+
+        ScopeUser tenantUser = new ScopeUser("T1", List.of());
+        tenantUser.fields[0] = Set.of("T1");
+        tenantUser.fields[1] = Set.of("T2");
+        StubRbacBaseService tenantService = new StubRbacBaseService(tenantUser)
+                .setTenantList(List.of(new TestTenant("T1", "Tenant one")));
+        assertEquals(List.of("T1"), tenantService.loadUserAccessibleTenantList(tenantUser, true).stream()
+                .map(tenant -> Objects.toString(tenant.getId())).collect(Collectors.toList()),
+                "未命中自身租户的静态拒绝规则不能阻止候选租户枚举");
+
+        ScopeUser groovyNamedTenantUser = new ScopeUser(null, List.of());
+        groovyNamedTenantUser.fields[0] = Set.of("Groovy#true");
+        StubRbacBaseService groovyNamedTenantService = new StubRbacBaseService(groovyNamedTenantUser)
+                .setTenantList(List.of(new TestTenant("Groovy#true", "Groovy-named tenant")));
+        assertTrue(groovyNamedTenantService.canAccessTenant(groovyNamedTenantUser, "Groovy#true"),
+                "Groovy# 前缀规则必须走脚本匹配，而不能退化为对保留字符串的精确 ID 匹配");
+    }
+
     private static TestAuthorizeService canonicalCapturingAuthorizeService(RbacBaseService service, List<RbacRoleInfo> selected) {
         TestAuthorizeService auth = new TestAuthorizeService() {
             @Override public boolean isRoleAuthorized(Serializable principal, RbacRoleInfo role,
