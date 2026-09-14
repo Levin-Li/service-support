@@ -26,18 +26,18 @@ import java.util.Set;
 public interface DataScope {
 
     @Getter
-    @Schema(title = "领域范围", description = "使用 expression 编码；在枚举值外的就是具体的领域Id")
+    @Schema(title = "领域范围", description = "使用 expression 编码；枚举对应的固定值外的就是具体的领域Id")
     enum DomainScope implements EnumDesc {
 
         @Schema(title = "所有", description = "所有数据")
         All("_ALL_"),
 
         //无领域，就是指领域ID为空的数据
-        @Schema(title = "无", description = "特指领域ID为空的数据")
+        @Schema(title = "无", description = "特指领域ID为空的过滤条件")
         None("_NONE_"),
         ;
 
-        @Schema(title = "匹配表达式", description = "")
+        @Schema(title = "匹配表达式", description = "枚举对应的固定值或具体的领域ID")
         private final String expression;
 
         @Schema(title = "是否前缀匹配", description = "如果是前缀，则表示要用 expression 进行前缀匹配 ")
@@ -75,14 +75,14 @@ public interface DataScope {
         Default("_DEFAULT_"),
 
         //无租户，就是指租户ID为空的数据
-        @Schema(title = "无", description = "特指租户ID为空的数据")
+        @Schema(title = "无", description = "特指租户ID为空的过滤条件")
         None("_NONE_"),
 
         //Groovy 匹配表达式
         @Schema(title = "Groovy表达式", description = "Groovy 可用变量：_tenant 租户；_user 用户；")
         Groovy(true);
 
-        @Schema(title = "匹配表达式", description = "")
+        @Schema(title = "匹配表达式", description = "枚举对应的固定值或者具体的租户ID")
         private final String expression;
 
         @Schema(title = "是否前缀匹配", description = "如果是前缀，则表示要用 expression 进行前缀匹配 ")
@@ -118,7 +118,7 @@ public interface DataScope {
         @Schema(title = "默认", description = "对于无组织归属的用户, 则默认为无组织, 对于有组织归属的用户, 则默认为归属组织")
         Default("_DEFAULT_"),
 
-        @Schema(title = "无", description = "特别指组织Id为空的数据")
+        @Schema(title = "无", description = "特别指组织Id为空的过滤条件")
         None("_NONE_"),
 
         @Schema(title = "所有根组织", description = "所有根组织，也就是parentId为空的组织")
@@ -126,7 +126,7 @@ public interface DataScope {
 
         ;
 
-        @Schema(title = "起点编码", description = "保留编码或具体组织ID")
+        @Schema(title = "起点组织表达式", description = "枚举对应的固定值或具体组织ID")
         private final String expression;
 
         StartOrg(String expression) {
