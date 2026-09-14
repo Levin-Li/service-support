@@ -21,6 +21,10 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -3126,6 +3130,79 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldProvideProductionScalePermissionTestDataWithConfidentialLevels() {
+        PermissionScaleTestData data = PermissionScaleTestData.create();
+
+        assertEquals(PermissionScaleTestData.TENANT_COUNT, data.tenants.size());
+        assertEquals(PermissionScaleTestData.PLATFORM_ROLE_COUNT, data.platformRoles.size());
+        assertEquals(PermissionScaleTestData.PLATFORM_USER_COUNT, data.platformUsers.size());
+        assertEquals(200_020_000L, data.totalOrganizationCount(),
+                "组织总量应为 200 个租户 × 100 个根组织 × (1 个根组织 + 1 万个子组织)");
+
+        data.tenants.forEach(tenant -> {
+            String tenantId = tenant.getId();
+            assertEquals(PermissionScaleTestData.TENANT_ROLE_AND_USER_COUNT, data.rolesByTenant.get(tenantId).size());
+            assertEquals(PermissionScaleTestData.TENANT_ROLE_AND_USER_COUNT, data.usersByTenant.get(tenantId).size());
+        });
+
+        List<TestOrg> rootBranch = data.organizationsForRoot("T001", 1);
+        assertEquals(PermissionScaleTestData.CHILD_ORG_COUNT_PER_ROOT + 1, rootBranch.size());
+        assertEquals(PermissionScaleTestData.CHILD_ORG_LEVEL_COUNT + 1, maxTreeDepth(rootBranch),
+                "根组织之外应有 100 个层级");
+        assertEquals(EnumSet.allOf(ConfidentialLevel.class).stream().map(ConfidentialLevel::code).collect(Collectors.toSet()),
+                rootBranch.stream().map(TestOrg::getConfidentialLevel).collect(Collectors.toSet()),
+                "组织机密等级应覆盖所有既有等级");
+        assertEquals(EnumSet.allOf(ConfidentialLevel.class).stream().map(ConfidentialLevel::code).collect(Collectors.toSet()),
+                data.allUsers().stream().map(TestRbacUser::getConfidentialLevel).collect(Collectors.toSet()),
+                "用户机密等级应覆盖所有既有等级");
+    }
+
+    @Test
+    void shouldCalculateAccessibleOrganizationsForProductionScaleTenantWithinReasonableTime() {
+        PermissionScaleTestData data = PermissionScaleTestData.create();
+        String tenantId = "T001";
+        List<ScopeGrant> rootScopes = new ArrayList<>(PermissionScaleTestData.ROOT_ORG_COUNT_PER_TENANT);
+        for (int rootNumber = 1; rootNumber <= PermissionScaleTestData.ROOT_ORG_COUNT_PER_TENANT; rootNumber++) {
+            rootScopes.add(scope(tenantId + "-ROOT-" + rootNumber, true, DataScope.OrgMatchingMode.SelfAndAllChild));
+        }
+        TestRbacUser scopedUser = new TestRbacUser("PERF-U", "permission-perf", tenantId, "TENANT",
+                Collections.emptyList(), ConfidentialLevel.PLATFORM_EXPERT_LEVEL.code(),
+                tenantId + "-ROOT-1", rootScopes, ConfidentialLevel.PLATFORM_EXPERT_LEVEL.code());
+        List<TestOrg> organizations = data.organizationsForTenant(tenantId);
+        StubRbacBaseService service = new StubRbacBaseService(scopedUser)
+                .setTenantList(data.tenants)
+                .setOrgList(organizations);
+
+        long startedAt = System.nanoTime();
+        Collection<TestOrg> accessible = assertTimeout(Duration.ofSeconds(30),
+                () -> service.loadUserAccessibleOrgList(scopedUser, true));
+        long elapsedMillis = Duration.ofNanos(System.nanoTime() - startedAt).toMillis();
+
+        assertEquals(PermissionScaleTestData.ORGANIZATION_COUNT_PER_TENANT, accessible.size());
+        System.out.printf(Locale.ROOT, "PERF,permission-scope,tenants=%d,roots=%d,orgs=%d,elapsed-ms=%d%n",
+                PermissionScaleTestData.TENANT_COUNT, PermissionScaleTestData.ROOT_ORG_COUNT_PER_TENANT,
+                organizations.size(), elapsedMillis);
+    }
+
+    @Test
+    void shouldIsolateCrossTenantPermissionLoadsUnderConcurrentLoad() {
+        ConcurrentPermissionLoadFixture fixture = new ConcurrentPermissionLoadFixture();
+
+        List<ConcurrentPermissionLoadFixture.LoadResult> results = assertTimeout(Duration.ofSeconds(30),
+                fixture::runConcurrentLoads);
+
+        assertEquals(ConcurrentPermissionLoadFixture.LOAD_TASK_COUNT, results.size());
+        assertTrue(results.stream().allMatch(ConcurrentPermissionLoadFixture.LoadResult::matchesExpected),
+                () -> "并发权限加载结果不符合预期: " + results);
+        assertEquals(ConcurrentPermissionLoadFixture.LOAD_TASK_COUNT / 3,
+                results.stream().filter(result -> result.kind().equals("tenant-own")).count());
+        assertEquals(ConcurrentPermissionLoadFixture.LOAD_TASK_COUNT / 3,
+                results.stream().filter(result -> result.kind().equals("platform-cross-tenant")).count());
+        assertEquals(ConcurrentPermissionLoadFixture.LOAD_TASK_COUNT / 3,
+                results.stream().filter(result -> result.kind().equals("tenant-foreign-denied")).count());
+    }
+
+    @Test
     void shouldThrowExceptionWhenCycleDetectedAndNodePathDisabled() {
         StubRbacBaseService scopedService = new StubRbacBaseService(user);
 
@@ -5806,6 +5883,228 @@ class RbacAuthorizeServiceRolePermissionTest {
         return orgList;
     }
 
+    private static int maxTreeDepth(List<TestOrg> orgList) {
+        Map<String, String> parentById = new HashMap<>();
+        orgList.forEach(org -> parentById.put(org.getId(), org.getParentId()));
+        return orgList.stream().mapToInt(org -> {
+            int depth = 1;
+            String parentId = org.getParentId();
+            while (parentId != null) {
+                depth++;
+                parentId = parentById.get(parentId);
+            }
+            return depth;
+        }).max().orElse(0);
+    }
+
+    /**
+     * 权限规模测试夹具。组织按“租户 + 根组织”惰性生成，避免同时驻留约两亿个对象，
+     * 但每个分支仍严格满足生产规模：100 个子层级、10,000 个子组织。
+     */
+    private static final class PermissionScaleTestData {
+        static final int TENANT_COUNT = 200;
+        static final int TENANT_ROLE_AND_USER_COUNT = 20;
+        static final int ROOT_ORG_COUNT_PER_TENANT = 100;
+        static final int CHILD_ORG_COUNT_PER_ROOT = 10_000;
+        static final int CHILD_ORG_LEVEL_COUNT = 100;
+        static final int PLATFORM_ROLE_COUNT = 30;
+        static final int PLATFORM_USER_COUNT = 30;
+
+        private final List<TestTenant> tenants = new ArrayList<>(TENANT_COUNT);
+        private final Map<String, List<TestRbacRole>> rolesByTenant = new LinkedHashMap<>();
+        private final Map<String, List<TestRbacUser>> usersByTenant = new LinkedHashMap<>();
+        private final List<TestRbacRole> platformRoles = new ArrayList<>(PLATFORM_ROLE_COUNT);
+        private final List<TestRbacUser> platformUsers = new ArrayList<>(PLATFORM_USER_COUNT);
+
+        static PermissionScaleTestData create() {
+            PermissionScaleTestData data = new PermissionScaleTestData();
+            for (int tenantIndex = 1; tenantIndex <= TENANT_COUNT; tenantIndex++) {
+                String tenantId = String.format(Locale.ROOT, "T%03d", tenantIndex);
+                data.tenants.add(new TestTenant(tenantId, "Tenant " + tenantIndex,
+                        confidentialLevelFor(tenantIndex - 1)));
+
+                List<TestRbacRole> roles = new ArrayList<>(TENANT_ROLE_AND_USER_COUNT);
+                List<TestRbacUser> users = new ArrayList<>(TENANT_ROLE_AND_USER_COUNT);
+                for (int index = 1; index <= TENANT_ROLE_AND_USER_COUNT; index++) {
+                    int levelIndex = (tenantIndex - 1) * TENANT_ROLE_AND_USER_COUNT + index - 1;
+                    String roleCode = tenantId + "_ROLE_" + index;
+                    int level = confidentialLevelFor(levelIndex);
+                    roles.add(new TestRbacRole(tenantId + "-R" + index, roleCode, tenantId,
+                            Collections.singletonList("test:tenant:*:read"), Collections.emptyList(), level,
+                            Collections.emptyList(), level));
+                    users.add(new TestRbacUser(tenantId + "-U" + index, tenantId + "_user_" + index,
+                            tenantId, "TENANT", Collections.singletonList(roleCode), level, null, null, level));
+                }
+                data.rolesByTenant.put(tenantId, roles);
+                data.usersByTenant.put(tenantId, users);
+            }
+            for (int index = 1; index <= PLATFORM_ROLE_COUNT; index++) {
+                int level = confidentialLevelFor(index - 1);
+                String roleCode = "PLATFORM_ROLE_" + index;
+                data.platformRoles.add(new TestRbacRole("P-R" + index, roleCode, null,
+                        Collections.singletonList("test:platform:*:read"), Collections.emptyList(), level,
+                        Collections.emptyList(), level));
+                data.platformUsers.add(new TestRbacUser("P-U" + index, "platform_user_" + index,
+                        null, "PLATFORM", Collections.singletonList(roleCode), level, null, null, level));
+            }
+            return data;
+        }
+
+        long totalOrganizationCount() {
+            return (long) TENANT_COUNT * ORGANIZATION_COUNT_PER_TENANT;
+        }
+
+        static final int ORGANIZATION_COUNT_PER_TENANT = ROOT_ORG_COUNT_PER_TENANT * (CHILD_ORG_COUNT_PER_ROOT + 1);
+
+        List<TestOrg> organizationsForTenant(String tenantId) {
+            List<TestOrg> organizations = new ArrayList<>(ORGANIZATION_COUNT_PER_TENANT);
+            for (int rootNumber = 1; rootNumber <= ROOT_ORG_COUNT_PER_TENANT; rootNumber++) {
+                organizations.addAll(organizationsForRoot(tenantId, rootNumber));
+            }
+            return organizations;
+        }
+
+        List<TestOrg> organizationsForRoot(String tenantId, int rootNumber) {
+            if (!rolesByTenant.containsKey(tenantId) || rootNumber < 1 || rootNumber > ROOT_ORG_COUNT_PER_TENANT) {
+                throw new IllegalArgumentException("不存在的租户或根组织: " + tenantId + "/" + rootNumber);
+            }
+            String rootId = tenantId + "-ROOT-" + rootNumber;
+            List<TestOrg> organizations = largeLayeredOrgTree(rootId, tenantId,
+                    CHILD_ORG_COUNT_PER_ROOT + 1, CHILD_ORG_LEVEL_COUNT + 1);
+            for (int index = 0; index < organizations.size(); index++) {
+                organizations.get(index).confidentialLevel = confidentialLevelFor(index);
+            }
+            return organizations;
+        }
+
+        Collection<TestRbacUser> allUsers() {
+            return usersByTenant.values().stream().flatMap(Collection::stream)
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), users -> {
+                        users.addAll(platformUsers);
+                        return users;
+                    }));
+        }
+
+        private static int confidentialLevelFor(int index) {
+            ConfidentialLevel[] levels = ConfidentialLevel.values();
+            return levels[Math.floorMod(index, levels.length)].code();
+        }
+    }
+
+    /**
+     * 多租户交叉并发负载夹具：数据目录不可变，组织分支按需缓存；每个任务使用独立服务实例，
+     * 因此既能检测跨租户授权结果，也不会把服务实现的可变状态误当作夹具并发安全性。
+     */
+    private static final class ConcurrentPermissionLoadFixture {
+        static final int WORKER_COUNT = 8;
+        static final int LOAD_TASK_COUNT = 24;
+        private final PermissionScaleTestData data = PermissionScaleTestData.create();
+        private final Map<String, List<TestOrg>> organizationBranches = new java.util.concurrent.ConcurrentHashMap<>();
+
+        List<LoadResult> runConcurrentLoads() {
+            ExecutorService executor = Executors.newFixedThreadPool(WORKER_COUNT);
+            try {
+                long startedAt = System.nanoTime();
+                List<Callable<LoadResult>> tasks = new ArrayList<>(LOAD_TASK_COUNT);
+                for (int taskIndex = 0; taskIndex < LOAD_TASK_COUNT / 3; taskIndex++) {
+                    String tenantId = String.format(Locale.ROOT, "T%03d", taskIndex + 1);
+                    String foreignTenantId = String.format(Locale.ROOT, "T%03d", taskIndex + 101);
+                    int rootNumber = taskIndex % PermissionScaleTestData.ROOT_ORG_COUNT_PER_TENANT + 1;
+                    tasks.add(() -> loadOwnTenantBranch(tenantId, rootNumber));
+                    tasks.add(() -> loadPlatformCrossTenantBranch(tenantId, rootNumber));
+                    tasks.add(() -> loadForeignTenantBranch(tenantId, foreignTenantId, rootNumber));
+                }
+                List<Future<LoadResult>> futures = executor.invokeAll(tasks);
+                List<LoadResult> results = new ArrayList<>(futures.size());
+                for (Future<LoadResult> future : futures) {
+                    results.add(future.get());
+                }
+                long elapsedMillis = Duration.ofNanos(System.nanoTime() - startedAt).toMillis();
+                long allocatedBytes = results.stream().mapToLong(LoadResult::allocatedBytes).sum();
+                System.out.printf(Locale.ROOT,
+                        "PERF,concurrent-permission-load,workers=%d,tasks=%d,orgs-per-task=%d,elapsed-ms=%d,allocated-mib=%.2f%n",
+                        WORKER_COUNT, LOAD_TASK_COUNT, PermissionScaleTestData.CHILD_ORG_COUNT_PER_ROOT + 1,
+                        elapsedMillis, allocatedBytes / 1024.0 / 1024.0);
+                return results;
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                throw new AssertionError("并发权限加载被中断", ex);
+            } catch (Exception ex) {
+                throw new AssertionError("并发权限加载失败", ex);
+            } finally {
+                executor.shutdownNow();
+            }
+        }
+
+        private LoadResult loadOwnTenantBranch(String tenantId, int rootNumber) {
+            String rootId = rootId(tenantId, rootNumber);
+            TestRbacUser user = tenantUser(tenantId, rootId);
+            return load("tenant-own", user, tenantId, rootNumber,
+                    PermissionScaleTestData.CHILD_ORG_COUNT_PER_ROOT + 1);
+        }
+
+        private LoadResult loadPlatformCrossTenantBranch(String tenantId, int rootNumber) {
+            String rootId = rootId(tenantId, rootNumber);
+            TestRbacUser user = platformUser(tenantId, rootId);
+            return load("platform-cross-tenant", user, tenantId, rootNumber,
+                    PermissionScaleTestData.CHILD_ORG_COUNT_PER_ROOT + 1);
+        }
+
+        private LoadResult loadForeignTenantBranch(String tenantId, String foreignTenantId, int rootNumber) {
+            TestRbacUser user = tenantUser(tenantId, rootId(tenantId, rootNumber));
+            return load("tenant-foreign-denied", user, foreignTenantId, rootNumber, 0);
+        }
+
+        private LoadResult load(String kind, TestRbacUser user, String targetTenantId, int rootNumber, int expectedCount) {
+            com.sun.management.ThreadMXBean allocations = (com.sun.management.ThreadMXBean)
+                    java.lang.management.ManagementFactory.getThreadMXBean();
+            if (allocations.isThreadAllocatedMemorySupported() && !allocations.isThreadAllocatedMemoryEnabled()) {
+                allocations.setThreadAllocatedMemoryEnabled(true);
+            }
+            long allocatedBefore = allocations.isThreadAllocatedMemorySupported()
+                    ? allocations.getThreadAllocatedBytes(Thread.currentThread().getId()) : 0;
+            long startedAt = System.nanoTime();
+            StubRbacBaseService service = new StubRbacBaseService(user)
+                    .setTenantList(data.tenants)
+                    .setOrgList(organizationsForRoot(targetTenantId, rootNumber));
+            int actualCount = service.loadUserAccessibleOrgList(user, true).size();
+            long allocatedBytes = allocations.isThreadAllocatedMemorySupported()
+                    ? allocations.getThreadAllocatedBytes(Thread.currentThread().getId()) - allocatedBefore : 0;
+            return new LoadResult(kind, user.getTenantId(), targetTenantId, actualCount, expectedCount,
+                    Duration.ofNanos(System.nanoTime() - startedAt).toMillis(), allocatedBytes);
+        }
+
+        private List<TestOrg> organizationsForRoot(String tenantId, int rootNumber) {
+            String key = tenantId + ':' + rootNumber;
+            return organizationBranches.computeIfAbsent(key, ignored -> data.organizationsForRoot(tenantId, rootNumber));
+        }
+
+        private TestRbacUser tenantUser(String tenantId, String rootId) {
+            return new TestRbacUser("load-" + tenantId, "load-" + tenantId, tenantId, "TENANT",
+                    Collections.emptyList(), ConfidentialLevel.PLATFORM_EXPERT_LEVEL.code(), rootId,
+                    Collections.singletonList(scope(rootId, true, DataScope.OrgMatchingMode.SelfAndAllChild)),
+                    ConfidentialLevel.PLATFORM_EXPERT_LEVEL.code());
+        }
+
+        private TestRbacUser platformUser(String targetTenantId, String rootId) {
+            return new TestRbacUser("platform-" + targetTenantId, "platform-" + targetTenantId, null, "PLATFORM",
+                    Collections.emptyList(), ConfidentialLevel.PLATFORM_EXPERT_LEVEL.code(), null,
+                    Collections.singletonList(scope(targetTenantId, rootId, true, DataScope.OrgMatchingMode.SelfAndAllChild)),
+                    ConfidentialLevel.PLATFORM_EXPERT_LEVEL.code());
+        }
+
+        private String rootId(String tenantId, int rootNumber) {
+            return tenantId + "-ROOT-" + rootNumber;
+        }
+
+        private record LoadResult(String kind, Object userTenantId, String targetTenantId, int actualCount,
+                                  int expectedCount, long elapsedMillis, long allocatedBytes) {
+            boolean matchesExpected() {
+                return actualCount == expectedCount;
+            }
+        }
+    }
+
     private static int countTreeNodes(Collection<? extends RbacOrgInfo> roots) {
         int count = 0;
         Deque<RbacOrgInfo> stack = new ArrayDeque<>(roots);
@@ -6140,6 +6439,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         private final String type;
         private final List<Serializable> roleList;
         private final Integer confidentialDataAccessLevel;
+        private final Integer confidentialLevel;
         private final String orgId;
         private final Collection<ScopeGrant> orgScopeList;
         private final Map<String, Object> transientExInfo = new LinkedHashMap<>();
@@ -6149,12 +6449,19 @@ class RbacAuthorizeServiceRolePermissionTest {
         }
 
         TestRbacUser(String id, String loginName, String tenantId, String type, List<? extends Serializable> roleList, Integer confidentialDataAccessLevel, String orgId, Collection<ScopeGrant> orgScopeList) {
+            this(id, loginName, tenantId, type, roleList, confidentialDataAccessLevel, orgId, orgScopeList, null);
+        }
+
+        TestRbacUser(String id, String loginName, String tenantId, String type, List<? extends Serializable> roleList,
+                     Integer confidentialDataAccessLevel, String orgId, Collection<ScopeGrant> orgScopeList,
+                     Integer confidentialLevel) {
             this.id = id;
             this.loginName = loginName;
             this.tenantId = tenantId;
             this.type = type;
             this.roleList = new ArrayList<>(roleList);
             this.confidentialDataAccessLevel = confidentialDataAccessLevel;
+            this.confidentialLevel = confidentialLevel;
             this.orgId = orgId;
             this.orgScopeList = orgScopeList == null ? null : new ArrayList<>(orgScopeList);
         }
@@ -6197,6 +6504,11 @@ class RbacAuthorizeServiceRolePermissionTest {
         @Override
         public Integer getConfidentialDataAccessLevel() {
             return confidentialDataAccessLevel;
+        }
+
+        @Override
+        public Integer getConfidentialLevel() {
+            return confidentialLevel;
         }
 
         @Override
