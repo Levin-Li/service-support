@@ -9,34 +9,34 @@ class DefaultSignatureReqTest {
     @Test
     void builderPreservesAllSignatureRequestFields() {
         SignReq req = DefaultSignatureReq.builder()
-                .clientId("client")
-                .nonceStr("nonce")
+                .appId("client")
+                .nonce("nonce")
                 .timestamp("1700000000")
                 .channelCode("api")
-                .sign("sign")
+                .signature("sign")
                 .build();
 
-        assertEquals("client", req.getClientId());
-        assertEquals("nonce", req.getNonceStr());
+        assertEquals("client", req.getAppId());
+        assertEquals("nonce", req.getNonce());
         assertEquals("1700000000", req.getTimestamp());
         assertEquals("api", req.getChannelCode());
-        assertEquals("sign", req.getSign());
+        assertEquals("sign", req.getSignature());
     }
 
     @Test
     void signatureCanBeReplacedThroughTheSignReqContract() {
         SignReq req = DefaultSignatureReq.builder()
-                .clientId("client")
-                .nonceStr("nonce")
+                .appId("client")
+                .nonce("nonce")
                 .timestamp("1700000000")
                 .channelCode("api")
-                .sign("old-sign")
+                .signature("old-sign")
                 .build();
 
-        assertSame(req, req.setSign("new-sign"));
-        assertEquals("new-sign", req.getSign());
-        assertEquals("client", req.getClientId());
-        assertEquals("nonce", req.getNonceStr());
+        assertSame(req, req.setSignature("new-sign"));
+        assertEquals("new-sign", req.getSignature());
+        assertEquals("client", req.getAppId());
+        assertEquals("nonce", req.getNonce());
         assertEquals("1700000000", req.getTimestamp());
         assertEquals("api", req.getChannelCode());
     }

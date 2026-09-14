@@ -11,27 +11,27 @@ import java.io.Serializable;
 public interface SignReq extends Castable, Serializable {
 
     @Schema(title = "客户端ID")
-    String getClientId();
+    String getAppId();
 
     @Schema(title = "一次使用临时字符串")
-    String getNonceStr();
+    String getNonce();
 
     @Schema(title = "时间戳 yyyy-MM-dd hh24:mm:ss")
     String getTimestamp();
 
+    @Schema(title = "签名串")
+    String getSignature();
+
     @Schema(title = "渠道编码")
     String getChannelCode();
-
-    @Schema(title = "签名串")
-    String getSign();
 
     /**
      * 设置签名串
      *
-     * @param sign
+     * @param signature
      * @param <T>
      * @return
      */
-    <T extends SignReq> T setSign(String sign);
+    <T extends SignReq> T setSignature(String signature);
 
 }

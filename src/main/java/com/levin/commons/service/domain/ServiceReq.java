@@ -28,9 +28,4 @@ public interface ServiceReq<BODY>
         return false;
     }
 
-    @Schema(title = "是否需要签名验证")
-    default boolean requireSignVerification() {
-        return false;
-    }
-
 }

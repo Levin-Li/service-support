@@ -23,7 +23,7 @@ public abstract class SignUtils {
      * @return
      */
     public static boolean verifySign(SignReq data, String clientSecret, Map<String, String>... overrideConfigs) {
-        return sign(data, clientSecret, overrideConfigs).equals(data.getSign());
+        return sign(data, clientSecret, overrideConfigs).equals(data.getSignature());
     }
 
     /**
@@ -39,7 +39,7 @@ public abstract class SignUtils {
 
         String sign = md5Utf8Text(genUrlStr(signFields));
 
-        data.setSign(sign);
+        data.setSignature(sign);
 
         return sign;
     }
@@ -49,7 +49,7 @@ public abstract class SignUtils {
 
         Map<String, String> signFields = SignUtils.getAndSortSignFields(data);
 
-        signFields.put("clientId", data.getClientId());
+        signFields.put("clientId", data.getAppId());
         signFields.put("clientSecret", clientSecret);
         signFields.put("timestamp", data.getTimestamp());
         signFields.put("channelCode", data.getChannelCode());

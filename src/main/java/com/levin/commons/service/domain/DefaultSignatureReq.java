@@ -11,8 +11,6 @@ import lombok.experimental.FieldNameConstants;
 
 import jakarta.validation.constraints.NotBlank;
 
-import java.util.UUID;
-
 /**
  * API 签名对象
  * <p>
@@ -34,22 +32,21 @@ public class DefaultSignatureReq implements SignReq {
 
     @Schema(title = "应用标识")
     @NotBlank
-    String clientId;
+    String appId;
 
     @Schema(title = "一次使用临时字符串")
     @NotBlank
-    String nonceStr;
+    String nonce;
 
     @Schema(title = "时间串")
     @NotBlank
     String timestamp;
 
-    @Schema(title = "渠道编码")
-    @NotBlank
-    String channelCode;
-
     @Schema(title = "签名串")
     @NotBlank
-    String sign;
+    String signature;
+
+    @Schema(title = "渠道编码")
+    String channelCode;
 
 }
