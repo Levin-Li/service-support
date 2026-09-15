@@ -2607,6 +2607,25 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldAllowOrganizationWithoutConfidentialLevelRegardlessOfOperatorsLevel() {
+        TestRbacUser superAdmin = new TestRbacUser(
+                "U3025_NULL_SA",
+                "sa-helper",
+                null,
+                "PLATFORM",
+                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                null
+        );
+
+        StubRbacBaseService superService = new StubRbacBaseService(superAdmin)
+                .setTenantList(Collections.singletonList(new TestTenant("T2", "Tenant2", 100)))
+                .setOrgList(Collections.singletonList(new TestOrg("B", null, "T2", "B", null)));
+
+        assertDoesNotThrow(() -> superService.checkOrgAccessible(superAdmin, "T2", null, "B"),
+                "目标组织未设置机密级别时，不应被目标租户的机密级别间接拒绝");
+    }
+
+    @Test
     void shouldRejectSuperAdminAccessWhenOrgConfidentialLevelIsTooHigh() {
         TestRbacUser superAdmin = new TestRbacUser(
                 "U3026_SA",
@@ -2621,8 +2640,32 @@ class RbacAuthorizeServiceRolePermissionTest {
                 .setTenantList(Collections.singletonList(new TestTenant("T2", "Tenant2", 10)))
                 .setOrgList(Collections.singletonList(new TestOrg("B", null, "T2", "B", 100)));
 
-        assertThrows(IllegalArgumentException.class, () -> superService.checkOrgAccessible(superAdmin, "T2", null, "B"),
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> superService.checkOrgAccessible(superAdmin, "T2", null, "B"),
                 "普通超级管理员跨租户访问组织时，若机密级别不足应拒绝");
+        assertEquals("当前用户机密级别不足以访问他人目标组织", error.getMessage());
+    }
+
+    @Test
+    void shouldExplainConfidentialLevelFailureForUsersOwnOrganization() {
+        TestRbacUser superAdmin = new TestRbacUser(
+                "U3027_SA",
+                "sa-helper",
+                null,
+                "PLATFORM",
+                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                50,
+                "B",
+                null
+        );
+
+        StubRbacBaseService superService = new StubRbacBaseService(superAdmin)
+                .setTenantList(Collections.singletonList(new TestTenant("T2", "Tenant2", 10)))
+                .setOrgList(Collections.singletonList(new TestOrg("B", null, "T2", "B", 100)));
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> superService.checkOrgAccessible(superAdmin, "T2", null, "B"));
+        assertEquals("当前用户机密级别不足以访问自己的目标组织", error.getMessage());
     }
 
     @Test

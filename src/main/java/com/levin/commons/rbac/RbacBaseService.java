@@ -798,7 +798,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param parentId
      * @param orgId
      */
-    @Operation(summary = "检查用户组织可访问性", description = "租户身份边界、目标状态、领域和范围失败均抛异常拒绝。仅超管 R_SA（含顶级 sa）享有全局范围快捷路径；SaaS 管理员必须分别获父组织、目标组织授权，二者均为空时须获无组织范围授权，且仍检查租户/父组织/目标组织密级。租户管理员只在本租户内管理；普通非管理员保留父节点及根管理限制。有授权可跨组织，不以所属组织硬限制替代授权。")
+    @Operation(summary = "检查用户组织可访问性", description = "租户身份边界、目标状态、领域和范围失败均抛异常拒绝。仅超管 R_SA（含顶级 sa）享有全局范围快捷路径；SaaS 管理员必须分别获父组织、目标组织授权，二者均为空时须获无组织范围授权。目标组织密级为 null 时，本次访问整体跳过租户、父组织和目标组织的密级比较，不限制操作者密级；其他租户、领域和组织范围门槛仍须通过。目标组织密级非 null 时，依次校验租户、父组织和目标组织密级，并准确提示密级不足的对象。目标组织等于用户所属组织时提示“自己的目标组织”，否则提示“他人目标组织”。租户管理员只在本租户内管理；普通非管理员保留父节点及根管理限制。有授权可跨组织，不以所属组织硬限制替代授权。")
     default void checkOrgAccessible(Serializable userPrincipal, Serializable tenantId, Serializable parentId, Serializable orgId) {
         DomainAccess.evaluate(() -> {
             final RbacUserInfo user = requireScopeUser(userPrincipal);
@@ -835,9 +835,18 @@ public interface RbacBaseService extends RbacBaseUserService {
             }
             if (user.isSuperAdmin() || user.isSaasAdmin()) {
                 final Integer level = scope.getConfidentialDataAccessLevel();
-                for (ConfidentialObject target : Arrays.asList(tenant, parent, org)) {
-                    Assert.isTrue(target == null || canAccessConfidentialData(() -> level, target.getConfidentialLevel()),
-                            "目标租户或组织未授权");
+                // 目标组织未设密级时，视为该访问请求不受密级约束；不再由租户或父组织密级间接拒绝。
+                if (org == null || org.getConfidentialLevel() != null) {
+                    final String orgConfidentialLevelError = org != null
+                            && Objects.equals(scopeId(user.getOrgId()), scopeId(org.getId()))
+                            ? "当前用户机密级别不足以访问自己的目标组织"
+                            : "当前用户机密级别不足以访问他人目标组织";
+                    Assert.isTrue(tenant == null || canAccessConfidentialData(() -> level, tenant.getConfidentialLevel()),
+                            "当前用户机密级别不足以访问目标租户");
+                    Assert.isTrue(parent == null || canAccessConfidentialData(() -> level, parent.getConfidentialLevel()),
+                            "当前用户机密级别不足以访问目标组织的父组织");
+                    Assert.isTrue(org == null || canAccessConfidentialData(() -> level, org.getConfidentialLevel()),
+                            orgConfidentialLevelError);
                 }
                 if (!user.isSuperAdmin()) {
                     Assert.isTrue(parent == null || canAccessOrg(user, tenantId, parentId), "父组织机构[{}]未授权", parentId);
