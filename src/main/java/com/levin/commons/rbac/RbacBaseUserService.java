@@ -3,6 +3,7 @@ package com.levin.commons.rbac;
 
 import cn.hutool.core.lang.Assert;
 import com.levin.commons.dao.domain.DomainObject;
+import com.levin.commons.service.SimpleContext;
 import com.levin.commons.service.exception.AuthorizationException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,13 +15,16 @@ import java.util.function.Supplier;
 
 /**
  * 用户基本服务
- *
+ * <p>
  * 基础实现不具备领域目录时，非空领域默认拒绝；完整领域授权由 {@link RbacBaseService} 提供。
  *
  * @author echo
  */
 @Tag(name = "RBAC 用户服务", description = "基础用户服务的非空领域对象默认拒绝访问，不会回退为允许；完整领域、租户和数据范围授权由 RbacBaseService 提供。机密级别优先使用用户自身配置，缺失时由完整实现按角色补足；单次判定可复用临时缓存，但不改变授权结果。")
 public interface RbacBaseUserService {
+
+    @Operation(summary = "设置用户插件类型上下文", description = " ")
+    <S extends RbacBaseUserService> S setUserPluginTypeContext(SimpleContext<String> userPluginTypeContext);
 
     /**
      * 加密密码
@@ -130,7 +134,9 @@ public interface RbacBaseUserService {
         return object != null && RbacMiscUtils.isBlank(object.getDomainId());
     }
 
-    /** 用户管理入口的领域门槛，完整 RBAC 服务同时检查所属租户。 */
+    /**
+     * 用户管理入口的领域门槛，完整 RBAC 服务同时检查所属租户。
+     */
     @Operation(summary = "检查用户领域访问", description = "沿用对象领域门槛：基础实现对非空领域默认拒绝；完整 RBAC 服务会追加领域目录和租户校验。")
     default boolean canAccessUserDomain(Serializable userPrincipal, RbacUserInfo targetUser) {
         return canAccessObjectDomain(userPrincipal, targetUser);

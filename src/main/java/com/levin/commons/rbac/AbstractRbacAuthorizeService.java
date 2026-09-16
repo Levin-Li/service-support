@@ -8,10 +8,13 @@ import cn.hutool.core.util.StrUtil;
 import com.levin.commons.plugin.Plugin;
 import com.levin.commons.plugin.PluginManager;
 import com.levin.commons.plugin.ResLoader;
+import com.levin.commons.service.SimpleContext;
 import com.levin.commons.service.domain.Identifiable;
 import com.levin.commons.service.support.ContextHolder;
 import com.levin.commons.utils.ExpressionUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -54,6 +57,11 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
 
     @Autowired(required = false)
     RbacBaseService defaultRbacBaseService;
+
+    @Getter
+    @Setter
+    @Autowired(required = false)
+    SimpleContext<RbacBaseService> rbacBaseServiceContext;
 
     final InheritableThreadLocal<RbacBaseService> userLoadServiceHolder = new InheritableThreadLocal<>();
 
@@ -124,6 +132,14 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
         return actionMap;
     }
 
+    @Override
+    public <S extends RbacBaseAuthorizeService> S setRbacBaseServiceContext(SimpleContext<RbacBaseService> rbacBaseServiceContext) {
+
+        this.rbacBaseServiceContext = rbacBaseServiceContext;
+
+        return (S) this;
+    }
+
     /**
      * 设置用户加载服务
      *
@@ -131,10 +147,38 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
      * @return
      */
     public RbacAuthorizeService setRbacBaseService(RbacBaseService rbacBaseService) {
-        this.userLoadServiceHolder.set(rbacBaseService);
+
+        if (this.rbacBaseServiceContext == null) {
+
+            this.rbacBaseServiceContext = new SimpleContext<>() {
+                @Override
+                public boolean hasValue() {
+                    return get() != null;
+                }
+
+                @Override
+                public SimpleContext<RbacBaseService> set(RbacBaseService value) {
+                    userLoadServiceHolder.set(value);
+                    return this;
+                }
+
+                @Override
+                public SimpleContext<RbacBaseService> clear() {
+                    userLoadServiceHolder.set(null);
+                    return this;
+                }
+
+                @Override
+                public RbacBaseService get() {
+                    return userLoadServiceHolder.get();
+                }
+            };
+        }
+
+        this.rbacBaseServiceContext.set(rbacBaseService);
+
         return this;
     }
-
 
     /**
      * 获取用户加载服务
@@ -144,7 +188,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
     @Override
     public RbacBaseService getRbacBaseLoadService() {
 
-        RbacBaseService rbacBaseService = this.userLoadServiceHolder.get();
+        RbacBaseService rbacBaseService = this.rbacBaseServiceContext.get();
 
         if (rbacBaseService == null) {
             rbacBaseService = this.defaultRbacBaseService;

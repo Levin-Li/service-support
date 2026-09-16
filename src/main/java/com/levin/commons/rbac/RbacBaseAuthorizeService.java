@@ -2,6 +2,7 @@ package com.levin.commons.rbac;
 
 
 import cn.hutool.core.lang.Assert;
+import com.levin.commons.service.SimpleContext;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -19,6 +20,9 @@ import static com.levin.commons.rbac.RbacRoleInfo.*;
  */
 @Tag(name = "RBAC 授权服务", description = "授权判定按资源、角色和条件执行；空的要求集合表示无需授权。具体实现必须在 Swagger 方法说明中公开权限门槛、拒绝条件、优先级及任何缓存或回退规则。")
 public interface RbacBaseAuthorizeService {
+
+
+    <S extends RbacBaseAuthorizeService> S setRbacBaseServiceContext(SimpleContext<RbacBaseService> context);
 
     /**
      * 拷贝
