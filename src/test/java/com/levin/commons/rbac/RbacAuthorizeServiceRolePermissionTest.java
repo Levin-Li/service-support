@@ -51,7 +51,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         baseService = new StubRbacBaseService(user);
         authorizeService = new TestAuthorizeService();
-        authorizeService.setRbacBaseService(baseService);
+        authorizeService.setDefaultRbacBaseService(baseService);
     }
 
     @Test
@@ -68,30 +68,15 @@ class RbacAuthorizeServiceRolePermissionTest {
         assertTrue(authorized, "订单列表权限应命中表达式 sys:order:*:read|list");
     }
 
-    @Test
-    void shouldUseConfiguredRbacBaseServiceContextBeforeDefaultService() {
-        StubRbacBaseService contextService = new StubRbacBaseService(user);
-        TestAuthorizeService service = new TestAuthorizeService();
-        MutableSingleValueContext<RbacBaseService> serviceContext = new MutableSingleValueContext<>();
-        serviceContext.set(contextService);
-
-        service.setRbacBaseServiceContext(serviceContext);
-
-        assertSame(contextService, service.getRbacBaseLoadService(),
-                "显式配置的服务上下文应作为当前授权服务的首选加载来源");
-
-        serviceContext.clear();
-        assertThrows(IllegalArgumentException.class, service::getRbacBaseLoadService,
-                "上下文无值且未配置默认服务时应保持原有的拒绝语义");
-    }
-
-    @Test
-    void shouldRetainConfiguredUserPluginTypeContext() {
-        MutableSingleValueContext<String> pluginTypeContext = new MutableSingleValueContext<>();
-
-        assertSame(baseService, baseService.setUserPluginTypeContext(pluginTypeContext));
-        assertSame(pluginTypeContext, baseService.getUserPluginTypeContext());
-    }
+    /*
+     * 已移除 setRbacBaseServiceContext 和用户插件类型上下文 API；保留旧测试以记录原有契约。
+     *
+     * @Test
+     * void shouldUseConfiguredRbacBaseServiceContextBeforeDefaultService() { ... }
+     *
+     * @Test
+     * void shouldRetainConfiguredUserPluginTypeContext() { ... }
+     */
 
     @Test
     @SuppressWarnings("deprecation")
@@ -604,7 +589,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         );
         StubRbacBaseService scopedService = new StubRbacBaseService(topSuperAdmin);
         TestAuthorizeService scopedAuthorizeService = new TestAuthorizeService();
-        scopedAuthorizeService.setRbacBaseService(scopedService);
+        scopedAuthorizeService.setDefaultRbacBaseService(scopedService);
 
         assertTrue(scopedAuthorizeService.canAccess(topSuperAdmin, MethodAccessController.class, secretMethod),
                 "顶级超级管理员应绕过方法权限和密级限制");
@@ -848,7 +833,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         StubRbacBaseService scopedService = new StubRbacBaseService(financeUser);
         TestAuthorizeService scopedAuthorizeService = new TestAuthorizeService();
-        scopedAuthorizeService.setRbacBaseService(scopedService);
+        scopedAuthorizeService.setDefaultRbacBaseService(scopedService);
 
         assertFalse(scopedAuthorizeService.isRoleAssignPreConditionMatched(financeUser, contextualRole),
                 "目标用户不满足前置条件时应拒绝分配");
@@ -1036,7 +1021,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         );
         StubRbacBaseService scopedService = new StubRbacBaseService(topSuperAdmin);
         TestAuthorizeService scopedAuthorizeService = new TestAuthorizeService();
-        scopedAuthorizeService.setRbacBaseService(scopedService);
+        scopedAuthorizeService.setDefaultRbacBaseService(scopedService);
 
         assertFalse(authorizeService.isRoleAuthorized(user, saasAdminRole, null),
                 "租户用户不能分配公共 SaaS 管理员角色");
@@ -1086,7 +1071,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         StubRbacBaseService scopedService = new StubRbacBaseService(superAdmin);
         TestAuthorizeService scopedAuthorizeService = new TestAuthorizeService();
-        scopedAuthorizeService.setRbacBaseService(scopedService);
+        scopedAuthorizeService.setDefaultRbacBaseService(scopedService);
 
         assertFalse(scopedAuthorizeService.isRoleAuthorized(superAdmin, protectedRole, null),
                 "普通超级管理员也必须先通过机密数据访问级别校验");
@@ -1128,7 +1113,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         );
 
         TestAuthorizeService authorizeService = new TestAuthorizeService();
-        authorizeService.setRbacBaseService(new StubRbacBaseService(topSuperAdmin));
+        authorizeService.setDefaultRbacBaseService(new StubRbacBaseService(topSuperAdmin));
 
         assertTrue(authorizeService.isRoleAuthorized(topSuperAdmin, newRole, null),
                 "新建角色可用性应由创建调用方检查");
@@ -1161,7 +1146,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         StubRbacBaseService scopedService = new StubRbacBaseService(saasAdmin);
         TestAuthorizeService scopedAuthorizeService = new TestAuthorizeService();
-        scopedAuthorizeService.setRbacBaseService(scopedService);
+        scopedAuthorizeService.setDefaultRbacBaseService(scopedService);
 
         assertFalse(scopedAuthorizeService.isRoleAuthorized(saasAdmin, protectedRole, null),
                 "SaaS 管理员也必须先通过机密数据访问级别校验");
@@ -2490,7 +2475,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 50
         ));
         TestAuthorizeService tenantAuthorizeService = new TestAuthorizeService();
-        tenantAuthorizeService.setRbacBaseService(tenantService);
+        tenantAuthorizeService.setDefaultRbacBaseService(tenantService);
 
         assertEquals(50, tenantService.getUserConfidentialDataAccessLevel(tenantUser),
                 "用户未设置密级时应取生效角色授予的最高密级");
@@ -2561,7 +2546,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 .setTenantList(tenantList)
                 .setOrgList(orgList);
         TestAuthorizeService topSuperAdminAuthorizeService = new TestAuthorizeService();
-        topSuperAdminAuthorizeService.setRbacBaseService(topSuperAdminService);
+        topSuperAdminAuthorizeService.setDefaultRbacBaseService(topSuperAdminService);
 
         assertIterableEquals(Arrays.asList("T1", "T2"),
                 topSuperAdminService.loadUserAccessibleTenantList(topSuperAdmin, true).stream()
@@ -4266,7 +4251,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 .setTenantList(List.of(domainTenant("T1", null)))
                 .setDomainList(List.of(new TestDomain("finance")));
         TestAuthorizeService auth = new TestAuthorizeService();
-        auth.setRbacBaseService(service);
+        auth.setDefaultRbacBaseService(service);
         assertFalse(auth.isRoleAuthorized(top, role, null));
         assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(top, target, List.of()));
         role.domainId = null;
@@ -4285,7 +4270,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         StubRbacBaseService service = new StubRbacBaseService(sales)
                 .setDomainList(List.of(new TestDomain("sales"), new TestDomain("finance")));
         TestAuthorizeService auth = new TestAuthorizeService();
-        auth.setRbacBaseService(service);
+        auth.setDefaultRbacBaseService(service);
         DomainMenu root = domainMenu("root", null);
         DomainMenu salesParent = domainMenu("sales", "sales");
         DomainMenu financeChild = domainMenu("finance-child", "finance");
@@ -4319,7 +4304,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         ScopeUser u = new ScopeUser("T1", List.of());
         StubRbacBaseService service = new StubRbacBaseService(u);
         TestAuthorizeService auth = new TestAuthorizeService();
-        auth.setRbacBaseService(service);
+        auth.setDefaultRbacBaseService(service);
         DomainMenu denied = domainMenu("denied", null);
         denied.setRequireAuthorizations(List.of("sys:secret:1:view"));
         DomainMenu shown = domainMenu("shown", null);
@@ -4343,7 +4328,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 return true;
             }
         };
-        auth.setRbacBaseService(service);
+        auth.setDefaultRbacBaseService(service);
         service.registerRole(role);
         assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)));
         assertTrue(overrides.get() > 0, "保留业务覆写角色授权的扩展点");
@@ -4437,7 +4422,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         u.fields[2] = Set.of("sales");
         StubRbacBaseService service = new StubRbacBaseService(u).setDomainList(List.of(new TestDomain("sales")));
         TestAuthorizeService auth = new TestAuthorizeService();
-        auth.setRbacBaseService(service);
+        auth.setDefaultRbacBaseService(service);
         DomainMenu root = domainMenu("root", null);
         root.children.add(domainMenu("child", "sales"));
         List<SimpleMenu> menus = auth.filterAccessibleMenuList(u, List.of(root));
@@ -4464,7 +4449,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         };
         service.setDomainList(List.of(new TestDomain("sales")));
         TestAuthorizeService auth = new TestAuthorizeService();
-        auth.setRbacBaseService(service);
+        auth.setDefaultRbacBaseService(service);
         assertTrue(top.isTopSuperAdmin());
         assertTrue(auth.isRoleAuthorized(top, role, null), "单角色授权只看角色自身领域，不查询定义租户");
         service.registerRole(role);
@@ -4486,7 +4471,7 @@ class RbacAuthorizeServiceRolePermissionTest {
             StubRbacBaseService service = new StubRbacBaseService(top)
                     .setTenantList(List.of(tenant)).setDomainList(List.of(new TestDomain("sales")));
             TestAuthorizeService auth = new TestAuthorizeService();
-            auth.setRbacBaseService(service);
+            auth.setDefaultRbacBaseService(service);
             assertTrue(auth.isRoleAuthorized(top, role, null), "角色定义tenant不作为领域父级");
             service.registerRole(role);
             assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(top, target, List.of(role)));
@@ -4625,7 +4610,7 @@ class RbacAuthorizeServiceRolePermissionTest {
             RoleCatalogService service = new RoleCatalogService(user, List.of(shared, local));
             service.setUserPermissions(List.of("sys:basic:*:view"));
             TestAuthorizeService auth = new TestAuthorizeService();
-            auth.setRbacBaseService(service);
+            auth.setDefaultRbacBaseService(service);
             assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(user, user, List.of(shared)));
         }
     }
@@ -4674,7 +4659,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         };
         service.setUserPermissions(List.of("sys:basic:*:assign"));
         TestAuthorizeService auth = new TestAuthorizeService();
-        auth.setRbacBaseService(service);
+        auth.setDefaultRbacBaseService(service);
         assertTrue(auth.isRoleAuthorized(user, local, null));
         assertDoesNotThrow(() -> auth.checkRoleAssignment(user, user, List.of(shared)));
     }
@@ -4694,7 +4679,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         };
         service.setDomainList(List.of(new TestDomain("sales")));
         TestAuthorizeService auth = new TestAuthorizeService();
-        auth.setRbacBaseService(service);
+        auth.setDefaultRbacBaseService(service);
         assertTrue(auth.isRoleAuthorized(top, role, null));
     }
 
@@ -4707,7 +4692,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         RoleCatalogService tenantService = new RoleCatalogService(tenantOperator, List.of(shared));
         tenantService.setTenantList(List.of(new TestTenant("T1", "One"), new TestTenant("T2", "Two")));
         TestAuthorizeService tenantAuth = new TestAuthorizeService();
-        tenantAuth.setRbacBaseService(tenantService);
+        tenantAuth.setDefaultRbacBaseService(tenantService);
         assertThrows(IllegalArgumentException.class, () -> tenantAuth.checkRoleAssignment(tenantOperator, target, List.of(shared)),
                 "共享角色仍不能使普通T1用户跨租户管理T2用户");
 
@@ -4716,7 +4701,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         RoleCatalogService platformService = new RoleCatalogService(platformOperator, List.of(shared));
         platformService.setTenantList(List.of(new TestTenant("T2", "Two")));
         TestAuthorizeService platformAuth = new TestAuthorizeService();
-        platformAuth.setRbacBaseService(platformService);
+        platformAuth.setDefaultRbacBaseService(platformService);
         assertDoesNotThrow(() -> platformAuth.checkRoleAssignment(platformOperator, target, List.of(shared)));
     }
 
@@ -4731,7 +4716,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         TestRbacRole core = new TestRbacRole("core", "CORE", "T1", List.of(), List.of(), 100);
         RoleCatalogService service = new RoleCatalogService(target, List.of(advanced, sharedDependency, localDependency, core));
         TestAuthorizeService auth = new TestAuthorizeService();
-        auth.setRbacBaseService(service);
+        auth.setDefaultRbacBaseService(service);
         DataPair<TestRbacRole, Collection<TestRbacRole>> missing = auth.findMissingCoexistRolePair(target, List.of(advanced));
         assertNotNull(missing);
         assertSame(advanced, missing.getA());
@@ -5350,7 +5335,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         role.fields[0] = Set.of("T2");
         RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
         service.setTenantList(List.of(new TestTenant("T1", "One"), new TestTenant("T2", "Two")));
-        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
         assertTrue(auth.isRoleAuthorized(operator, role, null), "原动作权限检查通过，新增拒绝必须来自数据范围包含检查");
         assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(role)));
         operator.fields[0] = Set.of("T1", "T2");
@@ -5365,7 +5350,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         role.fields[0] = Set.of("_DEFAULT_");
         RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
         service.setTenantList(List.of(new TestTenant("T1", "One")));
-        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
         assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(role)),
                 "相同 DEFAULT 字符串分别代表公共范围和 T1，不能按字符串相同放行");
         operator.fields[0] = Set.of("T1");
@@ -5385,7 +5370,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         ScopeRole wide = new ScopeRole("R_WIDE"); wide.fields[0] = Set.of("T1"); wide.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild");
         ScopeRole deny = new ScopeRole("R_DENY"); deny.fields[5] = Set.of("B|SelfAndAllChild");
         RoleCatalogService service = new RoleCatalogService(operator, List.of(allowed, wide, deny)); service.setOrgList(baseOrgTree());
-        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
         assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(allowed)), "父子树包含，不能按规则字符串比较");
         target.fields[4] = Set.of();
         assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(wide)), "用户空覆盖不能掩盖宽角色");
@@ -5408,7 +5393,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         ScopeUser finalTarget = new ScopeUser(null, List.of("R_MATRIX"));
         RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
         service.setTenantList(List.of(new TestTenant("T1", "One"), new TestTenant("T2", "Two")));
-        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
         assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, staleTarget, List.of(role)), "不能以分配前脚本 false 掩盖分配后 true");
         assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, finalTarget, List.of(role)));
         operator.fields[0] = Set.of("_ALL_");
@@ -5453,7 +5438,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                     role.fields[0] = roleAllow.rules(); role.fields[1] = roleDeny.rules();
                     RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
                     service.setTenantList(List.of(new TestTenant("T1", "One"), new TestTenant("T2", "Two")));
-                    TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+                    TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
                     int opMask = owner == null ? opAllow.platformMask & ~opDeny.platformMask : opAllow.tenantMask & ~opDeny.tenantMask & 2;
                     int grantMask = targetTenant == null ? roleAllow.platformMask & ~roleDeny.platformMask : roleAllow.tenantMask & ~roleDeny.tenantMask & 2;
                     boolean expected = (owner == null || Objects.equals(owner, targetTenant)) && (grantMask & ~opMask) == 0;
@@ -5484,7 +5469,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                     ScopeRole role = new ScopeRole("R_MATRIX"); role.fields[0] = Set.of("T1");
                     role.fields[4] = roleAllow.rules(); role.fields[5] = roleDeny.rules();
                     RoleCatalogService service = new RoleCatalogService(operator, List.of(role)); service.setOrgList(baseOrgTree());
-                    TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+                    TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
                     boolean expected = ((roleAllow.mask & ~roleDeny.mask) & ~(opAllow.mask & ~opDeny.mask)) == 0;
                     String label = "ownOrg=" + ownOrg + ", targetOrg=" + targetOrg + ", op=" + opAllow + "/" + opDeny + ", role=" + roleAllow + "/" + roleDeny;
                     if (expected) assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)), label);
@@ -5518,7 +5503,7 @@ class RbacAuthorizeServiceRolePermissionTest {
             ScopeRole role = new ScopeRole("R_MATRIX"); role.fields[2] = allow.rules(); role.fields[3] = deny.rules();
             RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
             service.setDomainList(List.of(new TestDomain("D1"), new TestDomain("D2"), new TestDomain("*")));
-            TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+            TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
             boolean expected = ((allow.mask & ~deny.mask) & ~(opAllow.mask & ~opDeny.mask)) == 0;
             String label = "op=" + opAllow + "/" + opDeny + ", role=" + allow + "/" + deny;
             if (expected) assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)), label);
@@ -5539,7 +5524,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         ScopeRole role = new ScopeRole(RbacRoleInfo.ADMIN_ROLE); role.fields[0] = Set.of("_DEFAULT_");
         RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
         service.setTenantList(List.of(new TestTenant("T1", "One"))).setOrgList(baseOrgTree());
-        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
         assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(role)), "租户管理员固有全组织权限也不能超过操作者");
         operator.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild", "_NONE_|ignored");
         assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)));
@@ -5552,7 +5537,7 @@ class RbacAuthorizeServiceRolePermissionTest {
             };
             ScopeRole superRole = new ScopeRole(RbacRoleInfo.SA_ROLE) { @Override public String getTenantId() { return null; } };
             RoleCatalogService adminService = new RoleCatalogService(admin, List.of(superRole));
-            TestAuthorizeService adminAuth = new TestAuthorizeService(); adminAuth.setRbacBaseService(adminService);
+            TestAuthorizeService adminAuth = new TestAuthorizeService(); adminAuth.setDefaultRbacBaseService(adminService);
             if (topOperator) assertDoesNotThrow(() -> adminAuth.checkRoleAssignment(admin, topTarget, List.of(superRole)));
             else assertThrows(IllegalArgumentException.class, () -> adminAuth.checkRoleAssignment(admin, topTarget, List.of(superRole)), "不能通过角色编码和 sa 账号组合越过密级上限");
             admin.fields[2] = Set.of("D"); superRole.fields[2] = Set.of("X");
@@ -5579,7 +5564,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 }
             };
             service.setOrgList(baseOrgTree());
-            TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+            TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
             assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignment(operator, target, List.of(role)), missing);
         }
     }
@@ -5596,7 +5581,7 @@ class RbacAuthorizeServiceRolePermissionTest {
             MatrixRole role = new MatrixRole(0, "T1", "D", grant);
             RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
             service.setOrgList(baseOrgTree()).setDomainList(List.of(new TestDomain("D")));
-            TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+            TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
             assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)), "roleLevel=" + grant);
             target.fields[2] = Set.of();
             assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)), "领域不可访问角色不贡献最终继承等级");
@@ -5607,7 +5592,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         };
         ScopeRole role = new ScopeRole(RbacRoleInfo.SAAS_ADMIN) { @Override public String getTenantId() { return null; } };
         RoleCatalogService service = new RoleCatalogService(admin, List.of(role));
-        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
         assertDoesNotThrow(() -> auth.checkRoleAssignment(admin, target, List.of(role)));
     }
 
@@ -5627,7 +5612,7 @@ class RbacAuthorizeServiceRolePermissionTest {
             }
         };
         service.setDomainList(List.of(new TestDomain("D"), new TestDomain("X")));
-        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
         assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)));
     }
 
@@ -5645,7 +5630,7 @@ class RbacAuthorizeServiceRolePermissionTest {
             }
         };
         service.setOrgList(largeLayeredOrgTree("ROOT", "T1", 50000, 100));
-        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
         assertTimeoutPreemptively(Duration.ofSeconds(10), () -> auth.checkRoleAssignment(operator, target, List.of(role)));
         assertEquals(2, loads.get(), "独立角色和最终范围各加载一次，不能逐节点重载整棵树");
     }
@@ -5711,7 +5696,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         role.fields[0] = Set.of("T1"); role.fields[4] = Set.of("A|Self");
         RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
         service.setTenantList(List.of(new TestTenant("T1", "One"), new TestTenant("T2", "Two"))).setOrgList(baseOrgTree());
-        TestAuthorizeService auth = new TestAuthorizeService(); auth.setRbacBaseService(service);
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
         assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)), "范围内的 SaaS 角色不能被误判为固有全局权限而拒绝");
         assertTrue(service.canAccessOrg(target, "T1", "A"));
         assertFalse(service.canAccessOrg(target, "T1", "B"));
@@ -5732,7 +5717,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 return true;
             }
         };
-        auth.setRbacBaseService(service);
+        auth.setDefaultRbacBaseService(service);
         return auth;
     }
 
@@ -6288,17 +6273,7 @@ class RbacAuthorizeServiceRolePermissionTest {
             return this;
         }
 
-        @Override
-        @SuppressWarnings("unchecked")
-        public <S extends RbacBaseUserService> S setUserPluginTypeContext(SingleValueContext<String> userPluginTypeContext) {
-            this.userPluginTypeContext = userPluginTypeContext;
-            return (S) this;
-        }
-
-        @Override
-        public SingleValueContext<String> getUserPluginTypeContext() {
-            return userPluginTypeContext;
-        }
+        // setUserPluginTypeContext / getUserPluginTypeContext 已从 RbacBaseUserService 移除。
 
         @Override
         public <DOMAIN extends RbacDomainInfo> Collection<DOMAIN> loadAllDomainList(boolean onlyLoadEffectDomain) {
@@ -6447,15 +6422,7 @@ class RbacAuthorizeServiceRolePermissionTest {
             delegate.registerRole(role);
         }
 
-        @Override
-        public <S extends RbacBaseUserService> S setUserPluginTypeContext(SingleValueContext<String> userPluginTypeContext) {
-            return delegate.setUserPluginTypeContext(userPluginTypeContext);
-        }
-
-        @Override
-        public SingleValueContext<String> getUserPluginTypeContext() {
-            return delegate.getUserPluginTypeContext();
-        }
+        // 用户插件类型上下文 API 已移除，无需委托。
 
         @Override
         public String encryptUserPwd(String pwd) {

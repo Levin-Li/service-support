@@ -63,7 +63,7 @@ class ContextHolderTest {
     void mapContextComputeIfAbsentShouldPreserveExplicitNullPerKey() {
         MutableMapValueContext<String, String> context = new MutableMapValueContext<>();
         AtomicInteger supplierCalls = new AtomicInteger();
-        context.setValue("configured", null);
+        context.set("configured", null);
 
         assertNull(context.computeIfAbsent("configured", () -> {
             supplierCalls.incrementAndGet();
@@ -113,7 +113,7 @@ class ContextHolderTest {
         }
 
         @Override
-        public MapValueContext<K, V> setValue(K key, V value) {
+        public MapValueContext<K, V> set(K key, V value) {
             values.put(key, value);
             return this;
         }
@@ -125,7 +125,7 @@ class ContextHolderTest {
         }
 
         @Override
-        public V getValue(K key) {
+        public V get(K key) {
             return values.get(key);
         }
     }
