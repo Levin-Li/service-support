@@ -1,16 +1,14 @@
 package com.levin.commons.rbac;
 
-import com.levin.commons.utils.PathPatternUtils;
 import cn.hutool.core.util.StrUtil;
+import com.levin.commons.utils.PathPatternUtils;
 import org.springframework.http.server.PathContainer;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
-/** 单次匹配中当前起点的路径缓存；调用方已验证子树无环，切换起点即丢弃。 */
+/**
+ * 单次匹配中当前起点的路径缓存；调用方已验证子树无环，切换起点即丢弃。
+ */
 final class OrgScopePaths {
     private final Map<String, ? extends RbacOrgInfo> organizations;
     private final Map<String, String> idPaths = new HashMap<>();

@@ -1,21 +1,17 @@
 package com.levin.commons.rbac;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
-/** 按使用者的租户选择角色定义，不做领域或密级过滤，供授权初始化与分配校验共用。 */
+/**
+ * 按使用者的租户选择角色定义，不做领域或密级过滤，供授权初始化与分配校验共用。
+ */
 final class RoleDefinitionResolver {
-    private RoleDefinitionResolver() {}
+    private RoleDefinitionResolver() {
+    }
 
     static <R extends RbacRoleInfo> List<R> select(Serializable tenantId, Collection<R> definitions,
-                                                Collection<?> requestedCodes) {
+                                                   Collection<?> requestedCodes) {
         if (definitions == null || definitions.isEmpty()) return Collections.emptyList();
         String tenant = Objects.toString(tenantId, null);
         Map<String, R> byCode = new LinkedHashMap<>();

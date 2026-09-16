@@ -1,12 +1,11 @@
 package com.levin.commons.rbac;
 
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * 授权对象

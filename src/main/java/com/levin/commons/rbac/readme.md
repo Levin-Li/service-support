@@ -23,7 +23,8 @@
 - 空允许集合没有授权，空拒绝集合没有排除；拒绝优先在选定来源后计算。
 - 普通租户用户始终限制在自身租户内，只有平台用户具备跨租户资格。
 - 组织规则为 `起点组织|匹配模式`，例如 `sales|SelfAndAllChild`；不再保存旧 `OrgScope` 对象。
-- 实现 `loadAllDomainList` 和 `loadDomain` 提供 `RbacDomainInfo` 目录；`loadUserAccessibleDomainList` 批量筛选可访问领域，`canAccessDomain` 检查授权、存在性及有效状态。
+- 实现 `loadAllDomainList` 和 `loadDomain` 提供 `RbacDomainInfo` 目录；`loadUserAccessibleDomainList` 批量筛选可访问领域，
+  `canAccessDomain` 检查授权、存在性及有效状态。
 - 领域是现有可访问列表和权限检查的最外层门槛：非空必须授权，空值跳过对象自身检查；原始加载参数不变，管理员不绕过领域。
 - 组织与所属租户的非空领域必须一致；业务写入也必须校验。角色权限分阶段计算，避免领域和对象密级过滤递归。
 - 菜单用 `filterAccessibleMenuList` 过滤并复制，不污染原始扫描缓存。

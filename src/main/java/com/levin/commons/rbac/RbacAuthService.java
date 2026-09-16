@@ -2,11 +2,13 @@ package com.levin.commons.rbac;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.io.Serializable;
 import java.util.Map;
 
 /**
  * 简单认证服务
+ *
  * @author lilw
  */
 @Tag(name = "RBAC 认证服务", description = "认证成功后返回 token；失效或登出后 token 不得再用于获取登录主体。未登录时 getLoginId 必须拒绝并抛出异常，不允许回退为空主体。")

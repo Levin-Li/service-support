@@ -8,6 +8,6 @@ import com.levin.commons.dao.domain.DomainObject;
  *
  * @author echo
  */
-public interface RbacTenantInfo extends RbacCoreObject , DomainObject {
+public interface RbacTenantInfo extends RbacCoreObject, DomainObject {
 
 }

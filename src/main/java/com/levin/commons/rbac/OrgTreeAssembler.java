@@ -7,16 +7,18 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/** 组织树算法；节点复制和写入由调用方提供的适配器完成。 */
+/**
+ * 组织树算法；节点复制和写入由调用方提供的适配器完成。
+ */
 final class OrgTreeAssembler {
 
     private OrgTreeAssembler() {
     }
 
     static <ORG extends RbacOrgInfo> Collection<ORG> assemble(Collection<ORG> orgList,
-                                                                boolean buildNodePath,
-                                                                String[] rootIdList,
-                                                                BiFunction<ORG, String, ORG> copier) {
+                                                              boolean buildNodePath,
+                                                              String[] rootIdList,
+                                                              BiFunction<ORG, String, ORG> copier) {
         if (orgList == null || orgList.isEmpty()) return Collections.emptyList();
 
         List<ORG> sources = orgList.stream().filter(Objects::nonNull).collect(Collectors.toList());
@@ -35,9 +37,9 @@ final class OrgTreeAssembler {
     }
 
     private static <ORG extends RbacOrgInfo> Collection<ORG> assembleSingleTenant(List<ORG> sources,
-                                                                                     boolean buildNodePath,
-                                                                                     String[] rootIdList,
-                                                                                     BiFunction<ORG, String, ORG> copier) {
+                                                                                  boolean buildNodePath,
+                                                                                  String[] rootIdList,
+                                                                                  BiFunction<ORG, String, ORG> copier) {
         Map<String, ORG> sourceById = sources.stream()
                 .filter(org -> !RbacMiscUtils.isBlank(org.getId()))
                 .collect(Collectors.toMap(org -> Objects.toString(org.getId(), ""), Function.identity(),
@@ -82,12 +84,13 @@ final class OrgTreeAssembler {
     }
 
     private static Set<String> collectDescendants(Set<String> roots, Map<String, ? extends RbacOrgInfo> orgs,
-                                                   Map<String, List<String>> childrenByParent) {
+                                                  Map<String, List<String>> childrenByParent) {
         Set<String> selected = new LinkedHashSet<>();
         Deque<String> pending = new ArrayDeque<>(roots);
         while (!pending.isEmpty()) {
             String id = pending.pop();
-            if (orgs.containsKey(id) && selected.add(id)) pending.addAll(childrenByParent.getOrDefault(id, Collections.emptyList()));
+            if (orgs.containsKey(id) && selected.add(id))
+                pending.addAll(childrenByParent.getOrDefault(id, Collections.emptyList()));
         }
         return selected;
     }
@@ -98,7 +101,8 @@ final class OrgTreeAssembler {
             Set<String> visiting = new LinkedHashSet<>();
             String current = id;
             while (StrUtil.isNotBlank(current) && selected.contains(current) && !checked.contains(current)) {
-                if (!visiting.add(current)) throw new IllegalStateException("组织节点出现循环引用: " + String.join(" -> ", visiting) + " -> " + current);
+                if (!visiting.add(current))
+                    throw new IllegalStateException("组织节点出现循环引用: " + String.join(" -> ", visiting) + " -> " + current);
                 RbacOrgInfo org = orgs.get(current);
                 current = org == null ? null : Objects.toString(org.getParentId(), "");
             }

@@ -22,7 +22,7 @@ import static com.levin.commons.rbac.RbacMiscUtils.*;
 
 /**
  * 加载服务
- *
+ * <p>
  * 数据范围规则：用户六个范围字段的非 {@code null} 值（空集合也包括在内）覆盖角色配置，
  * 只有 {@code null} 才回退到生效角色的并集；拒绝规则优先于允许规则。默认实现按候选集计算，
  * 实现类可以使用等价的数据库查询或缓存优化，但不得改变上述可见性、优先级和拒绝语义。
@@ -75,11 +75,15 @@ public interface RbacBaseService extends RbacBaseUserService {
     @Operation(summary = "加载租户", description = "按租户 ID 或实现支持的租户标识加载单个租户；该原始加载入口不代表当前用户已获得该租户的数据访问权限。")
     <TENANT extends RbacTenantInfo> TENANT loadTenant(Serializable tenantPrincipal);
 
-    /** 加载业务领域目录，onlyLoadEffectDomain 指定是否只加载有效领域。 */
+    /**
+     * 加载业务领域目录，onlyLoadEffectDomain 指定是否只加载有效领域。
+     */
     @Operation(summary = "加载全部领域", description = "领域是业务领域或应用，不是域名；返回领域目录而非当前用户的授权结果。onlyLoadEffectDomain 为 true 时实现应只返回有效领域。")
     <DOMAIN extends RbacDomainInfo> Collection<DOMAIN> loadAllDomainList(boolean onlyLoadEffectDomain);
 
-    /** 加载指定领域，不存在时返回 null。 */
+    /**
+     * 加载指定领域，不存在时返回 null。
+     */
     @Operation(summary = "加载领域", description = "domainPrincipal 为领域 ID 或实现支持的领域标识；未找到时返回 null。该原始加载不执行当前用户领域授权，权限可见性应使用 loadUserAccessibleDomainList。")
     <DOMAIN extends RbacDomainInfo> DOMAIN loadDomain(Serializable domainPrincipal);
 
@@ -154,7 +158,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * }</pre>
      *
      * @param sourceOrg 当前待复制的单个源节点，可能是只读包装或代理对象，应只通过公开 getter 读取
-     * @param nodePath 组装器按本次输入计算的路径；buildNodePath 为 false 时为源节点已有路径
+     * @param nodePath  组装器按本次输入计算的路径；buildNodePath 为 false 时为源节点已有路径
      * @return 独立且可写的单节点副本
      */
     @Operation(summary = "复制组织树节点", description = "每次只复制一个当前组织节点，不递归复制 children 或子树。实现必须返回独立副本，复制业务展示字段，将 nodePath 写入副本，并初始化非 null、可变且为空的 children 集合；不得返回或修改 sourceOrg，也不得复用 sourceOrg 的 children。组装器随后按 parentId 在副本间建立父子关系。")
@@ -304,7 +308,9 @@ public interface RbacBaseService extends RbacBaseUserService {
         });
     }
 
-    /** 判断目标租户内所有非空组织是否被完整授权。 */
+    /**
+     * 判断目标租户内所有非空组织是否被完整授权。
+     */
     default boolean canAccessAllOrg(Serializable userPrincipal, Serializable tenantId) {
         return DomainAccess.evaluate(() -> {
             final RbacUserInfo user = requireScopeUser(userPrincipal);
@@ -315,7 +321,9 @@ public interface RbacBaseService extends RbacBaseUserService {
         });
     }
 
-    /** 只判断租户范围资格；业务操作权限和机密级别仍须单独校验。 */
+    /**
+     * 只判断租户范围资格；业务操作权限和机密级别仍须单独校验。
+     */
     default boolean canAccessTenant(Serializable userPrincipal, Serializable tenantId) {
         return DomainAccess.evaluate(() -> {
             final RbacUserInfo user = requireScopeUser(userPrincipal);
@@ -323,14 +331,18 @@ public interface RbacBaseService extends RbacBaseUserService {
         });
     }
 
-    /** 领域范围支持 All、None 和具体 ID；非空 ID 须存在且有效，不享有管理员绕过。 */
+    /**
+     * 领域范围支持 All、None 和具体 ID；非空 ID 须存在且有效，不享有管理员绕过。
+     */
     default boolean canAccessDomain(Serializable userPrincipal, String domainId) {
         return DomainAccess.evaluate(() -> {
             return userDomainAccess(userPrincipal).allows(domainId);
         });
     }
 
-    /** 空领域不增加对象级限制；非空领域是管理员快捷路径之前的共同门槛。 */
+    /**
+     * 空领域不增加对象级限制；非空领域是管理员快捷路径之前的共同门槛。
+     */
     @Override
     default boolean canAccessObjectDomain(Serializable userPrincipal, DomainObject object) {
         return DomainAccess.evaluate(() -> {
@@ -353,7 +365,9 @@ public interface RbacBaseService extends RbacBaseUserService {
         });
     }
 
-    /** 批次内复用领域查询结果，按原顺序返回授权对象。 */
+    /**
+     * 批次内复用领域查询结果，按原顺序返回授权对象。
+     */
     default <T extends DomainObject> Collection<T> filterByDomainAccess(Serializable userPrincipal, Collection<T> objects) {
         return DomainAccess.evaluate(() -> {
             if (objects == null || objects.isEmpty()) return Collections.emptyList();
@@ -375,7 +389,9 @@ public interface RbacBaseService extends RbacBaseUserService {
         return DomainAccess.forScope(this, scope, id -> loadDomain(id));
     }
 
-    /** 只在最终对象上过滤领域，不从组织树索引移除祖先。 */
+    /**
+     * 只在最终对象上过滤领域，不从组织树索引移除祖先。
+     */
     private boolean orgDomainAllowed(DataScope scope, Serializable tenantId, RbacOrgInfo org) {
         if (org == null) return false;
         final DomainAccess domains = domainAccess(scope);
@@ -389,7 +405,9 @@ public interface RbacBaseService extends RbacBaseUserService {
                 && domains.allowsObject(tenant) && domains.allowsObject(org);
     }
 
-    /** 组织范围判断包含目标租户资格；空组织 ID 按 None 规则判断。 */
+    /**
+     * 组织范围判断包含目标租户资格；空组织 ID 按 None 规则判断。
+     */
     default boolean canAccessOrg(Serializable userPrincipal, Serializable tenantId, Serializable orgId) {
         return DomainAccess.evaluate(() -> {
             final RbacUserInfo user = requireScopeUser(userPrincipal);
@@ -440,10 +458,12 @@ public interface RbacBaseService extends RbacBaseUserService {
         });
     }
 
-    /** 角色授予范围按目标用户解释，目录快照仅用于当前分配判定。 */
+    /**
+     * 角色授予范围按目标用户解释，目录快照仅用于当前分配判定。
+     */
     @Operation(summary = "校验角色分配的数据范围上限", description = "按当前完整且一致的有效领域、租户、组织目录验证每个角色独立范围及分配后有效范围均包含于操作者范围；DEFAULT 分别按双方归属解释，角色自身拒绝先扣除，不能借其他角色拒绝或目标用户覆盖掩盖单角色越权。管理员仍受领域与密级上限约束；密级须同时满足有效快照和公开密级检查。含 Groovy 的范围要求目标真实对象已携带最终角色编码，否则拒绝，避免按分配前状态误放行；操作人须为当前已授权上下文。仅证明本次快照，目录/规则/上下文变化后须重新校验。目录返回 null 或检查异常时拒绝，不建立跨请求授权缓存。")
     default void checkRoleDataScopeAssignment(RbacUserInfo operator, RbacUserInfo target,
-                                             Collection<? extends RbacRoleInfo> assignedRoles) {
+                                              Collection<? extends RbacRoleInfo> assignedRoles) {
         DomainAccess.evaluate(() -> {
             Assert.notNull(operator, "操作用户不能为空");
             Assert.notNull(target, "目标用户不能为空");
@@ -907,7 +927,9 @@ public interface RbacBaseService extends RbacBaseUserService {
         });
     }
 
-    /** 生效角色的原始候选：只处理归属、状态和同码优先级，不调用领域或完整数据范围检查。 */
+    /**
+     * 生效角色的原始候选：只处理归属、状态和同码优先级，不调用领域或完整数据范围检查。
+     */
     private <R extends RbacRoleInfo> Collection<R> loadCandidateUserRoles(Serializable userPrincipal, boolean onlyLoadEffectRole) {
 
         RbacUserInfo user = loadUser(userPrincipal);
@@ -1115,7 +1137,9 @@ public interface RbacBaseService extends RbacBaseUserService {
                 && matchesTenantRules(scope.getTenantScopeList(), user, tenantId, tenant));
     }
 
-    /** 这里只枚举真实租户；无租户数据不参与枚举。 */
+    /**
+     * 这里只枚举真实租户；无租户数据不参与枚举。
+     */
     private boolean hasNoEnumerableTenantScope(RbacUserInfo user, DataScope scope) {
         return !isGlobalScopeAdmin(user) && (scope.getTenantScopeList().isEmpty()
                 || deniesAllTenants(scope)
@@ -1135,7 +1159,9 @@ public interface RbacBaseService extends RbacBaseUserService {
                 && rules.contains(DataScope.TenantScope.Default.getExpression()));
     }
 
-    /** 拒绝所有是租户范围的吸收规则，允许规则及其他拒绝规则均不再需要匹配。 */
+    /**
+     * 拒绝所有是租户范围的吸收规则，允许规则及其他拒绝规则均不再需要匹配。
+     */
     private boolean deniesAllTenants(DataScope scope) {
         return scope.getDeniedTenantScopeList().contains(DataScope.TenantScope.All.getExpression());
     }
@@ -1145,14 +1171,17 @@ public interface RbacBaseService extends RbacBaseUserService {
         return matchesTenantGroovyRules(rules, user, tenant);
     }
 
-    /** 静态拒绝规则已在加载目标租户前处理，此处只保留无法预先抵消的动态规则。 */
+    /**
+     * 静态拒绝规则已在加载目标租户前处理，此处只保留无法预先抵消的动态规则。
+     */
     private boolean matchesTenantGroovyRules(Set<String> rules, RbacUserInfo user, RbacTenantInfo tenant) {
         for (String rule : rules) {
             if (rule.startsWith(DataScope.TenantScope.Groovy.getExpression())) {
                 Map<String, Object> context = new LinkedHashMap<>();
                 context.put("_user", user);
                 context.put("_tenant", tenant);
-                if (evalScopeGroovy(rule.substring(DataScope.TenantScope.Groovy.getExpression().length()), context)) return true;
+                if (evalScopeGroovy(rule.substring(DataScope.TenantScope.Groovy.getExpression().length()), context))
+                    return true;
             }
         }
         return false;
@@ -1187,13 +1216,13 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
     private <ORG extends RbacOrgInfo> Set<String> accessibleOrgIds(RbacUserInfo user, DataScope scope,
-                                                                  Serializable tenantId, Map<String, ORG> orgMap) {
+                                                                   Serializable tenantId, Map<String, ORG> orgMap) {
         return accessibleOrgIds(user, scope, tenantId, orgMap, null);
     }
 
     private <ORG extends RbacOrgInfo> Set<String> accessibleOrgIds(RbacUserInfo user, DataScope scope,
-                                                                  Serializable tenantId, Map<String, ORG> orgMap,
-                                                                  String requiredOrgId) {
+                                                                   Serializable tenantId, Map<String, ORG> orgMap,
+                                                                   String requiredOrgId) {
         if (orgMap.isEmpty() || scope.getOrgScopeList().isEmpty()) return Collections.emptySet();
         final Map<String, List<String>> children = buildChildrenByParentId(orgMap);
         final Set<String> nonTargets;
@@ -1216,8 +1245,8 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
     private <ORG extends RbacOrgInfo> Set<String> matchedOrgIds(Set<String> rules, RbacUserInfo user,
-                                                               Serializable tenantId, Map<String, ORG> orgMap,
-                                                               Map<String, List<String>> children, Set<String> excluded) {
+                                                                Serializable tenantId, Map<String, ORG> orgMap,
+                                                                Map<String, List<String>> children, Set<String> excluded) {
         final Set<String> matched = new LinkedHashSet<>();
         final List<DataScope.OrgScope> ordered = rules.stream().map(DataScope.OrgScope::parse)
                 .sorted(Comparator.comparingInt(scope -> scope.orgMatchingMode().startsWith(DataScope.OrgMatchingMode.Groovy.getExpression()) ? 2
@@ -1284,7 +1313,7 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
     private boolean matchesOrgExpression(String mode, String pathExpression, RbacUserInfo user, DataScope.OrgScope scope,
-                                           RbacOrgInfo root, RbacOrgInfo org, OrgScopePaths paths) {
+                                         RbacOrgInfo root, RbacOrgInfo org, OrgScopePaths paths) {
         if (mode.startsWith(DataScope.OrgMatchingMode.IdPath.getExpression())) {
             return paths.matches(pathExpression, scopeId(org.getId()), false);
         }
@@ -1399,7 +1428,9 @@ public interface RbacBaseService extends RbacBaseUserService {
         }
     }
 
-    /** 组织范围路径匹配检测到环时，提供可定位的节点序列。 */
+    /**
+     * 组织范围路径匹配检测到环时，提供可定位的节点序列。
+     */
     private <ORG extends RbacOrgInfo> void throwOrgCycleException(String repeatedOrgId,
                                                                   Set<String> visitedOrgIds,
                                                                   Map<String, ORG> orgMap) {

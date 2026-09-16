@@ -9,7 +9,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/** 单次授权计算的领域授权与加载缓存，不跨用户或请求复用。 */
+/**
+ * 单次授权计算的领域授权与加载缓存，不跨用户或请求复用。
+ */
 final class DomainAccess {
     private static final ThreadLocal<Evaluation> EVALUATIONS = new ThreadLocal<>();
 
@@ -18,7 +20,9 @@ final class DomainAccess {
         final Map<Object, Map<DataScope, DomainAccess>> scopes = new IdentityHashMap<>();
     }
 
-    /** 嵌套调用共享本次计算；最外层退出时无条件移除，异常也不留下授权缓存。 */
+    /**
+     * 嵌套调用共享本次计算；最外层退出时无条件移除，异常也不留下授权缓存。
+     */
     static <T> T evaluate(Supplier<T> action) {
         if (EVALUATIONS.get() != null) return action.get();
         EVALUATIONS.set(new Evaluation());
@@ -39,18 +43,22 @@ final class DomainAccess {
 
     static DomainAccess forScope(Object service, DataScope scope, Function<String, RbacDomainInfo> loader) {
         Evaluation evaluation = EVALUATIONS.get();
-        if (evaluation == null) return obtain(service, scope.getDomainScopeList(), scope.getDeniedDomainScopeList(), loader);
+        if (evaluation == null)
+            return obtain(service, scope.getDomainScopeList(), scope.getDeniedDomainScopeList(), loader);
         Map<DataScope, DomainAccess> scopes = evaluation.scopes.computeIfAbsent(service, ignored -> new IdentityHashMap<>());
         return scopes.computeIfAbsent(scope,
                 ignored -> obtain(service, scope.getDomainScopeList(), scope.getDeniedDomainScopeList(), loader));
     }
 
     private record Key(Object service, Set<String> allowed, Set<String> denied) {
-        @Override public boolean equals(Object other) {
+        @Override
+        public boolean equals(Object other) {
             return other instanceof Key key && service == key.service
                     && allowed.equals(key.allowed) && denied.equals(key.denied);
         }
-        @Override public int hashCode() {
+
+        @Override
+        public int hashCode() {
             return 31 * (31 * System.identityHashCode(service) + allowed.hashCode()) + denied.hashCode();
         }
     }
@@ -112,7 +120,9 @@ final class DomainAccess {
         return domainId == null ? rules.contains(DataScope.DomainScope.None.getExpression()) : rules.contains(domainId);
     }
 
-    /** 拒绝所有是吸收规则，后续允许、其他拒绝和目录加载均无意义。 */
+    /**
+     * 拒绝所有是吸收规则，后续允许、其他拒绝和目录加载均无意义。
+     */
     private boolean deniesAll() {
         return denied.contains(DataScope.DomainScope.All.getExpression());
     }

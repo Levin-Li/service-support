@@ -11,10 +11,8 @@ import com.levin.commons.plugin.ResLoader;
 import com.levin.commons.service.SingleValueContext;
 import com.levin.commons.service.domain.Identifiable;
 import com.levin.commons.service.support.ContextHolder;
-import com.levin.commons.service.support.ThreadLocalSingleValueContext;
 import com.levin.commons.utils.ExpressionUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,13 +54,9 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
     @Autowired(required = false)
     PluginManager pluginManager;
 
-    @Autowired(required = false)
-    RbacBaseService defaultRbacBaseService;
-
-    @Getter
     @Setter
     @Autowired(required = false)
-    SingleValueContext<RbacBaseService> rbacBaseServiceContext;
+    RbacBaseService defaultRbacBaseService;
 
 
     final ContextHolder<String, ResConditionAction> actionContextHolder = ContextHolder.buildContext(true);
@@ -132,29 +126,9 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
         return actionMap;
     }
 
-    //@Override
-    public <S extends RbacBaseAuthorizeService> S setRbacBaseServiceContext(SingleValueContext<RbacBaseService> rbacBaseServiceContext) {
 
-        this.rbacBaseServiceContext = rbacBaseServiceContext;
-
-        return (S) this;
-    }
-
-    /**
-     * 设置用户加载服务
-     *
-     * @param rbacBaseService
-     * @return
-     */
-    public RbacAuthorizeService setRbacBaseService(RbacBaseService rbacBaseService) {
-
-        if (this.rbacBaseServiceContext == null) {
-            this.rbacBaseServiceContext = ThreadLocalSingleValueContext.ofInheritableThread(false);
-        }
-
-        this.rbacBaseServiceContext.set(rbacBaseService);
-
-        return this;
+    protected SingleValueContext<RbacBaseService> getRbacBaseServiceContext() {
+        return null;
     }
 
     /**
@@ -165,7 +139,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
     @Override
     public RbacBaseService getRbacBaseLoadService() {
 
-        RbacBaseService rbacBaseService = this.rbacBaseServiceContext.get();
+        RbacBaseService rbacBaseService = Optional.ofNullable(getRbacBaseServiceContext()).map(SingleValueContext::get).orElse(null);
 
         if (rbacBaseService == null) {
             rbacBaseService = this.defaultRbacBaseService;

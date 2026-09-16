@@ -1,16 +1,15 @@
 package com.levin.commons.rbac;
 
 import cn.hutool.core.lang.Assert;
-import com.levin.commons.dao.domain.DomainObject;
 import cn.hutool.core.util.StrUtil;
+import com.levin.commons.dao.domain.DomainObject;
 import com.levin.commons.utils.ExpressionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.util.PatternMatchUtils;
-import org.springframework.util.ConcurrentReferenceHashMap;
-import org.springframework.util.StringUtils;
-
 import jakarta.validation.constraints.NotNull;
+import org.springframework.util.ConcurrentReferenceHashMap;
+import org.springframework.util.PatternMatchUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.util.*;
@@ -73,7 +72,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
      */
     @Operation(summary = "过滤用户可见菜单", description = "先按领域访问过滤，再判断动作权限；拒绝父节点会移除整棵子树。alwaysShow 仅在动作权限不足时保留展示，不绕过领域门槛或禁用状态。一次调用内复用用户、角色和权限读取结果。")
     default List<SimpleMenu> filterAccessibleMenuList(Serializable userPrincipal,
-                                                    Collection<? extends MenuItem> menuList) {
+                                                      Collection<? extends MenuItem> menuList) {
         Assert.notNull(userPrincipal, "无用户主体");
         if (menuList == null || menuList.isEmpty()) {
             return Collections.emptyList();
@@ -438,7 +437,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         }
         final List<RbacRoleInfo> resolvedRoles = requestedCodes.isEmpty() ? Collections.emptyList()
                 : RoleDefinitionResolver.select(targetUser.getTenantId(),
-                        rbacBaseService.<RbacRoleInfo>loadTenantRoleList(targetUser.getTenantId(), true), requestedCodes);
+                rbacBaseService.<RbacRoleInfo>loadTenantRoleList(targetUser.getTenantId(), true), requestedCodes);
         final Set<String> resolvedCodes = resolvedRoles.stream().map(RbacRoleInfo::getCode).collect(Collectors.toSet());
         for (String code : requestedCodes) {
             Assert.isTrue(resolvedCodes.contains(code), "角色编码[{}]在目标租户中没有有效定义或共享定义", code);
@@ -452,7 +451,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
             RbacTenantInfo tenant = rbacBaseService.loadTenant(tenantId);
             Assert.notNull(tenant, "租户({})不存在", tenantId);
             Assert.isTrue(Objects.equals(Objects.toString(tenantId, null), Objects.toString(tenant.getId(), null))
-                            && tenant.selfAudit(), "租户({})信息不匹配或不可用", tenantId);
+                    && tenant.selfAudit(), "租户({})信息不匹配或不可用", tenantId);
             domainObjects.add(tenant);
         }
         Assert.isTrue(rbacBaseService.filterByDomainAccess(operatorPrincipal, domainObjects).size() == domainObjects.size(),

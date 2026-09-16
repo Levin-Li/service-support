@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/** 用户菜单的独立树快照，不修改扫描缓存或原始菜单。 */
+/**
+ * 用户菜单的独立树快照，不修改扫描缓存或原始菜单。
+ */
 final class AccessibleMenu extends SimpleMenu {
     @com.fasterxml.jackson.annotation.JsonIgnore
     private MenuItem parent;

@@ -3,7 +3,6 @@ package com.levin.commons.rbac;
 
 import cn.hutool.core.lang.Assert;
 import com.levin.commons.dao.domain.DomainObject;
-import com.levin.commons.service.SingleValueContext;
 import com.levin.commons.service.exception.AuthorizationException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,11 +22,11 @@ import java.util.function.Supplier;
 @Tag(name = "RBAC 用户服务", description = "基础用户服务的非空领域对象默认拒绝访问，不会回退为允许；完整领域、租户和数据范围授权由 RbacBaseService 提供。机密级别优先使用用户自身配置，缺失时由完整实现按角色补足；单次判定可复用临时缓存，但不改变授权结果。")
 public interface RbacBaseUserService {
 
-    @Operation(summary = "设置用户插件类型上下文", description = " ")
-    <S extends RbacBaseUserService> S setUserPluginTypeContext(SingleValueContext<String> userPluginTypeContext);
-
-    @Operation(summary = "用户插件类型上下文", description = " ")
-    SingleValueContext<String> getUserPluginTypeContext();
+//    @Operation(summary = "设置用户插件类型上下文", description = " ")
+//    <S extends RbacBaseUserService> S setUserPluginTypeContext(SingleValueContext<String> userPluginTypeContext);
+//
+//    @Operation(summary = "用户插件类型上下文", description = " ")
+//    SingleValueContext<String> getUserPluginTypeContext();
 
     /**
      * 加密密码

@@ -3,8 +3,8 @@ package com.levin.commons.rbac;
 
 import com.levin.commons.dao.domain.DomainObject;
 import com.levin.commons.dao.domain.MultiTenantPublicObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.io.Serializable;
@@ -18,7 +18,7 @@ import java.util.Collections;
  */
 @Schema(title = "角色信息", description = "不设计继承模型,以降低复杂度")
 @Tag(name = "RBAC 角色定义", description = "用户持有角色编码时优先使用本租户的有效同码角色定义，缺失时回退到共享定义；角色分配必须满足前置条件、互斥与共存规则，权限表达式仅在前置授权通过后参与判定。")
-public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPublicObject , DomainObject {
+public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPublicObject, DomainObject {
 
     String ROLE_PREFIX = "R_";
 

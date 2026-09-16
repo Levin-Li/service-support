@@ -2,10 +2,8 @@ package com.levin.commons.rbac;
 
 
 import cn.hutool.core.lang.Assert;
-import com.levin.commons.service.SingleValueContext;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
@@ -22,10 +20,10 @@ import static com.levin.commons.rbac.RbacRoleInfo.*;
 public interface RbacBaseAuthorizeService {
 
 
-    <S extends RbacBaseAuthorizeService> S setRbacBaseServiceContext(SingleValueContext<RbacBaseService> context);
-
-
-    SingleValueContext<RbacBaseService> getRbacBaseServiceContext();
+//    <S extends RbacBaseAuthorizeService> S setRbacBaseServiceContext(SingleValueContext<RbacBaseService> context);
+//
+//
+//    SingleValueContext<RbacBaseService> getRbacBaseServiceContext();
 
     /**
      * 拷贝
