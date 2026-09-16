@@ -1088,7 +1088,15 @@ A|IdPath#/*/*
 - 父节点
 - 业务状态
 
-业务实现明确知道组织对象类型时，建议覆盖 `copyOrgNodeForAssembleTree(...)`，用构造器或 mapper 复制必要字段，减少反射成本。
+从当前版本起，组织树不再反射复制实体，也不会探测 `children` 或 `nodePath` 的字段和 setter。
+每个 `RbacBaseService` 实现必须实现 `copyOrgNodeForAssembleTree(sourceOrg, nodePath)`：该方法只复制
+当前节点，并将已计算的 nodePath 写入副本。副本必须提供非 null、可变的 children 集合；组装器随后
+清空该集合并按 parentId 追加已复制的子节点。未实现复制方法的服务会在编译期失败，避免运行时反射
+兼容带来的性能和行为不确定性。
+
+实现该方法时，必须创建独立对象，复制 ID、parentId、tenantId、名称、领域、状态、机密级别及业务
+展示所需字段；`children` 必须新建为空的可变集合。不得返回或修改 `sourceOrg`，不得复用其 children，
+也不得递归复制子节点。sourceOrg 可能是只读包装或代理，只能通过 getter 读取。
 
 范围计算采用以下短路顺序（保留管理员例外和身份边界）：
 

@@ -4,19 +4,13 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import com.levin.commons.dao.domain.ConfidentialObject;
 import com.levin.commons.dao.domain.DomainObject;
-import com.levin.commons.dao.domain.ProxyWrapperObject;
 import com.levin.commons.utils.ExpressionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.aop.framework.AopProxyUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.PatternMatchUtils;
-import org.springframework.util.ReflectionUtils;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -38,37 +32,9 @@ import static com.levin.commons.rbac.RbacMiscUtils.*;
 @Tag(name = "RBAC 数据范围服务", description = "用户范围字段非 null（含空集合）覆盖角色配置，只有 null 才继承生效角色并集。仅超级管理员 R_SA（含顶级 sa）享有全局租户/组织范围快捷路径；SaaS 管理员与普通平台用户均须匹配授权范围并服从拒绝规则，有授权允许跨组织，不设所属组织硬边界。租户管理员的组织管理范围只限自身已授权租户；领域门槛均保留，普通超管与 SaaS 管理员列表/管理入口仍检查密级。角色分配按当前完整有效目录检查范围上限，目录/规则/上下文变化须重新校验。")
 public interface RbacBaseService extends RbacBaseUserService {
 
-    Map<Class<?>, List<Field>> COPYABLE_FIELDS_CACHE = new ConcurrentReferenceHashMap<>();
-    Map<Class<?>, Method> CHILDREN_SETTER_CACHE = new ConcurrentReferenceHashMap<>();
-    Map<Class<?>, Method> NODE_PATH_SETTER_CACHE = new ConcurrentReferenceHashMap<>();
-    Map<Class<?>, Field> CHILDREN_FIELD_CACHE = new ConcurrentReferenceHashMap<>();
-    Map<Class<?>, Field> NODE_PATH_FIELD_CACHE = new ConcurrentReferenceHashMap<>();
-
     // 自定义 Groovy 规则的编译结果可以跨请求复用，避免每次重新编译脚本。
     Map<String, Class<Object>> ORG_SCOPE_GROOVY_CLASS_CACHE = new ConcurrentReferenceHashMap<>();
 
-    /**
-     * 用户类型
-     */
-    ThreadLocal<String> userTypeEnv = new ThreadLocal<>();
-
-    /**
-     * 获取用户类型
-     *
-     * @return
-     */
-    static String getUserType() {
-        return StrUtil.firstNonBlank(userTypeEnv.get(), "User");
-    }
-
-    /**
-     * 设置用户类型
-     *
-     * @param userType
-     */
-    static void setUserType(String userType) {
-        userTypeEnv.set(userType);
-    }
 
     @Operation(summary = "加载全部租户列表", description = "返回数据源中的租户目录，不按当前用户数据范围或动作权限过滤；onlyLoadEffectTenant 为 true 时仅返回有效租户。权限可见性应使用 loadUserAccessibleTenantList。")
     <TENANT extends RbacTenantInfo> Collection<TENANT> loadAllTenantList(boolean onlyLoadEffectTenant);
@@ -163,6 +129,37 @@ public interface RbacBaseService extends RbacBaseUserService {
     @Operation(summary = "加载租户组织列表", description = "返回指定租户的原始组织目录，不按用户领域、数据范围或动作权限过滤；tenantId 为 null 时返回无租户组织，onlyLoadEffectOrg 为 true 时只返回有效组织。实现可在数据层或缓存预裁剪，但返回对象必须只读。")
     <ORG extends RbacOrgInfo> Collection<ORG> loadTenantOrgList(Serializable tenantId, boolean onlyLoadEffectOrg);
 
+    /**
+     * 复制一个组织树节点；由 {@code RbacBaseService} 的具体实现完成。
+     *
+     * <p>每次调用只复制 {@code sourceOrg} 当前节点，绝不递归复制其 children、parent 或整棵子树。
+     * 组装器会为每个入选节点调用一次本方法，随后按 parentId 将这些副本关联为树。</p>
+     *
+     * <p>实现必须：创建独立的新对象；复制调用方需要展示的业务字段（至少 ID、parentId、tenantId、
+     * 名称、领域、状态及机密级别）；将 {@code nodePath} 写入副本；并初始化一个非 null、可变且
+     * 初始为空的 children 集合。不得返回 {@code sourceOrg}，不得修改 sourceOrg，也不得复用其
+     * children 集合。</p>
+     *
+     * <pre>{@code
+     * public MyOrg copyOrgNodeForAssembleTree(MyOrg source, String nodePath) {
+     *     MyOrg copy = new MyOrg();
+     *     copy.setId(source.getId());
+     *     copy.setParentId(source.getParentId());
+     *     copy.setTenantId(source.getTenantId());
+     *     copy.setName(source.getName());
+     *     copy.setNodePath(nodePath);
+     *     copy.setChildren(new ArrayList<>());
+     *     return copy;
+     * }
+     * }</pre>
+     *
+     * @param sourceOrg 当前待复制的单个源节点，可能是只读包装或代理对象，应只通过公开 getter 读取
+     * @param nodePath 组装器按本次输入计算的路径；buildNodePath 为 false 时为源节点已有路径
+     * @return 独立且可写的单节点副本
+     */
+    @Operation(summary = "复制组织树节点", description = "每次只复制一个当前组织节点，不递归复制 children 或子树。实现必须返回独立副本，复制业务展示字段，将 nodePath 写入副本，并初始化非 null、可变且为空的 children 集合；不得返回或修改 sourceOrg，也不得复用 sourceOrg 的 children。组装器随后按 parentId 在副本间建立父子关系。")
+    <ORG extends RbacOrgInfo> ORG copyOrgNodeForAssembleTree(ORG sourceOrg, String nodePath);
+
 
     @Operation(summary = "加载用户能访问的组织列表", description = "先检查租户资格，再匹配组织范围和领域；普通平台用户与 SaaS 管理员必须有明确组织授权并服从拒绝，有授权可跨组织树。仅 R_SA 超管享有全局组织范围快捷路径，租户管理员仅在自身已授权租户享有组织管理范围。普通超管与 SaaS 管理员仍执行对象密级过滤。用户非 null 字段覆盖角色、null 才继承；查询/缓存优化不得放宽结果。")
     default <ORG extends RbacOrgInfo> Collection<ORG> loadUserAccessibleOrgList(Serializable userPrincipal, boolean onlyLoadEffectOrg) {
@@ -253,115 +250,9 @@ public interface RbacBaseService extends RbacBaseUserService {
         return assembleOrgTree(orgList, true, rootIdList);
     }
 
-    @Operation(summary = "组装组织树", description = "按租户分别建立索引并复制节点，避免修改传入的扁平组织集合；buildNodePath 决定是否构建节点路径。指定 rootIdList 时仅返回对应子树，未指定时返回全部根节点；不执行权限过滤。")
+    @Operation(summary = "组装组织树", description = "按租户分别建立索引，并由具体 RbacBaseService 实现复制独立节点，避免修改传入的扁平组织集合；不使用字段或 setter 反射回退。buildNodePath 决定传给复制方法的节点路径。指定 rootIdList 时仅返回对应子树，未指定时返回全部根节点；不执行权限过滤。")
     default <ORG extends RbacOrgInfo> Collection<ORG> assembleOrgTree(Collection<ORG> orgList, boolean buildNodePath, String... rootIdList) {
-
-        if (orgList == null || orgList.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        final List<ORG> sourceOrgList = orgList.stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        if (sourceOrgList.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        final Map<String, List<ORG>> sourceOrgListByTenant = new LinkedHashMap<>();
-        for (ORG sourceOrg : sourceOrgList) {
-            sourceOrgListByTenant.computeIfAbsent(getOrgTenantMapKey(sourceOrg), key -> new ArrayList<>()).add(sourceOrg);
-        }
-
-        if (sourceOrgListByTenant.size() > 1) {
-            final List<ORG> rootList = new ArrayList<>();
-            sourceOrgListByTenant.values().forEach(tenantOrgList ->
-                    rootList.addAll(assembleOrgTreeInSingleTenant(tenantOrgList, buildNodePath, rootIdList)));
-            return rootList;
-        }
-
-        return assembleOrgTreeInSingleTenant(sourceOrgList, buildNodePath, rootIdList);
-    }
-
-    private <ORG extends RbacOrgInfo> Collection<ORG> assembleOrgTreeInSingleTenant(List<ORG> sourceOrgList,
-                                                                                   boolean buildNodePath,
-                                                                                   String... rootIdList) {
-
-        final Map<String, ORG> sourceOrgMap = sourceOrgList.stream()
-                .filter(org -> RbacMiscUtils.isNotBlank(org.getId()))
-                .collect(Collectors.toMap(org -> Objects.toString(org.getId(), ""),
-                        Function.identity(),
-                        (left, right) -> left,
-                        LinkedHashMap::new));
-
-        if (sourceOrgMap.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        final Map<String, List<String>> childrenByParentId = buildChildrenByParentId(sourceOrgMap);
-        final Set<String> selectedRootIds = normalizeOrgIdSet(Arrays.asList(rootIdList));
-        final Set<String> selectedOrgIds = selectedRootIds.isEmpty()
-                ? new LinkedHashSet<>(sourceOrgMap.keySet())
-                : collectDescendantOrgIds(selectedRootIds, sourceOrgMap, childrenByParentId);
-
-        if (selectedOrgIds.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        validateSelectedOrgTreeAcyclic(selectedOrgIds, sourceOrgMap);
-
-        final Map<String, ORG> copiedOrgMap = new LinkedHashMap<>();
-        final Map<String, String> nodePathCache = buildNodePath ? new HashMap<>() : Collections.emptyMap();
-
-        for (ORG sourceOrg : sourceOrgMap.values()) {
-            final String orgId = Objects.toString(sourceOrg.getId(), "");
-            if (!selectedOrgIds.contains(orgId)) {
-                continue;
-            }
-            copiedOrgMap.put(orgId, copyOrgNodeForAssembleTree(sourceOrg));
-        }
-
-        copiedOrgMap.values().forEach(this::resetCopiedNode);
-
-        final List<ORG> rootList = new ArrayList<>();
-
-        for (ORG sourceOrg : sourceOrgMap.values()) {
-            final String orgId = Objects.toString(sourceOrg.getId(), "");
-
-            if (!selectedOrgIds.contains(orgId)) {
-                continue;
-            }
-
-            ORG copiedOrg = copiedOrgMap.get(orgId);
-
-            if (buildNodePath) {
-                setNodePathOnCopy(copiedOrg, resolveNodePath(sourceOrg, sourceOrgMap, nodePathCache));
-            }
-
-            final String parentId = Objects.toString(sourceOrg.getParentId(), "");
-
-            if (StrUtil.isBlank(parentId) || !selectedOrgIds.contains(parentId)) {
-                rootList.add(copiedOrg);
-                continue;
-            }
-
-            ORG copiedParent = copiedOrgMap.get(parentId);
-
-            if (copiedParent == null || !appendChild(copiedParent, copiedOrg)) {
-                rootList.add(copiedOrg);
-            }
-        }
-
-        return rootList;
-    }
-
-    private String getOrgTenantMapKey(RbacOrgInfo org) {
-        try {
-            Serializable tenantId = org.getTenantId();
-            return Objects.toString(tenantId, "");
-        } catch (UnsupportedOperationException ignored) {
-            return "";
-        }
+        return OrgTreeAssembler.assemble(orgList, buildNodePath, rootIdList, this::copyOrgNodeForAssembleTree);
     }
 
     /**
@@ -1508,323 +1399,22 @@ public interface RbacBaseService extends RbacBaseUserService {
         }
     }
 
-    /**
-     * 复制组树用的组织节点。
-     * <p>
-     * 默认实现会兼容只读代理对象和未知实体类型，因此需要 AOP 脱壳、BeanUtils 和字段反射。
-     * 如果业务实现明确知道组织对象类型，建议覆盖本方法，用构造器或 mapper 只复制必要字段，
-     * 这样可以减少大组织树装配时的反射成本。
-     * <p>
-     * 注意：返回对象必须是独立的新对象，并且 children/nodePath 可写；默认组树流程会重置 children，
-     * 不能直接返回原始 sourceOrg，否则会修改调用方传入的扁平列表对象。
-     */
-    @Operation(summary = "复制组树用组织节点", description = "复制组织节点供组树使用，避免修改调用方传入的扁平组织对象；默认通过 AOP 脱壳、BeanUtils 和反射复制。子类可用构造器或 mapper 优化，但不得返回原对象或改变树组装结果。")
-    default <ORG extends RbacOrgInfo> ORG copyOrgNodeForAssembleTree(ORG sourceOrg) {
-        return copyOrgNodeByReflection(sourceOrg);
-    }
-
-    private <ORG extends RbacOrgInfo> ORG copyOrgNodeByReflection(ORG sourceOrg) {
-        Object source = unwrapOrgSource(sourceOrg);
-        Class<?> sourceType = resolveOrgSourceClass(source);
-
-        Assert.notNull(sourceType, "组织节点类型不能为空");
-
-        ORG copiedOrg = (ORG) BeanUtils.instantiateClass(sourceType);
-        BeanUtils.copyProperties(source, copiedOrg);
-        copyFieldState(source, copiedOrg, sourceType);
-
-        return copiedOrg;
-    }
-
-    private Object unwrapOrgSource(Object source) {
-        Object unwrapped = source;
-
-        while (unwrapped instanceof ProxyWrapperObject) {
-            Object next = ((ProxyWrapperObject) unwrapped).getOriginalObject();
-            if (next == null || next == unwrapped) {
-                break;
-            }
-            unwrapped = next;
-        }
-
-        return unwrapped;
-    }
-
-    private Class<?> resolveOrgSourceClass(Object source) {
-        if (source == null) {
-            return null;
-        }
-        return AopProxyUtils.ultimateTargetClass(source);
-    }
-
-    private void copyFieldState(Object source, Object target, Class<?> sourceType) {
-        getCopyableFields(sourceType).forEach(field ->
-                ReflectionUtils.setField(field, target, ReflectionUtils.getField(field, source))
-        );
-    }
-
-    private List<Field> getCopyableFields(Class<?> sourceType) {
-        return COPYABLE_FIELDS_CACHE.computeIfAbsent(sourceType, key -> {
-            final List<Field> fields = new ArrayList<>();
-
-            ReflectionUtils.doWithFields(key, field -> {
-                if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
-                    return;
-                }
-
-                ReflectionUtils.makeAccessible(field);
-                fields.add(field);
-            });
-
-            return Collections.unmodifiableList(fields);
-        });
-    }
-
-    private <ORG extends RbacOrgInfo> String resolveNodePath(ORG org,
-                                                             Map<String, ORG> orgMap,
-                                                             Map<String, String> nodePathCache) {
-        try {
-            String nodePath = org.getNodePath();
-            if (StrUtil.isNotBlank(nodePath)) {
-                return nodePath;
-            }
-        } catch (UnsupportedOperationException ignored) {
-        }
-
-        return buildAbsoluteNodePath(Objects.toString(org.getId(), ""), orgMap, nodePathCache, new LinkedHashSet<>());
-    }
-
-    private <ORG extends RbacOrgInfo> String buildAbsoluteNodePath(String orgId,
-                                                                   Map<String, ORG> orgMap,
-                                                                   Map<String, String> nodePathCache,
-                                                                   Set<String> visiting) {
-        if (StrUtil.isBlank(orgId)) {
-            return null;
-        }
-
-        if (nodePathCache.containsKey(orgId)) {
-            return nodePathCache.get(orgId);
-        }
-
-        if (!visiting.add(orgId)) {
-            throwOrgCycleException(orgId, visiting, orgMap);
-        }
-
-        ORG current = orgMap.get(orgId);
-
-        if (current == null) {
-            visiting.remove(orgId);
-            return null;
-        }
-
-        try {
-            String nodePath = current.getNodePath();
-            if (StrUtil.isNotBlank(nodePath)) {
-                visiting.remove(orgId);
-                nodePathCache.put(orgId, nodePath);
-                return nodePath;
-            }
-        } catch (UnsupportedOperationException ignored) {
-        }
-
-        final String currentId = Objects.toString(current.getId(), "");
-        String nodePath;
-
-        if (isBlank(current.getParentId())) {
-            nodePath = "/" + currentId + "/";
-        } else {
-            final String parentId = Objects.toString(current.getParentId(), "");
-            final String parentPath = buildAbsoluteNodePath(parentId, orgMap, nodePathCache, visiting);
-            nodePath = StrUtil.isBlank(parentPath)
-                    ? "/" + currentId + "/"
-                    : parentPath + currentId + "/";
-        }
-
-        visiting.remove(orgId);
-        nodePathCache.put(orgId, nodePath);
-
-        return nodePath;
-    }
-
-    /**
-     * 组织树出现环时立刻抛异常，避免后续路径匹配或组树逻辑进入死循环。
-     */
+    /** 组织范围路径匹配检测到环时，提供可定位的节点序列。 */
     private <ORG extends RbacOrgInfo> void throwOrgCycleException(String repeatedOrgId,
                                                                   Set<String> visitedOrgIds,
                                                                   Map<String, ORG> orgMap) {
         final List<String> cyclePath = new ArrayList<>();
         boolean started = false;
-
         for (String orgId : visitedOrgIds) {
-            if (!started && Objects.equals(orgId, repeatedOrgId)) {
-                started = true;
-            }
+            if (!started && Objects.equals(orgId, repeatedOrgId)) started = true;
             if (started) {
-                cyclePath.add(describeOrg(orgId, orgMap));
+                ORG org = orgMap.get(orgId);
+                cyclePath.add(org == null ? orgId : Objects.toString(org.getId(), "") + "-"
+                        + StrUtil.blankToDefault(org.getName(), ""));
             }
         }
-
-        cyclePath.add(describeOrg(repeatedOrgId, orgMap));
-
+        cyclePath.add(cyclePath.isEmpty() ? repeatedOrgId : cyclePath.get(0));
         throw new IllegalStateException("组织节点出现循环引用: " + String.join(" -> ", cyclePath));
     }
-
-    private <ORG extends RbacOrgInfo> String describeOrg(String orgId, Map<String, ORG> orgMap) {
-        final ORG org = orgMap.get(orgId);
-        if (org == null) {
-            return orgId;
-        }
-        return Objects.toString(org.getId(), "") + "-" + StrUtil.blankToDefault(org.getName(), "");
-    }
-
-    private boolean resetCopiedNode(RbacOrgInfo org) {
-        Collection<RbacOrgInfo> newChildren = new ArrayList<>();
-        return setChildren(org, newChildren);
-    }
-
-    private boolean appendChild(RbacOrgInfo parent, RbacOrgInfo child) {
-
-        try {
-            Collection<RbacOrgInfo> children = parent.getChildren();
-            if (children != null) {
-                children.add(child);
-                return true;
-            }
-        } catch (UnsupportedOperationException | IllegalArgumentException ignored) {
-        }
-
-        Collection<RbacOrgInfo> newChildren = new ArrayList<>();
-        newChildren.add(child);
-
-        return setChildren(parent, newChildren);
-    }
-
-    private boolean setChildren(RbacOrgInfo org, Collection<RbacOrgInfo> children) {
-        Method setter = findCachedCompatibleSetter(org.getClass(), "setChildren", Collection.class, CHILDREN_SETTER_CACHE);
-
-        if (setter != null) {
-            ReflectionUtils.invokeMethod(setter, org, adaptChildrenCollection(children, setter.getParameterTypes()[0]));
-            return true;
-        }
-
-        Field field = findCachedField(org.getClass(), "children", Collection.class, CHILDREN_FIELD_CACHE);
-        if (field == null) {
-            return false;
-        }
-
-        ReflectionUtils.setField(field, org, adaptChildrenCollection(children, field.getType()));
-        return true;
-    }
-
-    private Collection<RbacOrgInfo> adaptChildrenCollection(Collection<RbacOrgInfo> children, Class<?> targetType) {
-        final Collection<RbacOrgInfo> safeChildren = children != null ? children : Collections.emptyList();
-
-        if (targetType.isInstance(safeChildren)) {
-            return safeChildren;
-        }
-
-        if (targetType.isAssignableFrom(ArrayList.class)) {
-            return new ArrayList<>(safeChildren);
-        }
-
-        if (targetType.isAssignableFrom(LinkedHashSet.class)) {
-            return new LinkedHashSet<>(safeChildren);
-        }
-
-        if (targetType.isAssignableFrom(HashSet.class)) {
-            return new HashSet<>(safeChildren);
-        }
-
-        if (targetType.isAssignableFrom(LinkedList.class)) {
-            return new LinkedList<>(safeChildren);
-        }
-
-        if (!targetType.isInterface() && !java.lang.reflect.Modifier.isAbstract(targetType.getModifiers())) {
-            Collection<RbacOrgInfo> targetChildren = (Collection<RbacOrgInfo>) BeanUtils.instantiateClass(targetType);
-            targetChildren.addAll(safeChildren);
-            return targetChildren;
-        }
-
-        throw new IllegalArgumentException("不支持的组织 children 集合类型: " + targetType.getName());
-    }
-
-    private boolean setNodePathOnCopy(RbacOrgInfo org, String nodePath) {
-        return writeProperty(org, nodePath, "setNodePath", CharSequence.class, "nodePath",
-                NODE_PATH_SETTER_CACHE, NODE_PATH_FIELD_CACHE);
-    }
-
-    private boolean writeProperty(RbacOrgInfo org,
-                                  Object value,
-                                  String setterName,
-                                  Class<?> setterParamType,
-                                  String fieldName,
-                                  Map<Class<?>, Method> setterCache,
-                                  Map<Class<?>, Field> fieldCache) {
-        Method setter = findCachedCompatibleSetter(org.getClass(), setterName, setterParamType, setterCache);
-
-        if (setter != null) {
-            ReflectionUtils.invokeMethod(setter, org, value);
-            return true;
-        }
-
-        Field field = findCachedField(org.getClass(), fieldName, setterParamType, fieldCache);
-        if (field == null) {
-            return false;
-        }
-
-        ReflectionUtils.setField(field, org, value);
-        return true;
-    }
-
-    private Method findCachedCompatibleSetter(Class<?> type,
-                                              String setterName,
-                                              Class<?> setterParamType,
-                                              Map<Class<?>, Method> setterCache) {
-        Method setter = setterCache.get(type);
-        if (setter != null) {
-            return setter;
-        }
-
-        setter = Arrays.stream(type.getMethods())
-                .filter(method -> setterName.equals(method.getName()))
-                .filter(method -> method.getParameterCount() == 1)
-                .filter(method -> setterParamType.isAssignableFrom(method.getParameterTypes()[0]))
-                .findFirst()
-                .orElse(null);
-
-        if (setter != null) {
-            ReflectionUtils.makeAccessible(setter);
-            setterCache.put(type, setter);
-        }
-
-        return setter;
-    }
-
-    private Field findCachedField(Class<?> type,
-                                  String fieldName,
-                                  Class<?> fieldType,
-                                  Map<Class<?>, Field> fieldCache) {
-        Field field = fieldCache.get(type);
-        if (field != null) {
-            return field;
-        }
-
-        field = ReflectionUtils.findField(type, fieldName);
-        if (field != null && fieldType.isAssignableFrom(field.getType())) {
-            ReflectionUtils.makeAccessible(field);
-            fieldCache.put(type, field);
-            return field;
-        }
-
-        return null;
-    }
-
-    /**
-     * 加载直接下级组织
-     *
-     * @param tenantId
-     * @param orgPrincipal id 或是 RbacOrgInfo
-     * @return
-     */
 
 }

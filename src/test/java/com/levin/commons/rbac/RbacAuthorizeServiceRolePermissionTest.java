@@ -6293,6 +6293,24 @@ class RbacAuthorizeServiceRolePermissionTest {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
+        public <ORG extends RbacOrgInfo> ORG copyOrgNodeForAssembleTree(ORG source, String nodePath) {
+            if (source instanceof TestOrg org) {
+                TestOrg copy = new TestOrg(Objects.toString(org.getId(), null), Objects.toString(org.getParentId(), null),
+                        Objects.toString(org.getTenantId(), null), org.getName(), org.getConfidentialLevel());
+                copy.domainId = org.getDomainId(); copy.nodePath = nodePath;
+                return (ORG) copy;
+            }
+            if (source instanceof SetOrg org) {
+                SetOrg copy = new SetOrg(Objects.toString(org.getId(), null), Objects.toString(org.getParentId(), null),
+                        Objects.toString(org.getTenantId(), null), org.getName());
+                copy.domainId = org.getDomainId(); copy.nodePath = nodePath;
+                return (ORG) copy;
+            }
+            throw new IllegalArgumentException("未提供组织树节点复制: " + source.getClass().getName());
+        }
+
+        @Override
         public <ORG extends RbacOrgInfo> List<ORG> loadTenantOrgList(Serializable tenantId, boolean onlyLoadEffectOrg) {
             return (List<ORG>) orgList.stream()
                     .filter(org -> Objects.equals(org.getTenantId(), tenantId))
@@ -6409,6 +6427,11 @@ class RbacAuthorizeServiceRolePermissionTest {
         @Override
         public <ORG extends RbacOrgInfo> ORG loadOrg(Serializable orgPrincipal) {
             return delegate.loadOrg(orgPrincipal);
+        }
+
+        @Override
+        public <ORG extends RbacOrgInfo> ORG copyOrgNodeForAssembleTree(ORG sourceOrg, String nodePath) {
+            return delegate.copyOrgNodeForAssembleTree(sourceOrg, nodePath);
         }
 
         @Override
