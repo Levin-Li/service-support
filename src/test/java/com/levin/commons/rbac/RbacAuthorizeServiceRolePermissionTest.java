@@ -2,6 +2,7 @@ package com.levin.commons.rbac;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.levin.commons.service.SingleValueContext;
 import com.levin.commons.service.exception.AuthorizationException;
 import com.levin.commons.service.support.InjectConst;
 import com.levin.commons.ui.annotation.CRUD;
@@ -65,6 +66,31 @@ class RbacAuthorizeServiceRolePermissionTest {
         );
 
         assertTrue(authorized, "订单列表权限应命中表达式 sys:order:*:read|list");
+    }
+
+    @Test
+    void shouldUseConfiguredRbacBaseServiceContextBeforeDefaultService() {
+        StubRbacBaseService contextService = new StubRbacBaseService(user);
+        TestAuthorizeService service = new TestAuthorizeService();
+        MutableSingleValueContext<RbacBaseService> serviceContext = new MutableSingleValueContext<>();
+        serviceContext.set(contextService);
+
+        service.setRbacBaseServiceContext(serviceContext);
+
+        assertSame(contextService, service.getRbacBaseLoadService(),
+                "显式配置的服务上下文应作为当前授权服务的首选加载来源");
+
+        serviceContext.clear();
+        assertThrows(IllegalArgumentException.class, service::getRbacBaseLoadService,
+                "上下文无值且未配置默认服务时应保持原有的拒绝语义");
+    }
+
+    @Test
+    void shouldRetainConfiguredUserPluginTypeContext() {
+        MutableSingleValueContext<String> pluginTypeContext = new MutableSingleValueContext<>();
+
+        assertSame(baseService, baseService.setUserPluginTypeContext(pluginTypeContext));
+        assertSame(pluginTypeContext, baseService.getUserPluginTypeContext());
     }
 
     @Test
@@ -6164,6 +6190,35 @@ class RbacAuthorizeServiceRolePermissionTest {
         return count;
     }
 
+    private static class MutableSingleValueContext<V> implements SingleValueContext<V> {
+        private boolean hasValue;
+        private V value;
+
+        @Override
+        public boolean hasValue() {
+            return hasValue;
+        }
+
+        @Override
+        public SingleValueContext<V> set(V value) {
+            this.hasValue = true;
+            this.value = value;
+            return this;
+        }
+
+        @Override
+        public SingleValueContext<V> clear() {
+            hasValue = false;
+            value = null;
+            return this;
+        }
+
+        @Override
+        public V get() {
+            return value;
+        }
+    }
+
     private static class TestAuthorizeService extends AbstractRbacAuthorizeService implements RbacMethodService {
         private final Map<String, ResConditionAction> actionMap = new LinkedHashMap<>();
 
@@ -6209,6 +6264,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         private final AtomicInteger domainListLoads = new AtomicInteger();
         private final AtomicInteger domainLoads = new AtomicInteger();
         private Boolean lastDomainEffectFlag;
+        private SingleValueContext<String> userPluginTypeContext;
 
         StubRbacBaseService(TestRbacUser user) {
             this.user = user;
@@ -6230,6 +6286,18 @@ class RbacAuthorizeServiceRolePermissionTest {
         StubRbacBaseService setDomainList(Collection<TestDomain> domains) {
             domainList = domains == null ? Collections.emptyList() : new ArrayList<>(domains);
             return this;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <S extends RbacBaseUserService> S setUserPluginTypeContext(SingleValueContext<String> userPluginTypeContext) {
+            this.userPluginTypeContext = userPluginTypeContext;
+            return (S) this;
+        }
+
+        @Override
+        public SingleValueContext<String> getUserPluginTypeContext() {
+            return userPluginTypeContext;
         }
 
         @Override
@@ -6377,6 +6445,16 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         void registerRole(TestRbacRole role) {
             delegate.registerRole(role);
+        }
+
+        @Override
+        public <S extends RbacBaseUserService> S setUserPluginTypeContext(SingleValueContext<String> userPluginTypeContext) {
+            return delegate.setUserPluginTypeContext(userPluginTypeContext);
+        }
+
+        @Override
+        public SingleValueContext<String> getUserPluginTypeContext() {
+            return delegate.getUserPluginTypeContext();
         }
 
         @Override

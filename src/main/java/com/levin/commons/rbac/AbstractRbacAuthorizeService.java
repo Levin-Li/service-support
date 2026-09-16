@@ -8,9 +8,10 @@ import cn.hutool.core.util.StrUtil;
 import com.levin.commons.plugin.Plugin;
 import com.levin.commons.plugin.PluginManager;
 import com.levin.commons.plugin.ResLoader;
-import com.levin.commons.service.SimpleContext;
+import com.levin.commons.service.SingleValueContext;
 import com.levin.commons.service.domain.Identifiable;
 import com.levin.commons.service.support.ContextHolder;
+import com.levin.commons.service.support.ThreadLocalSingleValueContext;
 import com.levin.commons.utils.ExpressionUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -61,9 +62,8 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
     @Getter
     @Setter
     @Autowired(required = false)
-    SimpleContext<RbacBaseService> rbacBaseServiceContext;
+    SingleValueContext<RbacBaseService> rbacBaseServiceContext;
 
-    final InheritableThreadLocal<RbacBaseService> userLoadServiceHolder = new InheritableThreadLocal<>();
 
     final ContextHolder<String, ResConditionAction> actionContextHolder = ContextHolder.buildContext(true);
 
@@ -132,8 +132,8 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
         return actionMap;
     }
 
-    @Override
-    public <S extends RbacBaseAuthorizeService> S setRbacBaseServiceContext(SimpleContext<RbacBaseService> rbacBaseServiceContext) {
+    //@Override
+    public <S extends RbacBaseAuthorizeService> S setRbacBaseServiceContext(SingleValueContext<RbacBaseService> rbacBaseServiceContext) {
 
         this.rbacBaseServiceContext = rbacBaseServiceContext;
 
@@ -149,30 +149,7 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
     public RbacAuthorizeService setRbacBaseService(RbacBaseService rbacBaseService) {
 
         if (this.rbacBaseServiceContext == null) {
-
-            this.rbacBaseServiceContext = new SimpleContext<>() {
-                @Override
-                public boolean hasValue() {
-                    return get() != null;
-                }
-
-                @Override
-                public SimpleContext<RbacBaseService> set(RbacBaseService value) {
-                    userLoadServiceHolder.set(value);
-                    return this;
-                }
-
-                @Override
-                public SimpleContext<RbacBaseService> clear() {
-                    userLoadServiceHolder.set(null);
-                    return this;
-                }
-
-                @Override
-                public RbacBaseService get() {
-                    return userLoadServiceHolder.get();
-                }
-            };
+            this.rbacBaseServiceContext = ThreadLocalSingleValueContext.ofInheritableThread(false);
         }
 
         this.rbacBaseServiceContext.set(rbacBaseService);

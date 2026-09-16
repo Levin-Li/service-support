@@ -3,7 +3,7 @@ package com.levin.commons.rbac;
 
 import cn.hutool.core.lang.Assert;
 import com.levin.commons.dao.domain.DomainObject;
-import com.levin.commons.service.SimpleContext;
+import com.levin.commons.service.SingleValueContext;
 import com.levin.commons.service.exception.AuthorizationException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,7 +24,10 @@ import java.util.function.Supplier;
 public interface RbacBaseUserService {
 
     @Operation(summary = "设置用户插件类型上下文", description = " ")
-    <S extends RbacBaseUserService> S setUserPluginTypeContext(SimpleContext<String> userPluginTypeContext);
+    <S extends RbacBaseUserService> S setUserPluginTypeContext(SingleValueContext<String> userPluginTypeContext);
+
+    @Operation(summary = "用户插件类型上下文", description = " ")
+    SingleValueContext<String> getUserPluginTypeContext();
 
     /**
      * 加密密码
