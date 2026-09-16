@@ -1,20 +1,21 @@
 package com.levin.commons.service.support;
 
 import cn.hutool.core.lang.Assert;
-import com.levin.commons.service.MapValueContext;
+import com.levin.commons.service.SingleValueContext;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 
 /**
  * @author lilw
  */
-public class HttpRequestMapValueContext<V> implements MapValueContext<String, V> {
+public class HttpRequestSingleValueContext<V> implements SingleValueContext<V> {
 
     @AllArgsConstructor
     @Data
@@ -25,19 +26,26 @@ public class HttpRequestMapValueContext<V> implements MapValueContext<String, V>
 
     private final Supplier<HttpServletRequest> httpServletRequestSupplier;
     private final boolean isThrowExWhenNotValue;
+    private final String key;
 
-    public HttpRequestMapValueContext(Supplier<HttpServletRequest> httpServletRequestSupplier, boolean isThrowExWhenNotValue) {
+    public HttpRequestSingleValueContext(Supplier<HttpServletRequest> httpServletRequestSupplier, boolean isThrowExWhenNotValue) {
+        this(httpServletRequestSupplier, isThrowExWhenNotValue, "SingleValueContext__" + UUID.randomUUID());
+    }
+
+    public HttpRequestSingleValueContext(Supplier<HttpServletRequest> httpServletRequestSupplier, boolean isThrowExWhenNotValue, String key) {
         this.isThrowExWhenNotValue = isThrowExWhenNotValue;
         this.httpServletRequestSupplier = Objects.requireNonNull(httpServletRequestSupplier, "httpServletRequestSupplier is null");
+        Assert.notBlank(key, "key is blank");
+        this.key = key;
     }
 
     @Override
-    public boolean hasValue(String key) {
+    public boolean hasValue() {
         return httpServletRequestSupplier.get().getAttribute(key) != null;
     }
 
     @Override
-    public MapValueContext<String, V> set(String key, V value) {
+    public SingleValueContext<V> set(V value) {
 
         httpServletRequestSupplier.get().setAttribute(key, new Holder<>(value));
 
@@ -45,7 +53,7 @@ public class HttpRequestMapValueContext<V> implements MapValueContext<String, V>
     }
 
     @Override
-    public MapValueContext<String, V> clear(String key) {
+    public SingleValueContext<V> clear() {
 
         httpServletRequestSupplier.get().setAttribute(key, null);
 
@@ -53,7 +61,7 @@ public class HttpRequestMapValueContext<V> implements MapValueContext<String, V>
     }
 
     @Override
-    public V get(String key) {
+    public V get() {
 
         Holder<V> holder = (Holder<V>) httpServletRequestSupplier.get().getAttribute(key);
 
