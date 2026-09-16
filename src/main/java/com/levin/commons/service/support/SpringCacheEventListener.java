@@ -1,4 +1,3 @@
-
 package com.levin.commons.service.support;
 
 import com.levin.commons.service.domain.EnumDesc;

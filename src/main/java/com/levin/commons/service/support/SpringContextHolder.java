@@ -1,5 +1,6 @@
 package com.levin.commons.service.support;
 
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopProxyUtils;
@@ -18,8 +19,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
-
-import jakarta.annotation.PostConstruct;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;

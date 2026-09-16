@@ -1,9 +1,8 @@
 package com.levin.commons.service.support;
 
 import cn.hutool.core.lang.Assert;
-import com.alibaba.fastjson2.JSONObject;
-import com.google.gson.JsonElement;
 import com.levin.commons.service.domain.EnumDesc;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -13,11 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import jakarta.annotation.PostConstruct;
 import tools.jackson.databind.DeserializationConfig;
 
-import java.util.Map;
 import java.util.stream.Stream;
 
 /**
@@ -78,7 +74,7 @@ public class DefaultSpringMvcEnumFormatterConfiguration implements WebMvcConfigu
         }
     }
 
-    static class EnumJacksonDeserializers implements tools.jackson.databind.deser.Deserializers  {
+    static class EnumJacksonDeserializers implements tools.jackson.databind.deser.Deserializers {
 
         @Override
         public boolean hasDeserializerFor(DeserializationConfig config, Class<?> valueType) {
@@ -87,7 +83,7 @@ public class DefaultSpringMvcEnumFormatterConfiguration implements WebMvcConfigu
                 return false;
             }
 
-            return Stream.of(Enum.class) .anyMatch(c -> c.isAssignableFrom(valueType));
+            return Stream.of(Enum.class).anyMatch(c -> c.isAssignableFrom(valueType));
         }
 
         @Override

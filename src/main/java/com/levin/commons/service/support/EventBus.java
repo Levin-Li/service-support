@@ -18,7 +18,7 @@ public interface EventBus {
     /**
      * 发送事件
      *
-     * @param topic 
+     * @param topic
      * @param event
      */
     default void sendEvent(String topic, Object event) {
@@ -61,7 +61,7 @@ public interface EventBus {
     /**
      * 增加事件处理器
      *
-     * @param topicPattern        AntPathMatcher 匹配
+     * @param topicPattern     AntPathMatcher 匹配
      * @param eventConsumer    事件处理器, @NonNull
      * @param expectEventTypes
      * @return 处理器

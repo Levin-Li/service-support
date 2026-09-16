@@ -4,6 +4,7 @@ package com.levin.commons.service.support;
 import com.levin.commons.utils.RedissonLockUtils;
 import com.levin.commons.utils.StatHelper;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import jakarta.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -375,7 +375,6 @@ public abstract class AbstractDistributionJob<T> {
                     return;
                 }
             }
-
 
 
             try {

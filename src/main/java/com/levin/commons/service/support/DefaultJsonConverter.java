@@ -1,7 +1,6 @@
 package com.levin.commons.service.support;
 
 import cn.hutool.core.lang.Assert;
-import com.alibaba.fastjson2.JSON;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import org.springframework.core.ResolvableType;
@@ -12,7 +11,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -116,7 +114,7 @@ public class DefaultJsonConverter implements GenericConverter {
                     return gson.toJsonTree(source);
                 } else if (type == com.alibaba.fastjson2.JSONObject.class) {
                     return com.alibaba.fastjson2.JSONObject.parse(json);
-                }  else if (type == com.alibaba.fastjson2.JSONArray.class) {
+                } else if (type == com.alibaba.fastjson2.JSONArray.class) {
                     return com.alibaba.fastjson2.JSONArray.parse(json);
                 } else if (com.alibaba.fastjson.JSON.class.isAssignableFrom((Class<?>) type)) {
                     return com.alibaba.fastjson.JSON.parseObject(json);

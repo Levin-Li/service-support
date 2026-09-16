@@ -102,7 +102,7 @@ public interface VariableInjector {
                 || PatternMatchUtils.simpleMatch(domainList, getInjectDomain());
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     default ValueHolder<Object> getOutputValueByBean(Object targetBean, Field field, Object... beans) {
         return getOutputValueByBean(targetBean, field, Arrays.asList(beans));
     }
@@ -119,7 +119,7 @@ public interface VariableInjector {
         return getOutputValue(targetBean, field, Arrays.asList(variableResolvers));
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    /// /////////////////////////////////////////////////////////////////////////////////////////////
 
     default ValueHolder<Object> getInjectValueByBean(Object targetBean, Field field, Object... beans) {
         return getInjectValueByBean(targetBean, field, Arrays.asList(beans));
@@ -137,7 +137,7 @@ public interface VariableInjector {
         return getInjectValue(targetBean, field, Arrays.asList(variableResolvers));
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    /// /////////////////////////////////////////////////////////////////////////////////////////////
     default ValueHolder<Object> injectValueByBean(Object targetBean, Field field, Object... beans) {
         return injectValueByBean(targetBean, field, Arrays.asList(beans));
     }

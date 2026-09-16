@@ -1,19 +1,11 @@
 package com.levin.commons.service.support;
 
-import cn.hutool.core.util.StrUtil;
 import com.levin.commons.utils.IPAddrUtils;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.web.method.HandlerMethod;
-
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.lang.reflect.Method;
+
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Stream;
 
 
 public class HttpRequestInfoResolver implements VariableResolver {

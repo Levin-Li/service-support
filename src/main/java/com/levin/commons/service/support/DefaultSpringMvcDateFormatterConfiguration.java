@@ -2,6 +2,7 @@ package com.levin.commons.service.support;
 
 import cn.hutool.core.lang.Assert;
 import com.levin.commons.format.DefaultDateFormat;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -13,8 +14,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import jakarta.annotation.PostConstruct;
 import tools.jackson.databind.DeserializationConfig;
 
 import java.text.ParseException;
@@ -90,7 +89,7 @@ public class DefaultSpringMvcDateFormatterConfiguration implements WebMvcConfigu
                 return false;
             }
 
-            return Stream.of(Date.class) .anyMatch(c -> c.isAssignableFrom(valueType));
+            return Stream.of(Date.class).anyMatch(c -> c.isAssignableFrom(valueType));
         }
 
         @Override
