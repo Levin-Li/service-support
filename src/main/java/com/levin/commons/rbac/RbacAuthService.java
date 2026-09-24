@@ -45,8 +45,8 @@ public interface RbacAuthService<TOKEN extends Serializable, UID extends Seriali
      *
      * @return
      */
-    @Operation(summary = "获取当前登录用户", description = "返回当前登录主体信息；该读取不替代领域、数据范围或资源动作授权。")
-    <U extends RbacUserInfo> U getUserInfo();
+//    @Operation(summary = "获取当前登录用户", description = "返回当前登录主体信息；该读取不替代领域、数据范围或资源动作授权。")
+//    <U extends RbacUserInfo> U getUserInfo();
 
     /**
      * 认证，并返回token

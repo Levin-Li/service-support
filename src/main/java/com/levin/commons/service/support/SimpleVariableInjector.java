@@ -71,7 +71,7 @@ public interface SimpleVariableInjector extends VariableInjector {
      * @throws VariableNotFoundException
      */
     @Override
-    @Operation(summary = "注入单个字段", description = "按注入模式解析并转换字段值；领域不匹配时跳过，required 未满足或转换失败时拒绝并抛出异常。OnlyGetInjectValue 不写字段，InjectToField 才写入字段。")
+    @Operation(summary = "注入单个字段", description = "按注入模式解析并转换字段值；领域不匹配时跳过。isOverride 为 true 时始终尝试解析并写入新值，不受 isRequired=false 影响；isRequired 仅决定变量缺失时是否拒绝。OnlyGetInjectValue 不写字段，InjectToField 才写入字段。")
     default ValueHolder<Object> doInject(Object targetBean, Field field, Mode mode, List<VariableResolver> variableResolvers) throws VariableInjectException, VariableNotFoundException {
         return doInject(targetBean, null, field, null, !mode.equals(Mode.FieldConvertOutput), mode.equals(Mode.InjectToField), variableResolvers);
     }
@@ -234,8 +234,12 @@ public interface SimpleVariableInjector extends VariableInjector {
                     + "." + attrName + " annotation  InjectVar.isRequired [" + injectVar.isRequired() + "] can't eval", isRequired.getValueNotFoundCause());
         }
 
-        if (!isOverride.get()
-                && (originalValue != null || !isRequired.get())) {
+        final boolean mustOverride = isOverride.get();
+        final boolean valueRequired = isRequired.get();
+
+        // 覆盖优先于 required：即使变量不是必填，只要要求覆盖也必须执行解析和注入尝试。
+        if (!mustOverride
+                && (originalValue != null || !valueRequired)) {
 
             //如果原来没有值, 看一下是否要注入第三方
             //2026.9.12
@@ -270,7 +274,7 @@ public interface SimpleVariableInjector extends VariableInjector {
         //关键逻辑
         // isInput 为 false ，则是方向输出当前字段值，然后转换输出，
         final ValueHolder<Object> valueHolder = isInput
-                ? VariableInjector.eval(varName, originalValue, Optional.ofNullable(expectResolvableType).map(ResolvableType::getType).orElse(null), isRequired.get(), variableResolvers)
+                ? VariableInjector.eval(varName, originalValue, Optional.ofNullable(expectResolvableType).map(ResolvableType::getType).orElse(null), valueRequired, variableResolvers)
                 : new ValueHolder<>(originalValue).setHasValue(true);
 
         //如果没有指定类型
@@ -346,7 +350,7 @@ public interface SimpleVariableInjector extends VariableInjector {
         }
 
         //如果不允许为 null 值，则抛出异常
-        if (isRequired.get() && !valueHolder.hasValue()) {
+        if (valueRequired && !valueHolder.hasValue()) {
             //如果变量是必须的，则抛出异常
             throw new VariableNotFoundException(injectVar.remark() + " --> " + beanClassName
                     + "." + attrName + " inject var [" + varName + "] is required , but can't resolve", valueHolder.getValueNotFoundCause());

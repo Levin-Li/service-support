@@ -1,10 +1,12 @@
 package com.levin.commons.service.support;
 
+import com.levin.commons.service.domain.InjectVar;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
+import java.util.Map;
 
 class DefaultVariableResolverManagerTest {
 
@@ -35,6 +37,18 @@ class DefaultVariableResolverManagerTest {
         Assertions.assertEquals("default", holder.get("default"), "未命中变量时应返回调用方默认值");
     }
 
+    @Test
+    void shouldInjectWhenOverrideIsTrueEvenIfValueIsNotRequired() {
+        OverrideOptionalValueBean bean = new OverrideOptionalValueBean();
+        VariableInjector injector = new SimpleVariableInjector() {
+        };
+
+        injector.injectByMap(bean, Map.of("confidentialDataAccessLevel", 2000));
+
+        Assertions.assertEquals(2000, bean.confidentialDataAccessLevel,
+                "isOverride 为 true 时必须尝试注入，不能因 isRequired=false 保留原字段值");
+    }
+
     private VariableResolver resolver(String expectName, String value) {
         return new VariableResolver() {
             @Override
@@ -45,5 +59,14 @@ class DefaultVariableResolverManagerTest {
                 return ValueHolder.notValue(throwExWhenNotFound, name);
             }
         };
+    }
+
+    private static class OverrideOptionalValueBean {
+        @InjectVar(
+                value = "confidentialDataAccessLevel",
+                isOverride = InjectVar.SPEL_PREFIX + "true",
+                isRequired = "false"
+        )
+        private Integer confidentialDataAccessLevel = 1000;
     }
 }
