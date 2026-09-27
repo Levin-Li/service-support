@@ -6,13 +6,14 @@ package com.levin.commons.service.support;
 public interface InjectConst {
 
     String IS_WEB_CONTEXT = "isWebContext";
+
     String IS_UNSAFE_CONTEXT = "isUnsafeContext";
 
     String IS_TOP_SUPER_ADMIN = "isTopSuperAdmin";
 
     String IS_SUPER_ADMIN = "isSuperAdmin";
 
-    String IS_SAAS_ADMIN = "isSaasAdmin";
+    String IS_PLATFORM_ADMIN = "isPlatformAdmin";
 
     /**
      * 平台用户：没有所属租户。
@@ -23,12 +24,6 @@ public interface InjectConst {
      * 租户用户：具有具体租户 ID。
      */
     String IS_TENANT_USER = "isTenantUser";
-
-    /**
-     * @deprecated 使用 {@link #IS_PLATFORM_USER} 代替。
-     */
-    @Deprecated
-    String IS_SAAS_USER = "isSaasUser";
 
     String IS_TENANT_ADMIN = "isTenantAdmin";
 
