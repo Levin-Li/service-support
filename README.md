@@ -21,3 +21,4 @@
 - [快速接入与数据范围示例](使用说明.md)
 - [数据范围与继承规则](manual.md#19-数据范围-datascope)
 - [旧协议迁移说明](manual.md#203-从旧协议升级)
+- [RBAC 角色命名迁移说明](docs/rbac-role-naming-migration.md)

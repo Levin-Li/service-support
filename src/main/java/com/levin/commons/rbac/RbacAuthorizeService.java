@@ -630,7 +630,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         }
 
         //只有超级管理员才能分配超级管理员
-        if (RbacRoleInfo.SA_ROLE.equals(roleCode)) {
+        if (RbacRoleInfo.PLATFORM_SA.equals(roleCode)) {
             return false;
         }
 
@@ -643,7 +643,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         }
 
         //管理员要求也是管理员
-        if (RbacRoleInfo.ADMIN_ROLE.equals(roleCode) && !(isPlatformUser || userInfo.isTenantAdmin())) {
+        if (RbacRoleInfo.TENANT_ADMIN.equals(roleCode) && !(isPlatformUser || userInfo.isTenantAdmin())) {
             return false;
         }
 

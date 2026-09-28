@@ -154,7 +154,7 @@ public interface RbacUserInfo
      * @return
      */
     default boolean isSuperAdmin() {
-        return isPlatformUser() && hasRole(RbacRoleInfo.SA_ROLE);
+        return isPlatformUser() && hasRole(RbacRoleInfo.PLATFORM_SA);
     }
 
     /**
@@ -172,7 +172,7 @@ public interface RbacUserInfo
      * @return
      */
     default boolean isTenantAdmin() {
-        return isTenantUser() && hasRole(RbacRoleInfo.ADMIN_ROLE);
+        return isTenantUser() && hasRole(RbacRoleInfo.TENANT_ADMIN);
     }
 
     /**

@@ -45,7 +45,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "alice",
                 "T1",
                 "OPS",
-                Arrays.asList(RbacRoleInfo.ADMIN_ROLE, "R_USER"),
+                Arrays.asList(RbacRoleInfo.TENANT_ADMIN, "R_USER"),
                 5000
         );
 
@@ -298,13 +298,13 @@ class RbacAuthorizeServiceRolePermissionTest {
 
     @Test
     void shouldApplyRoleAdminHierarchyRules() {
-        assertTrue(authorizeService.canAdmin(RbacRoleInfo.SA_ROLE, RbacRoleInfo.PLATFORM_ADMIN),
+        assertTrue(authorizeService.canAdmin(RbacRoleInfo.PLATFORM_SA, RbacRoleInfo.PLATFORM_ADMIN),
                 "超级管理员角色应能管理全部角色");
-        assertTrue(authorizeService.canAdmin(RbacRoleInfo.PLATFORM_ADMIN, RbacRoleInfo.ADMIN_ROLE),
+        assertTrue(authorizeService.canAdmin(RbacRoleInfo.PLATFORM_ADMIN, RbacRoleInfo.TENANT_ADMIN),
                 "PLATFORM 管理员应能管理租户管理员角色");
-        assertFalse(authorizeService.canAdmin(RbacRoleInfo.ADMIN_ROLE, RbacRoleInfo.PLATFORM_ADMIN),
+        assertFalse(authorizeService.canAdmin(RbacRoleInfo.TENANT_ADMIN, RbacRoleInfo.PLATFORM_ADMIN),
                 "租户管理员不能管理 PLATFORM 管理员角色");
-        assertFalse(authorizeService.canAdmin("R_USER", RbacRoleInfo.ADMIN_ROLE),
+        assertFalse(authorizeService.canAdmin("R_USER", RbacRoleInfo.TENANT_ADMIN),
                 "普通角色不能管理租户管理员角色");
         assertTrue(authorizeService.canAdmin("R_USER", "R_AUDITOR"),
                 "普通角色之间保持平权管理语义");
@@ -579,7 +579,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 RbacUserInfo.TOP_SA_ACCOUNT_NAME,
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_SA),
                 0
         );
         StubRbacBaseService scopedService = new StubRbacBaseService(topSuperAdmin);
@@ -889,10 +889,10 @@ class RbacAuthorizeServiceRolePermissionTest {
 
     @Test
     void shouldRejectSaRoleForNonSuperAdmin() {
-        // 业务规则：非超级管理员不能分配 R_SA。
+        // 业务规则：非超级管理员不能分配 R_PLATFORM_SA。
         TestRbacRole saRole = new TestRbacRole(
                 "R3",
-                RbacRoleInfo.SA_ROLE,
+                RbacRoleInfo.PLATFORM_SA,
                 null,
                 Collections.singletonList("sys:*:*:*"),
                 Collections.emptyList(),
@@ -901,7 +901,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
         boolean authorized = authorizeService.isRoleAuthorized(user, saRole, null);
 
-        assertFalse(authorized, "普通租户管理员不应拥有分配 R_SA 的权限");
+        assertFalse(authorized, "普通租户管理员不应拥有分配 R_PLATFORM_SA 的权限");
     }
 
     @Test
@@ -1000,7 +1000,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         );
         TestRbacRole protectedSaRole = new TestRbacRole(
                 "R4_SA",
-                RbacRoleInfo.SA_ROLE,
+                RbacRoleInfo.PLATFORM_SA,
                 null,
                 Collections.singletonList("sys:*:*:*"),
                 Collections.emptyList(),
@@ -1011,7 +1011,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 RbacUserInfo.TOP_SA_ACCOUNT_NAME,
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_SA),
                 0
         );
         StubRbacBaseService scopedService = new StubRbacBaseService(topSuperAdmin);
@@ -1051,7 +1051,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "sa-helper",
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_SA),
                 10
         );
 
@@ -1079,7 +1079,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 RbacUserInfo.TOP_SA_ACCOUNT_NAME,
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_SA),
                 0
         );
         TestRbacRole newRole = new TestRbacRole(
@@ -1479,7 +1479,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "tenant-admin",
                 "T1",
                 "OPS",
-                Collections.singletonList(RbacRoleInfo.ADMIN_ROLE),
+                Collections.singletonList(RbacRoleInfo.TENANT_ADMIN),
                 100
         );
         TestRbacUser sameTenantTarget = new TestRbacUser(
@@ -2150,7 +2150,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 RbacUserInfo.TOP_SA_ACCOUNT_NAME,
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_SA),
                 1
         );
 
@@ -2165,7 +2165,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "sa-helper",
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_SA),
                 1
         );
 
@@ -2213,7 +2213,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 RbacUserInfo.TOP_SA_ACCOUNT_NAME,
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_SA),
                 1
         );
 
@@ -2233,7 +2233,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "sa-helper",
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_SA),
                 1
         );
 
@@ -2264,7 +2264,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "sa-helper",
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_SA),
                 50
         );
 
@@ -2286,7 +2286,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "sa-helper",
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_SA),
                 50
         );
 
@@ -2396,7 +2396,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 RbacUserInfo.TOP_SA_ACCOUNT_NAME,
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_SA),
                 1
         );
 
@@ -2416,7 +2416,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "self-audit-admin",
                 "T1",
                 "OPS",
-                Collections.singletonList(RbacRoleInfo.ADMIN_ROLE),
+                Collections.singletonList(RbacRoleInfo.TENANT_ADMIN),
                 100,
                 "T1_ROOT",
                 List.of(scope("_DEFAULT_", "_ALL_ROOT_", true, DataScope.OrgMatchingMode.SelfAndAllChild))
@@ -2534,7 +2534,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 RbacUserInfo.TOP_SA_ACCOUNT_NAME,
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_SA),
                 1
         );
         StubRbacBaseService topSuperAdminService = new StubRbacBaseService(topSuperAdmin)
@@ -2600,7 +2600,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "sa-helper",
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_SA),
                 50
         );
 
@@ -2619,7 +2619,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "sa-helper",
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_SA),
                 null
         );
 
@@ -2638,7 +2638,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "sa-helper",
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_SA),
                 50
         );
 
@@ -2659,7 +2659,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 "sa-helper",
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SA_ROLE),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_SA),
                 50,
                 "B",
                 null
@@ -3449,7 +3449,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
     @Test
     void shouldPreventTenantSuperAdminFromCrossingIdentityBoundary() {
-        ScopeUser u = new ScopeUser("T1", List.of(RbacRoleInfo.SA_ROLE));
+        ScopeUser u = new ScopeUser("T1", List.of(RbacRoleInfo.PLATFORM_SA));
         u.fields[0] = Set.of("_ALL_", "_NONE_");
         u.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild", "_NONE_|Self");
         StubRbacBaseService service = new StubRbacBaseService(u)
@@ -3678,7 +3678,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
     @Test
     void shouldPreservePlatformAdministratorShortcutBeforeScopeScripts() {
-        ScopeUser u = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE));
+        ScopeUser u = new ScopeUser(null, List.of(RbacRoleInfo.PLATFORM_SA));
         u.fields[0] = Set.of("Groovy#throw new IllegalStateException('admin allow script evaluated')");
         u.fields[1] = Set.of("_ALL_", "_NONE_");
         u.fields[4] = Set.of("_ALL_ROOT_|Groovy#throw new IllegalStateException('admin org script evaluated')");
@@ -4013,7 +4013,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
     @Test
     void shouldNotBypassDomainScopesForPlatformAdministrator() {
-        ScopeUser u = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE));
+        ScopeUser u = new ScopeUser(null, List.of(RbacRoleInfo.PLATFORM_SA));
         StubRbacBaseService service = new StubRbacBaseService(u).setDomainList(List.of(new TestDomain("sales")));
         assertTrue(u.isSuperAdmin());
         assertFalse(service.canAccessDomain(u, "sales"));
@@ -4042,8 +4042,8 @@ class RbacAuthorizeServiceRolePermissionTest {
     void shouldApplyTenantDomainGateBeforeEveryAdministratorShortcut() {
         for (TestRbacUser u : List.of(
                 new TestRbacUser("normal", "normal", null, "PLATFORM", List.of(), 5000),
-                new TestRbacUser("admin", "admin", null, "PLATFORM", List.of(RbacRoleInfo.SA_ROLE), 5000),
-                new TestRbacUser("top", RbacUserInfo.TOP_SA_ACCOUNT_NAME, null, "PLATFORM", List.of(RbacRoleInfo.SA_ROLE), 5000))) {
+                new TestRbacUser("admin", "admin", null, "PLATFORM", List.of(RbacRoleInfo.PLATFORM_SA), 5000),
+                new TestRbacUser("top", RbacUserInfo.TOP_SA_ACCOUNT_NAME, null, "PLATFORM", List.of(RbacRoleInfo.PLATFORM_SA), 5000))) {
             StubRbacBaseService service = new StubRbacBaseService(u)
                     .setDomainList(List.of(new TestDomain("sales")))
                     .setTenantList(List.of(domainTenant("T1", "sales")))
@@ -4102,7 +4102,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
     @Test
     void shouldExcludeOrganizationDomainBeforeAdminAndAllOrganizationClaims() {
-        for (List<String> roles : List.of(List.<String>of(), List.of(RbacRoleInfo.ADMIN_ROLE), List.of(RbacRoleInfo.SA_ROLE))) {
+        for (List<String> roles : List.of(List.<String>of(), List.of(RbacRoleInfo.TENANT_ADMIN), List.of(RbacRoleInfo.PLATFORM_SA))) {
             ScopeUser u = new ScopeUser("T1", roles);
             u.fields[0] = Set.of("T1");
             u.fields[2] = Set.of("sales");
@@ -4230,14 +4230,14 @@ class RbacAuthorizeServiceRolePermissionTest {
         assertFalse(service.canAdminUser(own, own));
         own.fields[2] = Set.of("finance");
         assertTrue(service.canAdminUser(own, own));
-        TestRbacUser top = new TestRbacUser("top", RbacUserInfo.TOP_SA_ACCOUNT_NAME, null, "PLATFORM", List.of(RbacRoleInfo.SA_ROLE), 5000);
+        TestRbacUser top = new TestRbacUser("top", RbacUserInfo.TOP_SA_ACCOUNT_NAME, null, "PLATFORM", List.of(RbacRoleInfo.PLATFORM_SA), 5000);
         assertTrue(top.isTopSuperAdmin());
         assertFalse(service.canAdminUser(top, own));
     }
 
     @Test
     void shouldApplyRoleAndAssignmentTargetDomainsBeforeTopAdministratorShortcut() {
-        TestRbacUser top = new TestRbacUser("top", RbacUserInfo.TOP_SA_ACCOUNT_NAME, null, "PLATFORM", List.of(RbacRoleInfo.SA_ROLE), 5000);
+        TestRbacUser top = new TestRbacUser("top", RbacUserInfo.TOP_SA_ACCOUNT_NAME, null, "PLATFORM", List.of(RbacRoleInfo.PLATFORM_SA), 5000);
         ScopeUser target = new ScopeUser("T1", List.of());
         target.domainId = "finance";
         TestRbacRole role = new TestRbacRole("role", "R_DOMAIN", null, List.of(), List.of(), 100);
@@ -4430,7 +4430,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
     @Test
     void shouldRejectRoleAssignmentWhenTenantLoaderReturnsAnotherTenant() {
-        ScopeUser top = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE)) {
+        ScopeUser top = new ScopeUser(null, List.of(RbacRoleInfo.PLATFORM_SA)) {
             @Override public String getLoginName() { return RbacUserInfo.TOP_SA_ACCOUNT_NAME; }
         };
         top.fields[2] = Set.of("sales");
@@ -4453,7 +4453,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
     @Test
     void shouldRejectUnavailableAssignmentTargetTenantEvenForTopAdministrator() {
-        ScopeUser top = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE)) {
+        ScopeUser top = new ScopeUser(null, List.of(RbacRoleInfo.PLATFORM_SA)) {
             @Override public String getLoginName() { return RbacUserInfo.TOP_SA_ACCOUNT_NAME; }
         };
         top.fields[2] = Set.of("sales");
@@ -4661,7 +4661,7 @@ class RbacAuthorizeServiceRolePermissionTest {
 
     @Test
     void shouldNotLoadDefinitionTenantForStandaloneRoleDomainAuthorization() {
-        ScopeUser top = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE)) {
+        ScopeUser top = new ScopeUser(null, List.of(RbacRoleInfo.PLATFORM_SA)) {
             @Override public String getLoginName() { return RbacUserInfo.TOP_SA_ACCOUNT_NAME; }
         };
         top.fields[2] = Set.of("sales");
@@ -5049,11 +5049,11 @@ class RbacAuthorizeServiceRolePermissionTest {
         return List.of(
                 new MatrixIdentity(null, "plain", false, false, false),
                 new MatrixIdentity("T1", "plain", false, false, false),
-                new MatrixIdentity("T1", RbacRoleInfo.ADMIN_ROLE, false, true, false),
+                new MatrixIdentity("T1", RbacRoleInfo.TENANT_ADMIN, false, true, false),
                 new MatrixIdentity(null, RbacRoleInfo.PLATFORM_ADMIN, false, false, false),
-                new MatrixIdentity(null, RbacRoleInfo.SA_ROLE, true, true, false),
-                new MatrixIdentity(null, RbacRoleInfo.SA_ROLE, true, true, true),
-                new MatrixIdentity("T1", RbacRoleInfo.SA_ROLE, false, false, false));
+                new MatrixIdentity(null, RbacRoleInfo.PLATFORM_SA, true, true, false),
+                new MatrixIdentity(null, RbacRoleInfo.PLATFORM_SA, true, true, true),
+                new MatrixIdentity("T1", RbacRoleInfo.PLATFORM_SA, false, false, false));
     }
 
     @Test
@@ -5515,8 +5515,8 @@ class RbacAuthorizeServiceRolePermissionTest {
     void requirementRoleAssignmentNativeAdminPrivilegesAreAlsoCapped() {
         ScopeUser operator = new ScopeUser(null, List.of()); operator.fields[0] = Set.of("T1");
         operator.fields[4] = Set.of("A|SelfAndAllChild", "_NONE_|ignored");
-        ScopeUser target = new ScopeUser("T1", List.of(RbacRoleInfo.ADMIN_ROLE));
-        ScopeRole role = new ScopeRole(RbacRoleInfo.ADMIN_ROLE); role.fields[0] = Set.of("_DEFAULT_");
+        ScopeUser target = new ScopeUser("T1", List.of(RbacRoleInfo.TENANT_ADMIN));
+        ScopeRole role = new ScopeRole(RbacRoleInfo.TENANT_ADMIN); role.fields[0] = Set.of("_DEFAULT_");
         RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
         service.setTenantList(List.of(new TestTenant("T1", "One"))).setOrgList(baseOrgTree());
         TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
@@ -5524,13 +5524,13 @@ class RbacAuthorizeServiceRolePermissionTest {
         operator.fields[4] = Set.of("_ALL_ROOT_|SelfAndAllChild", "_NONE_|ignored");
         assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)));
         for (boolean topOperator : new boolean[]{false, true}) {
-            ScopeUser admin = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE)) {
+            ScopeUser admin = new ScopeUser(null, List.of(RbacRoleInfo.PLATFORM_SA)) {
                 @Override public String getLoginName() { return topOperator ? "sa" : "ordinary-sa"; }
             };
-            ScopeUser topTarget = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE)) {
+            ScopeUser topTarget = new ScopeUser(null, List.of(RbacRoleInfo.PLATFORM_SA)) {
                 @Override public String getLoginName() { return "sa"; }
             };
-            ScopeRole superRole = new ScopeRole(RbacRoleInfo.SA_ROLE) { @Override public String getTenantId() { return null; } };
+            ScopeRole superRole = new ScopeRole(RbacRoleInfo.PLATFORM_SA) { @Override public String getTenantId() { return null; } };
             RoleCatalogService adminService = new RoleCatalogService(admin, List.of(superRole));
             TestAuthorizeService adminAuth = new TestAuthorizeService(); adminAuth.setDefaultRbacBaseService(adminService);
             if (topOperator) assertDoesNotThrow(() -> adminAuth.checkRoleAssignment(admin, topTarget, List.of(superRole)));
@@ -5581,7 +5581,7 @@ class RbacAuthorizeServiceRolePermissionTest {
             target.fields[2] = Set.of();
             assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)), "领域不可访问角色不贡献最终继承等级");
         }
-        ScopeUser admin = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE));
+        ScopeUser admin = new ScopeUser(null, List.of(RbacRoleInfo.PLATFORM_SA));
         ScopeUser target = new ScopeUser(null, List.of(RbacRoleInfo.PLATFORM_ADMIN)) {
             @Override public String getLoginName() { return "sa"; }
         };

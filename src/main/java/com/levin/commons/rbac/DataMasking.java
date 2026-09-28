@@ -45,7 +45,7 @@ public @interface DataMasking {
      *
      * @return
      */
-    ResAuthorize noMaskingAuthorize() default @ResAuthorize(anyRoles = RbacRoleInfo.SA_ROLE);
+    ResAuthorize noMaskingAuthorize() default @ResAuthorize(anyRoles = RbacRoleInfo.PLATFORM_SA);
 
     /**
      * 固定的混淆信息

@@ -22,19 +22,19 @@ public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPubl
 
     String ROLE_PREFIX = "R_";
 
-    //超级管理员
-    String SA_ROLE = ROLE_PREFIX + "SA";
-
     //platform角色前缀
     String PLATFORM_ROLE_PREFIX = ROLE_PREFIX + "PLATFORM_";
+
+    //超级管理员
+    String PLATFORM_SA = PLATFORM_ROLE_PREFIX + "SA";
 
     //platform管理员
     String PLATFORM_ADMIN = PLATFORM_ROLE_PREFIX + "ADMIN";
 
     //系统管理员，通常是一个租户的管理员
-    String ADMIN_ROLE = ROLE_PREFIX + "ADMIN";
+    String TENANT_ADMIN = ROLE_PREFIX + "ADMIN";
 
-    String ORG_ADMIN_ROLE = ROLE_PREFIX + "ORG_ADMIN";
+    String TENANT_ORG_ADMIN = ROLE_PREFIX + "ORG_ADMIN";
 
     @Override
     @Schema(title = "租户ID", description = "角色定义的覆盖租户；空表示共享定义。用户持有角色编码，优先采用本租户有效同码定义，否则回退共享定义")

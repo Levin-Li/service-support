@@ -285,6 +285,19 @@
 
     <build>
 
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>docs</directory>
+                <includes>
+                    <include>rbac-role-naming-migration.md</include>
+                </includes>
+                <targetPath>META-INF/service-support-docs</targetPath>
+            </resource>
+        </resources>
+
         <plugins>
 
             <plugin>
@@ -313,6 +326,9 @@
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>3.4.0</version>
+                <configuration>
+                    <excludeResources>false</excludeResources>
+                </configuration>
                 <executions>
                     <execution>
                         <id>attach-source</id>

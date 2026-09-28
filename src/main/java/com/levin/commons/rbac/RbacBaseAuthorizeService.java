@@ -130,7 +130,7 @@ public interface RbacBaseAuthorizeService {
         Assert.isTrue(operatorRoleCode.startsWith(ROLE_PREFIX), "角色代码必须{}开头", ROLE_PREFIX);
 
         //超级管理员, 允许管理所有角色
-        if (operatorRoleCode.equals(SA_ROLE)) {
+        if (operatorRoleCode.equals(PLATFORM_SA)) {
             return true;
         }
 
@@ -139,7 +139,7 @@ public interface RbacBaseAuthorizeService {
         Assert.isTrue(targetRoleCode.startsWith(ROLE_PREFIX), "角色代码必须{}开头", ROLE_PREFIX);
 
         //SA角色只允许同级管理
-        if (targetRoleCode.equals(SA_ROLE)) {
+        if (targetRoleCode.equals(PLATFORM_SA)) {
             return false;
         }
 
@@ -163,11 +163,11 @@ public interface RbacBaseAuthorizeService {
             return false;
         }
 
-        if (operatorRoleCode.equals(ADMIN_ROLE)) {
+        if (operatorRoleCode.equals(TENANT_ADMIN)) {
             return true;
         }
 
-        return !targetRoleCode.equals(ADMIN_ROLE);
+        return !targetRoleCode.equals(TENANT_ADMIN);
 
         //普通角色, 都是平权, 允许互相管理
     }
