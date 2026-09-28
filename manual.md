@@ -944,7 +944,7 @@ public class DemoRbacService implements RbacBaseService {
 
 库内没有租户/组织创建、修改、迁移的持久化接口。业务写入入口也必须校验非空领域一致性，修改租户领域时须检查已有组织，不能仅依赖读取时拒绝异常数据。
 
-`canAccessObjectDomain`、`filterByDomainAccess` 供现有业务流程复用对象级领域检查；对象空领域免过滤，而 `canAccessDomain(user, null)` 按 `_ALL_` / `_NONE_` 规则判断且不加载虚构领域目录。领域授权不自动授予跨租户资格，也不替代资源动作或机密级别检查。
+`canAccessDomainObject`、`filterByDomainAccess` 供现有业务流程复用领域对象检查；对象空领域免过滤，而 `canAccessDomain(user, null)` 按 `_ALL_` / `_NONE_` 规则判断且不加载虚构领域目录。传入的领域对象为用户时，还会检查该用户所属租户关联的领域。领域授权不自动授予跨租户资格，也不替代资源动作或机密级别检查。
 
 `canAccessTenant`、`canAccessDomain`、`canAccessOrg` 是数据范围判断入口，不能代替资源动作授权或机密级别检查。业务数据查询需要显式接入适用维度的过滤；新增领域字段不会自动给任意 DAO 查询加条件。没有某维度的对象无需凭空检查该维度；具备组织/租户维度但 ID 为空的数据按对应 None 规则处理。
 

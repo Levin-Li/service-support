@@ -567,7 +567,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         Assert.notNull(role, "角色为空");
         RbacBaseService service = getRbacBaseLoadService();
         // 该入口也用于新角色定义的创建校验；分配时的目录有效性由解析阶段保证。
-        if (!service.canAccessObjectDomain(principal, role)) {
+        if (!service.canAccessDomainObject(principal, role)) {
             if (matchErrorConsumer != null) {
                 matchErrorConsumer.accept(role.getCode(), "无角色所属领域权限");
             }

@@ -4059,6 +4059,22 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldCheckTargetUserTenantDomainThroughDomainObjectAccess() {
+        ScopeUser operator = new ScopeUser(null, List.of());
+        operator.fields[2] = Set.of("sales");
+        TestRbacUser targetUser = new TestRbacUser("target", "target", "T1", "OPS", List.of(), 100);
+        targetUser.domainId = "sales";
+        StubRbacBaseService service = new StubRbacBaseService(operator)
+                .setDomainList(List.of(new TestDomain("sales"), new TestDomain("finance")))
+                .setTenantList(List.of(domainTenant("T1", "sales")));
+
+        assertTrue(service.canAccessDomainObject(operator, targetUser));
+        service.setTenantList(List.of(domainTenant("T1", "finance")));
+        assertFalse(service.canAccessDomainObject(operator, targetUser),
+                "目标用户所属租户的领域也必须在操作者授权范围内");
+    }
+
+    @Test
     void shouldApplyTenantDomainGateBeforeEveryAdministratorShortcut() {
         for (TestRbacUser u : List.of(
                 new TestRbacUser("normal", "normal", null, "PLATFORM", List.of(), 5000),
@@ -4089,7 +4105,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 .setDomainList(List.of(new TestDomain("sales")))
                 .setTenantList(List.of(domainTenant("T1", "sales")))
                 .setOrgList(List.of(domainOrg("ROOT", null, "T1", null)));
-        assertTrue(service.canAccessObjectDomain(u, domainOrg("FREE", null, "T1", null)));
+        assertTrue(service.canAccessDomainObject(u, domainOrg("FREE", null, "T1", null)));
         assertFalse(service.canAccessOrg(u, "T1", "ROOT"), "空组织域不能绕过所属租户域");
         u.fields[2] = Set.of("sales");
         assertTrue(service.canAccessOrg(u, "T1", "ROOT"));
@@ -4367,7 +4383,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         assertEquals(List.of(one, two, blank), new ArrayList<>(service.filterByDomainAccess(u, source)));
         assertEquals(1, service.domainLoads.get(), "相同授权领域只加载一次，未授权领域无需加载");
         assertEquals(5, source.size());
-        assertFalse(service.canAccessObjectDomain(u, null));
+        assertFalse(service.canAccessDomainObject(u, null));
     }
 
     @Test
@@ -4536,7 +4552,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         service.registerRole(role);
         TestOrg object = domainOrg("OBJECT", null, "T1", "sales");
         assertFalse(service.canAccessDomain(u, "sales"));
-        assertFalse(service.canAccessObjectDomain(u, object));
+        assertFalse(service.canAccessDomainObject(u, object));
         assertTrue(service.filterByDomainAccess(u, List.of(object)).isEmpty());
         assertFalse(service.canAccessTenant(u, "T1"));
         assertFalse(service.canAccessOrg(u, "T1", "ROOT"));
@@ -5147,7 +5163,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 assertEquals(expected, service.canAccessDomain(user, targets.get(i)), label + ", target=" + targets.get(i));
                 if (expected && i > 0) expectedList.add(targets.get(i));
             }
-            assertTrue(service.canAccessObjectDomain(user, domainOrg("blank", null, null, null)), label);
+            assertTrue(service.canAccessDomainObject(user, domainOrg("blank", null, null, null)), label);
             assertEquals(expectedList, service.loadUserAccessibleDomainList(user, false).stream()
                     .map(d -> Objects.toString(d.getId())).collect(Collectors.toList()), label);
             combinations++;
@@ -5296,7 +5312,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         assertTrue(service.filterByConfidentialAccess(user, List.of()).isEmpty());
         assertTrue(service.filterByDomainAccess(user, null).isEmpty());
         assertTrue(service.filterByDomainAccess(user, List.of()).isEmpty());
-        assertFalse(service.canAccessUserDomain(user, null));
+        assertFalse(service.canAccessDomainObject(user, null));
         assertEquals(1, service.filterByConfidentialAccess(user, List.of((com.levin.commons.dao.domain.ConfidentialObject) () -> null)).size());
         assertTrue(RoleDefinitionResolver.select("T1", null, List.of("matrix")).isEmpty());
         ScopeRole blank = new ScopeRole(" ");

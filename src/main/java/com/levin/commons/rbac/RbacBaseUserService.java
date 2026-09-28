@@ -128,20 +128,13 @@ public interface RbacBaseUserService {
     }
 
     /**
-     * 对象领域访问门槛。基础用户服务没有领域目录，非空领域默认拒绝；
+     * 检查用户是否能访问领域对象关联的业务领域。
+     * 基础用户服务没有 {@link RbacDomainInfo} 目录，非空领域默认拒绝；
      * RbacBaseService 提供完整的授权与目录有效性检查。
      */
-    @Operation(summary = "检查对象领域访问", description = "基础用户服务没有领域目录：对象领域为空时允许，领域非空时默认拒绝，不会回退为允许；完整领域授权请使用 RbacBaseService。")
-    default boolean canAccessObjectDomain(Serializable userPrincipal, DomainObject object) {
+    @Operation(summary = "检查领域对象访问", description = "检查用户是否通过领域对象关联的 RbacDomainInfo 门槛。基础用户服务没有领域目录：对象领域为空时允许，领域非空时默认拒绝，不会回退为允许；完整领域授权请使用 RbacBaseService。")
+    default boolean canAccessDomainObject(Serializable userPrincipal, DomainObject object) {
         return object != null && RbacMiscUtils.isBlank(object.getDomainId());
-    }
-
-    /**
-     * 用户管理入口的领域门槛，完整 RBAC 服务同时检查所属租户。
-     */
-    @Operation(summary = "检查用户领域访问", description = "沿用对象领域门槛：基础实现对非空领域默认拒绝；完整 RBAC 服务会追加领域目录和租户校验。")
-    default boolean canAccessUserDomain(Serializable userPrincipal, RbacUserInfo targetUser) {
-        return canAccessObjectDomain(userPrincipal, targetUser);
     }
 
     /**
@@ -163,7 +156,7 @@ public interface RbacBaseUserService {
         Assert.notNull(targetUserInfo, "无目标用户信息");
 
         // 领域门槛先于自我管理和管理员快捷路径。
-        if (!canAccessUserDomain(operatorInfo, targetUserInfo)) {
+        if (!canAccessDomainObject(operatorInfo, targetUserInfo)) {
             return false;
         }
         if (operatorInfo.isTopSuperAdmin()) {

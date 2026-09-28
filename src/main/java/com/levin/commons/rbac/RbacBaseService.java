@@ -358,23 +358,18 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
     /**
-     * 空领域不增加对象级限制；非空领域是管理员快捷路径之前的共同门槛。
+     * 检查用户是否能访问领域对象关联的业务领域。
+     * 空领域不增加限制；非空领域是管理员快捷路径之前的共同门槛。
+     * 当领域对象是用户时，同时检查其所属租户关联的领域。
      */
     @Override
-    default boolean canAccessObjectDomain(Serializable userPrincipal, DomainObject object) {
+    @Operation(summary = "检查领域对象访问", description = "对象自身关联的 RbacDomainInfo 必须在用户领域范围内且有效；空领域不增加限制。对象为用户时，还必须校验该用户所属租户关联的 RbacDomainInfo，避免用户自身空领域绕过租户领域门槛。该检查不替代资源动作、租户边界、组织范围或机密级别校验。")
+    default boolean canAccessDomainObject(Serializable userPrincipal, DomainObject object) {
         return DomainAccess.evaluate(() -> {
             if (object == null) return false;
-            if (scopeId(object.getDomainId()) == null) return true;
-            return userDomainAccess(userPrincipal).allowsObject(object);
-        });
-    }
-
-    @Override
-    default boolean canAccessUserDomain(Serializable userPrincipal, RbacUserInfo target) {
-        return DomainAccess.evaluate(() -> {
-            if (target == null) return false;
             final DomainAccess domains = userDomainAccess(userPrincipal);
-            if (!domains.allowsObject(target)) return false;
+            if (!domains.allowsObject(object)) return false;
+            if (!(object instanceof RbacUserInfo target)) return true;
             final String tenantId = scopeId(target.getTenantId());
             if (tenantId == null) return true;
             final RbacTenantInfo tenant = domains.tenant(tenantId, id -> loadTenant(id));
