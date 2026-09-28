@@ -21,13 +21,24 @@ public interface InjectConst {
     String IS_PLATFORM_USER = "isPlatformUser";
 
     /**
+     * 是否是租户管理员。
+     */
+    String IS_TENANT_ADMIN = "isTenantAdmin";
+
+    /**
      * 租户用户：具有具体租户 ID。
      */
     String IS_TENANT_USER = "isTenantUser";
 
-    String IS_TENANT_ADMIN = "isTenantAdmin";
+    /**
+     * 是否可以访问全部组织。
+     */
+    String IS_CAN_ACCESS_ALL_ORG = "isCanAccessAllOrg";
 
-    String IS_ALL_ORG_SCOPE = "isAllOrgScope";
+    /**
+     * 是否可以访问全部个人信息。
+     */
+    String IS_CAN_ACCESS_ALL_PERSONAL = "isCanAccessAllPersonal";
 
     String ACCESS_TOKEN = "accessToken";
 

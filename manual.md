@@ -384,7 +384,13 @@ public class DemoRequest {
 - `isTopSuperAdmin`
 - `isSuperAdmin`
 - `isPlatformAdmin`
+- `isPlatformUser`
 - `isTenantAdmin`
+- `isTenantUser`
+- `isCanAccessAllOrg`
+- `isCanAccessAllPersonal`
+
+`InjectConst` 只统一变量键名；变量值由已注册的 `VariableResolver`、当前线程上下文或业务传入的 Map/Bean 提供。`isCanAccessAllOrg` 与 `isCanAccessAllPersonal` 是供业务授权上下文使用的标记，不会由本库自动推导或授予访问权限。
 
 ### 10.4 覆盖与必填
 
@@ -583,7 +589,7 @@ RBAC 是本库最核心、也最复杂的模块。
 - `isPlatformAdmin()`
 - `isTenantAdmin()`
 
-变量注入场景使用 `InjectConst.IS_PLATFORM_USER`（`isPlatformUser`）和 `InjectConst.IS_TENANT_USER`（`isTenantUser`）。
+变量注入场景可使用 `InjectConst` 中的身份与访问标记：`IS_PLATFORM_USER`、`IS_TENANT_USER`、`IS_TENANT_ADMIN`、`IS_CAN_ACCESS_ALL_ORG` 和 `IS_CAN_ACCESS_ALL_PERSONAL`。后两个标记由业务变量解析器提供时才有值，不自动改变 RBAC 授权规则。
 
 顶级超管的默认语义较强：可以跳过大多数范围判断。普通超级管理员和 Platform 管理员不等同于顶级超管。
 

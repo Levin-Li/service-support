@@ -97,6 +97,9 @@ class RbacAuthorizeServiceRolePermissionTest {
         assertFalse(tenantUser.isPlatformUser());
         assertEquals("isPlatformUser", InjectConst.IS_PLATFORM_USER);
         assertEquals("isTenantUser", InjectConst.IS_TENANT_USER);
+        assertEquals("isTenantAdmin", InjectConst.IS_TENANT_ADMIN);
+        assertEquals("isCanAccessAllOrg", InjectConst.IS_CAN_ACCESS_ALL_ORG);
+        assertEquals("isCanAccessAllPersonal", InjectConst.IS_CAN_ACCESS_ALL_PERSONAL);
     }
 
     @Test
