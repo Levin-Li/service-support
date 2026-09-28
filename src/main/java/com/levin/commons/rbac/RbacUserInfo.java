@@ -139,14 +139,6 @@ public interface RbacUserInfo
     }
 
     /**
-     * @deprecated 使用 {@link #isPlatformUser()} 代替；该方法名称不能准确表达“无所属租户”的语义。
-     */
-    @Deprecated
-    default boolean isSaasUser() {
-        return isPlatformUser();
-    }
-
-    /**
      * 是否是顶级超级管理员
      * 和普通超管的区别是 登录账号为sa, 并且无机密数据级别的限制
      *
@@ -166,12 +158,12 @@ public interface RbacUserInfo
     }
 
     /**
-     * 是否是SAAS管理员
+     * 是否是PLATFORM管理员
      *
      * @return
      */
-    default boolean isSaasAdmin() {
-        return isPlatformUser() && hasRole(RbacRoleInfo.SAAS_ADMIN);
+    default boolean isPlatformAdmin() {
+        return isPlatformUser() && hasRole(RbacRoleInfo.PLATFORM_ADMIN);
     }
 
     /**
@@ -184,12 +176,12 @@ public interface RbacUserInfo
     }
 
     /**
-     * 是否是租户管理员、SAAS管理员和超级管理员中的任意一个
+     * 是否是租户管理员、PLATFORM管理员和超级管理员中的任意一个
      *
      * @return
      */
     default boolean isAdmin() {
-        return isSuperAdmin() || isSaasAdmin() || isTenantAdmin();
+        return isSuperAdmin() || isPlatformAdmin() || isTenantAdmin();
     }
 
     /**

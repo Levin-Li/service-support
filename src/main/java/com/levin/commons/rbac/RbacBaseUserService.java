@@ -178,17 +178,17 @@ public interface RbacBaseUserService {
         ///////////////////////////////////////
         //检查跨租户
         //不能跨租户管理
-        final boolean isSaasTargetUser = RbacMiscUtils.isBlank(targetUserInfo.getTenantId());
-        final boolean isOperatorSaasUser = RbacMiscUtils.isBlank(operatorInfo.getTenantId());
+        final boolean isPlatformTargetUser = RbacMiscUtils.isBlank(targetUserInfo.getTenantId());
+        final boolean isPlatformOperatorUser = RbacMiscUtils.isBlank(operatorInfo.getTenantId());
 
-        //是SAAS 角色, 但是用户不是 SAAS用户
-        if (isSaasTargetUser && !isOperatorSaasUser) {
+        //是PLATFORM 角色, 但是用户不是 PLATFORM用户
+        if (isPlatformTargetUser && !isPlatformOperatorUser) {
             // matchErrorConsumer.accept(roleCode, "用户不可管理");
             return false;
         }
 
-        //如果是有租户的角色, 要求用户必须是saas或是同个租户
-        if (!isSaasTargetUser && !(isOperatorSaasUser || targetUserInfo.getTenantId().equals(operatorInfo.getTenantId()))) {
+        //如果是有租户的角色, 要求用户必须是平台用户或是同个租户
+        if (!isPlatformTargetUser && !(isPlatformOperatorUser || targetUserInfo.getTenantId().equals(operatorInfo.getTenantId()))) {
             // matchErrorConsumer.accept(roleCode, "跨租户校验失败");
             return false;
         }
@@ -210,11 +210,11 @@ public interface RbacBaseUserService {
         }
 
         //5 目标用户是超管,操作人也要超管
-        if (targetUserInfo.isSaasAdmin()) {
-            return operatorInfo.isSaasAdmin();
+        if (targetUserInfo.isPlatformAdmin()) {
+            return operatorInfo.isPlatformAdmin();
         }
 
-        if (operatorInfo.isSaasAdmin()) {
+        if (operatorInfo.isPlatformAdmin()) {
             return true;
         }
 

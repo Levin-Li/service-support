@@ -383,7 +383,7 @@ public class DemoRequest {
 - `confidentialDataAccessLevel`
 - `isTopSuperAdmin`
 - `isSuperAdmin`
-- `isSaasAdmin`
+- `isPlatformAdmin`
 - `isTenantAdmin`
 
 ### 10.4 覆盖与必填
@@ -580,14 +580,12 @@ RBAC 是本库最核心、也最复杂的模块。
 - `isTenantUser()`：具有具体租户 ID 的租户用户。
 - `isTopSuperAdmin()`
 - `isSuperAdmin()`
-- `isSaasAdmin()`
+- `isPlatformAdmin()`
 - `isTenantAdmin()`
 
-`isSaasUser()` 已废弃，保留为 `isPlatformUser()` 的兼容别名；新代码应使用更准确的平台/租户用户名称。
+变量注入场景使用 `InjectConst.IS_PLATFORM_USER`（`isPlatformUser`）和 `InjectConst.IS_TENANT_USER`（`isTenantUser`）。
 
-变量注入场景使用 `InjectConst.IS_PLATFORM_USER`（`isPlatformUser`）和 `InjectConst.IS_TENANT_USER`（`isTenantUser`）；`InjectConst.IS_SAAS_USER` 已废弃但保留原键值以兼容已有表达式。
-
-顶级超管的默认语义较强：可以跳过大多数范围判断。普通超级管理员和 SaaS 管理员不等同于顶级超管。
+顶级超管的默认语义较强：可以跳过大多数范围判断。普通超级管理员和 Platform 管理员不等同于顶级超管。
 
 ### 16.2 角色 `RbacRoleInfo`
 
@@ -729,7 +727,7 @@ public List<UserDto> queryUsers() {
 2. TopSuperAdmin 直接通过。
 3. `ignored` 或 `onlyRequireAuthenticated` 直接通过后续资源条件；公共入口仍要求能够解析出已认证用户。
 4. 检查 `confidentialLevel`。`PLATFORM_PUBLIC` 不限制机密数据访问级别；其他级别要求用户访问级别大于等于要求值。
-5. 普通 SuperAdmin 在通过机密级别检查后直接通过；SaaSAdmin 和 TenantAdmin 不享有这一通用短路。
+5. 普通 SuperAdmin 在通过机密级别检查后直接通过；PlatformAdmin 和 TenantAdmin 不享有这一通用短路。
 6. 若配置了 `anyUserTypes`，用户类型必须命中其中任一表达式；该条件始终是前置门槛，不受 `isAndMode` 影响。
 7. 组装三类可选业务条件：
    - **权限条件**：将 `domain:type:res:action` 组装为权限表达式，并在用户拥有的权限中匹配。
@@ -759,7 +757,7 @@ public List<UserDto> queryUsers() {
        ├─ 租户边界
        ├─ DataScope 中的租户允许/拒绝集合
        ├─ 组织允许匹配集合减去拒绝匹配集合
-       └─ SuperAdmin / SaaSAdmin 分支对目标租户、父组织、组织对象的机密级别检查
+       └─ SuperAdmin / PlatformAdmin 分支对目标租户、父组织、组织对象的机密级别检查
 ```
 
 组织管理入口应同时执行动作授权与 `checkOrgAccessible` 校验。一般业务数据读取使用适用的 `canAccessTenant`、`canAccessDomain`、`canAccessOrg` 和机密级别判断，或等价的查询过滤；不要把带父节点、根节点管理约束的 `checkOrgAccessible` 当成通用读取校验。资源权限通过不表示可以访问任意组织，组织范围通过也不表示可以执行任意资源动作。
@@ -768,7 +766,7 @@ public List<UserDto> queryUsers() {
 
 角色、租户和组织在参与默认授权计算前都会执行 `selfAudit()`；禁用、逻辑删除、过期或缺少 ID 的对象不会授予权限、扩大数据范围或作为可访问目标。
 
-身份快捷路径只作用于对应的授权门槛：仅 `R_SA` SuperAdmin（包括顶级 `sa`）可跳过租户/组织范围规则，TopSuperAdmin 另可跳过机密等级。SaaSAdmin 与普通平台用户必须按授权范围访问，服从用户覆盖、角色继承及拒绝规则；有授权可以跨组织，不增加所属组织或组织树的硬限制。普通 SuperAdmin / SaaSAdmin 的既有列表及管理入口均保留对象密级检查。身份边界和显式目标的存在性、状态检查先于快捷返回；TenantAdmin 的全部组织权限只限于已通过租户资格判断的自身租户。领域判断没有管理员自动放行分支，TopSuperAdmin 也必须通过目标对象的非空领域检查。
+身份快捷路径只作用于对应的授权门槛：仅 `R_SA` SuperAdmin（包括顶级 `sa`）可跳过租户/组织范围规则，TopSuperAdmin 另可跳过机密等级。PlatformAdmin 与普通平台用户必须按授权范围访问，服从用户覆盖、角色继承及拒绝规则；有授权可以跨组织，不增加所属组织或组织树的硬限制。普通 SuperAdmin / PlatformAdmin 的既有列表及管理入口均保留对象密级检查。身份边界和显式目标的存在性、状态检查先于快捷返回；TenantAdmin 的全部组织权限只限于已通过租户资格判断的自身租户。领域判断没有管理员自动放行分支，TopSuperAdmin 也必须通过目标对象的非空领域检查。
 
 > **实现注意：** 当前普通用户的 `checkOrgAccessible(...)` 分支以租户边界和已计算的组织范围集合判断目标组织；若业务要求普通用户也必须逐一校验目标租户、父组织或组织对象的 `confidentialLevel`，应在业务入口补充该校验，或将其明确提升为 `RbacBaseService` 的统一策略。
 
@@ -917,7 +915,7 @@ public class DemoRbacService implements RbacBaseService {
 | `Groovy#脚本` | 使用 `_tenant`、`_user` 匹配租户 |
 | 其他字符串 | 具体租户 ID，按精确值匹配 |
 
-只有平台用户可以跨租户。租户用户即使配置其他租户、`_ALL_`、`_NONE_` 或 Groovy，也不能超出自身租户。平台身份仅提供跨租户资格；除 `R_SA` 超管外，包括 SaaSAdmin 在内均须匹配明确的租户和组织授权范围，不能直接获得全量访问。
+只有平台用户可以跨租户。租户用户即使配置其他租户、`_ALL_`、`_NONE_` 或 Groovy，也不能超出自身租户。平台身份仅提供跨租户资格；除 `R_SA` 超管外，包括 PlatformAdmin 在内均须匹配明确的租户和组织授权范围，不能直接获得全量访问。
 
 租户列表只枚举真实租户对象。无租户数据应通过单点范围检查处理，不创建虚构租户。拒绝租户内某组织不会让该租户从可访问租户列表消失。
 
@@ -964,7 +962,7 @@ public class DemoRbacService implements RbacBaseService {
 
 普通平台用户的全局 `canAccessAllOrg(user)` 要求明确包含 `_ALL_`，组织允许包含 `_ALL_ROOT_|SelfAndAllChild` 且没有租户/组织拒绝规则，同时检查当前有效组织的实际覆盖情况；孤儿节点和未选中的独立环不能被当作已授权。全量判断是保守的明确授权判断，不是对任意复杂脚本做等价证明。
 
-范围单点方法不执行通用的对象密级过滤；普通 SuperAdmin / SaaSAdmin 的列表接口保留密级过滤，所以单点范围为 true 不保证该对象会出现在密级过滤后的列表中。
+范围单点方法不执行通用的对象密级过滤；普通 SuperAdmin / PlatformAdmin 的列表接口保留密级过滤，所以单点范围为 true 不保证该对象会出现在密级过滤后的列表中。
 
 ### 19.5 角色分配的数据范围上限
 
@@ -1193,11 +1191,11 @@ A|IdPath#/*/*
 - 可跳过机密级别约束。
 - 从有效租户/组织中获取最大候选结果，显式目标的存在性与状态检查仍保留。
 
-### 23.2 SuperAdmin / SaaSAdmin
+### 23.2 SuperAdmin / PlatformAdmin
 
 `isSuperAdmin()` 可走全局租户/组织范围快捷路径，但普通超管仍执行对象密级过滤。
 
-`isSaasAdmin()` 不再享有自动全局数据范围：租户、组织、领域均须通过授权，拒绝规则生效，列表仍保留对象密级过滤。组织管理能力不被取消，但 `checkOrgAccessible` 对父组织和目标组织分别检查授权；创建无父、无现有目标的根节点时须具备 None 无组织范围授权。管理入口还会检查目标租户、父组织及目标组织密级。角色分配的范围预测也按此规则处理，不能把 `R_SAAS_ADMIN` 编码视为自动授予全局数据范围。
+`isPlatformAdmin()` 不再享有自动全局数据范围：租户、组织、领域均须通过授权，拒绝规则生效，列表仍保留对象密级过滤。组织管理能力不被取消，但 `checkOrgAccessible` 对父组织和目标组织分别检查授权；创建无父、无现有目标的根节点时须具备 None 无组织范围授权。管理入口还会检查目标租户、父组织及目标组织密级。角色分配的范围预测也按此规则处理，不能把 `R_PLATFORM_ADMIN` 编码视为自动授予全局数据范围。
 
 它们不是 `TopSuperAdmin`。
 

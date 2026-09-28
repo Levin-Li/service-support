@@ -79,7 +79,6 @@ class RbacAuthorizeServiceRolePermissionTest {
      */
 
     @Test
-    @SuppressWarnings("deprecation")
     void shouldDistinguishPlatformAndTenantUsers() {
         TestRbacUser platformUser = new TestRbacUser(
                 "U_PLATFORM", "platform", null, "PLATFORM", Collections.emptyList(), null
@@ -96,12 +95,8 @@ class RbacAuthorizeServiceRolePermissionTest {
         assertFalse(platformUser.isTenantUser());
         assertTrue(tenantUser.isTenantUser());
         assertFalse(tenantUser.isPlatformUser());
-        assertEquals(platformUser.isPlatformUser(), platformUser.isSaasUser(),
-                "废弃别名必须保持兼容语义");
         assertEquals("isPlatformUser", InjectConst.IS_PLATFORM_USER);
         assertEquals("isTenantUser", InjectConst.IS_TENANT_USER);
-        assertEquals("isSaasUser", InjectConst.IS_SAAS_USER,
-                "废弃注入键必须保持兼容值");
     }
 
     @Test
@@ -303,12 +298,12 @@ class RbacAuthorizeServiceRolePermissionTest {
 
     @Test
     void shouldApplyRoleAdminHierarchyRules() {
-        assertTrue(authorizeService.canAdmin(RbacRoleInfo.SA_ROLE, RbacRoleInfo.SAAS_ADMIN),
+        assertTrue(authorizeService.canAdmin(RbacRoleInfo.SA_ROLE, RbacRoleInfo.PLATFORM_ADMIN),
                 "超级管理员角色应能管理全部角色");
-        assertTrue(authorizeService.canAdmin(RbacRoleInfo.SAAS_ADMIN, RbacRoleInfo.ADMIN_ROLE),
-                "SaaS 管理员应能管理租户管理员角色");
-        assertFalse(authorizeService.canAdmin(RbacRoleInfo.ADMIN_ROLE, RbacRoleInfo.SAAS_ADMIN),
-                "租户管理员不能管理 SaaS 管理员角色");
+        assertTrue(authorizeService.canAdmin(RbacRoleInfo.PLATFORM_ADMIN, RbacRoleInfo.ADMIN_ROLE),
+                "PLATFORM 管理员应能管理租户管理员角色");
+        assertFalse(authorizeService.canAdmin(RbacRoleInfo.ADMIN_ROLE, RbacRoleInfo.PLATFORM_ADMIN),
+                "租户管理员不能管理 PLATFORM 管理员角色");
         assertFalse(authorizeService.canAdmin("R_USER", RbacRoleInfo.ADMIN_ROLE),
                 "普通角色不能管理租户管理员角色");
         assertTrue(authorizeService.canAdmin("R_USER", "R_AUDITOR"),
@@ -994,10 +989,10 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldRejectSaasRoleForTenantOperatorAndAllowTopSuperAdminRoleAssignment() {
-        TestRbacRole saasAdminRole = new TestRbacRole(
-                "R4_SAAS",
-                RbacRoleInfo.SAAS_ADMIN,
+    void shouldRejectPlatformRoleForTenantOperatorAndAllowTopSuperAdminRoleAssignment() {
+        TestRbacRole platformAdminRole = new TestRbacRole(
+                "R4_PLATFORM",
+                RbacRoleInfo.PLATFORM_ADMIN,
                 null,
                 Collections.emptyList(),
                 Collections.emptyList(),
@@ -1023,8 +1018,8 @@ class RbacAuthorizeServiceRolePermissionTest {
         TestAuthorizeService scopedAuthorizeService = new TestAuthorizeService();
         scopedAuthorizeService.setDefaultRbacBaseService(scopedService);
 
-        assertFalse(authorizeService.isRoleAuthorized(user, saasAdminRole, null),
-                "租户用户不能分配公共 SaaS 管理员角色");
+        assertFalse(authorizeService.isRoleAuthorized(user, platformAdminRole, null),
+                "租户用户不能分配公共 PLATFORM 管理员角色");
         assertTrue(scopedAuthorizeService.isRoleAuthorized(topSuperAdmin, protectedSaRole, null),
                 "顶级超级管理员应能分配受保护的超级管理员角色");
         scopedService.registerRole(protectedSaRole);
@@ -1125,13 +1120,13 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldCheckConfidentialLevelBeforeGrantingSaasAdminRoleAuthorization() {
-        TestRbacUser saasAdmin = new TestRbacUser(
+    void shouldCheckConfidentialLevelBeforeGrantingPlatformAdminRoleAuthorization() {
+        TestRbacUser platformAdmin = new TestRbacUser(
                 "U7",
-                "saas-admin",
+                "platform-admin",
                 null,
                 "PLATFORM",
-                Collections.singletonList(RbacRoleInfo.SAAS_ADMIN),
+                Collections.singletonList(RbacRoleInfo.PLATFORM_ADMIN),
                 10
         );
 
@@ -1144,12 +1139,12 @@ class RbacAuthorizeServiceRolePermissionTest {
                 100
         );
 
-        StubRbacBaseService scopedService = new StubRbacBaseService(saasAdmin);
+        StubRbacBaseService scopedService = new StubRbacBaseService(platformAdmin);
         TestAuthorizeService scopedAuthorizeService = new TestAuthorizeService();
         scopedAuthorizeService.setDefaultRbacBaseService(scopedService);
 
-        assertFalse(scopedAuthorizeService.isRoleAuthorized(saasAdmin, protectedRole, null),
-                "SaaS 管理员也必须先通过机密数据访问级别校验");
+        assertFalse(scopedAuthorizeService.isRoleAuthorized(platformAdmin, protectedRole, null),
+                "PLATFORM 管理员也必须先通过机密数据访问级别校验");
     }
 
     @Test
@@ -1503,22 +1498,22 @@ class RbacAuthorizeServiceRolePermissionTest {
                 Collections.singletonList("R_USER"),
                 50
         );
-        TestRbacUser saasTarget = new TestRbacUser(
-                "U7B3_SAAS",
-                "saas",
+        TestRbacUser platformTarget = new TestRbacUser(
+                "U7B3_PLATFORM",
+                "platform",
                 null,
                 "OPS",
                 Collections.singletonList("R_USER"),
                 50
         );
-        MultiUserRbacBaseService scopedService = new MultiUserRbacBaseService(operator, sameTenantTarget, crossTenantTarget, saasTarget);
+        MultiUserRbacBaseService scopedService = new MultiUserRbacBaseService(operator, sameTenantTarget, crossTenantTarget, platformTarget);
 
         assertTrue(scopedService.canAdminUser(operator.getId(), sameTenantTarget.getId()),
                 "同租户且密级足够时应允许管理目标用户");
         assertFalse(scopedService.canAdminUser(operator.getId(), crossTenantTarget.getId()),
                 "租户用户不能跨租户管理用户");
-        assertFalse(scopedService.canAdminUser(operator.getId(), saasTarget.getId()),
-                "租户用户不能管理无租户 SaaS 用户");
+        assertFalse(scopedService.canAdminUser(operator.getId(), platformTarget.getId()),
+                "租户用户不能管理无租户 PLATFORM 用户");
         assertTrue(scopedService.canAdminUser(operator.getId(), operator.getId()),
                 "管理自己应快速通过");
     }
@@ -2680,12 +2675,12 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldTreatDefaultTenantAsPublicOrgForSaasUser() {
+    void shouldTreatDefaultTenantAsPublicOrgForPlatformUser() {
         TestRbacUser scopedUser = new TestRbacUser(
                 "U303",
-                "saas-user",
+                "platform-user",
                 null,
-                "SAAS",
+                "PLATFORM",
                 Collections.emptyList(),
                 5000,
                 "P",
@@ -5055,7 +5050,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 new MatrixIdentity(null, "plain", false, false, false),
                 new MatrixIdentity("T1", "plain", false, false, false),
                 new MatrixIdentity("T1", RbacRoleInfo.ADMIN_ROLE, false, true, false),
-                new MatrixIdentity(null, RbacRoleInfo.SAAS_ADMIN, false, false, false),
+                new MatrixIdentity(null, RbacRoleInfo.PLATFORM_ADMIN, false, false, false),
                 new MatrixIdentity(null, RbacRoleInfo.SA_ROLE, true, true, false),
                 new MatrixIdentity(null, RbacRoleInfo.SA_ROLE, true, true, true),
                 new MatrixIdentity("T1", RbacRoleInfo.SA_ROLE, false, false, false));
@@ -5090,7 +5085,7 @@ class RbacAuthorizeServiceRolePermissionTest {
                 boolean domainAllowed = domainChoice == 1;
                 boolean tenantAllowed = domainAllowed && (identity.globalAdmin || (mask & 3) == 1);
                 boolean orgAllowed = tenantAllowed && (identity.orgAdmin || (mask & 12) == 4);
-                boolean listLevelAllowed = (!identity.globalAdmin && !RbacRoleInfo.SAAS_ADMIN.equals(identity.role)) || granted >= 10;
+                boolean listLevelAllowed = (!identity.globalAdmin && !RbacRoleInfo.PLATFORM_ADMIN.equals(identity.role)) || granted >= 10;
                 String label = identity + ", level=" + level + ", domain=" + domainChoice + ", grants=" + mask;
                 assertEquals(granted, service.getUserDataScope(user).getConfidentialDataAccessLevel(), label);
                 assertEquals(granted, service.getUserConfidentialDataAccessLevel(user), label);
@@ -5587,10 +5582,10 @@ class RbacAuthorizeServiceRolePermissionTest {
             assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)), "领域不可访问角色不贡献最终继承等级");
         }
         ScopeUser admin = new ScopeUser(null, List.of(RbacRoleInfo.SA_ROLE));
-        ScopeUser target = new ScopeUser(null, List.of(RbacRoleInfo.SAAS_ADMIN)) {
+        ScopeUser target = new ScopeUser(null, List.of(RbacRoleInfo.PLATFORM_ADMIN)) {
             @Override public String getLoginName() { return "sa"; }
         };
-        ScopeRole role = new ScopeRole(RbacRoleInfo.SAAS_ADMIN) { @Override public String getTenantId() { return null; } };
+        ScopeRole role = new ScopeRole(RbacRoleInfo.PLATFORM_ADMIN) { @Override public String getTenantId() { return null; } };
         RoleCatalogService service = new RoleCatalogService(admin, List.of(role));
         TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
         assertDoesNotThrow(() -> auth.checkRoleAssignment(admin, target, List.of(role)));
@@ -5636,11 +5631,11 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldRequireExplicitScopesForSaasAdministratorOrganizationAccess() {
-        ScopeUser user = new ScopeUser(null, List.of(RbacRoleInfo.SAAS_ADMIN));
+    void shouldRequireExplicitScopesForPlatformAdministratorOrganizationAccess() {
+        ScopeUser user = new ScopeUser(null, List.of(RbacRoleInfo.PLATFORM_ADMIN));
         StubRbacBaseService service = new StubRbacBaseService(user).setTenantList(List.of(new TestTenant("T1", "One"), new TestTenant("T2", "Two")))
                 .setOrgList(baseOrgTree());
-        assertFalse(service.canAccessTenant(user, "T1"), "SaaS 身份本身不是全租户授权");
+        assertFalse(service.canAccessTenant(user, "T1"), "PLATFORM 身份本身不是全租户授权");
         assertTrue(service.loadUserAccessibleOrgList(user, true).isEmpty());
         user.fields[0] = Set.of("T1");
         assertTrue(service.canAccessTenant(user, "T1"));
@@ -5656,7 +5651,7 @@ class RbacAuthorizeServiceRolePermissionTest {
         user.fields[4] = Set.of("A|SelfAndAllChild", "B|SelfAndAllChild");
         assertTrue(service.canAccessOrg(user, "T1", "B1"), "有明确授权允许跨组织树，不加归属组织硬限制");
         user.fields[5] = Set.of("B|SelfAndAllChild");
-        assertFalse(service.canAccessOrg(user, "T1", "B1"), "SaaS 管理员也服从显式拒绝");
+        assertFalse(service.canAccessOrg(user, "T1", "B1"), "PLATFORM 管理员也服从显式拒绝");
         assertDoesNotThrow(() -> service.checkOrgAccessible(user, "T1", null, "A"));
         assertThrows(IllegalArgumentException.class, () -> service.checkOrgAccessible(user, "T1", null, "B"));
         assertThrows(IllegalArgumentException.class, () -> service.checkOrgAccessible(user, "T1", null, null));
@@ -5671,8 +5666,8 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldApplyRoleInheritanceAndUserOverridesForSaasAdministrator() {
-        ScopeUser user = new ScopeUser(null, List.of(RbacRoleInfo.SAAS_ADMIN, "R_SCOPE"));
+    void shouldApplyRoleInheritanceAndUserOverridesForPlatformAdministrator() {
+        ScopeUser user = new ScopeUser(null, List.of(RbacRoleInfo.PLATFORM_ADMIN, "R_SCOPE"));
         ScopeRole role = new ScopeRole("R_SCOPE") { @Override public String getTenantId() { return null; } };
         role.fields[0] = Set.of("T1"); role.fields[4] = Set.of("A|Self");
         StubRbacBaseService service = new StubRbacBaseService(user).setTenantList(List.of(new TestTenant("T1", "One"))).setOrgList(baseOrgTree());
@@ -5688,16 +5683,16 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
-    void shouldNotPredictAutomaticGlobalScopeWhenAssigningSaasAdministrator() {
-        ScopeUser operator = new ScopeUser(null, List.of(RbacRoleInfo.SAAS_ADMIN));
+    void shouldNotPredictAutomaticGlobalScopeWhenAssigningPlatformAdministrator() {
+        ScopeUser operator = new ScopeUser(null, List.of(RbacRoleInfo.PLATFORM_ADMIN));
         operator.fields[0] = Set.of("T1"); operator.fields[4] = Set.of("A|Self");
-        ScopeUser target = new ScopeUser(null, List.of(RbacRoleInfo.SAAS_ADMIN));
-        ScopeRole role = new ScopeRole(RbacRoleInfo.SAAS_ADMIN) { @Override public String getTenantId() { return null; } };
+        ScopeUser target = new ScopeUser(null, List.of(RbacRoleInfo.PLATFORM_ADMIN));
+        ScopeRole role = new ScopeRole(RbacRoleInfo.PLATFORM_ADMIN) { @Override public String getTenantId() { return null; } };
         role.fields[0] = Set.of("T1"); role.fields[4] = Set.of("A|Self");
         RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
         service.setTenantList(List.of(new TestTenant("T1", "One"), new TestTenant("T2", "Two"))).setOrgList(baseOrgTree());
         TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
-        assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)), "范围内的 SaaS 角色不能被误判为固有全局权限而拒绝");
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)), "范围内的 PLATFORM 角色不能被误判为固有全局权限而拒绝");
         assertTrue(service.canAccessOrg(target, "T1", "A"));
         assertFalse(service.canAccessOrg(target, "T1", "B"));
         assertFalse(service.canAccessTenant(target, "T2"));

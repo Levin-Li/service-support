@@ -607,8 +607,8 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         if (!isPlatformUser) {
 
             if (role.isPublicRole()) {
-                //如果角色是SAAS角色，则不能访问
-                if (roleCode.startsWith(RbacRoleInfo.SAAS_ROLE_PREFIX)) {
+                //如果角色是platform角色，则不能访问
+                if (roleCode.startsWith(RbacRoleInfo.PLATFORM_ROLE_PREFIX)) {
                     return false;
                 }
             } else if (!role.getTenantId().equals(userInfo.getTenantId())) {
@@ -634,11 +634,11 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
             return false;
         }
 
-        if (userInfo.isSaasAdmin()) {
+        if (userInfo.isPlatformAdmin()) {
             return true;
         }
 
-        if (RbacRoleInfo.SAAS_ADMIN.equals(roleCode)) {
+        if (RbacRoleInfo.PLATFORM_ADMIN.equals(roleCode)) {
             return false;
         }
 
@@ -649,7 +649,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
 
         // 带目标用户上下文的数据范围上限由 checkRoleAssignment 统一检查。
 
-        //除了sa 和 saas_admin, 其他都要按权限检查
+        //除了sa 和 platform_admin, 其他都要按权限检查
         //接下来开始检查角色的权限列表,比对角色需要的权限列表 和 用户拥有的权限列表
 
         return isAuthorized(principal, true, role.getPermissionList(), matchErrorConsumer);

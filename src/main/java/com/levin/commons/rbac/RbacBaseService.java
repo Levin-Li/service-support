@@ -29,7 +29,7 @@ import static com.levin.commons.rbac.RbacMiscUtils.*;
  *
  * @author echo
  */
-@Tag(name = "RBAC 数据范围服务", description = "用户范围字段非 null（含空集合）覆盖角色配置，只有 null 才继承生效角色并集。仅超级管理员 R_SA（含顶级 sa）享有全局租户/组织范围快捷路径；SaaS 管理员与普通平台用户均须匹配授权范围并服从拒绝规则，有授权允许跨组织，不设所属组织硬边界。租户管理员的组织管理范围只限自身已授权租户；领域门槛均保留，普通超管与 SaaS 管理员列表/管理入口仍检查密级。角色分配按当前完整有效目录检查范围上限，目录/规则/上下文变化须重新校验。")
+@Tag(name = "RBAC 数据范围服务", description = "用户范围字段非 null（含空集合）覆盖角色配置，只有 null 才继承生效角色并集。仅超级管理员 R_SA（含顶级 sa）享有全局租户/组织范围快捷路径；PLATFORM 管理员与普通平台用户均须匹配授权范围并服从拒绝规则，有授权允许跨组织，不设所属组织硬边界。租户管理员的组织管理范围只限自身已授权租户；领域门槛均保留，普通超管与 PLATFORM 管理员列表/管理入口仍检查密级。角色分配按当前完整有效目录检查范围上限，目录/规则/上下文变化须重新校验。")
 public interface RbacBaseService extends RbacBaseUserService {
 
     // 自定义 Groovy 规则的编译结果可以跨请求复用，避免每次重新编译脚本。
@@ -46,7 +46,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param <TENANT>
      * @return
      */
-    @Operation(summary = "加载用户能访问的租户列表", description = "平台身份仅提供跨租户资格，不自动授予范围；普通平台用户和 SaaS 管理员均按租户允许减拒绝过滤，仅 R_SA 超管（含顶级 sa）享有全局范围快捷路径。租户用户仍不得跨租户；领域、有效状态门槛保留，普通超管及 SaaS 管理员仍执行列表密级过滤。onlyLoadEffectTenant 原样传给加载器；结果始终排除自审失败对象。")
+    @Operation(summary = "加载用户能访问的租户列表", description = "平台身份仅提供跨租户资格，不自动授予范围；普通平台用户和 PLATFORM 管理员均按租户允许减拒绝过滤，仅 R_SA 超管（含顶级 sa）享有全局范围快捷路径。租户用户仍不得跨租户；领域、有效状态门槛保留，普通超管及 PLATFORM 管理员仍执行列表密级过滤。onlyLoadEffectTenant 原样传给加载器；结果始终排除自审失败对象。")
     default <TENANT extends RbacTenantInfo> Collection<TENANT> loadUserAccessibleTenantList(Serializable userPrincipal, boolean onlyLoadEffectTenant) {
         return DomainAccess.evaluate(() -> {
             final RbacUserInfo user = requireScopeUser(userPrincipal);
@@ -60,7 +60,7 @@ public interface RbacBaseService extends RbacBaseUserService {
                     result.add(tenant);
                 }
             }
-            return (isGlobalScopeAdmin(user) || user.isSaasAdmin()) && !user.isTopSuperAdmin()
+            return (isGlobalScopeAdmin(user) || user.isPlatformAdmin()) && !user.isTopSuperAdmin()
                     ? filterByScopedConfidentialAccess(scope, result) : result;
         });
     }
@@ -165,7 +165,7 @@ public interface RbacBaseService extends RbacBaseUserService {
     <ORG extends RbacOrgInfo> ORG copyOrgNodeForAssembleTree(ORG sourceOrg, String nodePath);
 
 
-    @Operation(summary = "加载用户能访问的组织列表", description = "先检查租户资格，再匹配组织范围和领域；普通平台用户与 SaaS 管理员必须有明确组织授权并服从拒绝，有授权可跨组织树。仅 R_SA 超管享有全局组织范围快捷路径，租户管理员仅在自身已授权租户享有组织管理范围。普通超管与 SaaS 管理员仍执行对象密级过滤。用户非 null 字段覆盖角色、null 才继承；查询/缓存优化不得放宽结果。")
+    @Operation(summary = "加载用户能访问的组织列表", description = "先检查租户资格，再匹配组织范围和领域；普通平台用户与 PLATFORM 管理员必须有明确组织授权并服从拒绝，有授权可跨组织树。仅 R_SA 超管享有全局组织范围快捷路径，租户管理员仅在自身已授权租户享有组织管理范围。普通超管与 PLATFORM 管理员仍执行对象密级过滤。用户非 null 字段覆盖角色、null 才继承；查询/缓存优化不得放宽结果。")
     default <ORG extends RbacOrgInfo> Collection<ORG> loadUserAccessibleOrgList(Serializable userPrincipal, boolean onlyLoadEffectOrg) {
         return DomainAccess.evaluate(() -> {
             final RbacUserInfo user = requireScopeUser(userPrincipal);
@@ -193,14 +193,14 @@ public interface RbacBaseService extends RbacBaseUserService {
                     if (allowed.contains(orgId) && orgDomainAllowed(scope, tenantId, org)) result.add(org);
                 });
             }
-            return (isGlobalScopeAdmin(user) || user.isSaasAdmin()) && !user.isTopSuperAdmin()
+            return (isGlobalScopeAdmin(user) || user.isPlatformAdmin()) && !user.isTopSuperAdmin()
                     ? filterByScopedConfidentialAccess(scope, result) : result;
         });
     }
 
     /**
      * 加载“最大候选组织集合”。
-     * 包含所有租户组织和无租户公共组织，供顶级超级管理员直接返回，也供普通超管/SaaS 管理员做机密级别过滤。
+     * 包含所有租户组织和无租户公共组织，供顶级超级管理员直接返回，也供普通超管/PLATFORM 管理员做机密级别过滤。
      */
     @Operation(summary = "加载最大候选组织集合", description = "聚合全部有效租户的组织和无租户公共组织，作为全局管理员后续机密级别过滤的候选集；该方法本身不完成用户范围授权。默认逐租户加载，子类可使用等价批量查询或缓存避免 N+1。")
     default <ORG extends RbacOrgInfo> Collection<ORG> loadMaxAccessibleOrgList(boolean onlyLoadEffectOrg) {
@@ -709,7 +709,7 @@ public interface RbacBaseService extends RbacBaseUserService {
      * @param parentId
      * @param orgId
      */
-    @Operation(summary = "检查用户组织可访问性", description = "租户身份边界、目标状态、领域和范围失败均抛异常拒绝。仅超管 R_SA（含顶级 sa）享有全局范围快捷路径；SaaS 管理员必须分别获父组织、目标组织授权，二者均为空时须获无组织范围授权。目标组织密级为 null 时，本次访问整体跳过租户、父组织和目标组织的密级比较，不限制操作者密级；其他租户、领域和组织范围门槛仍须通过。目标组织密级非 null 时，依次校验租户、父组织和目标组织密级，并准确提示密级不足的对象。目标组织等于用户所属组织时提示“自己的目标组织”，否则提示“他人目标组织”。租户管理员只在本租户内管理；普通非管理员保留父节点及根管理限制。有授权可跨组织，不以所属组织硬限制替代授权。")
+    @Operation(summary = "检查用户组织可访问性", description = "租户身份边界、目标状态、领域和范围失败均抛异常拒绝。仅超管 R_SA（含顶级 sa）享有全局范围快捷路径；PLATFORM 管理员必须分别获父组织、目标组织授权，二者均为空时须获无组织范围授权。目标组织密级为 null 时，本次访问整体跳过租户、父组织和目标组织的密级比较，不限制操作者密级；其他租户、领域和组织范围门槛仍须通过。目标组织密级非 null 时，依次校验租户、父组织和目标组织密级，并准确提示密级不足的对象。目标组织等于用户所属组织时提示“自己的目标组织”，否则提示“他人目标组织”。租户管理员只在本租户内管理；普通非管理员保留父节点及根管理限制。有授权可跨组织，不以所属组织硬限制替代授权。")
     default void checkOrgAccessible(Serializable userPrincipal, Serializable tenantId, Serializable parentId, Serializable orgId) {
         DomainAccess.evaluate(() -> {
             final RbacUserInfo user = requireScopeUser(userPrincipal);
@@ -744,7 +744,7 @@ public interface RbacBaseService extends RbacBaseUserService {
             if (user.isTopSuperAdmin()) {
                 return null;
             }
-            if (user.isSuperAdmin() || user.isSaasAdmin()) {
+            if (user.isSuperAdmin() || user.isPlatformAdmin()) {
                 final Integer level = scope.getConfidentialDataAccessLevel();
                 // 目标组织未设密级时，视为该访问请求不受密级约束；不再由租户或父组织密级间接拒绝。
                 if (org == null || org.getConfidentialLevel() != null) {

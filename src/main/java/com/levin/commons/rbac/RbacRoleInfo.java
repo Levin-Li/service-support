@@ -25,11 +25,11 @@ public interface RbacRoleInfo extends RbacCoreObject, DataScope, MultiTenantPubl
     //超级管理员
     String SA_ROLE = ROLE_PREFIX + "SA";
 
-    //SAAS角色前缀
-    String SAAS_ROLE_PREFIX = ROLE_PREFIX + "SAAS_";
+    //platform角色前缀
+    String PLATFORM_ROLE_PREFIX = ROLE_PREFIX + "PLATFORM_";
 
-    //SAAS管理员
-    String SAAS_ADMIN = SAAS_ROLE_PREFIX + "ADMIN";
+    //platform管理员
+    String PLATFORM_ADMIN = PLATFORM_ROLE_PREFIX + "ADMIN";
 
     //系统管理员，通常是一个租户的管理员
     String ADMIN_ROLE = ROLE_PREFIX + "ADMIN";

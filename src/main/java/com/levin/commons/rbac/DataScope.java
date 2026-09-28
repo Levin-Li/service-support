@@ -71,7 +71,7 @@ public interface DataScope {
         @Schema(title = "所有", description = "所有数据")
         All("_ALL_"),
 
-        @Schema(title = "默认", description = "对于saas用户(无租户Id), 则默认为无租户, 对于有租户Id的用户, 则默认为用户的租户Id")
+        @Schema(title = "默认", description = "对于platform用户(无租户Id), 则默认为无租户, 对于有租户Id的用户, 则默认为用户的租户Id")
         Default("_DEFAULT_"),
 
         //无租户，就是指租户ID为空的数据

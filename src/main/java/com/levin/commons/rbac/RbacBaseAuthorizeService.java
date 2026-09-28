@@ -143,23 +143,23 @@ public interface RbacBaseAuthorizeService {
             return false;
         }
 
-        //SAAS管理员
-        if (operatorRoleCode.equals(SAAS_ADMIN)) {
+        //platform管理员
+        if (operatorRoleCode.equals(PLATFORM_ADMIN)) {
             return true;
         }
 
         //允许同级管理
-        if (targetRoleCode.equals(SAAS_ADMIN)) {
+        if (targetRoleCode.equals(PLATFORM_ADMIN)) {
             return false;
         }
 
-        //SAAS普通角色
-        if (operatorRoleCode.startsWith(SAAS_ROLE_PREFIX)) {
+        //platform普通角色
+        if (operatorRoleCode.startsWith(PLATFORM_ROLE_PREFIX)) {
             return true;
         }
 
-        //SAAS角色
-        if (targetRoleCode.startsWith(SAAS_ROLE_PREFIX)) {
+        //platform角色
+        if (targetRoleCode.startsWith(PLATFORM_ROLE_PREFIX)) {
             return false;
         }
 
