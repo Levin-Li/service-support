@@ -960,6 +960,7 @@ public class DemoRbacService implements RbacBaseService {
 | `canAccessOrg(user, tenantId, orgId)` | 检查租户及组织领域、一致性和组织范围；空组织按 None 处理 |
 | `canAccessAllOrg(user, tenantId)` | 检查指定租户内非空组织的完整范围覆盖 |
 | `canAccessAllOrg(user)` | 租户用户检查自身租户；平台用户保留全局覆盖语义 |
+| `canAccessAllPersonal(user)` | 顶级超管直接通过；其他用户有效机密访问级别须至少为 `PERSON_PRIVATE`（2000），不绕过资源、范围或业务所有权校验 |
 | `loadUserAccessibleTenantList(user, onlyEffective)` | 枚举可访问的真实租户对象，不返回虚构的 None 租户 |
 | `loadUserAccessibleOrgList(user, onlyEffective)` | 按租户隔离计算可访问的真实组织列表 |
 | `checkOrgAccessible(user, tenantId, parentId, orgId)` | 领域和一致性校验先于管理快捷路径，保留父节点及根节点限制 |

@@ -322,6 +322,23 @@ public interface RbacBaseService extends RbacBaseUserService {
     }
 
     /**
+     * 判断用户是否可以访问全部个人信息。
+     * 顶级超级管理员直接允许；其他用户必须具备至少 {@link ConfidentialLevel#PERSON_PRIVATE}
+     * 的有效机密数据访问等级。该判断不替代具体资源、租户、领域或组织范围的授权校验。
+     *
+     * @param userPrincipal 用户对象或用户 ID
+     * @return 是否具备访问全部个人信息的机密等级资格
+     */
+    @Operation(summary = "判断是否可以访问全部个人信息", description = "仅顶级超级管理员可无条件通过；其他用户的有效机密数据访问等级必须大于等于 PERSON_PRIVATE（2000），用户自身等级为空时按生效角色授予的最高等级计算。普通超级管理员、平台管理员和租户管理员不因身份自动通过。该结果仅表示个人信息密级资格，不绕过资源动作、租户、领域、组织范围、对象状态或业务所有权校验。")
+    default boolean canAccessAllPersonal(Serializable userPrincipal) {
+        return DomainAccess.evaluate(() -> {
+            final RbacUserInfo user = requireScopeUser(userPrincipal);
+            return user.isTopSuperAdmin()
+                    || canAccessConfidentialDataByUser(user, ConfidentialLevel.PERSON_PRIVATE.code());
+        });
+    }
+
+    /**
      * 只判断租户范围资格；业务操作权限和机密级别仍须单独校验。
      */
     default boolean canAccessTenant(Serializable userPrincipal, Serializable tenantId) {

@@ -4,6 +4,10 @@ import com.levin.commons.annotation.GenNameConstant;
 import com.levin.commons.service.domain.EnumDesc;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+/**
+ * @author lilw
+ */
+
 @Schema(title = "机密级别")
 @GenNameConstant
 public enum ConfidentialLevel implements EnumDesc {

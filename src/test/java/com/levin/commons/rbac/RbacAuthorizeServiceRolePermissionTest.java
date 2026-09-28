@@ -346,6 +346,23 @@ class RbacAuthorizeServiceRolePermissionTest {
     }
 
     @Test
+    void shouldRequirePersonalConfidentialLevelForAllPersonalAccess() {
+        TestRbacUser belowPersonalLevel = new TestRbacUser(
+                "U_PERSONAL_BELOW", "below-personal", "T1", "OPS", Collections.emptyList(), ConfidentialLevel.PERSON_PRIVATE.code() - 1
+        );
+        TestRbacUser personalLevelUser = new TestRbacUser(
+                "U_PERSONAL", "personal", "T1", "OPS", Collections.emptyList(), ConfidentialLevel.PERSON_PRIVATE.code()
+        );
+        TestRbacUser topSuperAdmin = new TestRbacUser(
+                "U_TOP", RbacUserInfo.TOP_SA_ACCOUNT_NAME, null, "PLATFORM", Collections.singletonList(RbacRoleInfo.PLATFORM_SA), null
+        );
+
+        assertFalse(baseService.canAccessAllPersonal(belowPersonalLevel));
+        assertTrue(baseService.canAccessAllPersonal(personalLevelUser));
+        assertTrue(baseService.canAccessAllPersonal(topSuperAdmin));
+    }
+
+    @Test
     void shouldDefaultAuthorizeActionsToPlatformPublicConfidentialLevel() throws NoSuchMethodException {
         assertEquals(ConfidentialLevel.PLATFORM_PUBLIC.code(),
                 ((Integer) ResAuthorize.class.getDeclaredMethod("confidentialLevel").getDefaultValue()).intValue());
