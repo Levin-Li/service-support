@@ -296,6 +296,15 @@
                 </includes>
                 <targetPath>META-INF/service-support-docs</targetPath>
             </resource>
+            <resource>
+                <directory>.</directory>
+                <includes>
+                    <include>README.md</include>
+                    <include>manual.md</include>
+                    <include>使用说明.md</include>
+                </includes>
+                <targetPath>META-INF/service-support-docs</targetPath>
+            </resource>
         </resources>
 
         <plugins>
