@@ -1361,3 +1361,33 @@ mvn clean
 - `src/main/java/com/levin/commons/service/domain/InjectVar.java`
 - `src/main/java/com/levin/commons/plugin/Plugin.java`
 - `src/main/java/com/levin/commons/plugin/PluginManager.java`
+
+## 数据属性分组元数据
+
+`@RbacDataAttrGroup` 按需声明 API 属性权限分组，未标注属性维持原有行为。可以重复标注在类、实例字段或 JavaBean getter 上；同一实体内同名组的属性合并去重，最低机密等级取最高值。注解没有请求/响应维度，同一操作的入参与出参共用分组授权。
+
+```java
+@RbacDataAttrGroup(name = "财务信息", attrList = {"amount", "rate"})
+class Contract {
+    BigDecimal amount;
+    BigDecimal rate;
+
+    @Schema(title = "结算账号")
+    @RbacDataAttrGroup
+    String bankAccount;
+
+    @RbacDataAttrGroup(name = "财务信息")
+    @RbacDataAttrGroup(name = "审计信息")
+    public BigDecimal getAmount() { return amount; }
+}
+```
+
+字段和 getter 默认自动加入当前属性，`name` 为空时先取字段的 `@Schema.title`，再取 getter 的标题；没有标题就拒绝配置。类级必须明确名称及非空 `attrList`，引用不存在的属性同样拒绝。名称是授权标识，改名需要迁移已有授权。一个属性属于多个不同组时，API 集成方必须要求各组全部授权。备注按声明顺序去重合并。
+
+公共解析入口为 `RbacDataAttrGroupMetadata.forType(Contract.class)`，通过 `getGroups()` 得到组信息，通过 `getGroupsForAttribute("amount")` 得到某属性所属的全部组。组信息提供 `getName()`、`getAttributes()`、`getConfidentialLevel()` 和 `getRemark()`，所有集合不可修改。
+
+解析器按需读取已编译类型，扫描父类和接口上的类、字段与 getter 重复声明；无需源码。相同类型的首次并发调用只构建一次元数据，有组、无组和配置错误都会缓存。缓存跟随类型生命周期，不保存用户身份、角色或授权结果。该缓存仅包含当前类型的分组，不包含嵌套子类型图。包装类没有直接分组，不代表其嵌套子对象没有分组；API 集成方应分别解析声明的嵌套类型，并在请求检查及响应序列化时继续按实际嵌套对象类型处理。
+
+该解析器提供静态元数据，不独立执行 API 授权。API 集成方应按当前接口操作授权校验客户端实际提交的受控属性（包括显式 `null`），无权则整次拒绝；响应在序列化写键前省略无权属性，并继续执行既有脱敏。分组成员建议只在角色授权界面的悬停提示展示；未声明分组的操作不增加勾选入口。
+
+最小验证：调用两次 `forType` 并确认实例相同；检查 `amount` 同时属于财务与审计两组；无组类型重复调用得到相同的空元数据。测试入口：`mvn clean test -Dmaven.test.skip=false -Dtest=RbacDataAttrGroupMetadataTest`。
