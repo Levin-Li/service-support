@@ -67,8 +67,10 @@ public final class RbacDataAttrGroupMetadata {
             for (Field field : current.getDeclaredFields()) {
                 if (!Modifier.isStatic(field.getModifiers()) && !field.isSynthetic()) fields.put(field.getName(), field);
             }
+        }
+        for (Class<?> current : hierarchy) {
             for (Method method : current.getDeclaredMethods()) {
-                String attribute = getterAttribute(method);
+                String attribute = getterAttribute(method, fields);
                 if (attribute != null) {
                     Schema schema = method.getAnnotation(Schema.class);
                     if (!getters.containsKey(attribute) || (schema != null && !schema.title().isBlank())) {
@@ -92,7 +94,7 @@ public final class RbacDataAttrGroupMetadata {
             }
             for (Method method : current.getDeclaredMethods()) {
                 for (RbacDataAttrGroup annotation : method.getDeclaredAnnotationsByType(RbacDataAttrGroup.class)) {
-                    String attribute = getterAttribute(method);
+                    String attribute = getterAttribute(method, fields);
                     if (attribute == null) throw invalid(type, "方法注解必须声明在 JavaBean getter 上：" + method.getName());
                     add(type, declarations, annotation, attribute, fields, getters, properties);
                 }
@@ -108,13 +110,18 @@ public final class RbacDataAttrGroupMetadata {
         hierarchy.add(type);
     }
 
-    private static String getterAttribute(Method method) {
+    private static String getterAttribute(Method method, Map<String, Field> fields) {
         if (Modifier.isStatic(method.getModifiers()) || method.isBridge() || method.isSynthetic()
                 || method.getParameterCount() != 0 || method.getReturnType() == void.class) return null;
         String name = method.getName();
         if (name.startsWith("get") && name.length() > 3) return Introspector.decapitalize(name.substring(3));
         if (name.startsWith("is") && name.length() > 2 && method.getReturnType() == boolean.class) {
-            return Introspector.decapitalize(name.substring(2));
+            String attribute = Introspector.decapitalize(name.substring(2));
+            if (fields.containsKey(attribute)) return attribute;
+            // 兼容实体 boolean isActive 与其 isActive() 访问器，普通 active 字段优先。
+            Field field = fields.get(name);
+            if (field != null && (field.getType() == boolean.class || field.getType() == Boolean.class)) return name;
+            return attribute;
         }
         return null;
     }

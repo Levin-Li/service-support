@@ -96,4 +96,34 @@ class RbacDataAttrGroupMetadataTest {
         assertTrue(RbacDataAttrGroupMetadata.forType(Envelope.class).getGroups().isEmpty());
         assertFalse(RbacDataAttrGroupMetadata.forType(Child.class).getGroups().isEmpty());
     }
+
+    static class BooleanPrefix {
+        @Schema(title = "启用") private boolean isActive;
+        @RbacDataAttrGroup public boolean isActive() { return isActive; }
+    }
+    static class BooleanPrefixChild extends BooleanPrefix {}
+    static class BothBooleanNames {
+        @Schema(title = "普通启用") boolean active;
+        @Schema(title = "前缀启用") boolean isActive;
+        @RbacDataAttrGroup public boolean isActive() { return active; }
+    }
+    static class OrdinaryGetter {
+        @Schema(title = "原始名称") boolean isActive;
+        @RbacDataAttrGroup @Schema(title = "普通 getter") public boolean getActive() { return isActive; }
+    }
+
+    @Test void booleanGetterResolvesSourceFieldAndPreservesOrdinaryPropertyPriority() {
+        for (Class<?> type : List.of(BooleanPrefix.class, BooleanPrefixChild.class)) {
+            var metadata = RbacDataAttrGroupMetadata.forType(type);
+            assertEquals(Set.of("isActive"), metadata.getGroups().get("启用").getAttributes());
+            assertEquals(1, metadata.getGroupsForAttribute("isActive").size());
+            assertTrue(metadata.getGroupsForAttribute("active").isEmpty());
+        }
+        var both = RbacDataAttrGroupMetadata.forType(BothBooleanNames.class);
+        assertEquals(Set.of("active"), both.getGroups().get("普通启用").getAttributes());
+        assertTrue(both.getGroupsForAttribute("isActive").isEmpty());
+        var ordinary = RbacDataAttrGroupMetadata.forType(OrdinaryGetter.class);
+        assertEquals(Set.of("active"), ordinary.getGroups().get("普通 getter").getAttributes());
+    }
+
 }

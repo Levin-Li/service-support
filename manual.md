@@ -1384,6 +1384,8 @@ class Contract {
 
 字段和 getter 默认自动加入当前属性，`name` 为空时先取字段的 `@Schema.title`，再取 getter 的标题；没有标题就拒绝配置。类级必须明确名称及非空 `attrList`，引用不存在的属性同样拒绝。名称是授权标识，改名需要迁移已有授权。一个属性属于多个不同组时，API 集成方必须要求各组全部授权。备注按声明顺序去重合并。
 
+布尔 getter `isActive()` 优先对应实际的 `active` 字段；没有该字段而存在布尔类型 `isActive` 字段时，归组到 `isActive`，并读取该源字段的标题。普通 `getX()` 仍使用 JavaBean 属性名。
+
 公共解析入口为 `RbacDataAttrGroupMetadata.forType(Contract.class)`，通过 `getGroups()` 得到组信息，通过 `getGroupsForAttribute("amount")` 得到某属性所属的全部组。组信息提供 `getName()`、`getAttributes()`、`getConfidentialLevel()` 和 `getRemark()`，所有集合不可修改。
 
 解析器按需读取已编译类型，扫描父类和接口上的类、字段与 getter 重复声明；无需源码。相同类型的首次并发调用只构建一次元数据，有组、无组和配置错误都会缓存。缓存跟随类型生命周期，不保存用户身份、角色或授权结果。该缓存仅包含当前类型的分组，不包含嵌套子类型图。包装类没有直接分组，不代表其嵌套子对象没有分组；API 集成方应分别解析声明的嵌套类型，并在请求检查及响应序列化时继续按实际嵌套对象类型处理。
