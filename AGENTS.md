@@ -13,3 +13,9 @@ Swagger 文档是对外接口契约的一部分。接口涉及覆盖、优先级
 ## Maven 发布约定
 
 当用户要求“发布”时，只在当前项目目录先执行 `mvn clean`，确认清理完成后再执行 `mvn deploy`。不得修改 `pom.xml` 中已有的版本号、不得创建或推送 Git tag、不得自行检查、推断或变更发布目标；Maven 的现有配置决定部署的版本与目标仓库。
+
+## 枚举值范围开发记录
+
+- [当前实施范围与任务](openspec/changes/c20261018-1227-rbac-enum-value-scope/proposal.md)
+- [实施清单](openspec/changes/c20261018-1227-rbac-enum-value-scope/tasks.md)
+- [使用手册](manual.md#枚举值范围元数据)

@@ -1362,6 +1362,26 @@ mvn clean
 - `src/main/java/com/levin/commons/plugin/Plugin.java`
 - `src/main/java/com/levin/commons/plugin/PluginManager.java`
 
+## MapStruct 字段名兼容策略
+
+`service-support` 内置 `com.levin.commons.processor.mapstruct.FieldAwareAccessorNamingStrategy`，通过 `META-INF/services/org.mapstruct.ap.spi.AccessorNamingStrategy` 注册。策略在 MapStruct 编译期优先匹配源、目标类型的实际实例字段（包含父类字段），找不到对应字段时沿用 JavaBeans 默认规则，不修改字段或 getter/setter。
+
+对于字段 `eSigningProcessSnapshotList`，`getESigningProcessSnapshotList()` 和 `geteSigningProcessSnapshotList()` 都识别为原字段名；同时保留真实的 `URL` 大写字段、普通属性和无字段的计算属性。链式 `seteSigning...` setter 也按实际字段匹配。生成的 Mapper 可以继续使用 `@Mapping(target = "eSigningProcessSnapshotList", ...)`。
+
+SPI 必须在注解处理器类路径中。未配置独立 `annotationProcessorPaths`、使用普通编译类路径进行注解处理的项目，在编译依赖中包含新版 `service-support` 即可被 MapStruct 自动发现。JDK 23+ 还需要显式启用现有注解处理（例如 Maven 的 `<proc>full</proc>`）。
+
+如果项目已配置 `annotationProcessorPaths`，在现有列表中追加 `service-support`，并保留已有 MapStruct、Lombok 等处理器：
+
+```xml
+<path>
+    <groupId>com.levin.commons</groupId>
+    <artifactId>service-support</artifactId>
+    <version>${levin.service-support.version}</version>
+</path>
+```
+
+这是编译期策略，会影响同一次编译中的 MapStruct Mapper；只在运行时添加依赖不会启用它。MapStruct 处理器依赖在 `service-support` 中设为 `provided`，不会作为普通运行依赖传递给使用方。
+
 ## 数据属性分组元数据
 
 `@RbacDataAttrGroup` 按需声明 API 属性权限分组，未标注属性维持原有行为。可以重复标注在类、实例字段或 JavaBean getter 上；同一实体内同名组的属性合并去重，最低机密等级取最高值。注解没有请求/响应维度，同一操作的入参与出参共用分组授权。
@@ -1393,3 +1413,45 @@ class Contract {
 该解析器提供静态元数据，不独立执行 API 授权。API 集成方应按当前接口操作授权校验客户端实际提交的受控属性（包括显式 `null`），无权则整次拒绝；响应在序列化写键前省略无权属性，并继续执行既有脱敏。分组成员建议只在角色授权界面的悬停提示展示；未声明分组的操作不增加勾选入口。
 
 最小验证：调用两次 `forType` 并确认实例相同；检查 `amount` 同时属于财务与审计两组；无组类型重复调用得到相同的空元数据。测试入口：`mvn clean test -Dmaven.test.skip=false -Dtest=RbacDataAttrGroupMetadataTest`。
+
+
+## 枚举值范围元数据
+
+`RbacDataAttr` 声明枚举字段的记录访问范围，与控制属性进出可见性的 `RbacDataAttrGroup` 独立。可以同时标注，两类规则分别生效。本包只提供元数据，集成方必须在可信上下文和 DAO 固定条件中落实授权；仅添加注解不会自动过滤数据。
+
+```java
+@Schema(title = "客户类型")
+@RbacDataAttr(remark = "按角色分配允许的类型")
+private PartnerType type;
+
+@RbacDataAttr(name = "所属区域")
+private Region region;
+```
+
+标识固定使用 Java 字段名；`name` 只用于展示，依次回退到字段 `Schema.title`、字段名。支持继承的枚举字段；标注非枚举、静态、Java transient、JPA `@Transient` 字段或 getter，以及父子类字段遮蔽，解析时抛出 `IllegalArgumentException`，不能静默降级为无限制。改字段名或枚举常量名需要迁移既有授权。
+
+```java
+RbacDataAttrMetadata metadata = RbacDataAttrMetadata.forType(Partner.class);
+for (RbacDataAttrMetadata.Attribute attr : metadata.getAttributes()) {
+    // attr.getName() 是稳定字段标识；getTitle() 是授权界面标题。
+    for (RbacDataAttrMetadata.Value value : attr.getValues()) {
+        // getName() 使用 enum.name()；getTitle() 用于显示。
+    }
+}
+```
+
+枚举选项标题依次取常量 `Schema.title`、实现 `EnumDesc` 的 `getDesc()`、常量名。授权协议不得使用 ordinal、toString 或自定义数值 code。元数据集合和元素深不可变，按类型惰性缓存成功、无注解空结果与配置失败；并发解析只发布同一份结果，不含用户、角色或用户许可。集成方须将“无注解”与“无许可”区分，后者不能忽略固定条件。
+
+最小验证：运行 `mvn -U test -Dtest=RbacDataAttrMetadataTest,RbacDataAttrGroupMetadataTest -P '!01-跳过测试'`。覆盖字段继承、标题回退、错误配置、正负及失败缓存和并发不可变访问。
+
+
+### JPA 枚举映射要求
+
+JPA `@Entity`（包括继承链中的实体）本期仅支持 FIELD 访问，受控字段必须直接显式标注 `@Enumerated(EnumType.STRING)`。仅在 getter 标注 STRING 不生效，必须拒绝；类、字段或 getter 上 `@Access(PROPERTY)` 以及 getter 上 `@Id` / `@EmbeddedId` 都拒绝，避免 PROPERTY/混合访问误判实际数据库映射。缺少映射或使用 ORDINAL 都会拒绝；字段、getter 或类级 `@Convert` / `@Converts` 指向该属性且启用转换时也会拒绝。显式 STRING 排除 autoApply 转换器，避免枚举 name 与实际持久值不一致。`disableConversion = true` 仍需显式 STRING。普通非 JPA 逻辑 POJO 只要求严格枚举类型。
+
+```java
+@Schema(title = "客户类型")
+@RbacDataAttr
+@Enumerated(EnumType.STRING)
+private PartnerType type;
+```

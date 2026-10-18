@@ -34,6 +34,7 @@
         <maven-source-plugin.attach>true</maven-source-plugin.attach>
 
         <spring-boot.version>4.0.5</spring-boot.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
 
     </properties>
 
@@ -275,6 +276,21 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- 编译 MapStruct 命名 SPI；不向使用方传递注解处理器运行依赖。 -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>${mapstruct.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -299,6 +315,7 @@
             <resource>
                 <directory>.</directory>
                 <includes>
+                    <include>AGENTS.md</include>
                     <include>README.md</include>
                     <include>manual.md</include>
                     <include>使用说明.md</include>
