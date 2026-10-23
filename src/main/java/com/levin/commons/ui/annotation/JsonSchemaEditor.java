@@ -17,8 +17,8 @@ public @interface JsonSchemaEditor {
     @Schema(title = "标题", description = "默认为被注解字段的@Schema.title属性")
     String title() default "";
 
-    @Schema(title = "JsonSchema", description = "支持3种格式，按以下顺序解析：包含斜杠 / 时视为 URL 地址，如 /sys/jsonSchema/userAddr.json；否则以冒号 : 开头时视为被注解字段所在类的属性名，如 :attrName；其他情况视为类名，如 com.test.UserAddress。")
-    String jsonSchema();
+    @Schema(title = "JsonSchema", description = "支持3种格式，按以下顺序解析：包含斜杠 / 时视为 URL 地址，如 /sys/jsonSchema/userAddr.json；否则以冒号 : 开头时视为被注解字段所在类属性名或是json数据中的属性名，如 :attrName；其他情况视为类名，如 com.test.UserAddress。")
+    String jsonSchema() default ":jsonSchemaEditor";
 
     @Schema(title = "是否内联", description = "内联模式,表单项将铺开展示, 否则将弹窗展示")
     boolean inlineMode() default false;
