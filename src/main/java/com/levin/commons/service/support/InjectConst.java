@@ -47,6 +47,12 @@ public interface InjectConst {
      */
     String USER = "user";
     String USER_ID = "userId";
+
+    /**
+     * 经服务端授权解析的目标拥有者 ID；不是当前认证用户 ID，不能替换 USER_ID 身份语义。
+     */
+    String OWNER_ID = "ownerId";
+
     String USER_NAME = "userName";
     String USER_LOGIN_NAME = "userLoginName";
     String USER_PHONE = "userPhone";

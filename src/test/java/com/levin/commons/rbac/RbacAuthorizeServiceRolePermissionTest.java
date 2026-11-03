@@ -5752,7 +5752,361 @@ class RbacAuthorizeServiceRolePermissionTest {
         return auth;
     }
 
-    private static class RoleCatalogService extends StubRbacBaseService {
+    @Test
+    void transactionSnapshotMustIncludeUncommittedChildInScopeComparison() {
+        ScopeUser operator = new ScopeUser("T1", List.of());
+        operator.fields[0] = Set.of("T1"); operator.fields[4] = Set.of("A|Self");
+        ScopeUser target = new ScopeUser("T1", List.of()) {
+            @Override public <ID extends Serializable> ID getOrgId() { return (ID) "A1"; }
+        };
+        ScopeRole role = new ScopeRole("R_SNAPSHOT");
+        role.fields[0] = Set.of("_DEFAULT_"); role.fields[4] = Set.of("_DEFAULT_|Self");
+        RoleCatalogService service = new RoleCatalogService(operator, List.of(role));
+        TestTenant tenant = new TestTenant("T1", "One");
+        service.setTenantList(List.of(tenant)).setOrgList(List.of(new TestOrg("A", null, "T1", "A")));
+        TestAuthorizeService auth = new TestAuthorizeService(); auth.setDefaultRbacBaseService(service);
+        RbacRoleAssignmentSnapshot snapshot = new RbacRoleAssignmentSnapshot(tenant, List.of(), 0,
+                List.of(role), 1, List.of(new TestOrg("A", null, "T1", "A"), new TestOrg("A1", "A", "T1", "A1")), 2);
+        assertDoesNotThrow(() -> auth.checkRoleAssignment(operator, target, List.of(role)));
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignmentWithSnapshot(operator, target, List.of(role), snapshot));
+        operator.fields[4] = Set.of("A|SelfAndAllChild");
+        assertDoesNotThrow(() -> auth.checkRoleAssignmentWithSnapshot(operator, target, List.of(role), snapshot));
+        RbacRoleAssignmentSnapshot truncated = new RbacRoleAssignmentSnapshot(tenant, List.of(), 0,
+                List.of(role), 1, snapshot.organizations(), 3);
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignmentWithSnapshot(operator, target, List.of(role), truncated));
+        RbacRoleAssignmentSnapshot missingChild = new RbacRoleAssignmentSnapshot(tenant, List.of(), 0,
+                List.of(role), 1, List.of(new TestOrg("A", null, "T1", "A")), 1);
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignmentWithSnapshot(operator, target, List.of(role), missingChild));
+        RbacRoleAssignmentSnapshot duplicate = new RbacRoleAssignmentSnapshot(tenant, List.of(), 0,
+                List.of(role, role), 2, snapshot.organizations(), 2);
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignmentWithSnapshot(operator, target, List.of(role), duplicate));
+        RbacRoleAssignmentSnapshot foreign = new RbacRoleAssignmentSnapshot(tenant, List.of(), 0,
+                List.of(role), 1, List.of(new TestOrg("A1", null, "T2", "A1")), 1);
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignmentWithSnapshot(operator, target, List.of(role), foreign));
+        ScopeRole changed = new ScopeRole("R_SNAPSHOT"); changed.fields[0] = Set.of("_DEFAULT_"); changed.fields[4] = Set.of("A|SelfAndAllChild");
+        RbacRoleAssignmentSnapshot changedRole = new RbacRoleAssignmentSnapshot(tenant, List.of(), 0,
+                List.of(changed), 1, snapshot.organizations(), 2);
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignmentWithSnapshot(operator, target, List.of(role), changedRole));
+        TestAuthorizeService rejectingAuth = new TestAuthorizeService() {
+            @Override public void checkRoleAssignment(Serializable actor, Serializable user, Collection<? extends RbacRoleInfo> roles) {
+                throw new IllegalArgumentException("host veto");
+            }
+        };
+        rejectingAuth.setDefaultRbacBaseService(service);
+        assertEquals("host veto", assertThrows(IllegalArgumentException.class,
+                () -> rejectingAuth.checkRoleAssignmentWithSnapshot(operator, target, List.of(role), snapshot)).getMessage());
+        RoleCatalogService vetoService = new RoleCatalogService(operator, List.of(role)) {
+            @Override public void checkRoleDataScopeAssignment(RbacUserInfo actor, RbacUserInfo user,
+                                                               Collection<? extends RbacRoleInfo> roles) {
+                throw new IllegalArgumentException("scope veto");
+            }
+        };
+        vetoService.setTenantList(List.of(tenant)).setOrgList(List.of(new TestOrg("A", null, "T1", "A"), new TestOrg("A1", "A", "T1", "A1")));
+        TestAuthorizeService vetoAuth = new TestAuthorizeService(); vetoAuth.setDefaultRbacBaseService(vetoService);
+        assertEquals("scope veto", assertThrows(IllegalArgumentException.class,
+                () -> vetoAuth.checkRoleAssignmentWithSnapshot(operator, target, List.of(role), snapshot)).getMessage());
+        class StrictAuth extends TestAuthorizeService implements RbacStrictAssignmentParticipant {
+            java.util.function.BiConsumer<RbacStrictAssignmentView, List<RbacRoleInfo>> coverage = (v, r) -> {};
+            @Override public StrictCatalogBinding openStrictAuthorizationCatalog(RbacStrictAssignmentView v) { return () -> {}; }
+            @ResConditionAction(action = "create") void creationAction() { }
+            @Override protected ResConditionAction getAction(String permission) {
+                if (!"mod:invitation::create".equals(permission)) return super.getAction(permission);
+                try { return StrictAuth.class.getDeclaredMethod("creationAction").getAnnotation(ResConditionAction.class); }
+                catch (ReflectiveOperationException e) { throw new IllegalStateException(e); }
+            }
+            @Override public StrictCatalogBinding openStrictIssuerCatalog(RbacStrictIssuerView v) { return () -> {}; }
+            java.util.function.BiConsumer<RbacStrictIssuerView, List<RbacRoleInfo>> issuerCoverage = (v, r) -> {};
+            @Override public void checkStrictIssuerPermissionCoverage(RbacStrictIssuerView v, List<RbacRoleInfo> roles) { issuerCoverage.accept(v, roles); }
+            RbacStrictIssuerVeto acceptedVeto;
+            @Override public boolean supportsStrictIssuerVeto(RbacStrictIssuerVeto veto) { return veto == acceptedVeto; }
+            @Override public void checkStrictPermissionCoverage(RbacStrictAssignmentView v, List<RbacRoleInfo> roles) { coverage.accept(v, roles); }
+        }
+        StrictAuth strictAuth = new StrictAuth(); strictAuth.setDefaultRbacBaseService(service);
+        StrictAuth strictBaseVeto = new StrictAuth(); strictBaseVeto.setDefaultRbacBaseService(vetoService);
+        RbacStrictAssignmentView baseVetoView = new RbacStrictAssignmentView(operator, target, snapshot, List.of(tenant), 1, List.of(role), 1);
+        assertThrows(IllegalArgumentException.class, () -> strictBaseVeto.checkRoleAssignmentWithStrictView(baseVetoView, List.of(role)), "不支持的数据范围覆盖必须拒绝");
+        ScopeUser actorWithRole = new ScopeUser("T1", List.of("R_ACTOR"));
+        actorWithRole.fields[0] = Set.of("T1");
+        ScopeRole cachedActorRole = new ScopeRole("R_ACTOR"); cachedActorRole.fields[4] = Set.of("A|SelfAndAllChild");
+        ScopeRole dbActorRole = new ScopeRole("R_ACTOR"); dbActorRole.fields[4] = Set.of("A|Self");
+        RoleCatalogService staleActorService = new RoleCatalogService(actorWithRole, List.of(cachedActorRole, role));
+        staleActorService.setTenantList(List.of(tenant)).setOrgList(baseOrgTree());
+        StrictAuth actorAuth = new StrictAuth(); actorAuth.setDefaultRbacBaseService(staleActorService);
+        RbacRoleAssignmentSnapshot actorSnapshot = new RbacRoleAssignmentSnapshot(tenant, List.of(), 0,
+                List.of(dbActorRole, role), 2, baseOrgTree(), baseOrgTree().size());
+        RbacStrictAssignmentView actorView = new RbacStrictAssignmentView(actorWithRole, target, actorSnapshot,
+                List.of(tenant), 1, List.of(dbActorRole, role), 2);
+        assertDoesNotThrow(() -> actorAuth.checkRoleAssignment(actorWithRole, target, List.of(role)));
+        assertThrows(IllegalArgumentException.class, () -> actorAuth.checkRoleAssignmentWithStrictView(actorView, List.of(role)),
+                "签发人缓存已变宽时必须按数据库真实角色范围拒绝");
+        RbacStrictAssignmentView view = new RbacStrictAssignmentView(operator, target, snapshot, List.of(tenant), 1, List.of(role), 1);
+        ScopeRole publicSameCode = new ScopeRole("R_MATCH") { @Override public String getTenantId() { return null; } };
+        ScopeRole localSameCode = new ScopeRole("R_MATCH");
+        RbacRoleAssignmentSnapshot overrideSnapshot = new RbacRoleAssignmentSnapshot(tenant, List.of(), 0,
+                List.of(publicSameCode, localSameCode), 2, snapshot.organizations(), 2);
+        RbacStrictAssignmentView overrideView = new RbacStrictAssignmentView(operator, target, overrideSnapshot, List.of(tenant), 1, List.of(publicSameCode, localSameCode), 2);
+        assertSame(localSameCode, overrideView.resolveTargetRoles(List.of("R_MATCH")).get(0), "有效租户角色应优先于公共角色");
+        assertThrows(IllegalArgumentException.class, () -> overrideView.resolveTargetRoles(List.of("R_UNKNOWN")));
+        ScopeRole disabledSameCode = new ScopeRole("R_MATCH") { @Override public boolean isEnable() { return false; } };
+        RbacRoleAssignmentSnapshot fallbackSnapshot = new RbacRoleAssignmentSnapshot(tenant, List.of(), 0,
+                List.of(publicSameCode, disabledSameCode), 2, snapshot.organizations(), 2);
+        RbacStrictAssignmentView fallbackView = new RbacStrictAssignmentView(operator, target, fallbackSnapshot, List.of(tenant), 1, List.of(publicSameCode, disabledSameCode), 2);
+        assertSame(publicSameCode, fallbackView.resolveTargetRoles(List.of("R_MATCH")).get(0), "停用租户角色应回退到有效公共角色");
+        RbacRoleAssignmentSnapshot duplicateOverride = new RbacRoleAssignmentSnapshot(tenant, List.of(), 0,
+                List.of(localSameCode, localSameCode), 2, snapshot.organizations(), 2);
+        assertThrows(IllegalArgumentException.class, () -> new RbacStrictAssignmentView(operator, target, duplicateOverride, List.of(tenant), 1, List.of(localSameCode, localSameCode), 2));
+
+        assertDoesNotThrow(() -> strictAuth.checkRoleAssignmentWithStrictView(view, List.of(role)));
+        ScopeUser realTarget = new ScopeUser("T1", List.of()) {
+            @Override public <ID extends Serializable> ID getId() { return (ID) "target"; }
+            @Override public <ID extends Serializable> ID getOrgId() { return (ID) "A1"; }
+        };
+        RbacStrictAssignmentView realTargetView = new RbacStrictAssignmentView(operator, realTarget, snapshot, List.of(tenant), 1, List.of(role), 1);
+        assertDoesNotThrow(() -> strictAuth.checkRoleAssignmentWithStrictView(realTargetView, List.of(role)), "可管理真实用户应通过");
+        ScopeUser confidentialTarget = new ScopeUser("T1", List.of()) {
+            @Override public <ID extends Serializable> ID getId() { return (ID) "target"; }
+            @Override public <ID extends Serializable> ID getOrgId() { return (ID) "A1"; }
+            @Override public Integer getConfidentialLevel() { return 9000; }
+        };
+        RbacStrictAssignmentView confidentialView = new RbacStrictAssignmentView(operator, confidentialTarget, snapshot, List.of(tenant), 1, List.of(role), 1);
+        assertThrows(IllegalArgumentException.class, () -> strictAuth.checkRoleAssignmentWithStrictView(confidentialView, List.of(role)), "目标用户密级越权必须拒绝");
+        ScopeUser adminTarget = new ScopeUser("T1", List.of("R_ADMIN")) {
+            @Override public <ID extends Serializable> ID getId() { return (ID) "target"; }
+            @Override public <ID extends Serializable> ID getOrgId() { return (ID) "A1"; }
+        };
+        RbacStrictAssignmentView adminTargetView = new RbacStrictAssignmentView(operator, adminTarget, snapshot, List.of(tenant), 1, List.of(role), 1);
+        assertThrows(IllegalArgumentException.class, () -> strictAuth.checkRoleAssignmentWithStrictView(adminTargetView, List.of(role)), "普通用户不能管理租户管理员");
+        operator.fields[2] = Set.of("D1");
+        ScopeUser domainTarget = new ScopeUser("T1", List.of()) {
+            @Override public <ID extends Serializable> ID getId() { return (ID) "target"; }
+            @Override public <ID extends Serializable> ID getOrgId() { return (ID) "A1"; }
+            @Override public String getDomainId() { return "D2"; }
+        };
+        RbacRoleAssignmentSnapshot managementDomainSnapshot = new RbacRoleAssignmentSnapshot(tenant, List.of(new TestDomain("D1"), new TestDomain("D2")), 2,
+                List.of(role), 1, snapshot.organizations(), 2);
+        RbacStrictAssignmentView managementDomainView = new RbacStrictAssignmentView(operator, domainTarget, managementDomainSnapshot, List.of(tenant), 1, List.of(role), 1);
+        assertThrows(IllegalArgumentException.class, () -> strictAuth.checkRoleAssignmentWithStrictView(managementDomainView, List.of(role)), "目标用户领域越权必须拒绝");
+        operator.fields[2] = null;
+
+        assertThrows(IllegalArgumentException.class, () -> auth.checkRoleAssignmentWithStrictView(view, List.of(role)), "未声明支持快照的实现必须拒绝");
+        String adminWildcard = "*:业务数据-*:*:*";
+        ScopeUser wildcardActor = new ScopeUser("T1", List.of("R_OWNER")); wildcardActor.fields[0] = Set.of("T1"); wildcardActor.fields[4] = Set.of("A|SelfAndAllChild");
+        ScopeRole ownerRole = new ScopeRole("R_OWNER") { @Override public Collection<String> getPermissionList() { return List.of("*:*:*:*"); } };
+        ownerRole.fields[0] = Set.of("T1"); ownerRole.fields[4] = Set.of("A|SelfAndAllChild");
+        ScopeRole adminRole = new ScopeRole("R_ORG_ADMIN") { @Override public Collection<String> getPermissionList() { return List.of(adminWildcard); } };
+        adminRole.fields[0] = Set.of("_DEFAULT_"); adminRole.fields[4] = Set.of("_DEFAULT_|Self");
+        RoleCatalogService wildcardService = new RoleCatalogService(wildcardActor, List.of(ownerRole, adminRole));
+        wildcardService.setTenantList(List.of(tenant)).setOrgList(baseOrgTree());
+        StrictAuth wildcardAuth = new StrictAuth(); wildcardAuth.setDefaultRbacBaseService(wildcardService);
+        RbacRoleAssignmentSnapshot wildcardSnapshot = new RbacRoleAssignmentSnapshot(tenant, List.of(), 0, List.of(ownerRole, adminRole), 2, baseOrgTree(), baseOrgTree().size());
+        RbacStrictAssignmentView wildcardView = new RbacStrictAssignmentView(wildcardActor, target, wildcardSnapshot, List.of(tenant), 1, List.of(ownerRole, adminRole), 2);
+        RbacStrictIssuerView issuerView = new RbacStrictIssuerView(wildcardActor, tenant, List.of(tenant), 1,
+                List.of(), 0, baseOrgTree(), baseOrgTree().size(), List.of(ownerRole, adminRole), 2, List.of(ownerRole, adminRole), 2);
+        AtomicInteger issuerCoverageCalls = new AtomicInteger();
+        wildcardAuth.issuerCoverage = (activeView, roles) -> {
+            assertSame(issuerView, activeView); assertSame(activeView, wildcardAuth.getRbacBaseLoadService());
+            assertEquals("R_ORG_ADMIN", roles.get(0).getCode()); issuerCoverageCalls.incrementAndGet();
+        };
+        assertDoesNotThrow(() -> wildcardAuth.checkInvitationIssuerWithStrictView(issuerView, "mod:invitation::create", List.of("R_ORG_ADMIN"), "A1"),
+                "签发时无需构造不存在的目标用户");
+        assertEquals(1, issuerCoverageCalls.get());
+        AtomicInteger withoutRoleCalls = new AtomicInteger();
+        wildcardAuth.issuerCoverage = (activeView, roles) -> { assertTrue(roles.isEmpty(), "会员不应伪造角色"); withoutRoleCalls.incrementAndGet(); };
+        assertDoesNotThrow(() -> wildcardAuth.checkInvitationIssuerWithoutRoleWithStrictView(issuerView, "mod:invitation::create", "A1"));
+        assertEquals(1, withoutRoleCalls.get());
+        AtomicInteger vetoCalls = new AtomicInteger();
+        RbacStrictIssuerVeto knownVeto = active -> {
+            assertSame(issuerView, active); assertSame(issuerView, wildcardAuth.getRbacBaseLoadService()); vetoCalls.incrementAndGet();
+        };
+        wildcardAuth.acceptedVeto = knownVeto;
+        assertDoesNotThrow(() -> wildcardAuth.checkInvitationIssuerWithoutRoleWithStrictView(issuerView, "mod:invitation::create", "A1", knownVeto));
+        assertEquals(1, vetoCalls.get());
+        wildcardAuth.issuerCoverage = (v, roles) -> {};
+        assertDoesNotThrow(() -> wildcardAuth.checkInvitationIssuerWithStrictView(issuerView, "mod:invitation::create", List.of("R_ORG_ADMIN"), "A1", knownVeto));
+        assertEquals(2, vetoCalls.get());
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkInvitationIssuerWithStrictView(issuerView, "mod:invitation::create", List.of("R_ORG_ADMIN"), "B1", knownVeto));
+        assertEquals(2, vetoCalls.get(), "基础组织校验未通过时不得调用渠道提供方");
+        DomainAccess.evaluate(() -> {
+            Set<String> allow = Set.of("_ALL_"); Set<String> deny = Set.of();
+            DomainAccess outer = DomainAccess.obtain(issuerView, allow, deny, id -> null);
+            RbacStrictIssuerVeto isolated = active -> assertNotSame(outer, DomainAccess.obtain(active, allow, deny, id -> null));
+            wildcardAuth.acceptedVeto = isolated;
+            wildcardAuth.checkInvitationIssuerWithStrictView(issuerView, "mod:invitation::create", List.of("R_ORG_ADMIN"), "A1", isolated);
+            assertSame(outer, DomainAccess.obtain(issuerView, allow, deny, id -> null));
+            return null;
+        });
+
+
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkInvitationIssuerWithoutRoleWithStrictView(issuerView, "mod:invitation::create", "A1", active -> {}), "未知提供方必须拒绝");
+        RbacStrictIssuerVeto refusingVeto = active -> { throw new IllegalArgumentException("channel veto"); };
+        wildcardAuth.acceptedVeto = refusingVeto;
+        assertEquals("channel veto", assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkInvitationIssuerWithoutRoleWithStrictView(issuerView, "mod:invitation::create", "A1", refusingVeto)).getMessage());
+        assertNull(RbacStrictAssignmentContext.VIEW.get(), "附加否决后必须清理视图");
+
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkInvitationIssuerWithoutRoleWithStrictView(issuerView, "mod:invitation::create", "B1"), "无角色路径仍须拒绝组织越权");
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkInvitationIssuerWithoutRoleWithStrictView(issuerView, "mod:unknown::create", "A1"), "无角色路径仍须拒绝未知创建动作");
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkInvitationIssuerWithStrictView(issuerView, "mod:invitation::create", List.of(), "A1"), "有角色入口不得隐式切换无角色路径");
+        ScopeUser platformUser = new ScopeUser(null, List.of());
+        platformUser.fields[0] = Set.of("T1"); platformUser.fields[4] = Set.of("A|SelfAndAllChild");
+        TestTenant platformOtherTenant = new TestTenant("T2", "Two");
+        RbacStrictIssuerView platformView = new RbacStrictIssuerView(platformUser, tenant, List.of(tenant, platformOtherTenant), 2,
+                List.of(), 0, baseOrgTree(), baseOrgTree().size(), List.of(), 0, List.of(role), 1);
+        Set<String> platformOrgs = platformView.<RbacOrgInfo>loadUserAccessibleOrgListForTenant(platformUser, "T1", true).stream()
+                .map(org -> Objects.toString(org.getId())).collect(Collectors.toSet());
+        assertTrue(platformUser.isPlatformUser(), "必须保留平台身份");
+        assertTrue(platformOrgs.containsAll(Set.of("A", "A1"))); assertFalse(platformOrgs.contains("B1"));
+        assertTrue(platformView.loadUserAccessibleOrgListForTenant(platformUser, "T2", true).isEmpty(), "无租户授权时不能读取其他租户组织");
+        ScopeUser platformWide = new ScopeUser(null, List.of()); platformWide.fields[0] = Set.of("T1", "T2"); platformWide.fields[4] = Set.of("A|SelfAndAllChild");
+        RbacStrictIssuerView platformWideView = new RbacStrictIssuerView(platformWide, tenant, List.of(tenant, platformOtherTenant), 2,
+                List.of(), 0, baseOrgTree(), baseOrgTree().size(), List.of(), 0, List.of(role), 1);
+        assertThrows(IllegalArgumentException.class, () -> platformWideView.loadUserAccessibleOrgListForTenant(platformWide, "T2", true), "未提供其他租户目录必须失败关闭");
+        TestTenant foreignTenant = new TestTenant("T2", "Two");
+        RbacStrictIssuerView foreignIssuer = new RbacStrictIssuerView(wildcardActor, foreignTenant, List.of(tenant, foreignTenant), 2,
+                List.of(), 0, List.of(new TestOrg("X", null, "T2", "X")), 1, List.of(ownerRole, adminRole), 2, List.of(), 0);
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkInvitationIssuerWithoutRoleWithStrictView(foreignIssuer, "mod:invitation::create", "X"), "无角色路径仍须拒绝跨租户");
+
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkInvitationIssuerWithStrictView(issuerView, "mod:invitation::create", List.of("R_ORG_ADMIN"), "B1"), "组织范围外应拒绝");
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkInvitationIssuerWithStrictView(issuerView, "mod:invitation::create", List.of("R_ORG_ADMIN"), "MISSING"), "不存在的组织应拒绝");
+        TestOrg disabledOrg = new TestOrg("A1", "A", "T1", "A1") { @Override public boolean isEnable() { return false; } };
+        RbacStrictIssuerView disabledIssuerView = new RbacStrictIssuerView(wildcardActor, tenant, List.of(tenant), 1,
+                List.of(), 0, List.of(new TestOrg("A", null, "T1", "A"), disabledOrg), 2,
+                List.of(ownerRole, adminRole), 2, List.of(ownerRole, adminRole), 2);
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkInvitationIssuerWithStrictView(disabledIssuerView, "mod:invitation::create", List.of("R_ORG_ADMIN"), "A1"), "禁用的组织应拒绝");
+
+        DomainAccess.evaluate(() -> {
+            Set<String> allow = Set.of("_ALL_"); Set<String> deny = Set.of();
+            DomainAccess outer = DomainAccess.obtain(issuerView, allow, deny, id -> null);
+            wildcardAuth.issuerCoverage = (activeView, roles) ->
+                    assertNotSame(outer, DomainAccess.obtain(issuerView, allow, deny, id -> null), "签发检查不得复用外层领域计算缓存");
+            wildcardAuth.checkInvitationIssuerWithStrictView(issuerView, "mod:invitation::create", List.of("R_ORG_ADMIN"), "A1");
+            assertSame(outer, DomainAccess.obtain(issuerView, allow, deny, id -> null), "签发检查完成后恢复外层领域计算上下文");
+            return null;
+        });
+
+        wildcardAuth.issuerCoverage = (activeView, roles) -> { throw new IllegalArgumentException("issuer veto"); };
+        assertEquals("issuer veto", assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkInvitationIssuerWithStrictView(issuerView, "mod:invitation::create", List.of("R_ORG_ADMIN"), "A1")).getMessage());
+        wildcardAuth.issuerCoverage = (activeView, roles) -> wildcardActor.fields[0] = Set.of("T2");
+        try { assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkInvitationIssuerWithStrictView(issuerView, "mod:invitation::create", List.of("R_ORG_ADMIN"), "A1")); }
+        finally { wildcardActor.fields[0] = Set.of("T1"); }
+        wildcardAuth.issuerCoverage = (activeView, roles) -> {};
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkInvitationIssuerWithStrictView(issuerView, "mod:invitation::create", List.of("R_MISSING"), "A1"));
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkInvitationIssuerWithStrictView(issuerView, "mod:unknown::create", List.of("R_ORG_ADMIN"), "A1"));
+        assertNull(RbacStrictAssignmentContext.VIEW.get());
+        assertSame(adminRole, issuerView.resolveTargetRoles(List.of("R_ORG_ADMIN")).get(0));
+        assertThrows(IllegalArgumentException.class, () -> issuerView.resolveTargetRoles(List.of("R_UNKNOWN")));
+
+        ScopeUser actorWithHistoricalRole = new ScopeUser("T1", List.of("R_OWNER", "R_OLD"));
+        assertDoesNotThrow(() -> new RbacStrictAssignmentView(actorWithHistoricalRole, target, wildcardSnapshot, List.of(tenant), 1, List.of(ownerRole, adminRole), 2), "历史普通角色码不应使有效角色不可用");
+        ScopeUser actorWithMissingAdmin = new ScopeUser("T1", List.of("R_ADMIN"));
+        assertThrows(IllegalArgumentException.class, () -> new RbacStrictAssignmentView(actorWithMissingAdmin, target, wildcardSnapshot, List.of(tenant), 1, List.of(ownerRole, adminRole), 2), "无有效定义的管理员编码不能触发快捷路径");
+        AtomicInteger coverageCalls = new AtomicInteger();
+        wildcardAuth.coverage = (activeView, roles) -> {
+            assertSame(wildcardView, activeView); assertSame(wildcardView, wildcardAuth.getRbacBaseLoadService()); coverageCalls.incrementAndGet();
+        };
+        assertDoesNotThrow(() -> wildcardAuth.checkRoleAssignmentWithStrictView(wildcardView, List.of(adminRole)));
+        assertEquals(1, coverageCalls.get());
+        wildcardAuth.coverage = (activeView, roles) -> wildcardActor.fields[0] = Set.of("T2");
+        try {
+            IllegalArgumentException changedFact = assertThrows(IllegalArgumentException.class,
+                    () -> wildcardAuth.checkRoleAssignmentWithStrictView(wildcardView, List.of(adminRole)));
+            assertTrue(changedFact.getMessage().contains("快照已被修改"));
+            assertNull(RbacStrictAssignmentContext.VIEW.get(), "变更拒绝后必须清理绑定");
+        } finally { wildcardActor.fields[0] = Set.of("T1"); }
+        wildcardAuth.coverage = (activeView, roles) -> activeView.checkSingleRoleDataScopeAssignment(wildcardActor, target, ownerRole, roles.get(0), wildcardSnapshot);
+        assertDoesNotThrow(() -> wildcardAuth.checkRoleAssignmentWithStrictView(wildcardView, List.of(adminRole)));
+        ownerRole.fields[4] = Set.of("A|Self");
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkRoleAssignmentWithStrictView(new RbacStrictAssignmentView(wildcardActor, target, wildcardSnapshot, List.of(tenant), 1, List.of(ownerRole, adminRole), 2), List.of(adminRole)), "不能借用户其他角色或显式范围扩大单角色范围");
+        ScopeUser actorWithOtherRole = new ScopeUser("T1", List.of("R_OWNER", "R_OTHER")); actorWithOtherRole.fields[0] = Set.of("T1");
+        ScopeRole otherRole = new ScopeRole("R_OTHER"); otherRole.fields[4] = Set.of("A|SelfAndAllChild");
+        ownerRole.fields[4] = Set.of("A|Self");
+        RbacRoleAssignmentSnapshot unionSnapshot = new RbacRoleAssignmentSnapshot(tenant, List.of(), 0,
+                List.of(ownerRole, otherRole, adminRole), 3, baseOrgTree(), baseOrgTree().size());
+        RbacStrictAssignmentView unionView = new RbacStrictAssignmentView(actorWithOtherRole, target, unionSnapshot,
+                List.of(tenant), 1, List.of(ownerRole, otherRole, adminRole), 3);
+        wildcardAuth.coverage = (activeView, roles) -> activeView.checkSingleRoleDataScopeAssignment(actorWithOtherRole, target, ownerRole, roles.get(0), unionSnapshot);
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkRoleAssignmentWithStrictView(unionView, List.of(adminRole)), "不能借其他角色的组织范围扩权");
+        wildcardAuth.coverage = (activeView, roles) -> activeView.checkSingleRoleDataScopeAssignment(wildcardActor, target, ownerRole, roles.get(0), wildcardSnapshot);
+        ownerRole.fields[4] = Set.of("A|SelfAndAllChild");
+        ownerRole.fields[0] = Set.of("T2");
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkRoleAssignmentWithStrictView(new RbacStrictAssignmentView(wildcardActor, target, wildcardSnapshot, List.of(tenant), 1, List.of(ownerRole, adminRole), 2), List.of(adminRole)), "单角色租户范围不足须拒绝");
+        ownerRole.fields[0] = Set.of("T1");
+        ownerRole.fields[5] = Set.of("A1|Self");
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkRoleAssignmentWithStrictView(new RbacStrictAssignmentView(wildcardActor, target, wildcardSnapshot, List.of(tenant), 1, List.of(ownerRole, adminRole), 2), List.of(adminRole)), "单角色拒绝规则须生效");
+        ownerRole.fields[5] = null;
+        ownerRole.fields[2] = Set.of("D1"); adminRole.fields[2] = Set.of("D2"); wildcardActor.fields[2] = Set.of("_ALL_");
+        RbacRoleAssignmentSnapshot domainSnapshot = new RbacRoleAssignmentSnapshot(tenant, List.of(new TestDomain("D1"), new TestDomain("D2")), 2,
+                List.of(ownerRole, adminRole), 2, baseOrgTree(), baseOrgTree().size());
+        RbacStrictAssignmentView domainView = new RbacStrictAssignmentView(wildcardActor, target, domainSnapshot, List.of(tenant), 1, List.of(ownerRole, adminRole), 2);
+        wildcardAuth.coverage = (activeView, roles) -> activeView.checkSingleRoleDataScopeAssignment(wildcardActor, target, ownerRole, roles.get(0), domainSnapshot);
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkRoleAssignmentWithStrictView(domainView, List.of(adminRole)), "单角色领域范围不足须拒绝");
+        ownerRole.fields[2] = null; adminRole.fields[2] = null; wildcardActor.fields[2] = null;
+        ScopeRole unrelated = new ScopeRole("R_UNRELATED") { @Override public String getAssignPreCondition() { return "throw new Error()"; } };
+        RbacRoleAssignmentSnapshot withUnrelated = new RbacRoleAssignmentSnapshot(tenant, List.of(), 0, List.of(ownerRole, adminRole, unrelated), 3, baseOrgTree(), baseOrgTree().size());
+        RbacStrictAssignmentView unrelatedView = new RbacStrictAssignmentView(wildcardActor, target, withUnrelated, List.of(tenant), 1, List.of(ownerRole, adminRole, unrelated), 3);
+        wildcardAuth.coverage = (activeView, roles) -> activeView.checkSingleRoleDataScopeAssignment(wildcardActor, target, ownerRole, roles.get(0), withUnrelated);
+        assertDoesNotThrow(() -> wildcardAuth.checkRoleAssignmentWithStrictView(unrelatedView, List.of(adminRole)), "无关角色的脚本不参与本次授权");
+        wildcardAuth.coverage = (activeView, roles) -> { throw new IllegalArgumentException("coverage veto"); };
+        assertThrows(IllegalArgumentException.class, () -> wildcardAuth.checkRoleAssignmentWithStrictView(wildcardView, List.of(adminRole)));
+        List<String> lifecycle = new ArrayList<>();
+        class LifecycleAuth extends StrictAuth implements RbacStrictAssignmentParticipant {
+            @Override public StrictCatalogBinding openStrictAuthorizationCatalog(RbacStrictAssignmentView v) {
+                assertSame(v, getRbacBaseLoadService()); lifecycle.add("open");
+                return () -> { assertSame(v, getRbacBaseLoadService()); lifecycle.add("close"); };
+            }
+            @Override public void checkRoleAssignment(Serializable actor, Serializable user, Collection<? extends RbacRoleInfo> roles) {
+                assertEquals("open", lifecycle.get(0)); lifecycle.add("check"); super.checkRoleAssignment(actor, user, roles);
+            }
+        }
+        LifecycleAuth lifecycleAuth = new LifecycleAuth(); lifecycleAuth.setDefaultRbacBaseService(service);
+        lifecycleAuth.coverage = (v, roles) -> { lifecycle.add("coverage"); throw new IllegalArgumentException("expected"); };
+        assertThrows(IllegalArgumentException.class, () -> lifecycleAuth.checkRoleAssignmentWithStrictView(view, List.of(role)));
+        assertEquals("open", lifecycle.get(0)); assertTrue(lifecycle.contains("coverage"));
+        assertEquals("close", lifecycle.get(lifecycle.size() - 1)); assertNull(RbacStrictAssignmentContext.VIEW.get());
+        class FailingOpenAuth extends StrictAuth implements RbacStrictAssignmentParticipant {
+            @Override public StrictCatalogBinding openStrictAuthorizationCatalog(RbacStrictAssignmentView v) { throw new IllegalStateException("open failed"); }
+        }
+        FailingOpenAuth failingOpen = new FailingOpenAuth(); failingOpen.setDefaultRbacBaseService(service);
+        assertThrows(IllegalStateException.class, () -> failingOpen.checkRoleAssignmentWithStrictView(view, List.of(role)));
+        assertNull(RbacStrictAssignmentContext.VIEW.get(), "目录打开失败也必须清理权限视图");
+        lifecycle.clear();
+        lifecycleAuth.coverage = (v, roles) -> {
+            assertThrows(IllegalArgumentException.class, () -> lifecycleAuth.checkRoleAssignmentWithStrictView(v, roles));
+            assertSame(v, lifecycleAuth.getRbacBaseLoadService());
+        };
+        assertDoesNotThrow(() -> lifecycleAuth.checkRoleAssignmentWithStrictView(view, List.of(role)));
+        assertEquals("close", lifecycle.get(lifecycle.size() - 1)); assertNull(RbacStrictAssignmentContext.VIEW.get());
+        class StrictVeto extends StrictAuth implements RbacStrictAssignmentParticipant {
+            @Override public void checkRoleAssignment(Serializable actor, Serializable user, Collection<? extends RbacRoleInfo> roles) {
+                throw new IllegalArgumentException("original veto");
+            }
+        }
+        StrictVeto strictVeto = new StrictVeto(); strictVeto.setDefaultRbacBaseService(service);
+        assertEquals("original veto", assertThrows(IllegalArgumentException.class,
+                () -> strictVeto.checkRoleAssignmentWithStrictView(view, List.of(role))).getMessage());
+        ArrayList<TestRbacRole> mutableCatalog = new ArrayList<>(List.of(role));
+        RoleCatalogService mutableService = new RoleCatalogService(operator, mutableCatalog);
+        mutableService.setTenantList(List.of(tenant)).setOrgList(List.of(new TestOrg("A", null, "T1", "A")));
+        class SwitchingAuth extends StrictAuth implements RbacStrictAssignmentParticipant {
+            @Override public void checkRoleAssignment(Serializable actor, Serializable user, Collection<? extends RbacRoleInfo> roles) {
+                super.checkRoleAssignment(actor, user, roles);
+                if (RbacStrictAssignmentContext.VIEW.get() == null) mutableCatalog.set(0, changed);
+            }
+        }
+        SwitchingAuth switching = new SwitchingAuth(); switching.setDefaultRbacBaseService(mutableService);
+        mutableCatalog.set(0, changed);
+        assertDoesNotThrow(() -> switching.checkRoleAssignmentWithStrictView(view, List.of(role)), "复核须读取事务角色而非已经变化的缓存");
+        assertSame(changed, mutableCatalog.get(0));
+        assertNull(RbacStrictAssignmentContext.VIEW.get(), "事务视图不能泄露到后续请求");
+        RbacStrictAssignmentContext.VIEW.set(view);
+        try {
+            assertThrows(IllegalArgumentException.class, () -> strictAuth.isAuthorized(operator, List.of(), List.of("mod:object::read"), "mod:object::read", null), "未知动作必须拒绝");
+            assertThrows(IllegalArgumentException.class, () -> strictAuth.isAuthorized(operator, List.of(), List.of(), "mod:object::read", null));
+            assertThrows(IllegalArgumentException.class, () -> strictAuth.isAuthorized(operator, List.of(), List.of("mod:*::*"), "mod:object::*", null));
+            assertThrows(IllegalArgumentException.class, () -> strictAuth.isAuthorized(operator, List.of(), List.of("mod:*::*"), "mod:object::read?", null));
+        } finally { RbacStrictAssignmentContext.VIEW.remove(); }
+    }
+
+    private static class RoleCatalogService extends StubRbacBaseService implements RbacStrictBaseParticipant {
         final List<TestRbacRole> catalog;
         final AtomicInteger catalogLoads = new AtomicInteger();
         Serializable lastCatalogTenant;

@@ -22,6 +22,7 @@
 - [数据范围与继承规则](manual.md#19-数据范围-datascope)
 - [旧协议迁移说明](manual.md#203-从旧协议升级)
 - [RBAC 角色命名迁移说明](docs/rbac-role-naming-migration.md)
+- [事务内角色分配快照](docs/RBAC事务内角色分配快照.md)
 
 ## MapStruct 字段名兼容策略
 

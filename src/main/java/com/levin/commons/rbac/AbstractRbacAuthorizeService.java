@@ -139,6 +139,8 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
     @Override
     public RbacBaseService getRbacBaseLoadService() {
 
+        RbacBaseService strictView = RbacStrictAssignmentContext.VIEW.get();
+        if (strictView != null) return strictView;
         RbacBaseService rbacBaseService = Optional.ofNullable(getRbacBaseServiceContext()).map(SingleValueContext::get).orElse(null);
 
         if (rbacBaseService == null) {
@@ -150,6 +152,203 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
         return rbacBaseService;
     }
 
+
+    /**
+     * Trusted synchronous transaction only; actor and complete directories must be stable through commit.
+     * The mandatory business callback must reject unless each composite grant and its tenant, org,
+     * domain, field-group and allowed-value scopes are covered by one and the same effective actor role.
+     * Unioning scope or residual field permissions from other roles is forbidden. The callback must use
+     * the supplied view and stable authoritative action/attribute catalogs; an empty callback is unsafe.
+     */
+    public final void checkRoleAssignmentWithStrictView(RbacStrictAssignmentView view,
+                                                        Collection<? extends RbacRoleInfo> finalRoles) {
+        Assert.notNull(view, "事务权限视图不能为空");
+        view.verifyFactsUnchanged();
+        Assert.isTrue(Arrays.asList(getClass().getInterfaces()).contains(RbacStrictAssignmentParticipant.class),
+                "授权实现必须显式声明支持严格快照，不能继承未知实现的信任");
+        try {
+            Assert.isTrue(getClass().getMethod("getRbacBaseLoadService").getDeclaringClass() == AbstractRbacAuthorizeService.class,
+                    "授权实现覆盖了数据源，不能绑定严格快照");
+        } catch (NoSuchMethodException e) { throw new IllegalArgumentException("授权数据源不可验证", e); }
+        Assert.isTrue(RbacStrictAssignmentContext.VIEW.get() == null, "不允许嵌套严格事务授权");
+        // 旧数据范围扩展无法安全转发给视图：存在覆盖即拒绝，不能静默绕过。
+        RbacBaseService originalBase = getRbacBaseLoadService();
+        requireDefaultBaseAuthorization(originalBase);
+        try {
+            Assert.isTrue(originalBase.getClass().getMethod("checkRoleDataScopeAssignment", RbacUserInfo.class,
+                            RbacUserInfo.class, Collection.class).getDeclaringClass() == RbacBaseService.class,
+                    "原数据范围服务含自定义覆盖，严格视图不支持");
+            Assert.isTrue(originalBase.getClass().getMethod("checkRoleDataScopeAssignmentWithSnapshot", RbacUserInfo.class,
+                            RbacUserInfo.class, Collection.class, RbacRoleAssignmentSnapshot.class).getDeclaringClass() == RbacBaseService.class,
+                    "原快照范围服务含自定义覆盖，严格视图不支持");
+        } catch (NoSuchMethodException e) { throw new IllegalArgumentException("原数据范围服务不可验证", e); }
+        // 脚本检查早于任何可执行的旧授权扩展，且旧 bean 的 hooks 仅在视图绑定后运行。
+        view.rejectDynamicRules(finalRoles);
+        RbacStrictAssignmentContext.VIEW.set(view);
+        try (RbacStrictAssignmentParticipant.StrictCatalogBinding catalog = Objects.requireNonNull(
+                ((RbacStrictAssignmentParticipant) this).openStrictAuthorizationCatalog(view), "严格权限目录绑定不能为空")) {
+            view.verifyFactsUnchanged();
+            DomainAccess.isolated(() -> {
+                Set<String> requested = new LinkedHashSet<>();
+                if (finalRoles != null) for (RbacRoleInfo role : finalRoles) if (role != null) requested.add(role.getCode());
+                List<RbacRoleInfo> resolved = RoleDefinitionResolver.select(view.target().getTenantId(),
+                        new ArrayList<RbacRoleInfo>(view.targetSnapshot().roles()), requested);
+                for (RbacRoleInfo role : resolved) {
+                    if (role.getPermissionList() != null) for (String permission : role.getPermissionList()) {
+                        if (isPattern(permission) || permission.indexOf('?') >= 0) {
+                            Assert.isTrue(view.<RbacRoleInfo>loadUserOwnerRoleList(view.actor()).stream()
+                                            .anyMatch(owner -> owner.getPermissionList() != null && owner.getPermissionList().stream().anyMatch(p -> strictPermissionCovers(p, permission))),
+                                    "通配权限必须由签发人的同一有效角色覆盖");
+                        } else requireStrictAction(permission);
+                    }
+                }
+                view.verifyFactsUnchanged();
+                Assert.isTrue(view.canAdminUser(view.actor(), view.target()), "签发人无权管理目标用户");
+                checkRoleAssignmentWithSnapshot(view.actor(), view.target(), finalRoles, view.targetSnapshot());
+                view.verifyFactsUnchanged();
+                ((RbacStrictAssignmentParticipant) this).checkStrictPermissionCoverage(view, List.copyOf(resolved));
+                view.verifyFactsUnchanged();
+                return null;
+            });
+        } finally {
+            try { view.verifyFactsUnchanged(); }
+            finally { RbacStrictAssignmentContext.VIEW.remove(); }
+        }
+    }
+
+    /** Strict actor-only issuance; target data scope is checked later on the real registered user. */
+    public final void checkInvitationIssuerWithStrictView(RbacStrictIssuerView view,
+                                                           String creationPermission,
+                                                           Collection<String> targetRoleCodes,
+                                                           Serializable targetOrgId) {
+        checkInvitationIssuerInternal(view, creationPermission, targetRoleCodes, targetOrgId, false, null);
+    }
+
+    /** For business types that never grant a backend role; caller must enforce that invariant. */
+    public final void checkInvitationIssuerWithoutRoleWithStrictView(RbacStrictIssuerView view,
+                                                                      String creationPermission,
+                                                                      Serializable targetOrgId) {
+        checkInvitationIssuerInternal(view, creationPermission, Collections.emptyList(), targetOrgId, true, null);
+    }
+
+    /** Additional veto runs only inside the isolated strict view and must be explicitly recognized by the participant. */
+    public final void checkInvitationIssuerWithStrictView(RbacStrictIssuerView view, String creationPermission,
+                                                          Collection<String> targetRoleCodes, Serializable targetOrgId,
+                                                          RbacStrictIssuerVeto veto) {
+        Assert.notNull(veto, "附加签发校验不能为空");
+        checkInvitationIssuerInternal(view, creationPermission, targetRoleCodes, targetOrgId, false, veto);
+    }
+
+    public final void checkInvitationIssuerWithoutRoleWithStrictView(RbacStrictIssuerView view, String creationPermission,
+                                                                     Serializable targetOrgId, RbacStrictIssuerVeto veto) {
+        Assert.notNull(veto, "附加签发校验不能为空");
+        checkInvitationIssuerInternal(view, creationPermission, Collections.emptyList(), targetOrgId, true, veto);
+    }
+
+    private void checkInvitationIssuerInternal(RbacStrictIssuerView view, String creationPermission,
+                                               Collection<String> targetRoleCodes, Serializable targetOrgId,
+                                               boolean explicitlyWithoutRole, RbacStrictIssuerVeto veto) {
+        Assert.notNull(view, "签发权限视图不能为空");
+        Assert.notBlank(creationPermission, "创建操作权限不能为空");
+        Assert.notNull(targetRoleCodes, "目标角色编码不能为空");
+        Assert.isTrue(explicitlyWithoutRole || !targetRoleCodes.isEmpty(), "目标角色不能为空");
+        Assert.isTrue(Arrays.asList(getClass().getInterfaces()).contains(RbacStrictAssignmentParticipant.class), "授权实现未显式声明严格快照");
+        Assert.isTrue(RbacStrictAssignmentContext.VIEW.get() == null, "不允许嵌套严格事务授权");
+        try {
+            Assert.isTrue(getClass().getMethod("getRbacBaseLoadService").getDeclaringClass() == AbstractRbacAuthorizeService.class,
+                    "授权实现覆盖数据源，不能绑定严格快照");
+        } catch (NoSuchMethodException e) { throw new IllegalArgumentException("授权数据源不可验证", e); }
+        requireDefaultBaseAuthorization(getRbacBaseLoadService());
+        view.verifyFactsUnchanged();
+        Set<String> codes = new LinkedHashSet<>(targetRoleCodes);
+        Assert.isTrue(!codes.contains(null) && codes.stream().noneMatch(String::isBlank), "目标角色编码无效");
+        List<RbacRoleInfo> roles = RoleDefinitionResolver.select(view.targetTenant().getId(), view.targetRoles(), codes);
+        Assert.isTrue(roles.stream().map(RbacRoleInfo::getCode).collect(java.util.stream.Collectors.toSet()).containsAll(codes), "目标角色缺失或无效");
+        view.rejectDynamicRules(roles);
+        RbacStrictAssignmentContext.VIEW.set(view);
+        try (RbacStrictAssignmentParticipant.StrictCatalogBinding catalog = Objects.requireNonNull(
+                ((RbacStrictAssignmentParticipant) this).openStrictIssuerCatalog(view), "严格权限目录绑定不能为空")) {
+            view.verifyFactsUnchanged();
+            DomainAccess.isolated(() -> {
+                Assert.isTrue(view.canAccessTenant(view.actor(), view.targetTenant().getId()), "签发人无目标租户权限");
+                if (targetOrgId != null) {
+                    RbacOrgInfo org = view.loadOrg(targetOrgId);
+                    Assert.isTrue(org.selfAudit() && Objects.equals(org.getId(), targetOrgId)
+                                    && Objects.equals(org.getTenantId(), view.targetTenant().getId()), "目标组织不可用或不属于目标租户");
+                    Assert.isTrue(view.canAccessOrg(view.actor(), view.targetTenant().getId(), targetOrgId), "签发人无目标组织权限");
+                }
+                requireStrictAction(creationPermission);
+                Assert.isTrue(isAuthorized(view.actor(), true, List.of(creationPermission), null), "签发人无创建操作权限");
+                for (RbacRoleInfo role : roles) {
+                    if (role.getPermissionList() != null) for (String permission : role.getPermissionList()) {
+                        if (isPattern(permission) || permission.indexOf('?') >= 0) {
+                            Assert.isTrue(view.<RbacRoleInfo>loadUserOwnerRoleList(view.actor()).stream()
+                                    .anyMatch(owner -> owner.getPermissionList() != null && owner.getPermissionList().stream().anyMatch(p -> strictPermissionCovers(p, permission))),
+                                    "目标通配权限不被签发人单个角色覆盖");
+                        } else requireStrictAction(permission);
+                    }
+                    Assert.isTrue(isRoleAuthorized(view.actor(), role, null), "签发人无权授予目标角色");
+                }
+                view.verifyFactsUnchanged();
+                RbacStrictAssignmentParticipant participant = (RbacStrictAssignmentParticipant) this;
+                participant.checkStrictIssuerPermissionCoverage(view, List.copyOf(roles));
+                view.verifyFactsUnchanged();
+                if (veto != null) {
+                    Assert.isTrue(participant.supportsStrictIssuerVeto(veto), "未知的签发附加校验提供方");
+                    view.verifyFactsUnchanged();
+                    veto.check(view);
+                    view.verifyFactsUnchanged();
+                }
+                return null;
+            });
+        } finally {
+            try { view.verifyFactsUnchanged(); } finally { RbacStrictAssignmentContext.VIEW.remove(); }
+        }
+    }
+
+    /** Unknown data/identity authorisation overrides cannot be silently bypassed by a view. */
+    private static void requireDefaultBaseAuthorization(RbacBaseService base) {
+        if (Arrays.asList(base.getClass().getInterfaces()).contains(RbacStrictBaseParticipant.class)) return;
+        try {
+            for (java.lang.reflect.Method m : List.of(
+                    base.getClass().getMethod("getUserDataScope", Serializable.class),
+                    base.getClass().getMethod("loadUserRoleCodeList", Serializable.class),
+                    base.getClass().getMethod("loadUserPermissionExprList", Serializable.class),
+                    base.getClass().getMethod("loadUserOwnerRoleList", Serializable.class, boolean.class),
+                    base.getClass().getMethod("getUserConfidentialDataAccessLevel", Serializable.class),
+                    base.getClass().getMethod("canAccessConfidentialDataByUser", Serializable.class, Integer[].class),
+                    base.getClass().getMethod("canAccessTenant", Serializable.class, Serializable.class),
+                    base.getClass().getMethod("canAdminUser", Serializable.class, Serializable.class),
+                    base.getClass().getMethod("canAccessDomainObject", Serializable.class, com.levin.commons.dao.domain.DomainObject.class),
+                    base.getClass().getMethod("filterByDomainAccess", Serializable.class, Collection.class))) {
+                Assert.isTrue(m.getDeclaringClass() == RbacBaseService.class || m.getDeclaringClass() == RbacBaseUserService.class,
+                        "原授权数据服务覆盖了严格视图不支持的检查: {}", m.getName());
+            }
+        } catch (NoSuchMethodException e) { throw new IllegalArgumentException("授权数据服务不可验证", e); }
+    }
+
+    private static boolean strictPermissionCovers(String owned, String requested) {
+        if (owned == null || requested == null) return false;
+        if (owned.equals(requested)) return true;
+        if (owned.startsWith("@") || requested.startsWith("@")) return false;
+        String[] owners = owned.split(":", -1), targets = requested.split(":", -1);
+        if (owners.length != 4 || targets.length != 4) return false;
+        for (int i = 0; i < 4; i++) {
+            if (!owners[i].equals("*") && !owners[i].equals(targets[i])) return false;
+        }
+        return true;
+    }
+
+    private void requireStrictAction(String permission) {
+        Assert.isTrue(StringUtils.hasText(permission) && !isPattern(permission) && permission.indexOf('?') < 0,
+                "严格角色分配不支持空值或通配权限");
+        ResConditionAction action = getAction(permission);
+        Assert.isTrue(action != null && !action.ignored() && !action.onlyRequireAuthenticated()
+                        && action.anyRoles().length == 0 && action.anyUserTypes().length == 0
+                        && !StringUtils.hasText(action.verifyExpression())
+                        && action.confidentialLevel() == ConfidentialLevel.PLATFORM_PUBLIC_CODE,
+                "严格角色分配不支持未知或带条件的动作");
+    }
 
     protected ApplicationContext getContext() {
         return context;
@@ -233,11 +432,22 @@ public class AbstractRbacAuthorizeService implements RbacAuthorizeService {
             return true;
         }
 
+        // 动态目录必须由可信实现固定；未知动作、条件与未来通配范围无法证明包含。
+        if (RbacStrictAssignmentContext.VIEW.get() != null) {
+            if (isPattern(requirePermission) || requirePermission.indexOf('?') >= 0) {
+                final String strictRequired = requirePermission;
+                Assert.isTrue((ownerRoleList != null && ownerRoleList.stream().anyMatch(p -> strictPermissionCovers(p, strictRequired)))
+                        || (ownerPermissionList != null && ownerPermissionList.stream().anyMatch(p -> strictPermissionCovers(p, strictRequired))), "严格角色分配的通配权限缺少可证明覆盖");
+            } else requireStrictAction(requirePermission);
+        }
         //角色简单匹配,权限列表简单匹配
         if (simpleMatch(requirePermission, ownerRoleList)
                 || simpleMatch(requirePermission, ownerPermissionList)) {
             return true;
         }
+
+        Assert.isTrue(RbacStrictAssignmentContext.VIEW.get() == null,
+                "严格角色分配不支持动态动作目录或表达式回退");
 
         //如果是角色，不是权限，按角色处理
         if (isRole(requirePermission)) {

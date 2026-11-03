@@ -313,6 +313,13 @@
                 <targetPath>META-INF/service-support-docs</targetPath>
             </resource>
             <resource>
+                <directory>docs</directory>
+                <includes>
+                    <include>RBAC事务内角色分配快照.md</include>
+                </includes>
+                <targetPath>META-INF/service-support-docs/docs</targetPath>
+            </resource>
+            <resource>
                 <directory>.</directory>
                 <includes>
                     <include>AGENTS.md</include>

@@ -402,13 +402,28 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
     @Operation(summary = "校验角色分配", description = "解析目标租户真实角色后依次校验权限、前置条件、互斥、共存及数据范围上限；独立角色范围和最终有效范围均不得超出操作者范围与密级，清空角色也须检查最终状态。DEFAULT 按双方各自归属解释；对含 Groovy 范围的角色/用户，目标真实对象必须已携带最终角色编码，否则拒绝，操作人须保持当前已授权上下文。按本次完整一致的有效目录快照验证，目录/规则/上下文变化须重校验。任何失败抛异常拒绝，管理员与 isRoleAuthorized 扩展点的放行不能跳过范围上限。")
     default void checkRoleAssignment(Serializable operatorPrincipal, Serializable targetUserPrincipal, Collection<? extends RbacRoleInfo> finalRoles) {
         DomainAccess.evaluate(() -> {
-            checkResolvedRoleAssignment(operatorPrincipal, targetUserPrincipal, finalRoles);
+            checkResolvedRoleAssignment(operatorPrincipal, targetUserPrincipal, finalRoles, null);
+            return null;
+        });
+    }
+
+    /** 仅供可信服务端在同一事务传入无截断权威目录，不能接收客户端快照。 */
+    @Operation(summary = "按事务快照校验角色分配", description = "先执行可覆盖的原角色分配检查，再基于可信服务端提供的完整目标租户角色、领域及组织快照重复校验；数量不符、目标缺失、跨租户或目录不一致时失败关闭。快照的数据库来源、完整计数和并发一致性由调用事务负责，不能用客户端输入，操作人权限缓存仍遵循宿主策略。")
+    default void checkRoleAssignmentWithSnapshot(Serializable operatorPrincipal, RbacUserInfo targetUser,
+                                                 Collection<? extends RbacRoleInfo> finalRoles,
+                                                 RbacRoleAssignmentSnapshot snapshot) {
+        Assert.notNull(snapshot, "角色分配快照不能为空");
+        // 保留宿主对原授权入口的所有动态覆盖，快照检查只能进一步收紧。
+        checkRoleAssignment(operatorPrincipal, targetUser, finalRoles);
+        DomainAccess.evaluate(() -> {
+            checkResolvedRoleAssignment(operatorPrincipal, targetUser, finalRoles, snapshot);
             return null;
         });
     }
 
     private void checkResolvedRoleAssignment(Serializable operatorPrincipal, Serializable targetUserPrincipal,
-                                             Collection<? extends RbacRoleInfo> finalRoles) {
+                                             Collection<? extends RbacRoleInfo> finalRoles,
+                                             RbacRoleAssignmentSnapshot snapshot) {
 
         Assert.notNull(operatorPrincipal, "操作用户不能为空");
         Assert.notNull(targetUserPrincipal, "目标用户不能为空");
@@ -435,9 +450,23 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
                 requestedCodes.add(role.getCode());
             }
         }
+        if (snapshot != null) {
+            snapshot.validateFor(targetUser);
+            snapshot.requireMatchingCachedBoundaries(rbacBaseService);
+        }
+        final Collection<RbacRoleInfo> roleDirectory = snapshot == null
+                ? rbacBaseService.<RbacRoleInfo>loadTenantRoleList(targetUser.getTenantId(), true)
+                : new ArrayList<>(snapshot.roles());
         final List<RbacRoleInfo> resolvedRoles = requestedCodes.isEmpty() ? Collections.emptyList()
-                : RoleDefinitionResolver.select(targetUser.getTenantId(),
-                rbacBaseService.<RbacRoleInfo>loadTenantRoleList(targetUser.getTenantId(), true), requestedCodes);
+                : RoleDefinitionResolver.select(targetUser.getTenantId(), roleDirectory, requestedCodes);
+        if (snapshot != null) {
+            Collection<RbacRoleInfo> cachedDirectory = rbacBaseService.loadTenantRoleList(targetUser.getTenantId(), true);
+            RbacRoleAssignmentSnapshot.requireUniqueCachedRoles(cachedDirectory,
+                    Objects.toString(targetUser.getTenantId(), null), requestedCodes);
+            List<RbacRoleInfo> cachedRoles = requestedCodes.isEmpty() ? Collections.emptyList()
+                    : RoleDefinitionResolver.select(targetUser.getTenantId(), cachedDirectory, requestedCodes);
+            RbacRoleAssignmentSnapshot.requireMatchingRoles(cachedRoles, resolvedRoles);
+        }
         final Set<String> resolvedCodes = resolvedRoles.stream().map(RbacRoleInfo::getCode).collect(Collectors.toSet());
         for (String code : requestedCodes) {
             Assert.isTrue(resolvedCodes.contains(code), "角色编码[{}]在目标租户中没有有效定义或共享定义", code);
@@ -448,7 +477,7 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
         // 目标租户是用户管理边界；角色定义的覆盖租户不是角色的领域父对象。
         if (RbacMiscUtils.isNotBlank(targetUser.getTenantId())) {
             final Serializable tenantId = targetUser.getTenantId();
-            RbacTenantInfo tenant = rbacBaseService.loadTenant(tenantId);
+            RbacTenantInfo tenant = snapshot == null ? rbacBaseService.loadTenant(tenantId) : snapshot.tenant();
             Assert.notNull(tenant, "租户({})不存在", tenantId);
             Assert.isTrue(Objects.equals(Objects.toString(tenantId, null), Objects.toString(tenant.getId(), null))
                     && tenant.selfAudit(), "租户({})信息不匹配或不可用", tenantId);
@@ -488,7 +517,11 @@ public interface RbacAuthorizeService extends RbacBaseAuthorizeService {
                             .collect(Collectors.joining(", "))
             );
         }
-        rbacBaseService.checkRoleDataScopeAssignment(operator, targetUser, resolvedRoles);
+        if (snapshot == null) {
+            rbacBaseService.checkRoleDataScopeAssignment(operator, targetUser, resolvedRoles);
+        } else {
+            rbacBaseService.checkRoleDataScopeAssignmentWithSnapshot(operator, targetUser, resolvedRoles, snapshot);
+        }
     }
 
     @Operation(summary = "检查目标用户是否满足角色分配前置条件", description = "仅校验目标用户与目标角色的前置条件，不替代操作人授权判断。前置条件脚本的编译结果可缓存复用；脚本返回非 true 或执行失败时视为不满足并拒绝分配。")

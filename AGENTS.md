@@ -19,3 +19,7 @@ Swagger 文档是对外接口契约的一部分。接口涉及覆盖、优先级
 - [当前实施范围与任务](openspec/changes/c20261018-1227-rbac-enum-value-scope/proposal.md)
 - [实施清单](openspec/changes/c20261018-1227-rbac-enum-value-scope/tasks.md)
 - [使用手册](manual.md#枚举值范围元数据)
+
+## 目标拥有者变量
+
+- [目标拥有者注入常量](manual.md#目标拥有者注入常量)：OWNER_ID 与认证 USER_ID 的区别及多拥有者过滤边界。

@@ -33,6 +33,13 @@ final class DomainAccess {
         }
     }
 
+    static <T> T isolated(Supplier<T> action) {
+        Evaluation previous = EVALUATIONS.get();
+        EVALUATIONS.set(new Evaluation());
+        try { return action.get(); }
+        finally { if (previous == null) EVALUATIONS.remove(); else EVALUATIONS.set(previous); }
+    }
+
     static DomainAccess obtain(Object service, Set<String> allowed, Set<String> denied,
                                Function<String, RbacDomainInfo> loader) {
         Evaluation evaluation = EVALUATIONS.get();

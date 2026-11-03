@@ -1455,3 +1455,8 @@ JPA `@Entity`（包括继承链中的实体）本期仅支持 FIELD 访问，受
 @Enumerated(EnumType.STRING)
 private PartnerType type;
 ```
+
+
+## 目标拥有者注入常量
+
+`InjectConst.OWNER_ID` 的值为 `ownerId`，表示经上游授权解析的目标拥有者筛选值。`InjectConst.USER_ID` 仍表示当前认证用户，二者不可互换。`MultiOwnerObject` 业务实体可用 OWNER_ID 为各参与负责人生成相等过滤条件；注入方必须独立校验目标用户、租户及访问范围，常量和标记本身不授予访问权限。最小验证：依赖本版本后可直接在注解中引用 `InjectConst.OWNER_ID`；请求中的认证用户值不得随目标拥有者筛选切换。

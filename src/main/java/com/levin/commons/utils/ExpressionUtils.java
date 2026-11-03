@@ -34,19 +34,30 @@ public abstract class ExpressionUtils {
     //线程安全的解析器
     private static final ExpressionParser expressionParser = new SpelExpressionParser();
 
-    private static final ThreadLocal<List<VariableResolver>> currentThreadVariableResolvers = new ThreadLocal<List<VariableResolver>>() {
-        @Override
-        public List<VariableResolver> get() {
+    private static final ThreadLocal<List<VariableResolver>> currentThreadVariableResolvers = new ThreadLocal<>();
+    private static final ThreadLocal<Boolean> restrictedExpressionScope = new ThreadLocal<>();
 
-            List<VariableResolver> variableResolvers = super.get();
-
-            if (variableResolvers == null) {
-                variableResolvers = Collections.emptyList();
-            }
-
-            return variableResolvers;
+    /**
+     * Synchronously run audited expressions with an explicit resolver list. Restores the exact
+     * previous thread binding on every exit. Nested scopes and setter mutation are rejected.
+     * This does not make arbitrary SpEL expressions safe.
+     */
+    public static <T> T withRestrictedVariableResolvers(List<VariableResolver> resolvers, Supplier<T> action) {
+        Objects.requireNonNull(action, "action");
+        if (Boolean.TRUE.equals(restrictedExpressionScope.get())) throw new IllegalStateException("不允许嵌套严格表达式作用域");
+        List<VariableResolver> previous = currentThreadVariableResolvers.get();
+        List<VariableResolver> restricted = resolvers == null ? Collections.emptyList() : List.copyOf(resolvers);
+        restrictedExpressionScope.set(Boolean.TRUE);
+        currentThreadVariableResolvers.set(restricted);
+        try { return action.get(); }
+        finally {
+            if (previous == null) currentThreadVariableResolvers.remove(); else currentThreadVariableResolvers.set(previous);
+            restrictedExpressionScope.remove();
         }
-    };
+    }
+
+    /** Whether the current synchronous thread is running audited restricted expression evaluation. */
+    public static boolean isRestrictedExpressionScope() { return Boolean.TRUE.equals(restrictedExpressionScope.get()); }
 
     /**
      * 设置当前线程变量解析器
@@ -54,6 +65,7 @@ public abstract class ExpressionUtils {
      * @param variableResolvers 为空，则清空原有设置
      */
     public static void setVariableResolversForCurrentThread(List<VariableResolver> variableResolvers) {
+        if (isRestrictedExpressionScope()) throw new IllegalStateException("严格表达式作用域内不能修改线程解析器");
         if (variableResolvers != null) {
             currentThreadVariableResolvers.set(variableResolvers);
         } else {
@@ -215,7 +227,7 @@ public abstract class ExpressionUtils {
                     return value;
                 }
 
-                if (value == null && variableResolver != null
+                if (value == null && variableResolver != null && !isRestrictedExpressionScope()
                         && variableResolver.isSupported(name)) {
                     value = variableResolver.resolve(name, false, null);
                 }
@@ -251,6 +263,12 @@ public abstract class ExpressionUtils {
                         .forEachOrdered(fun -> fun.accept(ctx))
         );
 
+        if (isRestrictedExpressionScope()) {
+            // Untrusted contexts/consumers cannot inject beans or replace audited built-ins.
+            ctx.setBeanResolver(null);
+            ctx.registerFunction("isEmpty", isEmptyMethod);
+            ctx.registerFunction("isNotEmpty", isNotEmptyMethod);
+        }
         return (T) expression.getValue(ctx);
 
     }

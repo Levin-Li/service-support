@@ -198,6 +198,28 @@ public interface RbacBaseService extends RbacBaseUserService {
         });
     }
 
+    /** Enumerate only a specified tenant, keeping the real actor and all normal scope checks. */
+    @Operation(summary = "加载用户在指定租户可访问的组织", description = "使用真实用户的租户、组织、领域和密级范围，只读取指定租户组织；不枚举其他租户或改变用户身份。")
+    default <ORG extends RbacOrgInfo> Collection<ORG> loadUserAccessibleOrgListForTenant(
+            Serializable userPrincipal, Serializable tenantId, boolean onlyLoadEffectOrg) {
+        return DomainAccess.evaluate(() -> {
+            final RbacUserInfo user = requireScopeUser(userPrincipal);
+            final DataScope scope = getUserDataScope(user);
+            if (!canAccessTenant(user, scope, tenantId, null)
+                    || (!hasOrgAdminScope(user, tenantId) && scope.getOrgScopeList().isEmpty()))
+                return Collections.emptyList();
+            final Map<String, ORG> orgMap = scopedOrgMap(tenantId, onlyLoadEffectOrg);
+            final Set<String> allowed = hasOrgAdminScope(user, tenantId)
+                    ? orgMap.keySet() : accessibleOrgIds(user, scope, tenantId, orgMap);
+            final List<ORG> result = new ArrayList<>();
+            orgMap.forEach((orgId, org) -> {
+                if (allowed.contains(orgId) && orgDomainAllowed(scope, tenantId, org)) result.add(org);
+            });
+            return (isGlobalScopeAdmin(user) || user.isPlatformAdmin()) && !user.isTopSuperAdmin()
+                    ? filterByScopedConfidentialAccess(scope, result) : result;
+        });
+    }
+
     /**
      * 加载“最大候选组织集合”。
      * 包含所有租户组织和无租户公共组织，供顶级超级管理员直接返回，也供普通超管/PLATFORM 管理员做机密级别过滤。
@@ -476,6 +498,54 @@ public interface RbacBaseService extends RbacBaseUserService {
     @Operation(summary = "校验角色分配的数据范围上限", description = "按当前完整且一致的有效领域、租户、组织目录验证每个角色独立范围及分配后有效范围均包含于操作者范围；DEFAULT 分别按双方归属解释，角色自身拒绝先扣除，不能借其他角色拒绝或目标用户覆盖掩盖单角色越权。管理员仍受领域与密级上限约束；密级须同时满足有效快照和公开密级检查。含 Groovy 的范围要求目标真实对象已携带最终角色编码，否则拒绝，避免按分配前状态误放行；操作人须为当前已授权上下文。仅证明本次快照，目录/规则/上下文变化后须重新校验。目录返回 null 或检查异常时拒绝，不建立跨请求授权缓存。")
     default void checkRoleDataScopeAssignment(RbacUserInfo operator, RbacUserInfo target,
                                               Collection<? extends RbacRoleInfo> assignedRoles) {
+        checkRoleDataScopeAssignmentInternal(operator, target, assignedRoles, null);
+    }
+
+    /** 仅供可信事务调用；先执行宿主原有动态扩展，再执行快照范围附加校验。 */
+    @Operation(summary = "按事务快照校验角色数据范围", description = "先执行可覆盖的原数据范围检查，再对可信服务端完整领域及目标租户组织快照重复检查；仅允许目标租户用户，缺失、重复、跨租户或数量不符时拒绝。快照数据库来源、完整计数和事务一致性由调用方保证，不得接收客户端输入。")
+    default void checkRoleDataScopeAssignmentWithSnapshot(RbacUserInfo operator, RbacUserInfo target,
+                                                           Collection<? extends RbacRoleInfo> assignedRoles,
+                                                           RbacRoleAssignmentSnapshot snapshot) {
+        Assert.notNull(snapshot, "角色分配快照不能为空");
+        snapshot.validateFor(target);
+        snapshot.requireMatchingCachedBoundaries(this);
+        // 必须通过动态调用保留下游对旧方法的覆盖。
+        checkRoleDataScopeAssignment(operator, target, assignedRoles);
+        checkRoleDataScopeAssignmentInternal(operator, target, assignedRoles, snapshot);
+    }
+
+    /**
+     * Strict transaction view only: compare one effective operator role's own scope to the target role.
+     * Uses the real operator for DEFAULT, but never borrows administrator shortcuts from other roles.
+     */
+    @Operation(summary = "校验单角色数据范围覆盖", description = "仅供严格事务视图中的可信业务覆盖检查，按真实操作人解释默认范围，禁用来自其它角色的管理员快捷路径。字段组及可选值仍须业务层另行比较。")
+    default void checkSingleRoleDataScopeAssignment(RbacUserInfo operator, RbacUserInfo target,
+                                                     RbacRoleInfo ownerRole, RbacRoleInfo targetRole,
+                                                     RbacRoleAssignmentSnapshot snapshot) {
+        Assert.isTrue(RbacStrictAssignmentContext.VIEW.get() == this, "单角色范围检查仅支持已绑定严格视图");
+        Assert.notNull(ownerRole, "签发人角色不能为空"); Assert.notNull(targetRole, "目标角色不能为空");
+        snapshot.validateFor(target);
+        List<RbacRoleInfo> effective = new ArrayList<>(this.<RbacRoleInfo>loadUserOwnerRoleList(operator));
+        RbacRoleInfo actual = effective.stream().filter(r -> Objects.equals(r.getCode(), ownerRole.getCode())
+                        && Objects.equals(r.getTenantId(), ownerRole.getTenantId())).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("签发人角色不是有效角色"));
+        RbacRoleAssignmentSnapshot.requireMatchingRoles(List.of(actual), List.of(ownerRole));
+        List<RbacRoleInfo> targetDefinitions = RoleDefinitionResolver.select(target.getTenantId(),
+                new ArrayList<RbacRoleInfo>(snapshot.roles()), List.of(targetRole.getCode()));
+        Assert.isTrue(targetDefinitions.size() == 1, "目标角色没有有效定义");
+        RbacRoleAssignmentSnapshot.requireMatchingRoles(targetDefinitions, List.of(targetRole));
+        Assert.isTrue(!hasAssignmentScript(actual) && !hasAssignmentScript(targetRole), "单角色范围不支持动态脚本");
+        DataScope ownerScope = assignmentScope(actual, Collections.emptyList(), false);
+        DataScope grant = assignmentScope(targetRole, Collections.emptyList(), false);
+        boolean global = grantsGlobalAdmin(target, List.of(targetRole));
+        boolean orgAdmin = global || target.isTenantUser() && RbacRoleInfo.TENANT_ADMIN.equals(targetRole.getCode());
+        checkScopeContained(operator, ownerScope, target, grant, global, orgAdmin,
+                new ArrayList<>(snapshot.domains()), List.of(snapshot.tenant()), snapshot, true);
+    }
+
+    private void checkRoleDataScopeAssignmentInternal(RbacUserInfo operator, RbacUserInfo target,
+                                                       Collection<? extends RbacRoleInfo> assignedRoles,
+                                                       RbacRoleAssignmentSnapshot snapshot) {
         DomainAccess.evaluate(() -> {
             Assert.notNull(operator, "操作用户不能为空");
             Assert.notNull(target, "目标用户不能为空");
@@ -490,8 +560,10 @@ public interface RbacBaseService extends RbacBaseUserService {
                         .filter(Objects::nonNull).map(Object::toString).collect(Collectors.toSet());
                 Assert.isTrue(finalCodes.equals(targetCodes), "含脚本范围的目标用户必须提供分配后的最终角色列表");
             }
-            final Collection<RbacDomainInfo> domains = this.<RbacDomainInfo>loadAllDomainList(true);
-            final Collection<RbacTenantInfo> directory = this.<RbacTenantInfo>loadAllTenantList(true);
+            final Collection<RbacDomainInfo> domains = snapshot == null
+                    ? this.<RbacDomainInfo>loadAllDomainList(true) : new ArrayList<>(snapshot.domains());
+            final Collection<RbacTenantInfo> directory = snapshot == null
+                    ? this.<RbacTenantInfo>loadAllTenantList(true) : List.of(snapshot.tenant());
             Assert.notNull(domains, "领域目录加载失败，无法验证角色范围");
             Assert.notNull(directory, "租户目录加载失败，无法验证角色范围");
             final Collection<RbacTenantInfo> tenants = directory.stream().filter(Objects::nonNull)
@@ -501,14 +573,14 @@ public interface RbacBaseService extends RbacBaseUserService {
                 DataScope grant = assignmentScope(role, Collections.emptyList(), false);
                 boolean global = grantsGlobalAdmin(target, Collections.singletonList(role));
                 boolean orgAdmin = global || target.isTenantUser() && RbacRoleInfo.TENANT_ADMIN.equals(role.getCode());
-                checkScopeContained(operator, operatorScope, target, grant, global, orgAdmin, domains, tenants);
+                checkScopeContained(operator, operatorScope, target, grant, global, orgAdmin, domains, tenants, snapshot, false);
             }
             boolean global = grantsGlobalAdmin(target, roles);
             boolean orgAdmin = global || target.isTenantUser() && roles.stream().anyMatch(r -> RbacRoleInfo.TENANT_ADMIN.equals(r.getCode()));
             boolean top = target.isPlatformUser() && RbacUserInfo.TOP_SA_ACCOUNT_NAME.equals(target.getLoginName())
                     && roles.stream().anyMatch(r -> RbacRoleInfo.PLATFORM_SA.equals(r.getCode()));
             final DataScope effective = assignmentScope(target, roles, top);
-            checkScopeContained(operator, operatorScope, target, effective, global, orgAdmin, domains, tenants);
+            checkScopeContained(operator, operatorScope, target, effective, global, orgAdmin, domains, tenants, snapshot, false);
             return null;
         });
     }
@@ -542,7 +614,8 @@ public interface RbacBaseService extends RbacBaseUserService {
 
     private void checkScopeContained(RbacUserInfo operator, DataScope operatorScope, RbacUserInfo target,
                                      DataScope grant, boolean globalGrant, boolean orgAdminGrant,
-                                     Collection<RbacDomainInfo> domains, Collection<RbacTenantInfo> tenants) {
+                                     Collection<RbacDomainInfo> domains, Collection<RbacTenantInfo> tenants,
+                                     RbacRoleAssignmentSnapshot snapshot, boolean strictSingleRole) {
         Assert.isTrue(canAccessConfidentialData(operatorScope::getConfidentialDataAccessLevel, grant.getConfidentialDataAccessLevel())
                         && canAccessConfidentialDataByUser(operator, grant.getConfidentialDataAccessLevel()),
                 "分配后的机密数据访问级别超出操作用户上限");
@@ -552,19 +625,23 @@ public interface RbacBaseService extends RbacBaseUserService {
         for (RbacDomainInfo domain : domains) {
             Assert.isTrue(!grantedDomains.allowsLoaded(domain) || operatorDomains.allowsLoaded(domain), "角色领域范围超出操作用户上限");
         }
-        checkTenantScopeContained(operator, operatorScope, target, grant, globalGrant, orgAdminGrant, null, null);
+        checkTenantScopeContained(operator, operatorScope, target, grant, globalGrant, orgAdminGrant, null, null, snapshot, strictSingleRole);
         for (RbacTenantInfo tenant : tenants) {
-            checkTenantScopeContained(operator, operatorScope, target, grant, globalGrant, orgAdminGrant, tenant.getId(), tenant);
+            checkTenantScopeContained(operator, operatorScope, target, grant, globalGrant, orgAdminGrant, tenant.getId(), tenant, snapshot, strictSingleRole);
         }
     }
 
     private void checkTenantScopeContained(RbacUserInfo operator, DataScope operatorScope, RbacUserInfo target,
                                            DataScope grant, boolean globalGrant, boolean orgAdminGrant,
-                                           Serializable tenantId, RbacTenantInfo tenant) {
+                                           Serializable tenantId, RbacTenantInfo tenant,
+                                           RbacRoleAssignmentSnapshot snapshot, boolean strictSingleRole) {
         if (!withinTenantBoundary(target, tenantId)
                 || !canAccessTenantWithinBoundary(target, grant, tenantId, tenant, globalGrant)) return;
-        Assert.isTrue(canAccessTenant(operator, operatorScope, tenantId, tenant), "角色租户范围[{}]超出操作用户上限", tenantId);
-        boolean operatorAdmin = hasOrgAdminScope(operator, tenantId);
+        boolean tenantAllowed = strictSingleRole
+                ? withinTenantBoundary(operator, tenantId) && canAccessTenantWithinBoundary(operator, operatorScope, tenantId, tenant, false)
+                : canAccessTenant(operator, operatorScope, tenantId, tenant);
+        Assert.isTrue(tenantAllowed, "角色租户范围[{}]超出操作用户上限", tenantId);
+        boolean operatorAdmin = !strictSingleRole && hasOrgAdminScope(operator, tenantId);
         boolean grantsNoOrg = orgAdminGrant || !grant.getOrgScopeList().isEmpty()
                 && !matchesNoOrg(grant.getDeniedOrgScopeList(), target, tenantId) && matchesNoOrg(grant.getOrgScopeList(), target, tenantId);
         boolean operatorNoOrg = operatorAdmin || !operatorScope.getOrgScopeList().isEmpty()
@@ -572,7 +649,9 @@ public interface RbacBaseService extends RbacBaseUserService {
                 && matchesNoOrg(operatorScope.getOrgScopeList(), operator, tenantId);
         Assert.isTrue(!grantsNoOrg || operatorNoOrg, "角色无组织范围超出操作用户上限");
         if (!orgAdminGrant && grant.getOrgScopeList().isEmpty()) return;
-        final Collection<RbacOrgInfo> directory = this.<RbacOrgInfo>loadTenantOrgList(tenantId, true);
+        final Collection<RbacOrgInfo> directory = snapshot != null
+                && Objects.equals(scopeId(tenantId), scopeId(snapshot.tenant().getId()))
+                ? new ArrayList<>(snapshot.organizations()) : this.<RbacOrgInfo>loadTenantOrgList(tenantId, true);
         Assert.notNull(directory, "组织目录加载失败，无法验证角色范围");
         final Map<String, RbacOrgInfo> orgs = new LinkedHashMap<>();
         for (RbacOrgInfo org : directory) {
