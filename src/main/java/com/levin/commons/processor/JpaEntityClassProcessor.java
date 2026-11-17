@@ -3,6 +3,14 @@ package com.levin.commons.processor;
 import com.levin.commons.annotation.GenNameConstant;
 import com.levin.commons.service.domain.Desc;
 import com.levin.commons.utils.LangUtils;
+import com.sun.source.tree.AnnotationTree;
+import com.sun.source.tree.AssignmentTree;
+import com.sun.source.tree.IdentifierTree;
+import com.sun.source.tree.MemberSelectTree;
+import com.sun.source.tree.Tree;
+import com.sun.source.util.TreePath;
+import com.sun.source.util.TreePathScanner;
+import com.sun.source.util.Trees;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.util.StringUtils;
 
@@ -12,7 +20,9 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.NoType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 
@@ -23,6 +33,7 @@ import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
+import java.lang.annotation.AnnotationTypeMismatchException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -409,23 +420,10 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
             String fieldTableColName = "T_" + fieldName;
 
-            String colName = "";
+            String columnNameExpression = columnNameExpression(subEle);
 
-
-            if (subEle.getAnnotation(Column.class) != null) {
-
-                if (hasText(subEle.getAnnotation(Column.class).name())) {
-                    colName = subEle.getAnnotation(Column.class).name();
-                }
-
-            } else if (subEle.getAnnotation(JoinColumn.class) != null) {
-                if (hasText(subEle.getAnnotation(JoinColumn.class).name())) {
-                    colName = subEle.getAnnotation(JoinColumn.class).name();
-                }
-            }
-
-            if (StringUtils.hasText(colName)) {
-                fieldMap.put(fieldTableColName, "\n    String " + fieldTableColName + "  = \"" + colName + "\"; //字段" + name + " 对应的数据库列名，建议使用 F_" + fieldName + " 替代\n");
+            if (columnNameExpression != null) {
+                fieldMap.put(fieldTableColName, "\n    String " + fieldTableColName + "  = " + columnNameExpression + "; //字段" + name + " 对应的数据库列名，建议使用 F_" + fieldName + " 替代\n");
             }
 
             fieldMap.put("F_" + fieldName, "\n    String F_" + fieldName + "  = \"F$:" + fieldName + "\"; //用于替换的名称，替换字段" + name + " 对应的数据库列名 \n");
@@ -444,8 +442,8 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
                 fieldMap.put("PK_ID", "\n    String PK_ID = \"" + fieldName + "\"; //主键字段名 \n");
                 fieldMap.put("F_PK_ID", "\n    String F_PK_ID = \"F$:" + fieldName + "\"; //主键字段名 \n");
 
-                if (StringUtils.hasText(colName)) {
-                    fieldMap.put("T_PK_ID", "\n    String T_PK_ID = \"" + colName + "\"; //主键字段对应的数据库列名 \n");
+                if (columnNameExpression != null) {
+                    fieldMap.put("T_PK_ID", "\n    String T_PK_ID = " + columnNameExpression + "; //主键字段对应的数据库列名 \n");
                 }
 
                 uniqueFields.add(fieldName);
@@ -523,6 +521,112 @@ public class JpaEntityClassProcessor extends AbstractProcessor {
 
         codeBlock.append("  }\n");
 
+    }
+
+    private String columnNameExpression(Element field) {
+        Column column = field.getAnnotation(Column.class);
+        JoinColumn joinColumn = field.getAnnotation(JoinColumn.class);
+        if (column == null && joinColumn == null) {
+            return null;
+        }
+        Class<? extends Annotation> annotationType = column != null ? Column.class : JoinColumn.class;
+        try {
+            String columnName = column != null ? column.name() : joinColumn.name();
+            return hasText(columnName) ? processingEnv.getElementUtils().getConstantExpression(columnName) : null;
+        } catch (AnnotationTypeMismatchException unresolved) {
+            // javac has not entered this round's generated E_ sources yet.
+            String expression = deferredColumnName(field, annotationType);
+            if (expression == null) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                        "Cannot resolve @" + annotationType.getSimpleName() + ".name or recover its source expression",
+                        field);
+            }
+            return expression;
+        }
+    }
+
+    private String deferredColumnName(Element field, Class<? extends Annotation> annotationType) {
+        var mirror = field.getAnnotationMirrors().stream()
+                .filter(annotation -> annotation.getAnnotationType().toString().equals(annotationType.getName()))
+                .findFirst().orElse(null);
+        if (mirror == null) {
+            return null;
+        }
+        try {
+            Trees trees = Trees.instance(processingEnv);
+            TreePath annotationPath = trees.getPath(field, mirror);
+            if (annotationPath == null || !(annotationPath.getLeaf() instanceof AnnotationTree annotation)) {
+                return null;
+            }
+            for (var argument : annotation.getArguments()) {
+                if (argument instanceof AssignmentTree assignment && assignment.getVariable().toString().equals("name")) {
+                    return copyConstantExpression(trees, annotationPath, assignment.getExpression());
+                }
+            }
+        } catch (IllegalArgumentException | IOException unavailableSource) {
+            return null;
+        }
+        return null;
+    }
+
+    private String copyConstantExpression(Trees trees, TreePath annotationPath, Tree expression) throws IOException {
+        TreePath expressionPath = TreePath.getPath(annotationPath, expression);
+        var unit = annotationPath.getCompilationUnit();
+        var positions = trees.getSourcePositions();
+        int start = (int) positions.getStartPosition(unit, expression);
+        int end = (int) positions.getEndPosition(unit, expression);
+        if (expressionPath == null || start < 0 || end <= start) {
+            return null;
+        }
+
+        StringBuilder source = new StringBuilder(unit.getSourceFile().getCharContent(true).subSequence(start, end));
+        var elements = processingEnv.getElementUtils();
+        record Replacement(int begin, int end, String value) { }
+        List<Replacement> replacements = new ArrayList<>();
+        new TreePathScanner<Void, Void>() {
+            @Override
+            public Void visitIdentifier(IdentifierTree node, Void unused) {
+                replaceReference(node);
+                return null;
+            }
+
+            @Override
+            public Void visitMemberSelect(MemberSelectTree node, Void unused) {
+                return replaceReference(node) ? null : super.visitMemberSelect(node, unused);
+            }
+
+            private boolean replaceReference(Tree node) {
+                Element target = trees.getElement(getCurrentPath());
+                String replacement = null;
+                if (target instanceof VariableElement variable && variable.getConstantValue() != null) {
+                    replacement = "(" + elements.getConstantExpression(variable.getConstantValue()) + ")";
+                } else if (target instanceof TypeElement type && type.asType().getKind() != TypeKind.ERROR) {
+                    replacement = type.getQualifiedName().toString();
+                } else if (node instanceof IdentifierTree identifier) {
+                    // A same-round E_ type imported from another package is unresolved in javac's model.
+                    String suffix = "." + identifier.getName();
+                    replacement = unit.getImports().stream()
+                            .filter(importTree -> !importTree.isStatic())
+                            .map(importTree -> importTree.getQualifiedIdentifier().toString())
+                            .filter(imported -> imported.endsWith(suffix))
+                            .findFirst().orElse(null);
+                }
+                if (replacement == null) {
+                    return false;
+                }
+                int begin = (int) positions.getStartPosition(unit, node) - start;
+                int end = (int) positions.getEndPosition(unit, node) - start;
+                if (begin >= 0 && end > begin) {
+                    replacements.add(new Replacement(begin, end, replacement));
+                }
+                return true;
+            }
+        }.scan(expressionPath, null);
+        replacements.sort(Comparator.comparingInt(Replacement::begin).reversed());
+        for (Replacement replacement : replacements) {
+            source.replace(replacement.begin(), replacement.end(), replacement.value());
+        }
+        return source.toString();
     }
 
     private String replaceText(String name) {

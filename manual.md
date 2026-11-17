@@ -210,6 +210,14 @@ RBAC 是本库最重的模块，建议在业务模型、租户语义、组织语
 - IDE 里要打开 annotation processing。
 - 如果编译阶段出现生成类、`Fields`、getter/setter 不存在等错误，先检查 JDK 版本和 Lombok 注解处理。
 
+### 7.1 关联列名使用实体字段常量
+
+为实体模块启用 `JpaEntityClassProcessor` 后，若 `Employee` 使用 `orgId` 保存外键，可在关联字段上使用 `@JoinColumn(name = E_Employee.orgId, insertable = false, updatable = false)`。处理器支持在一次干净编译中生成 `E_Employee`，并保留与注解列名等值的 `T_*` 常量。显式列名仍按注解值生成，空列名沿用 JPA 默认行为。
+
+删除旧的构建产物并编译实体模块即可验证。若引用的生成字段不存在，Java 编译器会报告该符号无法解析。
+
+若列名需要拼接，可在 `name` 中直接写常量表达式。javac 会在注解处理前检查单独声明的常量别名，待同次编译才生成的字段应直接写入注解表达式。
+
 ## 8. 代理 Bean 自动注册
 
 核心注解：

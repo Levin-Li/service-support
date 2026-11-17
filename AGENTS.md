@@ -23,3 +23,8 @@ Swagger 文档是对外接口契约的一部分。接口涉及覆盖、优先级
 ## 目标拥有者变量
 
 - [目标拥有者注入常量](manual.md#目标拥有者注入常量)：OWNER_ID 与认证 USER_ID 的区别及多拥有者过滤边界。
+
+## 实体关联列常量
+
+- [使用手册](manual.md#71-关联列名使用实体字段常量)
+- [验收规范](openspec/changes/c20261117-1336-join-column-generated-constant/specs/entity-field-constants/spec.md)与[实施清单](openspec/changes/c20261117-1336-join-column-generated-constant/tasks.md)
